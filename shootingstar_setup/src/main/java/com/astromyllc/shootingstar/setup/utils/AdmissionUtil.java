@@ -41,13 +41,23 @@ public class AdmissionUtil {
 
     public static Admissions mapAdmissionRequestToAdmission(AdmissionsRequest admissionsRequest) {
       return  Admissions.builder()
-                .admissionCriteriaList((List<AdmissionCriteria>) admissionsRequest.getAdmissionCriteriaList().stream().map(criteria->{
+                .admissionCriteriaList(admissionsRequest.getAdmissionCriteriaList().stream().map(criteria->{
                     return mapCriteriaRequestToCriteria(criteria);
                 }).toList())
-                .applicationCategoryList((List<ApplicationCategory>)admissionsRequest.getApplicationCategoryList().stream().map(category->{
+                .applicationCategoryList(admissionsRequest.getApplicationCategoryList().stream().map(category->{
                     return mapCategoryRequestToCategory(category);
                 }).toList())
                 .build();
+    }
+
+    public static Admissions mapAdmissionRequestToAdmission(AdmissionsRequest admissionsRequest,Admissions a) {
+                a.setAdmissionCriteriaList(admissionsRequest.getAdmissionCriteriaList().stream().map(criteria->{
+                    return mapCriteriaRequestToCriteria(criteria,a.getAdmissionCriteriaList().stream().filter(c->criteria.getId().equals(c.getIdAdmissionCriteria())).findFirst().get());
+                }).toList());
+                a.setApplicationCategoryList(admissionsRequest.getApplicationCategoryList().stream().map(category->{
+                    return mapCategoryRequestToCategory(category,a.getApplicationCategoryList().stream().filter(c->category.getId().equals(c.getIdApplicationCategory())).findFirst().get());
+                }).toList());
+                return  a;
     }
 
     public static AdmissionsResponse mapAdmissionRequestToAdmission(Admissions admissions) {
@@ -77,6 +87,12 @@ public class AdmissionUtil {
                 .value(admissionCriteriaRequest.getValue())
                 .build();
     }
+
+    private static AdmissionCriteria mapCriteriaRequestToCriteria(AdmissionCriteriaRequest admissionCriteriaRequest,AdmissionCriteria a) {
+                a.setCriteria(admissionCriteriaRequest.getCriteria());
+                a.setValue(admissionCriteriaRequest.getValue());
+        return a;
+    }
     private static ApplicationCategory mapCategoryRequestToCategory(ApplicationCategoryRequest applicationCategoryRequest) {
         return ApplicationCategory.builder()
                 .applicationFormType(applicationCategoryRequest.getApplicationFormType())
@@ -90,6 +106,18 @@ public class AdmissionUtil {
                 .appointmentPerDay(applicationCategoryRequest.getAppointmentPerDay())
 
                 .build();
+    }
+    private static ApplicationCategory mapCategoryRequestToCategory(ApplicationCategoryRequest applicationCategoryRequest, ApplicationCategory c) {
+                c.setApplicationFormType(applicationCategoryRequest.getApplicationFormType());
+                c.setApplicationFormAmount(applicationCategoryRequest.getApplicationFormAmount());
+                c.setApplicationFormQNT(applicationCategoryRequest.getApplicationFormQNT());
+                c.setAppointmentClosure(LocalDateTime.parse(applicationCategoryRequest.getAppointmentClosure(),formatter));
+                c.setAppointmentCommencement(LocalDateTime.parse(applicationCategoryRequest.getAppointmentCommencement(),formatter));
+                c.setPaymentMedium(applicationCategoryRequest.getPaymentMedium());
+                c.setClosure(LocalDateTime.parse(applicationCategoryRequest.getClosure(),formatter));
+                c.setCommencement(LocalDateTime.parse(applicationCategoryRequest.getCommencement(),formatter));
+                c.setAppointmentPerDay(applicationCategoryRequest.getAppointmentPerDay());
+        return c;
     }
 
     private static ApplicationCategoryResponse mapCategoryToCategoryResponse(ApplicationCategory category) {

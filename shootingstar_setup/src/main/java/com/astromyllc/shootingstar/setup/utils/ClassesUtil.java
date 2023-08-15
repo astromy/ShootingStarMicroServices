@@ -29,6 +29,13 @@ public class ClassesUtil {
                 .name(c.getName())
                 .build();
     }
+
+
+    public static Classes mapClassRequestToClass(ClassesRequest cr,Classes c) {
+        c.setClassGroup(cr.getClassGroup());
+        c.setName(cr.getName());
+        return c;
+    }
     public static ClassesResponse mapClassToClassResponse(Classes c) {
         return ClassesResponse.builder()
                 .id(c.getIdClasses())

@@ -29,6 +29,7 @@ public class Institution {
     private String contact1;
     private String contact2;
     private String status;
+    @Column(unique=true)
     private String bececode;
     private LocalDate creationDate;
     private String postalAddress;
@@ -36,7 +37,6 @@ public class Institution {
     private String subscription;
 
     @OneToOne(targetEntity = GradingSetting.class,cascade = CascadeType.ALL)
-    //@JoinColumn(name="institutionGradingSetting",referencedColumnName = "idInstitution")
     private GradingSetting gradingSetting;
     @OneToMany(fetch = FetchType.EAGER,targetEntity =Subject.class, cascade = CascadeType.ALL)
     @JoinColumn(name = "institutionSubject",referencedColumnName = "idInstitution")
@@ -45,6 +45,8 @@ public class Institution {
     @JoinColumn(name = "institutionClass",referencedColumnName = "idInstitution")
     private List<Classes> classList;
     @OneToOne(targetEntity = Admissions.class,cascade = CascadeType.ALL)
-    //@JoinColumn(name = "institutionAdmission",referencedColumnName = "idInstitution")
     private Admissions admissions;
+    @OneToMany(fetch = FetchType.EAGER,targetEntity =Department.class, cascade = CascadeType.ALL)
+    @JoinColumn(name = "institutionDepartment",referencedColumnName = "idInstitution")
+    private List<Department> departmentList;
 }

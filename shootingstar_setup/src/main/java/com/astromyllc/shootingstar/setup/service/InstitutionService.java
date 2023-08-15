@@ -25,7 +25,7 @@ public class InstitutionService implements InstitutionServiceInterface {
 private final InstitutionUtils institutionUtils;
     @Override
     public void createInstitution(InstitutionRequest institutionRequest) {
-        Optional <Institution> institution = (institutionUtils.institutionGlobalList.stream().filter(x -> x.getBececode() == institutionRequest.getBececode()).findFirst());
+        Optional <Institution> institution = (institutionUtils.institutionGlobalList.stream().filter(x -> x.getBececode().equals(institutionRequest.getBececode())).findFirst());
         if (institution.isEmpty()) {
             Institution institution1 = institutionUtils.mapInstitutionRequest_ToInstitution(institutionRequest);
             institutionRepository.save(institution1);

@@ -25,6 +25,4 @@ public class Admissions {
     @OneToMany(fetch = FetchType.EAGER,targetEntity =ApplicationCategory.class, cascade = CascadeType.ALL)
     @JoinColumn(name = "admissionsApplicationCategory",referencedColumnName = "idAdmissions")
     private List<ApplicationCategory> applicationCategoryList;
-   /* @OneToOne(cascade = CascadeType.ALL, mappedBy = "admissions")
-    private Institution institution;*/
 }

@@ -58,7 +58,7 @@ public class ApplicationService implements ApplicationServiceInterface {
                 })
                 .collect(Collectors.toList());
         /* Adds to The Bean List with the current new records*/
-        applicationsRepository.insert(applicationList);
+        applicationsRepository.saveAll(applicationList);
         util.apl.addAll(applicationList);
         log.info(" {} Application Saved Successfully", applicationList.stream().count());
     }

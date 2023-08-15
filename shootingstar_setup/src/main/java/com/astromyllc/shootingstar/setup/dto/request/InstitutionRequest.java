@@ -1,9 +1,6 @@
 package com.astromyllc.shootingstar.setup.dto.request;
 
-import com.astromyllc.shootingstar.setup.model.Admissions;
-import com.astromyllc.shootingstar.setup.model.Classes;
-import com.astromyllc.shootingstar.setup.model.GradingSetting;
-import com.astromyllc.shootingstar.setup.model.Subject;
+import com.astromyllc.shootingstar.setup.model.*;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
@@ -42,4 +39,5 @@ public class InstitutionRequest {
     private List<SubjectRequest> subjectList;
     private List<ClassesRequest> classList;
     private AdmissionsRequest admissions;
+    private List<DepartmentRequest> departmentList;
 }

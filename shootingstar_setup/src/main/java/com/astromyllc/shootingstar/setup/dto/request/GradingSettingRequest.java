@@ -14,9 +14,9 @@ import java.util.List;
 @Data
 public class GradingSettingRequest {
     private Long id;
-    private Double ClassPercentage;
-    private Double ExamsPercentage;
-    private Double TrailingMark;
-    private int AllowedTrails;
+    private Double classPercentage;
+    private Double examsPercentage;
+    private Double trailingMark;
+    private int allowedTrails;
     private List<GradingRequest> gradingList;
 }

@@ -19,6 +19,4 @@ public class AdmissionCriteria {
     private int value;
     /*This tells how the criteria combines with each other(OR/And)*/
     private String operand;
-   /* @ManyToOne(optional = false)
-    private Admissions admissions;*/
 }

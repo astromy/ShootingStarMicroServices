@@ -21,11 +21,7 @@ public class Applications {
 
 	@Id
 	@Field("id")
-	@JsonIgnore
 	private String idapplication;
-
-	/*@Field("idapplication")
-	private Long idapplication;*/
 
 	private String fatherFirstNames;
 	private String fatherLastName;

@@ -1,5 +1,6 @@
 package com.astromyllc.shootingstar.setup.dto.response;
 
+import com.astromyllc.shootingstar.setup.model.Department;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -34,4 +35,5 @@ public class InstitutionResponse {
     private List<SubjectResponse> subjectList;
     private List<ClassesResponse> classList;
     private AdmissionsResponse admissions;
+    private List<DepartmentResponse> departmentList;
 }

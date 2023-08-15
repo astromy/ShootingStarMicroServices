@@ -17,6 +17,4 @@ public class Classes {
     private Long idClasses;
     private String name;
     private String classGroup;
-   /* @ManyToOne(optional = false)
-    private Institution institution;*/
 }

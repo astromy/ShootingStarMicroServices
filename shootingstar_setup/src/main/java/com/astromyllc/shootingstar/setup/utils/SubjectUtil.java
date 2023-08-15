@@ -18,12 +18,12 @@ import java.util.List;
 @Slf4j
 public class SubjectUtil {
     private final SubjectRepository subjectRepository;
-    public static List<Subject> subjectGlobalList=null;
+    public static List<Subject> subjectGlobalList = null;
 
     @Bean
-    private void findAllSubjects(){
-        subjectGlobalList=subjectRepository.findAll();
-        log.info("Global list of Subjects Populated with {} Record",subjectGlobalList.stream().count());
+    private void findAllSubjects() {
+        subjectGlobalList = subjectRepository.findAll();
+        log.info("Global list of Subjects Populated with {} Record", subjectGlobalList.stream().count());
     }
 
     public static Subject mapSubjectRequest_ToSubject(SubjectRequest s) {
@@ -33,6 +33,14 @@ public class SubjectUtil {
                 .preference(s.getPreference())
                 .build();
     }
+
+    public static Subject mapSubjectRequest_ToSubject(SubjectRequest s, Subject subject) {
+        subject.setClassGroup(s.getClassGroup());
+        subject.setName(s.getName());
+        subject.setPreference(s.getPreference());
+        return subject;
+    }
+
 
     public static SubjectResponse mapSubject_ToSubjectResponse(Subject s) {
         return SubjectResponse.builder()

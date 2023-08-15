@@ -39,7 +39,7 @@ public class ApplicationUtilities {
 
 
     private final ApplicationsRepository applicationsRepository;
-    private final WebClient webClient;
+    private final WebClient.Builder webClientBuilder;
     private static Long applicantIndex = 0L;
     public static List<Applications> apl = null;
     private InstitutionRequest institutionRequest = null;
@@ -222,7 +222,7 @@ public class ApplicationUtilities {
     private String generateApplicationCode(String applicationInstitution) {
         JSONObject json = new JSONObject();
         json.put("beceCode", applicationInstitution);
-        institutionRequest = webClient.post()
+        institutionRequest = webClientBuilder.build().post()
                 .uri("http://localhost:8091/api/setup/getInstitutionByCode")
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Mono.just(json), JSONObject.class)

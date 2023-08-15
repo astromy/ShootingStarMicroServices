@@ -82,7 +82,7 @@ class OnlineApplicationTests {
 				.applicantDateOfBirth(LocalDate.parse("2015-09-05",formatter))
 				.applicantBirthCert("DriveC")
 
-				.applicationInstitution(5L)
+				.applicationInstitution("06018007")
 
 				.nameOfPreviousSchool("Blessed Assurance School")
 				.addressOfPreviousSchool("Box 444 Sunyani")
