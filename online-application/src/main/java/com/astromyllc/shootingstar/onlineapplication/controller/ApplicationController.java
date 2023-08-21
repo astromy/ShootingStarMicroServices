@@ -102,7 +102,7 @@ public class ApplicationController {
 
     @PostMapping
     @RequestMapping("/api/applications/getAllAapplication")
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.ACCEPTED)
     public Optional<List<ApplicationsResponse>> getAllApplications() {
         return applicationService.getAllApplications();
     }

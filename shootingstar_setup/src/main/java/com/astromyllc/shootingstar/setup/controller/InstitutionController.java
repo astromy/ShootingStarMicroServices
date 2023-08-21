@@ -23,15 +23,15 @@ public class InstitutionController {
     @PostMapping
     @RequestMapping("/api/setup/signup_institution")
     @ResponseStatus(HttpStatus.CREATED)
-    public void SubmitApplication(@RequestBody InstitutionRequest institutionRequest) throws IOException, URISyntaxException {
+    public void SubmitApplication(@RequestBody InstitutionRequest institutionRequest) {
         log.info("Application  Received");
         institutionService.createInstitution(institutionRequest);
     }
 
     @PostMapping
     @RequestMapping("/api/setup/getAllinstitution")
-    @ResponseStatus(HttpStatus.CREATED)
-    public Optional<List<InstitutionResponse>> getAllInstitution() throws IOException, URISyntaxException {
+    @ResponseStatus(HttpStatus.OK)
+    public Optional<List<InstitutionResponse>> getAllInstitution() {
         log.info("Application  Received");
       return institutionService.getAllInstitution();
     }
@@ -39,14 +39,14 @@ public class InstitutionController {
     @PostMapping
     @RequestMapping("/api/setup/getInstitutionByCode")
     @ResponseStatus(HttpStatus.OK)
-    public Optional<InstitutionResponse> getInstitutionByBeceCode(@RequestBody String beceCode) throws IOException, URISyntaxException {
+    public Optional<InstitutionResponse> getInstitutionByBeceCode(@RequestBody String beceCode) {
         log.info("Application  Received");
         return institutionService.getInstitutionByBeceCode(beceCode);
     }
     @GetMapping
     @RequestMapping("/api/setup/getInstitutionByCode?institutionCode")
     @ResponseStatus(HttpStatus.OK)
-    public Optional<InstitutionResponse> getInstitutionByBeceCodePath(@PathVariable ("institutionCode") String beceCode) throws IOException, URISyntaxException {
+    public Optional<InstitutionResponse> getInstitutionByBeceCodePath(@PathVariable ("institutionCode") String beceCode) {
         log.info("Application  Received");
         return institutionService.getInstitutionByBeceCode(beceCode);
     }

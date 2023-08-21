@@ -21,6 +21,8 @@
         <module>DiscoveryServer</module>
         <module>astro-api-gateway</module>
         <module>hr-service</module>
+        <module>finance</module>
+        <module>clinic</module>
     </modules>
 
     <properties>
