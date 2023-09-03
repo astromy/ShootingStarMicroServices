@@ -1,0 +1,28 @@
+package com.astromyllc.shootingstar.academics.util;
+
+import com.astromyllc.shootingstar.academics.model.ExamsQuestions;
+import com.astromyllc.shootingstar.academics.repository.ExamsQuestionsRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Component;
+
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+
+@Component
+@RequiredArgsConstructor
+@Slf4j
+public class ExamsQuestionsUtil {
+
+    private final ExamsQuestionsRepository examsQuestionsRepository;
+    public static List<ExamsQuestions> examsQuestionsGlobalList;
+
+    static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+    @Bean
+    private void fetAllExamsQuestions() {
+        examsQuestionsGlobalList = examsQuestionsRepository.findAll();
+        log.info("Global ExamsQuestions List populated with {} records", examsQuestionsGlobalList.size());
+    }
+}

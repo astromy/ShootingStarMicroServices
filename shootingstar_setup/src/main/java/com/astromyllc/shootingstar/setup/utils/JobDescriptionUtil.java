@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -17,7 +18,7 @@ import java.util.List;
 public class JobDescriptionUtil {
 
     private final JobDescriptionRepository jobDescriptionRepository;
-    public static List<JobDescription> jobDescriptionGlobalList=null;
+    public static List<JobDescription> jobDescriptionGlobalList=new ArrayList<>();
 
     @Bean
     private void fetAllJobDescription(){

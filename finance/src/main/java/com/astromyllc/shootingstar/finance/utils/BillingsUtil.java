@@ -19,7 +19,7 @@ import java.util.List;
 public class BillingsUtil {
     private final BillingsRepository billingsRepository;
     public static List<Billings> billingGlobalList;
-    static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Bean
     private void fetAllBillings() {

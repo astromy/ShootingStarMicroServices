@@ -85,22 +85,23 @@ public class ApplicationService implements ApplicationServiceInterface {
 
     @Override
     public Optional<ApplicationsResponse> getApplicationByApplicationCode(String applictionCode) {
-        String finalApplictionCode = applictionCode.split("\"")[3];//.split("\"")[1];util.applicationsList().stream().filter(x->x.getApplicationCode()==finalApplictionCode).findFirst())
-        return Optional.ofNullable(util.apl.stream().filter(x -> x.getIdapplication() == finalApplictionCode).findFirst().map(x->util.mapApplications_ToApplicationResponse(x)))
+        String finalApplictionCode = applictionCode.split("\"")[3];
+
+       return Optional.ofNullable(util.apl.stream().filter(x -> x.getApplicationCode().equals(finalApplictionCode)).findFirst().map(x->util.mapApplications_ToApplicationResponse(x)))
                 .orElseThrow(() -> new RuntimeException(String.format("No Record of Application with Application Code %s", finalApplictionCode)));
     }
 
     @Override
     public Optional<ApplicationsResponse> getApplicationById(String applicationId) {
-        String finalApplictionId = applicationId.split("\"")[3];//.split("\"")[1];util.applicationsList().stream().filter(x->x.getIdapplication()==finalApplictionId).findFirst()
-        return Optional.ofNullable(util.apl.stream().filter(x -> x.getIdapplication() == finalApplictionId).findFirst().map(x->util.mapApplications_ToApplicationResponse(x)))
+        String finalApplictionId = applicationId.split("\"")[3];
+        return Optional.ofNullable(util.apl.stream().filter(x -> x.getIdapplication().equals(finalApplictionId)).findFirst().map(x->util.mapApplications_ToApplicationResponse(x)))
                 .orElseThrow(() -> new RuntimeException(String.format("No Record of Application with Application Code %s", finalApplictionId)));
     }
 
     @Override
     public Optional<List<ApplicationsResponse>> getApplicationsBySchool(Long schoolId) {
         String finalschoolId = schoolId.toString().split("\"")[3];//.split("\"")[1];
-        return Optional.ofNullable(Optional.ofNullable(util.apl.stream().filter(x -> x.getIdapplication() == finalschoolId).toList().stream().map(x->util.mapApplications_ToApplicationResponse(x)).toList())
+        return Optional.ofNullable(Optional.ofNullable(util.apl.stream().filter(x -> x.getIdapplication().equals(finalschoolId)).toList().stream().map(x->util.mapApplications_ToApplicationResponse(x)).toList())
                 .orElseThrow(() -> new RuntimeException(String.format("No Record of Application with Application School %s", finalschoolId))));
     }
 
@@ -112,7 +113,7 @@ public class ApplicationService implements ApplicationServiceInterface {
     @Override
     public Optional<List<ApplicationsResponse>> getApplicationsByCountry(String Country) {
         String finalCountry = Country.split("\"")[3];
-        return Optional.ofNullable(Optional.ofNullable(util.apl.stream().filter(x -> x.getIdapplication() == finalCountry).collect(Collectors.toList()).stream().map(x->util.mapApplications_ToApplicationResponse(x)).collect(Collectors.toList()))
+        return Optional.ofNullable(Optional.ofNullable(util.apl.stream().filter(x -> x.getIdapplication().equals(finalCountry)).collect(Collectors.toList()).stream().map(x->util.mapApplications_ToApplicationResponse(x)).collect(Collectors.toList()))
                 .orElseThrow(() -> new RuntimeException(String.format("No Record of Application with Application Code %s", finalCountry))));
 
     }
@@ -120,14 +121,14 @@ public class ApplicationService implements ApplicationServiceInterface {
     @Override
     public Optional<List<ApplicationsResponse>> getApplicationsByCity(String City) {
         String finalCity = City.split("\"")[3];
-        return Optional.ofNullable(Optional.ofNullable(util.apl.stream().filter(x -> x.getIdapplication() == finalCity).collect(Collectors.toList()).stream().map(x->util.mapApplications_ToApplicationResponse(x)).collect(Collectors.toList()))
+        return Optional.ofNullable(Optional.ofNullable(util.apl.stream().filter(x -> x.getIdapplication().equals(finalCity)).collect(Collectors.toList()).stream().map(x->util.mapApplications_ToApplicationResponse(x)).collect(Collectors.toList()))
                 .orElseThrow(() -> new RuntimeException(String.format("No Record of Application with Application Code %s", finalCity))));
     }
 
     @Override
     public Optional<List<ApplicationsResponse>> getApplicationsByRegion(String Region) {
         String finalRegion = Region.split("\"")[3];
-        return Optional.ofNullable(Optional.ofNullable(util.apl.stream().filter(x -> x.getIdapplication() == finalRegion).collect(Collectors.toList()).stream().map(x->util.mapApplications_ToApplicationResponse(x)).collect(Collectors.toList()))
+        return Optional.ofNullable(Optional.ofNullable(util.apl.stream().filter(x -> x.getIdapplication().equals(finalRegion)).collect(Collectors.toList()).stream().map(x->util.mapApplications_ToApplicationResponse(x)).collect(Collectors.toList()))
                 .orElseThrow(() -> new RuntimeException(String.format("No Record of Application with Application Region %s", finalRegion))));
     }
 }

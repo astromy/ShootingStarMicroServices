@@ -21,7 +21,7 @@ public class BillUtil {
     private final BillRepository billRepository;
     public static List<Bill> billGlobalList = null;
 
-    static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Bean
     private void fetAllBills() {

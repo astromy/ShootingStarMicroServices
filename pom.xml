@@ -23,6 +23,10 @@
         <module>hr-service</module>
         <module>finance</module>
         <module>clinic</module>
+        <module>astroauthauth</module>
+        <module>stores-inventory</module>
+        <module>academics</module>
+        <module>administration-pta</module>
     </modules>
 
     <properties>

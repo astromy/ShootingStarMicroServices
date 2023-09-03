@@ -10,6 +10,7 @@
     <option name="ignoredFiles">
       <set>
         <option value="$PROJECT_DIR$/Astro-GateWay/pom.xml" />
+        <option value="$PROJECT_DIR$/admissions-students/pom.xml" />
       </set>
     </option>
   </component>

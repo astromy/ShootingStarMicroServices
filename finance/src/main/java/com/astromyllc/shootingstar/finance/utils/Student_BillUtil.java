@@ -19,7 +19,7 @@ import java.util.Optional;
 public class Student_BillUtil {
     private final Student_BillRepository studentBillRepository;
     public static List<Student_Bill> studentBillsGlobalList;
-    static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
 
     @Bean
