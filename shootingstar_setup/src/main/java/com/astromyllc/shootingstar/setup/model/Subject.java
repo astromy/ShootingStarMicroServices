@@ -1,8 +1,6 @@
 package com.astromyllc.shootingstar.setup.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import jakarta.persistence.Table;
 import lombok.*;
 
 @Entity
@@ -21,7 +19,7 @@ public class Subject {
     @NonNull
     private String classGroup;
     @NonNull
-    private int preference;
+    private Integer preference;
     /*@ManyToOne(optional = false)
     private Institution institution;*/
 }

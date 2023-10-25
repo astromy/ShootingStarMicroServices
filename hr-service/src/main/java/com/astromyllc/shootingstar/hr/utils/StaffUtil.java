@@ -10,6 +10,7 @@ import jakarta.xml.bind.DatatypeConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -36,6 +37,8 @@ public class StaffUtil {
     private static Long staffIndex = 0L;
     private static InstitutionRequest institutionRequest = null;
     static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    @Value("${gateway.host}")
+    private String host;
 
     private final ProfessionalRecordsUtil professionalRecordsUtil;
     private final StaffDocumentsUtil staffDocumentsUtil;
@@ -58,7 +61,7 @@ public class StaffUtil {
         JSONObject json = new JSONObject();
         json.put("beceCode", institutionCode);
         institutionRequest = webClientBuilder.build().post()
-                .uri("http://shootingStar-setup/api/setup/getInstitutionByCode")
+                .uri("http://"+host+"/api/setup/getInstitutionByCode")
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Mono.just(json), JSONObject.class)
                 .retrieve()

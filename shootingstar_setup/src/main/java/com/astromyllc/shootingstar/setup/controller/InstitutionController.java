@@ -4,6 +4,7 @@ import com.astromyllc.shootingstar.setup.dto.request.InstitutionRequest;
 import com.astromyllc.shootingstar.setup.dto.response.InstitutionResponse;
 import com.astromyllc.shootingstar.setup.service.InstitutionService;
 import com.astromyllc.shootingstar.setup.serviceInterface.InstitutionServiceInterface;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -22,6 +23,7 @@ public class InstitutionController {
 
     @PostMapping("/api/setup/signupInstitution")
     @ResponseStatus(HttpStatus.CREATED)
+    @CircuitBreaker(name = "Institution",fallbackMethod = "fallBack0")
     public void SubmitApplication(@RequestBody InstitutionRequest institutionRequest) {
         log.info("Application  Received");
         institutionService.createInstitution(institutionRequest);
@@ -45,5 +47,9 @@ public class InstitutionController {
     public Optional<InstitutionResponse> getInstitutionByBeceCodePath(@PathVariable ("institutionCode") String beceCode) {
         log.info("Application  Received");
         return institutionService.getInstitutionByBeceCode(beceCode);
+    }
+
+    public String fallBack0(InstitutionRequest institutionRequest,RuntimeException runtimeException){
+        return "Temporal Failure, Try again after sometime";
     }
 }

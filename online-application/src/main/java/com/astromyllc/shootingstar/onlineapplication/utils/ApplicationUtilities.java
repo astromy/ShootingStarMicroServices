@@ -3,6 +3,8 @@ package com.astromyllc.shootingstar.onlineapplication.utils;
 import com.astromyllc.shootingstar.onlineapplication.dto.request.ApplicationRequest;
 import com.astromyllc.shootingstar.onlineapplication.dto.request.InstitutionRequest;
 import com.astromyllc.shootingstar.onlineapplication.dto.response.ApplicationsResponse;
+import com.astromyllc.shootingstar.onlineapplication.dto.response.alien.ParentsResponse;
+import com.astromyllc.shootingstar.onlineapplication.dto.response.alien.ProcessedApplicationResponse;
 import com.astromyllc.shootingstar.onlineapplication.model.Applications;
 import com.astromyllc.shootingstar.onlineapplication.model.Appointment;
 import com.astromyllc.shootingstar.onlineapplication.repository.ApplicationsRepository;
@@ -12,6 +14,7 @@ import jakarta.xml.bind.DatatypeConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -24,6 +27,7 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +50,8 @@ public class ApplicationUtilities {
 
     private final AppointmentRepository appointmentRepository;
     public static List<Appointment> appointmentsGlobal = null;
+    @Value("${gateway.host}")
+    private String host;
 
     @Bean
     public void appointmentList() {
@@ -223,7 +229,7 @@ public class ApplicationUtilities {
         JSONObject json = new JSONObject();
         json.put("beceCode", applicationInstitution);
         institutionRequest = webClientBuilder.build().post()
-                .uri("http://localhost:8091/api/setup/getInstitutionByCode")
+                .uri("http://"+host+":8083/api/setup/getInstitutionByCode")
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Mono.just(json), JSONObject.class)
                 .retrieve()
@@ -304,4 +310,59 @@ public class ApplicationUtilities {
         return fileLocation;
     }
 
+    public ProcessedApplicationResponse mapApplications_ToProcessedApplicationResponse(Applications x) {
+        return ProcessedApplicationResponse.builder()
+                .applicantFirstName(x.getApplicantFirstName())
+                .applicantLastName(x.getApplicantLastName())
+                .applicantOtherName(x.getApplicantOtherName())
+                .applicantGender(x.getApplicantGender())
+                .applicantDateOfBirth(x.getApplicantDateOfBirth())
+                .applicantPicture(x.getApplicantPicture())
+                .applicantCountryOfBirth(x.getApplicantCountryOfBirth())
+                .applicantPlaceOfBirth(x.getApplicantPlaceOfBirth())
+                .applicantBirthCert(x.getApplicantBirthCert())
+                .applicantBirthCertFileType("pdf")
+                .applicantNationality(x.getApplicantNationality())
+                .applicantDenomination(x.getApplicantDenomination())
+
+                .nameOfPreviousSchool(x.getNameOfPreviousSchool())
+                .contactOfPreviousSchool(x.getContactOfPreviousSchool())
+                .addressOfPreviousSchool(x.getAddressOfPreviousSchool())
+                .classOfDeparture(x.getClassOfDeparture())
+                .reasonForDeparture(x.getReasonForDeparture())
+
+                .applicationType(x.getApplicationType())
+                .applicationInstitution(x.getApplicationInstitution())
+                .applicationStatus("Processed")
+                .parentsRequests(parentResponseBuilder(x))
+                .build();
+    }
+
+    private List<ParentsResponse> parentResponseBuilder(Applications x){
+        List<ParentsResponse> pr= new ArrayList<>();
+        pr.add(ParentsResponse.builder()
+                .email(x.getFatherEmail())
+                .institutionCode(x.getApplicationInstitution())
+                .parentType("Father")
+                .contact1(x.getFatherContact1())
+                .contact2(x.getFatherContact2())
+                .placeOfWork(x.getFatherPlaceOfWork())
+                .occupation(x.getFatherOccupation())
+                .firstNames(x.getFatherFirstNames())
+                .lastName(x.getFatherLastName())
+                .build());
+
+        pr.add(ParentsResponse.builder()
+                .email(x.getMotherEmail())
+                .institutionCode(x.getApplicationInstitution())
+                .parentType("Mother")
+                .contact1(x.getMotherContact1())
+                .contact2(x.getMotherContact2())
+                .placeOfWork(x.getMotherPlaceOfWork())
+                .occupation(x.getMotherOccupation())
+                .firstNames(x.getMotherFirstNames())
+                .lastName(x.getMotherLastName())
+                .build());
+                return pr;
+    }
 }

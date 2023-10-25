@@ -1,5 +1,7 @@
 package com.astromyllc.shootingstar.academics.util;
 
+import com.astromyllc.shootingstar.academics.dto.request.ExamsQuestionsRequest;
+import com.astromyllc.shootingstar.academics.dto.response.ExamsQuestionsResponse;
 import com.astromyllc.shootingstar.academics.model.ExamsQuestions;
 import com.astromyllc.shootingstar.academics.repository.ExamsQuestionsRepository;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -24,5 +27,27 @@ public class ExamsQuestionsUtil {
     private void fetAllExamsQuestions() {
         examsQuestionsGlobalList = examsQuestionsRepository.findAll();
         log.info("Global ExamsQuestions List populated with {} records", examsQuestionsGlobalList.size());
+    }
+
+    public ExamsQuestions mapExamsRestionRequest_ToExamsQuestions(ExamsQuestionsRequest examsQuestionsRequest) {
+        return ExamsQuestions.builder()
+                .questionDetail(examsQuestionsRequest.getQuestionDetail())
+                .classId(examsQuestionsRequest.getClassId())
+                .term(examsQuestionsRequest.getTerm())
+                .subjectId(examsQuestionsRequest.getSubjectId())
+                .institutionCode(examsQuestionsRequest.getInstitutionCode())
+                .examsAnswers(examsQuestionsRequest.getExamsAnswersRequests().stream().map(eqa->ExamsAnswersUtil.mapAnswerRequestToExamsAnswers(eqa)).collect(Collectors.toList()))
+                .build();
+    }
+
+    public ExamsQuestionsResponse mapExamsQuestions_ToExamsQuestionResponse(ExamsQuestions eq) {
+        return ExamsQuestionsResponse.builder()
+                .questionDetail(eq.getQuestionDetail())
+                .classId(eq.getClassId())
+                .term(eq.getTerm())
+                .subjectId(eq.getSubjectId())
+                .institutionCode(eq.getInstitutionCode())
+                .examsAnswersResponses(eq.getExamsAnswers().stream().map(eqa->ExamsAnswersUtil.mapAnswerRequestToExamsAnswersResponse(eqa)).collect(Collectors.toList()))
+                .build();
     }
 }

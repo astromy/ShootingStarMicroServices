@@ -2,13 +2,13 @@
 <project version="4">
   <component name="Encoding">
     <file url="file://$PROJECT_DIR$/Astro-GateWay/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/DiscoveryServer/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/academics/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/administration-pta/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/admissions-students/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/astro-api-gateway/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/astroauthauth/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/clinic/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/discoveryserver/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/finance/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/hr-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/online-application/src/main/java" charset="UTF-8" />

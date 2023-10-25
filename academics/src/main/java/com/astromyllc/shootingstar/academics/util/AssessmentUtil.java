@@ -3,6 +3,7 @@ package com.astromyllc.shootingstar.academics.util;
 import com.astromyllc.shootingstar.academics.dto.alien.*;
 import com.astromyllc.shootingstar.academics.dto.request.AcademicReportRequest;
 import com.astromyllc.shootingstar.academics.dto.request.AssessmentRequest;
+import com.astromyllc.shootingstar.academics.dto.response.AssessmentResponse;
 import com.astromyllc.shootingstar.academics.model.Assessment;
 import com.astromyllc.shootingstar.academics.model.ContinuousAssessment;
 import com.astromyllc.shootingstar.academics.model.ExamsAssessment;
@@ -10,6 +11,7 @@ import com.astromyllc.shootingstar.academics.repository.AssessmentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
@@ -17,13 +19,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.io.InputStream;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -42,6 +42,8 @@ public class AssessmentUtil {
     private InstitutionRequest singleInstitutionGlobalRequest = null;
 
     static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    @Value("${gateway.host}")
+    private String host;
 
     @Bean
     private void fetAllAssessment() {
@@ -53,26 +55,25 @@ public class AssessmentUtil {
     private void fetchSetupdata() {
         institutionGlobalRequest =
                 webClientBuilder.build().post()
-                        .uri("http://localhost:8083/api/setup/getAllinstitution")
+                        .uri("http://"+host+":8083/api/setup/getAllinstitution")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .retrieve()
                         .bodyToMono(new ParameterizedTypeReference<List<InstitutionRequest>>() {
                         }).block();
-
+        log.info("Global Setup List populated with {} records", institutionGlobalRequest.size());
         //return result;
     }
 
-    // @Bean
+     //@Bean
     private void fetchStudents() {
-        // JSONObject json = new JSONObject();
-        // json.put("beceCode", applicationInstitution);
         studentsGlobalRequest = webClientBuilder.build().post()
-                .uri("http://localhost:8091/api/administration-pta/getAllStudents")
+                .uri("http://"+host+":8083/api/administration-pta/getAllStudents")
                 .contentType(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<List<Students>>() {
                 }).block();
+         log.info("Global Students List populated with {} records", studentsGlobalRequest.size());
     }
 
     private Double computeExamsScore(String studId, String academicYear, String term, Long subject) {
@@ -114,7 +115,7 @@ public class AssessmentUtil {
                         && Objects.equals(cx.getSubject(), subject)).mapToDouble(ContinuousAssessment::getTotalScore).sum();
     }
 
-    public void insertAssessment(AcademicReportRequest terminalReportRequest) {
+    public List<Assessment> insertAssessment(AcademicReportRequest terminalReportRequest) {
         if (institutionGlobalRequest == null) {
             // fetchSetupdata();
             fetchStudents();
@@ -134,8 +135,16 @@ public class AssessmentUtil {
                 }
             }
         }
+        assert builtAssessment != null;
+        List<Assessment> assessmentsWithoutPositions= builtAssessment.stream().sorted(createPersonLambdaComparator()).collect(Collectors.toList());
+        for(int i=0;i<assessmentsWithoutPositions.size();i++){
+            assessmentsWithoutPositions.get(i).setPosition(i+1);
+        }
+        return assessmentsWithoutPositions;
+    }
 
-        //TODO: Sort the builtAssessment by the total score and set the positions;
+    public static Comparator<Assessment> createPersonLambdaComparator() {
+        return Comparator.comparing(Assessment::getTotalScore);
     }
 
     public Assessment buildAssessment(AcademicReportRequest terminalReportRequest, Students stud, SubjectRequest sub) {
@@ -164,5 +173,22 @@ public class AssessmentUtil {
                 .studentClass(terminalReportRequest.getTargetClass())
                 .build();
 
+    }
+
+    public AssessmentResponse mapAssessment_ToAssessmentResponse(Assessment a) {
+        return AssessmentResponse.builder()
+                .academicYear(a.getAcademicYear())
+                .dateTime(LocalDateTime.now())
+                .studentClass(a.getStudentClass())
+                .term(a.getTerm())
+                .studentId(a.getStudentId())
+                .subject(a.getSubject())
+                .classScore(a.getClassScore().toString())
+                .examsScore(a.getExamsScore().toString())
+                .totalScore(a.getTotalScore().toString())
+                .institutionCode(a.getInstitutionCode())
+                .grade(a.getGrade())
+                .position(a.getPosition().toString())
+                .build();
     }
 }

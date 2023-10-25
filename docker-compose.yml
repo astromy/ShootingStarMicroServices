@@ -1,0 +1,420 @@
+---
+version: '3'
+
+services:
+  ## MYSQL DOCKER COMPOSE CONFIG
+ postgres-clinic:
+  container_name: prostgres-clinic
+  image: postgres
+  environment:
+    POSTGRES_DB: clinic
+    POSTGRES_USER: astromyllc
+    POSTGRES_PASSWORD: IdowhatIlikeIlikewhatIdo!@3
+    PGDATA: /data/postgres
+  volumes:
+    - ./postgres-clinic:/data/postgres
+  healthcheck:
+    test: "exit 0"
+  expose:
+    - "5431"
+  ports:
+    - "5431:5432"
+ # command: -p 5431
+  restart: unless-stopped
+
+ postgres-shootingstar_academics:
+   container_name: prostgres-shootingstar_academics
+   image: postgres
+   environment:
+     POSTGRES_DB: shootingstar_academics
+     POSTGRES_USER: astromyllc
+     POSTGRES_PASSWORD: IdowhatIlikeIlikewhatIdo!@3
+     PGDATA: /data/postgres
+   volumes:
+     - ./postgres-shootingstar_academics:/data/postgres
+   healthcheck:
+     test: "exit 0"
+   expose:
+     - "5432"
+   ports:
+     - "5432:5432"
+ #  command: -p 5432
+   restart: unless-stopped
+
+ postgres-shootingstarfinance:
+   container_name: prostgres-shootingstarfinance
+   image: postgres
+   environment:
+     POSTGRES_DB: shootingstarfinance
+     POSTGRES_USER: astromyllc
+     POSTGRES_PASSWORD: IdowhatIlikeIlikewhatIdo!@3
+     PGDATA: /data/postgres
+   volumes:
+     - ./postgres-shootingstarfinance:/data/postgres
+   healthcheck:
+     test: "exit 0"
+   expose:
+     - "5433"
+   ports:
+     - "5433:5432"
+ #  command: -p 5433
+   restart: unless-stopped
+
+ postgres-shootingstarsetup:
+   container_name: prostgres-shootingstarsetup
+   image: postgres
+   environment:
+     POSTGRES_DB: shootingstarsetup
+     POSTGRES_USER: astromyllc
+     POSTGRES_PASSWORD: IdowhatIlikeIlikewhatIdo!@3
+     PGDATA: /data/postgres
+   volumes:
+     - ./postgres-shootingstarsetup:/data/postgres
+   healthcheck:
+     test: "exit 0"
+   expose:
+     - "5434"
+   ports:
+     - "5434:5432"
+ #  command: -p 5434
+   restart: unless-stopped
+
+ #postgres-astroauthauth:
+ #  container_name: prostgres-astroauthauth
+ #  image: postgres
+ #  environment:
+ #    POSTGRES_DB: astroauthauth
+ #    POSTGRES_USER: astromyllc
+ #    POSTGRES_PASSWORD: IdowhatIlikeIlikewhatIdo!@3
+ #    PGDATA: /data/postgres
+ #  volumes:
+ #    - ./postgres-astroauthauth:/data/postgres
+ #  expose:
+ #    - "5431"
+ #  ports:
+ #    - "5431:5431"
+ #  command: -p 5431
+ #  restart: unless-stopped
+
+  ## MONGO DOCKER COMPOSE CONFIG
+
+ mongo-administration-pta:
+   container_name: mongo_administration-pta
+   image: mongo:4.4.14-rc0-focal
+   restart: unless-stopped
+   ports:
+     - "27017:27017"
+   healthcheck:
+     test: "exit 0"
+   expose:
+     - "27017"
+ #  command: -p 27017
+   volumes:
+     - ./mongo-data_administration-pta:/data/db
+
+
+ mongo-hr-service:
+   container_name: mongo_hr-service
+   image: mongo:4.4.14-rc0-focal
+   restart: unless-stopped
+   healthcheck:
+     test: "exit 0"
+   ports:
+     - "27018:27017"
+   expose:
+     - "27018"
+   #command: -p 27018
+   volumes:
+     - ./mongo-data_hr-service:/data/db
+
+ mongo-online-application:
+   container_name: mongo_online-application
+   image: mongo:4.4.14-rc0-focal
+   restart: unless-stopped
+   healthcheck:
+     test: "exit 0"
+   ports:
+     - "27019:27017"
+   expose:
+     - "27019"
+ #  command: -p 27019
+   volumes:
+     - ./mongo-data_online-application:/data/db
+
+
+## Keycloak Config with Mysql database
+ keycloak-postgres:
+   container_name: keycloack-postgres
+   image: postgres:latest
+   volumes:
+     - ./mysql_keycloack_data:/var/lib/postgresql/data
+   environment:
+     POSTGRES_DB: keycloak
+     POSTGRES_USER: keycloak
+     POSTGRES_PASSWORD: IdowhatIlikeIlikewhatIdo!@3
+   ports:
+     - "5435:5432"
+   expose:
+     - "5435"
+  # command: -p 5435
+   restart: unless-stopped
+   healthcheck:
+     test: "exit 0"
+   networks:
+     - astro_network
+
+ keycloack:
+   container_name: keycloak
+   image: quay.io/keycloak/keycloak:22.0.1
+   command:
+     - start-dev
+     - --import-realm
+   environment:
+     KEYCLOAK_LOGLEVEL: DEBUG
+     KC_DB: postgres
+     KC_DB_URL_HOST: keycloak-postgres
+     KC_DB_URL_DATABASE: keycloak
+     KC_DB_PASSWORD: IdowhatIlikeIlikewhatIdo!@3
+     KC_DB_USERNAME: keycloak
+     KC_DB_SCHEMA: public
+     KEYCLOAK_ADMIN: admin
+     KEYCLOAK_ADMIN_PASSWORD: IdowhatIlikeIlikewhatIdo!@3
+   ports:
+     - "8090:8080"
+   expose:
+     - "8090"
+   healthcheck:
+     test: "exit 0"
+   #volumes:
+   #  - ./realms/:opt/keycloak/data/import/
+   depends_on:
+     keycloak-postgres:
+       condition: service_healthy
+   networks:
+     - astro_network
+
+
+   ## Zipkin
+
+ zipkin:
+   image: openzipkin/zipkin
+   container_name: zipkin
+   ports:
+     - "9411:9411"
+   healthcheck:
+     test: "exit 0"
+
+
+  ## Eureka Server
+
+ discovery-server:
+   image: astromyllc/discoveryserver:latest
+   container_name: astromyllc_discoveryserver
+   pull_policy: always
+   ports:
+     - "8761:8761"
+   expose:
+     - "8761"
+ #  command: -p 8761
+ #  environment:
+ #    - SPRING_PROFILES_ACTIVE=docker
+   healthcheck:
+     test: "exit 0"
+   #depends_on:
+    # zipkin:
+     #  condition: service_healthy
+
+
+
+   ## API-GATEWAY
+
+ astro-api-gateway:
+  image: astromyllc/astro-api-gateway:latest
+  container_name: astro-api-gateway
+  pull_policy: always
+  ports:
+    - "8083:8080"
+  expose:
+    - "8083"
+  environment:
+    - SPRING_PROFILES_ACTIVE=docker
+    - LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_SECURITY=TRACE
+  healthcheck:
+    test: "exit 0"
+  depends_on:
+    keycloack:
+      condition: service_healthy
+    discovery-server:
+      condition: service_healthy
+    #  zipkin:
+    #    condition: service_healthy
+
+
+   ## Clinic Service
+
+ clinic:
+   image: astromyllc/clinic:latest
+   container_name: clinic
+   pull_policy: always
+   environment:
+     - SPRING_PROFILES_ACTIVE=docker
+     - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-clinic:5432/clinic
+   #SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-shootingstarsetup:5432/shootingstarsetup
+   depends_on:
+     postgres-clinic:
+       condition: service_healthy
+     #zipkin:
+     #  condition: service_healthy
+     discovery-server:
+       condition: service_healthy
+     astro-api-gateway:
+       condition: service_healthy
+     shootingstar_setup:
+       condition: service_healthy
+
+
+## Academics Server
+ academics:
+  image: astromyllc/academics:latest
+  container_name: academics
+  pull_policy: always
+  environment:
+    - SPRING_PROFILES_ACTIVE=docker
+    - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-shootingstar_academics:5432/shootingstar_academics
+  depends_on:
+     postgres-shootingstar_academics:
+       condition: service_healthy
+     #zipkin:
+     #  condition: service_healthy
+     discovery-server:
+       condition: service_healthy
+     astro-api-gateway:
+       condition: service_healthy
+     shootingstar_setup:
+       condition: service_healthy
+
+
+
+     ## Finance Service
+
+ finance:
+   image: astromyllc/finance:latest
+   container_name: finance
+   pull_policy: always
+   environment:
+     - SPRING_PROFILES_ACTIVE=docker
+     - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-shootingstarfinance:5432/shootingstarfinance
+   depends_on:
+     postgres-shootingstarfinance:
+       condition: service_healthy
+   #  zipkin:
+   #    condition: service_healthy
+     discovery-server:
+       condition: service_healthy
+     astro-api-gateway:
+       condition: service_healthy
+     shootingstar_setup:
+       condition: service_healthy
+
+
+
+     ## Stores and Inventory Service
+
+ #stores-inventory:
+ #  image: astromyllc/stores-inventory:latest
+ #  container_name: hr-service
+ #  pull_policy: always
+ #  environment:
+ #    - SPRING_PROFILES_ACTIVE=docker
+ #    - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-order:5431/order-service
+ #  depends_on:
+ #    - postgres-clinic
+ #    - zipkin
+ #    - discovery-server
+ #    - astro-api-gateway
+ #    - shootingstar_setup
+
+## SETUP Service
+ shootingstar_setup:
+   image: astromyllc/shootingstar_setup:latest
+   container_name: shootingstar_setup
+   pull_policy: always
+   environment:
+     - SPRING_PROFILES_ACTIVE=docker
+     - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-shootingstarsetup:5432/shootingstarsetup
+   healthcheck:
+     test: "exit 0"
+   depends_on:
+   #  zipkin:
+   #    condition: service_healthy
+     postgres-shootingstarsetup:
+       condition: service_healthy
+     discovery-server:
+       condition: service_healthy
+     astro-api-gateway:
+       condition: service_healthy
+
+### MONGO DB BASED SERVICES
+
+## HR-Service Docker Compose Config
+
+ hr-service:
+  container_name: hr-service
+  image: astromyllc/hr-service:latest
+  pull_policy: always
+  environment:
+    - SPRING_PROFILES_ACTIVE=docker
+  depends_on:
+    mongo-hr-service:
+      condition: service_healthy
+    discovery-server:
+      condition: service_healthy
+    astro-api-gateway:
+      condition: service_healthy
+    shootingstar_setup:
+      condition: service_healthy
+
+
+  ## Online-Application-Service Docker Compose Config
+
+ online-application:
+   container_name: online-application
+   image: astromyllc/online-application:latest
+   pull_policy: always
+   environment:
+     - SPRING_PROFILES_ACTIVE=docker
+   depends_on:
+     mongo-online-application:
+       condition: service_healthy
+     discovery-server:
+       condition: service_healthy
+     astro-api-gateway:
+       condition: service_healthy
+     shootingstar_setup:
+       condition: service_healthy
+
+
+   ## Administration-PTA-Service Docker Compose Config
+
+ administration-pta:
+   container_name: administration-pta
+   image: astromyllc/administration-pta:latest
+   pull_policy: always
+   environment:
+     - SPRING_PROFILES_ACTIVE=docker
+   depends_on:
+     mongo-administration-pta:
+       condition: service_healthy
+     discovery-server:
+       condition: service_healthy
+     astro-api-gateway:
+       condition: service_healthy
+     shootingstar_setup:
+       condition: service_healthy
+
+
+networks:
+  astro_network:
+    driver: bridge
+
+

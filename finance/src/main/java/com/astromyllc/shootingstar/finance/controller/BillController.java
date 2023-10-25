@@ -14,20 +14,19 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
+@RequestMapping("/api/finance")
 public class BillController {
 
     private final BillServiceInterface billServiceInterface;
 
-    @PostMapping
-    @RequestMapping("/api/finance/create-bill")
+    @PostMapping("/create-bill")
     @ResponseStatus(HttpStatus.CREATED)
     public BillResponse createBill(@RequestBody BillRequest billRequest) {
         log.info("Application  Received");
         return billServiceInterface.createBill(billRequest);
     }
 
-    @PostMapping
-    @RequestMapping("/api/finance/create-bills")
+    @PostMapping("/create-bills")
     @ResponseStatus(HttpStatus.CREATED)
     public List<BillResponse> createBills(@RequestBody List<BillRequest> billRequest) {
         log.info("Application  Received");
@@ -35,8 +34,7 @@ public class BillController {
     }
 
 
-    @PostMapping
-    @RequestMapping("/api/finance/get-bills-by-institution")
+    @PostMapping("/get-bills-by-institution")
     @ResponseStatus(HttpStatus.CREATED)
     public List<BillResponse> getBillsByInstitution(@RequestBody BillFetchRequest billFetchRequest) {
         log.info("Application  Received");
@@ -44,8 +42,7 @@ public class BillController {
     }
 
 
-    @PostMapping
-    @RequestMapping("/api/finance/get-bill-by-institution")
+    @PostMapping("/get-bill-by-institution")
     @ResponseStatus(HttpStatus.CREATED)
     public BillResponse getBillByInstitution(@RequestBody BillFetchRequest billFetchRequest) {
         log.info("Application  Received");

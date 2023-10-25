@@ -1,7 +1,9 @@
 package com.astromyllc.shootingstar.onlineapplication.service;
 
 import com.astromyllc.shootingstar.onlineapplication.dto.request.ApplicationRequest;
+import com.astromyllc.shootingstar.onlineapplication.dto.request.alien.AdmissionRequest;
 import com.astromyllc.shootingstar.onlineapplication.dto.response.ApplicationsResponse;
+import com.astromyllc.shootingstar.onlineapplication.dto.response.alien.ProcessedApplicationResponse;
 import com.astromyllc.shootingstar.onlineapplication.model.Applications;
 import com.astromyllc.shootingstar.onlineapplication.repository.ApplicationsRepository;
 import com.astromyllc.shootingstar.onlineapplication.serviceInterface.ApplicationServiceInterface;
@@ -15,6 +17,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -29,6 +33,7 @@ public class ApplicationService implements ApplicationServiceInterface {
 
     private final ApplicationsRepository applicationsRepository;
     private final ApplicationUtilities util;
+    static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public ApplicationsResponse createApplication(ApplicationRequest applicationRequest) throws IOException, URISyntaxException {
         Applications app = util.mapApplicationRequest_ToApplications(applicationRequest);
@@ -99,9 +104,9 @@ public class ApplicationService implements ApplicationServiceInterface {
     }
 
     @Override
-    public Optional<List<ApplicationsResponse>> getApplicationsBySchool(Long schoolId) {
-        String finalschoolId = schoolId.toString().split("\"")[3];//.split("\"")[1];
-        return Optional.ofNullable(Optional.ofNullable(util.apl.stream().filter(x -> x.getIdapplication().equals(finalschoolId)).toList().stream().map(x->util.mapApplications_ToApplicationResponse(x)).toList())
+    public Optional<List<ApplicationsResponse>> getApplicationsBySchool(String schoolId) {
+        String finalschoolId = schoolId.split("\"")[3];//.split("\"")[1];
+        return Optional.ofNullable(Optional.ofNullable(util.apl.stream().filter(x -> x.getApplicationInstitution().equals(finalschoolId)).toList().stream().map(x->util.mapApplications_ToApplicationResponse(x)).toList())
                 .orElseThrow(() -> new RuntimeException(String.format("No Record of Application with Application School %s", finalschoolId))));
     }
 
@@ -130,5 +135,15 @@ public class ApplicationService implements ApplicationServiceInterface {
         String finalRegion = Region.split("\"")[3];
         return Optional.ofNullable(Optional.ofNullable(util.apl.stream().filter(x -> x.getIdapplication().equals(finalRegion)).collect(Collectors.toList()).stream().map(x->util.mapApplications_ToApplicationResponse(x)).collect(Collectors.toList()))
                 .orElseThrow(() -> new RuntimeException(String.format("No Record of Application with Application Region %s", finalRegion))));
+    }
+
+    @Override
+    public Optional<List<ProcessedApplicationResponse>> getProcessedApplicationsBySchool(AdmissionRequest admissionRequest) {
+        return Optional.ofNullable(Optional.of(util.apl.stream().filter(x -> x.getApplicationInstitution().equals(admissionRequest.getInstitutionCode())
+                                && x.getApplicationStatus().equals(admissionRequest.getApplicationStatus())
+                                && x.getApplicationDate().getYear()== LocalDateTime.parse(admissionRequest.getApplicationDate(),formatter).getYear()).collect(Collectors.toList())
+                        .stream().map(x->util.mapApplications_ToProcessedApplicationResponse(x)).collect(Collectors.toList()))
+                .orElseThrow(() -> new RuntimeException(String.format("No Record of Application with Application School %s", admissionRequest.getInstitutionCode()))));
+
     }
 }

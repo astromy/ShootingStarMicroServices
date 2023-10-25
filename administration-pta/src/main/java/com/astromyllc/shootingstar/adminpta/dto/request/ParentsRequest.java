@@ -26,7 +26,6 @@ public class ParentsRequest {
     private String placeOfWork;
     @NonNull
     private String parentType;
-    @NonNull
     private String studentId;
     @NonNull
     private String institutionCode;

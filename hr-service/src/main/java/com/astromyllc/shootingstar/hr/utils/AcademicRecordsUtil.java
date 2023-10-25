@@ -8,6 +8,7 @@ import com.astromyllc.shootingstar.hr.repository.AcademicRecordsRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
@@ -22,6 +23,8 @@ import java.util.List;
 public class AcademicRecordsUtil {
     private final AcademicRecordsRepository academicRecordsRepository;
     public static List<AcademicRecords> academicRecordsGlobalList;
+    @Value("${gateway.host}")
+    private String host;
     @Bean
     private void fetchAllAcademicRecords() {
         academicRecordsGlobalList = academicRecordsRepository.findAll();

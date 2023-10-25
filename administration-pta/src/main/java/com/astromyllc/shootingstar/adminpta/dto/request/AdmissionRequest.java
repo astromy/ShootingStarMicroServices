@@ -7,9 +7,9 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @Data
 public class AdmissionRequest {
     private String institutionCode;
     private String applicationDate;
+    private String applicationStatus;
 }

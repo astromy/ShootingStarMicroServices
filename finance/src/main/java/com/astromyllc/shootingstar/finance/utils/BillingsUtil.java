@@ -6,6 +6,7 @@ import com.astromyllc.shootingstar.finance.model.Billings;
 import com.astromyllc.shootingstar.finance.repositoy.BillingsRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
@@ -20,6 +21,8 @@ public class BillingsUtil {
     private final BillingsRepository billingsRepository;
     public static List<Billings> billingGlobalList;
     static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    @Value("${gateway.host}")
+    private String host;
 
     @Bean
     private void fetAllBillings() {

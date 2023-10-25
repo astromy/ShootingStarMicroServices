@@ -6,6 +6,7 @@ import com.astromyllc.shootingstar.clinic.model.Diagnosis;
 import com.astromyllc.shootingstar.clinic.repository.DiagnosisRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
@@ -21,6 +22,8 @@ public class DiagnosisUtil {
     public static List<Diagnosis> diagnosisGlobalList;
 
     static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    @Value("${gateway.host}")
+    private String host;
 
     @Bean
     private void fetAllDaiagnosis() {

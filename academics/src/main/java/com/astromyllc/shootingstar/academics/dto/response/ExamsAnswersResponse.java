@@ -15,5 +15,5 @@ import lombok.NoArgsConstructor;
 public class ExamsAnswersResponse {
     private Long id;
     private String answer;
-    private boolean isAnswer;
+    private Boolean isAnswer;
 }

@@ -9,7 +9,6 @@ import com.astromyllc.shootingstar.setup.utils.InstitutionUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,10 +23,11 @@ public class InstitutionService implements InstitutionServiceInterface {
     private final InstitutionRepository institutionRepository;
 private final InstitutionUtils institutionUtils;
     @Override
-    public void createInstitution(InstitutionRequest institutionRequest) {
+    public InstitutionResponse createInstitution(InstitutionRequest institutionRequest) {
         Optional <Institution> institution = institutionUtils.institutionGlobalList.stream().filter(x -> x.getBececode().equals(institutionRequest.getBececode())).findFirst();
+        Institution institution1=new Institution();
         if (institution.isEmpty()) {
-            Institution institution1 = institutionUtils.mapInstitutionRequest_ToInstitution(institutionRequest);
+             institution1 = institutionUtils.mapInstitutionRequest_ToInstitution(institutionRequest);
             institutionRepository.save(institution1);
 
             institutionUtils.institutionGlobalList.add(institution1);
@@ -35,6 +35,7 @@ private final InstitutionUtils institutionUtils;
         } else {
             institutionRepository.save(institutionUtils.mapInstitutionRequestToInstitution(institution.get(), institutionRequest));
         }
+        return institutionUtils.mapInstitutionToInstitutionResponse(institution1);
     }
 
     @Override

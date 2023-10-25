@@ -2,13 +2,12 @@ package com.astromyllc.shootingstar.setup.serviceInterface;
 
 import com.astromyllc.shootingstar.setup.dto.request.InstitutionRequest;
 import com.astromyllc.shootingstar.setup.dto.response.InstitutionResponse;
-import jakarta.persistence.criteria.CriteriaBuilder;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface InstitutionServiceInterface {
-    public void createInstitution(InstitutionRequest institutionRequest);
+    public InstitutionResponse createInstitution(InstitutionRequest institutionRequest);
     public Optional<InstitutionResponse> getInstitutionByBeceCode(String beceCode);
     public Optional<List<InstitutionResponse>> getAllInstitution();
     public Optional<List<InstitutionResponse>> getAllInstitutionByPopulation(int population);

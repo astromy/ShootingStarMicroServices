@@ -18,7 +18,7 @@
     <modules>
         <module>online-application</module>
         <module>shootingstar_setup</module>
-        <module>DiscoveryServer</module>
+        <module>discoveryserver</module>
         <module>astro-api-gateway</module>
         <module>hr-service</module>
         <module>finance</module>
@@ -34,6 +34,10 @@
         <maven.compiler.target>20</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring-cloud.version>2022.0.4</spring-cloud.version>
+       <!-- <spring-cloud.version>2021.0.3</spring-cloud.version>-->
+
+        <username>astromyllc</username>
+        <password>IdowhatIlikeIlikewhatIdo!@3</password>
     </properties>
 
     <dependencyManagement>
@@ -67,6 +71,30 @@
                             <artifactId>lombok</artifactId>
                         </exclude>
                     </excludes>
+                        <layers>
+                            <enabled>true</enabled>
+                        </layers>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.google.cloud.tools</groupId>
+                <artifactId>jib-maven-plugin</artifactId>
+                <version>3.4.0</version>
+                <configuration>
+                    <from>
+                        <image>eclipse-temurin:20-jre-alpine</image>
+                        <auth>
+                            <username>astromyllc</username>
+                            <password>IdowhatIlikeIlikewhatIdo!@3</password>
+                        </auth>
+                    </from>
+                    <to>
+                        <image>registry.hub.docker.com/astromyllc/${project.artifactId}</image>
+                        <auth>
+                            <username>astromyllc</username>
+                            <password>IdowhatIlikeIlikewhatIdo!@3</password>
+                        </auth>
+                    </to>
                 </configuration>
             </plugin>
         </plugins>
