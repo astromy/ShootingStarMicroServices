@@ -1,0 +1,38 @@
+server:
+  port: 7013
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: INFO
+    org.springframework.security: INFO
+    org.springframework.boot.autoconfigure: INFO
+    org.springframework.web.client.RestTemplate: DEBUG
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://eureka:password@localhost:8761/eureka
+
+spring:
+  thymeleaf:
+    cache: false
+
+  application:
+    name: orb_frontend
+
+  security:
+    oauth2:
+      client:
+        registration:
+          keycloak:
+            client-id: astroauthauth
+            client-secret: qfIGFFAFmPn1yjKYG8Ahw9WsCGw446OV
+            authorization-grant-type: authorization_code
+            redirect-url: http://localhost:7013/login/oauth2/code/astroauthauth
+            scope:
+              - openid
+              - profile
+              - email
+        provider:
+          keycloak.issuer-uri: http://keycloak:8080/realms/ShootingStar

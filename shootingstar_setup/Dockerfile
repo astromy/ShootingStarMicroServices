@@ -9,7 +9,8 @@ COPY --from=builder dependencies/ ./
 COPY --from=builder snapshot-dependencies/ ./
 COPY --from=builder spring-boot-loader/ ./
 COPY --from=builder application/ ./
-#EXPOSE 8083
+CMD -p 1373
+EXPOSE 1373
 ENTRYPOINT ["java", "org.springframework.boot.loader.JarLauncher"]
 
 ##FROM eclipse-temurin:17.0.4.1_1-jre as builder

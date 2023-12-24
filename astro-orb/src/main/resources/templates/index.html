@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:tiles="http://www.thymeleaf.org">
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <!-- default header name is X-CSRF-TOKEN -->
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+    <meta name="scope" th:content="${access}" />
+
+    <!-- Page title -->
+    <title>ORB | Services</title>
+    <link rel="stylesheet" href="styles/allz.min.css">
+    <link rel="stylesheet" href="styles/style.css">
+
+    <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+    <link rel="icon" type="image/x-icon"  href="images/favicon.ico" />
+
+    <!-- Vendor styles -->
+   <link rel="stylesheet" href="vendor/fontawesome/css/font-awesome.css" />
+    <!-- <link rel="stylesheet" href="vendor/metisMenu/dist/metisMenu.css" />
+    <link rel="stylesheet" href="vendor/animate.css/animate.css" />-->
+    <link rel="stylesheet" href="vendor/bootstrap/dist/css/bootstrap.css" />
+
+    <!-- App styles -->
+    <!--<link rel="stylesheet" href="fonts/pe-icon-7-stroke/css/pe-icon-7-stroke.css" />
+    <link rel="stylesheet" href="fonts/pe-icon-7-stroke/css/helper.css" />-->
+</head>
+<body class="fixed-navbar fixed-sidebar">
+
+<!-- Simple splash screen-->
+<div class="splash"> <div class="color-line"></div><div class="splash-title"><h1>ORB - Services</h1><p>Comprehensive School Management App for small and medium schools with very clean and aesthetic style and feel. </p><div class="spinner"> <div class="rect1"></div> <div class="rect2"></div> <div class="rect3"></div> <div class="rect4"></div> <div class="rect5"></div> </div> </div> </div>
+<!--[if lt IE 7]>
+<p class="alert alert-danger">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+<![endif]-->
+
+<!-- Header -->
+<div id="header">
+    <div class="color-line">
+    </div>
+    <div id="logo" class="light-version">
+        <img src="images/orbLogo.png" style="height: 35px;margin-top: -7px;">
+        <span>
+            ORB Services
+        </span></img>
+    </div>
+    <nav role="navigation">
+        <div class="header-link hide-menu"><i class="fa fa-bars"></i></div>
+        <div class="small-logo">
+            <span class="text-primary">ORB Services</span>
+        </div>
+        <form role="search" class="navbar-form-custom" method="post" action="#">
+            <div class="form-group">
+                <input type="text" placeholder="Search something special" class="form-control" name="search">
+            </div>
+        </form>
+        <div class="mobile-menu">
+            <button type="button" class="navbar-toggle mobile-menu-toggle" data-toggle="collapse" data-target="#mobile-collapse">
+                <i class="fa fa-chevron-down"></i>
+            </button>
+            <div class="collapse mobile-navbar" id="mobile-collapse">
+                <ul class="nav navbar-nav">
+                    <li>
+                        <a class="" href="login.html">Login</a>
+                    </li>
+                    <li>
+                        <a class="" href="login.html">Logout</a>
+                    </li>
+                    <li>
+                        <a class="" href="profile.html">Profile</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="navbar-right">
+            <ul class="nav navbar-nav no-borders">
+                <li>
+                    <a href="#" id="sidebar" class="right-sidebar-toggle">
+                        <i class="pe-7s-upload pe-7s-news-paper"></i>
+                    </a>
+                </li>
+                <li class="dropdown">
+                    <a href="login.html">
+                        <i class="pe-7s-upload pe-rotate-90"></i>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+</div>
+
+<!-- Navigation -->
+<aside id="menu">
+    <div id="navigation">
+        <div class="profile-picture">
+            <a href="index-2.html">
+                <img src="images/profile.jpg" class="img-circle m-b" alt="logo">
+            </a>
+
+            <div class="stats-label text-color">
+                <span class="font-extra-bold font-uppercase" th:value="${userName}"></span>
+
+                <div class="dropdown">
+                    <a class="dropdown-toggle" href="#" data-toggle="dropdown">
+                        <small class="text-muted">System Admin <b class="caret"></b></small>
+                    </a>
+                    <ul class="dropdown-menu animated flipInX m-t-xs">
+                        <li><a href="contacts.html">Contacts</a></li>
+                        <li><a href="profile.html">Profile</a></li>
+                        <li><a href="analytics.html">Analytics</a></li>
+                        <li class="divider"></li>
+                        <li><a href="login.html">Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <ul class="nav" id="side-menu">
+            <li class="active">
+                <a href="index-2.html"> <span class="nav-label">Dashboard</span> <span class="label label-success pull-right">v.1</span> </a>
+            </li>
+            <li>
+                <a href="analytics.html"> <span class="nav-label">Analytics</span><span class="label label-warning pull-right">NEW</span> </a>
+            </li>
+            <li>
+                <a href="#"><span class="nav-label">Setup</span><span class="fa arrow"></span> </a>
+                <ul class="nav nav-second-level">
+                    <li><a id="institution">Institution</a></li>
+                    <li><a id="classgroup"><span class="fa fa-cubes"></span>  Class group</a></li>
+                    <li><a id="classes"><span class="fa fa-cube"></span>  Classes </a></li>
+                    <li><a id="subject"><span class="fa fa-book"></span>  Subject</a></li>
+                    <li><a id="admission"><span class="fa fa-plus-square"></span>  Admission</a></li>
+                    <li><a id="department"><span class="fa fa-sitemap"></span>  Department</a></li>
+                    <li><a id="grading"><span class="fa fa-star-half-stroke"></span>  Grading</a></li>
+                    <li><a id="permissions"><span class="fa fa-shield-alt"></span>  Permissions</a></li>
+                </ul>
+            </li>
+            <li>
+                <a><span class="nav-label">Human Resouce</span><span class="fa arrow"></span> </a>
+                <ul class="nav nav-second-level">
+                    <li><a  id="onloading">Onloading</a></li>
+                    <li><a  id="records">Records</a></li>
+                    <li><a  id="leave">Leave</a></li>
+                    <li><a  id="appraisals">Apraisals</a></li>
+                    <li><a  id="designation">Designation</a></li>
+                    <li><a  id="offloading">Off Loading</a></li>
+                </ul>
+            </li>
+            <li>
+                <a href="#"><span class="nav-label">Finance</span><span class="fa arrow"></span> </a>
+                <ul class="nav nav-second-level">
+                    <li><a  id="billcreation"><span class="fas fa-receipt"></span> Bill Creation</a></li>
+                    <li><a  id="billing"><span class="fas fa-chart-line"></span> Billing</a></li>
+                    <li><a  id="feecollection"><span class="fas fa-cash-register"></span> Fee Collection</a></li>
+                    <li><a  id="paymenthistory"><span class="fas fa-file-invoice"></span> Payment History</a></li>
+                    <li><a  id="paymentchecker"><span class="fas fa-comments-dollar"></span> Payment Checker</a></li>
+                    <li><a  id="salarysetup"><span class="fas fa-hand-holding-usd"></span> Salary Setup</a></li>
+                    <li><a  id="payslipgeneration"><span class="fas fa-money-bill"></span> Payslip </a></li>
+                    <li><a  id="ledgerbooks"><span class="fas fa-book"></span> Ledger Books</a></li>
+                    <li><a  id="incomestatement"><span class="fas fa-coins"></span> Income Statement</a></li>
+                    <li><a  id="cashflow"><span class="fas fa-chart-pie"></span> Cash Flow</a></li>
+                    <li><a  id="trialbalanace"><span class="fas fa-balance-scale"></span> Trial Balance</a></li>
+                </ul>
+            </li>
+            <li>
+                <a href="#"><span class="nav-label">Administration</span><span class="fa arrow"></span> </a>
+                <ul class="nav nav-second-level">
+                    <li><a ><span class="label label-success pull-right">Start</span> Overview </a>  </li>
+                    <li><a >Columns from up</a></li>
+                    <li><a >Columns custom</a></li>
+                    <li><a >Panels zoom</a></li>
+                    <li><a >Rows from down</a></li>
+                    <li><a >Rows from right</a></li>
+                </ul>
+            </li>
+            <li>
+                <a href="#"><section class="nav-label">Academics</section><section class="fa arrow"></section> </a>
+                <ul class="nav nav-second-level">
+                    <li><a ><span class="label label-success pull-right">Start</span> Overview </a>  </li>
+                    <li><a ><span class="fa fa-question"></span>  Question Upload </a></li>
+                    <li><a ><span class="fa fa-edit"></span> Assignment </a></li>
+                    <li><a ><span class="fa fa-file-word"></span>  Exams </a></li>
+                    <li><a ><span class="fa fa-upload"></span>  Score Upload </a></li>
+                    <li><a ><span class="fa fa-file-pdf"></span> Terminal Report </a></li>
+                    <li><a ><span class="fa fa-file-excel"></span> Broad Sheet </a></li>
+                    <li><a ><span class="fa fa-file-text"></span> Transcript </a></li>
+                    <li><a ><span class="fa fa-graduation-cap"></span> Graduation List </a></li>
+                </ul>
+            </li>
+            <li>
+                <a href="#"><span class="nav-label">Infairmary</span><span class="fa arrow"></span> </a>
+                <ul class="nav nav-second-level">
+                    <li><a >Login</a></li>
+                    <li><a >Register</a></li>
+                    <li><a >Error 404</a></li>
+                    <li><a >Error 505</a></li>
+                    <li><a >Lock screen</a></li>
+                    <li><a >Passwor recovery</a></li>
+                </ul>
+            </li>
+            <li>
+                <a href="#"><span class="nav-label">Stores</span><span class="fa arrow"></span> </a>
+                <ul class="nav nav-second-level">
+                    <li><a >Tables design</a></li>
+                    <li><a >Data tables</a></li>
+                    <li><a >Foo Table</a></li>
+
+                </ul>
+            </li>
+            <li>
+                <a href="widgets.html"> <span class="nav-label">Question Upload</span> <span class="label label-success pull-right">Special</span></a>
+            </li>
+           <li>
+                <a href="#"><span class="nav-label">Teaching Staff</span><span class="fa arrow"></span> </a>
+                <ul class="nav nav-second-level">
+                    <li><a >Forms elements</a></li>
+                    <li><a >Forms extended</a></li>
+                    <li><a >Text editor</a></li>
+                    <li><a >Wizard</a></li>
+                    <li><a >Validation</a></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</aside>
+
+<!-- Main Wrapper -->
+<div id="wrapper">
+
+    
+
+    <!-- Right sidebar -->
+    <!-- 
+    <div id="right-sidebar" class="animated fadeInRight">
+
+        <div class="p-m">
+            <button id="sidebar-close" class="right-sidebar-toggle sidebar-button btn btn-default m-b-md"><i class="pe pe-7s-close"></i>
+            </button>
+            <div>
+                <span class="font-bold no-margins"> Analytics </span>
+                <br>
+                <small> Lorem Ipsum is simply dummy text of the printing simply all dummy text.</small>
+            </div>
+            <div class="row m-t-sm m-b-sm">
+                <div class="col-lg-6">
+                    <h3 class="no-margins font-extra-bold text-success">300,102</h3>
+
+                    <div class="font-bold">98% <i class="fa fa-level-up text-success"></i></div>
+                </div>
+                <div class="col-lg-6">
+                    <h3 class="no-margins font-extra-bold text-success">280,200</h3>
+
+                    <div class="font-bold">98% <i class="fa fa-level-up text-success"></i></div>
+                </div>
+            </div>
+            <div class="progress m-t-xs full progress-small">
+                <div style="width: 25%" aria-valuemax="100" aria-valuemin="0" aria-valuenow="25" role="progressbar"
+                     class=" progress-bar progress-bar-success">
+                    <span class="sr-only">35% Complete (success)</span>
+                </div>
+            </div>
+        </div>
+        <div class="p-m bg-light border-bottom border-top">
+            <span class="font-bold no-margins"> Social talks </span>
+            <br>
+            <small> Lorem Ipsum is simply dummy text of the printing simply all dummy text.</small>
+            <div class="m-t-md">
+                <div class="social-talk">
+                    <div class="media social-profile clearfix">
+                        <a class="pull-left">
+                            <img src="images/a1.jpg" alt="profile-picture">
+                        </a>
+
+                        <div class="media-body">
+                            <span class="font-bold">John Novak</span>
+                            <small class="text-muted">21.03.2015</small>
+                            <div class="social-content small">
+                                Injected humour, or randomised words which don't look even slightly believable.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="social-talk">
+                    <div class="media social-profile clearfix">
+                        <a class="pull-left">
+                            <img src="images/a3.jpg" alt="profile-picture">
+                        </a>
+
+                        <div class="media-body">
+                            <span class="font-bold">Mark Smith</span>
+                            <small class="text-muted">14.04.2015</small>
+                            <div class="social-content">
+                                Many desktop publishing packages and web page editors.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="social-talk">
+                    <div class="media social-profile clearfix">
+                        <a class="pull-left">
+                            <img src="images/a4.jpg" alt="profile-picture">
+                        </a>
+
+                        <div class="media-body">
+                            <span class="font-bold">Marica Morgan</span>
+                            <small class="text-muted">21.03.2015</small>
+
+                            <div class="social-content">
+                                There are many variations of passages of Lorem Ipsum available, but the majority have
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="p-m">
+            <span class="font-bold no-margins"> Sales in last week </span>
+            <div class="m-t-xs">
+                <div class="row">
+                    <div class="col-xs-6">
+                        <small>Today</small>
+                        <h4 class="m-t-xs">$170,20 <i class="fa fa-level-up text-success"></i></h4>
+                    </div>
+                    <div class="col-xs-6">
+                        <small>Last week</small>
+                        <h4 class="m-t-xs">$580,90 <i class="fa fa-level-up text-success"></i></h4>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-6">
+                        <small>Today</small>
+                        <h4 class="m-t-xs">$620,20 <i class="fa fa-level-up text-success"></i></h4>
+                    </div>
+                    <div class="col-xs-6">
+                        <small>Last week</small>
+                        <h4 class="m-t-xs">$140,70 <i class="fa fa-level-up text-success"></i></h4>
+                    </div>
+                </div>
+            </div>
+            <small> Lorem Ipsum is simply dummy text of the printing simply all dummy text.
+                Many desktop publishing packages and web page editors.
+            </small>
+        </div>
+
+    </div>-->
+
+    <!-- Footer-->
+    <footer class="footer">
+        <span class="pull-right">
+            ORB
+        </span>
+        Astromy LLC 2013-2023
+    </footer>
+
+</div>
+
+
+<!-- Vendor scripts -->
+<script src="vendor/jquery/dist/jquery.min.js"></script>
+<script src="vendor/jquery-ui/jquery-ui.min.js"></script>
+<script src="vendor/slimScroll/jquery.slimscroll.min.js"></script>
+<script src="vendor/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="vendor/metisMenu/dist/metisMenu.min.js"></script>
+<script src="vendor/iCheck/icheck.min.js"></script>
+<script src="vendor/peity/jquery.peity.min.js"></script>
+
+<!-- App scripts -->
+<script src="scripts/homer.js"></script>
+<script src="scripts/common.js"></script>
+
+<script>
+
+</script>
+    <script>
+    </script>
+
+</body>
+</html>

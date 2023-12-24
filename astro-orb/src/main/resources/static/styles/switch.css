@@ -1,0 +1,274 @@
+
+
+.form-check .form-label {
+  padding-left: 0 !important
+}
+
+.form-control.form-control-underlined {
+  border: none;
+  border-bottom: 1px solid;
+  border-color: var(--phoenix-input-border-color);
+  border-radius: 0;
+  padding: .5rem 0 !important;
+  -webkit-box-shadow: none;
+  box-shadow: none
+}
+
+.form-control.form-control-underlined:focus {
+  border-color: var(--phoenix-primary) !important
+}
+
+.form-control::file-selector-button {
+  background-color: var(--phoenix-input-group-addon-bg) !important
+}
+
+.form-control:disabled::file-selector-button {
+  background-color: var(--phoenix-input-disabled-group-addon-bg) !important;
+  color: var(--phoenix-input-disabled-group-addon-color)
+}
+
+.form-floating>label {
+  color: var(--phoenix-gray-800);
+  font-weight: 700;
+  font-size: .64rem;
+  text-transform: uppercase
+}
+
+.form-floating .form-control-underlined+label {
+  padding: 0
+}
+
+.form-check-label {
+  font-weight: 600;
+  font-size: .8rem
+}
+
+.form-check-light .form-check-input:checked {
+  background-color: #fff;
+  border-color: #9fa6bc
+}
+
+.form-check-light .form-check-input:checked[type=checkbox] {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%239fa6bc' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M6 10l3 3l6-6'/%3e%3c/svg%3e")
+}
+
+.form-check-lg {
+  padding-left: 2rem
+}
+
+.form-check-lg .form-check-input {
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-left: -2rem
+}
+
+.form-switch .form-check-input {
+  border: none;
+  background-color: #808285
+}
+
+.form-switch .form-check-input:checked {
+  background-color: #3874ff
+}
+
+.form-switch-lg {
+  padding-left: 3.5rem
+}
+
+.form-switch-lg .form-check-input {
+  width: 3rem;
+  height: 1.5rem;
+  margin-left: -3.5rem
+}
+
+.form-icon-container {
+  position: relative
+}
+
+.form-icon-container .form-icon-input,.form-icon-container .form-icon-label {
+  padding-left: 2.5rem
+}
+
+.form-icon-container .form-icon {
+  position: absolute;
+  top: 12px;
+  left: 1rem
+}
+
+.form-icon-container .form-floating .form-icon-input {
+  padding-left: 35px
+}
+
+.form-icon-container .form-floating+.form-icon {
+  top: 1.0625rem
+}
+
+.form-check-input,.form-select {
+  -moz-appearance: none;
+  appearance: none;
+  -webkit-appearance: none
+}
+
+
+.form-check {
+  display: block;
+  min-height: 3.49rem;
+  padding-left: 1.5em;
+  margin-bottom: .34375rem
+}
+
+.form-check .form-check-input {
+  float: left;
+  margin-left: -1.5em
+}
+
+.form-check-reverse {
+  padding-right: 1.5em;
+  padding-left: 0;
+  text-align: right
+}
+
+.form-check-reverse .form-check-input {
+  float: right;
+  margin-right: -1.5em;
+  margin-left: 0
+}
+
+.form-check-input {
+  width: 3em;
+  height: 1.5em;
+  margin-top: .245em;
+  vertical-align: top;
+  background-color: var(--phoenix-input-bg);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  border: 1px solid var(--phoenix-400);
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  print-color-adjust: exact
+}
+
+.form-check-input[type=checkbox] {
+  border-radius: .25em
+}
+
+.form-check-input[type=radio] {
+  border-radius: 50%
+}
+
+.form-check-input:active {
+  -webkit-filter: brightness(90%);
+  filter: brightness(90%)
+}
+
+.form-check-input:focus {
+  border-color: #3874ff;
+  outline: 0;
+  -webkit-box-shadow: 0 0 0 .25rem rgba(56,116,255,.25);
+  box-shadow: 0 0 0 .25rem rgba(56,116,255,.25)
+}
+
+.form-check-input:checked {
+  background-color: #3874ff;
+  border-color: #3874ff
+}
+
+.form-check-input:checked[type=checkbox] {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e")
+}
+
+.form-check-input:checked[type=radio] {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='2' fill='%23fff'/%3e%3c/svg%3e")
+}
+
+.form-check-input[type=checkbox]:indeterminate {
+  background-color: #3874ff;
+  border-color: #3874ff;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M6 10h8'/%3e%3c/svg%3e")
+}
+
+.form-check-input:disabled {
+  pointer-events: none;
+  -webkit-filter: none;
+  filter: none;
+  opacity: .5
+}
+
+.form-check-input[disabled]~.form-check-label,.form-check-input:disabled~.form-check-label {
+  cursor: default;
+  opacity: .5
+}
+
+.form-check-label {
+  color: var(--phoenix-gray-700)
+}
+
+.form-switch {
+  padding-left: 2.5em
+}
+
+.form-switch .form-check-input {
+  width: 3em;
+  margin-left: -2.5em;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
+  background-position: left center;
+  border-radius: 2em;
+  -webkit-transition: background-position .15s ease-in-out;
+  -o-transition: background-position .15s ease-in-out;
+  transition: background-position .15s ease-in-out
+}
+
+@media(prefers-reduced-motion: reduce) {
+  .form-switch .form-check-input {
+      -webkit-transition: none;
+      -o-transition: none;
+      transition: none
+  }
+}
+
+.form-switch .form-check-input:focus {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e")
+}
+
+.form-switch .form-check-input:checked {
+  background-position: right center;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e")
+}
+
+.form-switch.form-check-reverse {
+  padding-right: 2.5em;
+  padding-left: 0
+}
+
+.form-switch.form-check-reverse .form-check-input {
+  margin-right: -2.5em;
+  margin-left: 0
+}
+
+.form-check-inline {
+  display: inline-block;
+  margin-right: 1rem
+}
+
+.btn-check {
+  position: absolute;
+  clip: rect(0, 0, 0, 0);
+  pointer-events: none
+}
+
+.btn-check[disabled]+.btn,.google-map-control-btn .btn-check[disabled]+.zoomIn,.google-map-control-btn .btn-check[disabled]+.zoomOut,.tox .tox-dialog__footer .btn-check[disabled]+.tox-button:last-child,.tox .tox-dialog__footer .btn-check[disabled]+.tox-button--secondary,.tox .btn-check[disabled]+.tox-button-secondary,.tox .btn-check[disabled]+.tox-button,[data-list] .btn-check[disabled]+.page,.table-list .btn-check[disabled]+.page,.btn-check:disabled+.btn,.google-map-control-btn .btn-check:disabled+.zoomIn,.google-map-control-btn .btn-check:disabled+.zoomOut,.tox .tox-dialog__footer .btn-check:disabled+.tox-button:last-child,.tox .tox-dialog__footer .btn-check:disabled+.tox-button--secondary,.tox .btn-check:disabled+.tox-button-secondary,.tox .btn-check:disabled+.tox-button,[data-list] .btn-check:disabled+.page,.table-list .btn-check:disabled+.page {
+  pointer-events: none;
+  -webkit-filter: none;
+  filter: none;
+  opacity: .3
+}
+.check-label{
+    font-family: "Nunito Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+    display: inline-block;
+    margin-top: 0.29em;
+    margin-left: 0.25em;
+    color: black;
+}
+

@@ -5,12 +5,14 @@
     <option name="originalFiles">
       <list>
         <option value="$PROJECT_DIR$/pom.xml" />
+        <option value="$PROJECT_DIR$/astro-orb/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">
       <set>
         <option value="$PROJECT_DIR$/Astro-GateWay/pom.xml" />
         <option value="$PROJECT_DIR$/admissions-students/pom.xml" />
+        <option value="$PROJECT_DIR$/astroauthauth/pom.xml" />
       </set>
     </option>
   </component>

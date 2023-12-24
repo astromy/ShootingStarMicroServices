@@ -1,6 +1,5 @@
 package com.astromyllc.shootingstar.setup.dto.response;
 
-import com.astromyllc.shootingstar.setup.model.Department;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -8,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -31,9 +31,9 @@ public class InstitutionResponse {
     private Integer streams;
     private String subscription;
 
-    private GradingSettingResponse gradingSetting;
-    private List<SubjectResponse> subjectList;
-    private List<ClassesResponse> classList;
-    private AdmissionsResponse admissions;
-    private List<DepartmentResponse> departmentList;
+    private Optional<GradingSettingResponse> gradingSetting;
+    private List<Optional<SubjectResponse>> subjectList;
+    private List<Optional<ClassesResponse>> classList;
+    private Optional<AdmissionsResponse> admissions;
+    private List<Optional<DepartmentResponse>> departmentList;
 }

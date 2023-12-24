@@ -3,15 +3,14 @@ package com.astromyllc.shootingstar.setup.utils;
 import com.astromyllc.shootingstar.setup.dto.request.SubjectRequest;
 import com.astromyllc.shootingstar.setup.dto.response.SubjectResponse;
 import com.astromyllc.shootingstar.setup.model.Subject;
-import com.astromyllc.shootingstar.setup.repository.InstitutionRepository;
 import com.astromyllc.shootingstar.setup.repository.SubjectRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -42,13 +41,13 @@ public class SubjectUtil {
     }
 
 
-    public static SubjectResponse mapSubject_ToSubjectResponse(Subject s) {
-        return SubjectResponse.builder()
+    public static Optional<SubjectResponse> mapSubject_ToSubjectResponse(Subject s) {
+        return Optional.ofNullable(SubjectResponse.builder()
                 .id(s.getIdSubject())
                 .classGroup(s.getClassGroup())
                 .name(s.getName())
                 .preference(s.getPreference())
-                .build();
+                .build());
     }
 
 }

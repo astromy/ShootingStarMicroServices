@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -36,12 +37,12 @@ public class ClassesUtil {
         c.setName(cr.getName());
         return c;
     }
-    public static ClassesResponse mapClassToClassResponse(Classes c) {
-        return ClassesResponse.builder()
+    public static Optional<ClassesResponse> mapClassToClassResponse(Classes c) {
+        return Optional.ofNullable(ClassesResponse.builder()
                 .id(c.getIdClasses())
                 .classGroup(c.getClassGroup())
                 .name(c.getName())
-                .build();
+                .build());
     }
 
 }

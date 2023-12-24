@@ -2,6 +2,7 @@ package com.astromyllc.shootingstar.setup.service;
 
 import com.astromyllc.shootingstar.setup.dto.request.GradingSettingRequest;
 import com.astromyllc.shootingstar.setup.dto.request.InstitutionRequest;
+import com.astromyllc.shootingstar.setup.dto.response.GradingSettingResponse;
 import com.astromyllc.shootingstar.setup.serviceInterface.GradingSettingsServiceInterface;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +33,7 @@ public class GradingSystemService implements GradingSettingsServiceInterface {
     }
 
     @Override
-    public Optional<List<GradingSettingRequest>> getAllGradingSettingsByInstitution(InstitutionRequest institutionRequest) {
+    public Optional<List<GradingSettingResponse>> getAllGradingSettingsByInstitution(String institutionRequest) {
         return Optional.empty();
     }
 }

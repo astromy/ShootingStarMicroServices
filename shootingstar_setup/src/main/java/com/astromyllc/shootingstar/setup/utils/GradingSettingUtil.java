@@ -6,16 +6,14 @@ import com.astromyllc.shootingstar.setup.dto.response.GradingResponse;
 import com.astromyllc.shootingstar.setup.dto.response.GradingSettingResponse;
 import com.astromyllc.shootingstar.setup.model.Grading;
 import com.astromyllc.shootingstar.setup.model.GradingSetting;
-import com.astromyllc.shootingstar.setup.repository.GradingRepository;
 import com.astromyllc.shootingstar.setup.repository.GradingSettingRepository;
-import com.astromyllc.shootingstar.setup.repository.InstitutionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -55,8 +53,8 @@ public class GradingSettingUtil {
         return gs;
     }
 
-    public static GradingSettingResponse mapGradeSetting_ToGradeSettingResponse(GradingSetting gradingSetting) {
-        return GradingSettingResponse.builder()
+    public static Optional<GradingSettingResponse> mapGradeSetting_ToGradeSettingResponse(GradingSetting gradingSetting) {
+        return Optional.ofNullable(GradingSettingResponse.builder()
                 .id(gradingSetting.getIdGradingSetting())
                 .examsPercentage(gradingSetting.getExamsPercentage())
                 .allowedTrails(gradingSetting.getAllowedTrails())
@@ -65,7 +63,7 @@ public class GradingSettingUtil {
                 .gradingList((List<GradingResponse>) gradingSetting.getGradingList().stream().map(gL -> {
                     return mapGradeList_ToGradeListResponse(gL);
                 }).toList())
-                .build();
+                .build());
     }
 
     private static GradingResponse mapGradeList_ToGradeListResponse(Grading gL) {

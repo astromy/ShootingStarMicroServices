@@ -17,6 +17,6 @@ public interface SubjectServiceInterface {
     public  void createSubjects(List<SubjectRequest> subjectRequestList);
     public Optional<List<SubjectResponse>> getAllSubjects();
     public Optional<List<SubjectResponse>> getAllSubjectsByClass(ClassesRequest classesRequest);
-    public Optional<List<SubjectResponse>> getAllSubjectsByInstitution(InstitutionRequest institutionRequest);
+    public Optional<List<SubjectResponse>> getAllSubjectsByInstitution(String institutionRequest);
     public Optional<List<SubjectResponse>> getAllSubjectsByClassGroup(String classGroup);
 }

@@ -39,7 +39,7 @@ public class SubjectService implements SubjectServiceInterface {
     }
 
     @Override
-    public Optional<List<SubjectResponse>> getAllSubjectsByInstitution(InstitutionRequest institutionRequest) {
+    public Optional<List<SubjectResponse>> getAllSubjectsByInstitution(String institutionRequest) {
         return Optional.empty();
     }
 

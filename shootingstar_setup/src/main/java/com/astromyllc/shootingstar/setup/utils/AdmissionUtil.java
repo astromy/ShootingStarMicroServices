@@ -10,18 +10,15 @@ import com.astromyllc.shootingstar.setup.model.AdmissionCriteria;
 import com.astromyllc.shootingstar.setup.model.Admissions;
 import com.astromyllc.shootingstar.setup.model.ApplicationCategory;
 import com.astromyllc.shootingstar.setup.repository.AdmissionsRepository;
-import com.astromyllc.shootingstar.setup.repository.InstitutionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.stream.Stream;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -60,16 +57,16 @@ public class AdmissionUtil {
                 return  a;
     }
 
-    public static AdmissionsResponse mapAdmissionRequestToAdmission(Admissions admissions) {
-        return  AdmissionsResponse.builder()
+    public static Optional<AdmissionsResponse> mapAdmissionRequestToAdmission(Admissions admissions) {
+        return Optional.of(Optional.ofNullable(AdmissionsResponse.builder()
                 .id(admissions.getIdAdmissions())
-                .admissionCriteriaList((List<AdmissionCriteriaResponse>) admissions.getAdmissionCriteriaList().stream().map(criteria->{
+                .admissionCriteriaList((List<AdmissionCriteriaResponse>) admissions.getAdmissionCriteriaList().stream().map(criteria -> {
                     return mapCriteriaToCriteriaResponse(criteria);
                 }).toList())
-                .applicationCategoryList((List<ApplicationCategoryResponse>)admissions.getApplicationCategoryList().stream().map(category->{
+                .applicationCategoryList((List<ApplicationCategoryResponse>) admissions.getApplicationCategoryList().stream().map(category -> {
                     return mapCategoryToCategoryResponse(category);
                 }).toList())
-                .build();
+                .build()).orElse(new AdmissionsResponse()));
     }
 
 

@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -38,12 +39,12 @@ public class DepartmentUtil {
                 return d;
     }
 
-    public static DepartmentResponse mapDepartment_ToDepartmentResponse(Department d) {
-        return DepartmentResponse.builder()
+    public static Optional<DepartmentResponse> mapDepartment_ToDepartmentResponse(Department d) {
+        return Optional.ofNullable(DepartmentResponse.builder()
                 .idDepartment(d.getIdDepartment())
                 .name(d.getName())
                 .designationList(d.getDesignationList().stream().map(des-> DesignationUtil.mapDesignation_ToDesignationResponse(des)).toList())
-                .build();
+                .build());
     }
 
 

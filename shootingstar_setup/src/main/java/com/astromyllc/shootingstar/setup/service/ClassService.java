@@ -2,6 +2,7 @@ package com.astromyllc.shootingstar.setup.service;
 
 import com.astromyllc.shootingstar.setup.dto.request.ClassesRequest;
 import com.astromyllc.shootingstar.setup.dto.request.InstitutionRequest;
+import com.astromyllc.shootingstar.setup.dto.response.ClassesResponse;
 import com.astromyllc.shootingstar.setup.serviceInterface.ClassesServiceInterface;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +38,7 @@ public class ClassService implements ClassesServiceInterface {
     }
 
     @Override
-    public Optional<List<ClassesRequest>> getAllClassesByInstitution(InstitutionRequest institutionRequest) {
+    public Optional<List<ClassesResponse>> getAllClassesByInstitution(String institutionRequest) {
         return Optional.empty();
     }
 }
