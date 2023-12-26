@@ -1,5 +1,6 @@
 package com.astromyllc.shootingstar.setup.utils;
 
+import com.astromyllc.shootingstar.setup.dto.request.ClassDetail;
 import com.astromyllc.shootingstar.setup.dto.request.ClassesRequest;
 import com.astromyllc.shootingstar.setup.dto.response.ClassesResponse;
 import com.astromyllc.shootingstar.setup.model.Classes;
@@ -24,7 +25,7 @@ public class ClassesUtil {
         log.info("Global List of Classes Populated with {} records",classesGlobalList.stream().count());
     }
 
-    public static Classes mapClassRequestToClass(ClassesRequest c) {
+    public static Classes mapClassRequestToClass(ClassDetail c) {
         return Classes.builder()
                 .classGroup(c.getClassGroup())
                 .name(c.getName())
@@ -32,7 +33,7 @@ public class ClassesUtil {
     }
 
 
-    public static Classes mapClassRequestToClass(ClassesRequest cr,Classes c) {
+    public static Classes mapClassRequestToClass(ClassDetail cr,Classes c) {
         c.setClassGroup(cr.getClassGroup());
         c.setName(cr.getName());
         return c;

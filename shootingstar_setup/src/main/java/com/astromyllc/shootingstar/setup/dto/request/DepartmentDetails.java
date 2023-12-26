@@ -10,7 +10,8 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @Data
-public class GradingSettingRequest {
-    private String institution;
-    private List<GradingSettingDetails> gradingSettingDetails;
+public class DepartmentDetails {
+    private Long idDepartment;
+    private String name;
+    private List<DesignationRequest> designationList;
 }

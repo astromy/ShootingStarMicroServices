@@ -10,7 +10,7 @@ import java.util.Optional;
 @Component
 public interface LookupServiceInterface {
     public void createLookup(LookupRequest lookupRequest);
-    public  void createLookups(List<LookupRequest> lookupRequestList);
-    public Optional<List<LookupResponse>> getAllLookups();
-    public Optional<List<LookupResponse>> getAllLookupsByType(String lookupType);
+    public  List<Optional<LookupResponse>> createLookups(List<LookupRequest> lookupRequestList);
+    public List<Optional<LookupResponse>> getAllLookups();
+    public List<Optional<LookupResponse>> getAllLookupsByType(String lookupType);
 }

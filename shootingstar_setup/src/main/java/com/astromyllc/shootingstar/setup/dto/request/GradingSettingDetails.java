@@ -6,11 +6,16 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Data
-public class GradingSettingRequest {
-    private String institution;
-    private List<GradingSettingDetails> gradingSettingDetails;
+public class GradingSettingDetails {
+    private Long id;
+    private Double classPercentage;
+    private Double examsPercentage;
+    private Double trailingMark;
+    private int allowedTrails;
+    private List<GradingRequest> gradingList;
 }

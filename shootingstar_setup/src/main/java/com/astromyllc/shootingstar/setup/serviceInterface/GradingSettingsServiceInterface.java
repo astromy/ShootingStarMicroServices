@@ -12,7 +12,7 @@ import java.util.Optional;
 
 public interface GradingSettingsServiceInterface {
     public void createGradingSetting(GradingSettingRequest gradingSettingRequest);
-    public  void createGradingSetting(List<GradingSettingRequest> gradingSettingRequestList);
-    public Optional<List<GradingSettingRequest>> getAllGradingSettings();
-    public Optional<List<GradingSettingResponse>> getAllGradingSettingsByInstitution(String beceCode);
+    public  Optional<GradingSettingResponse> createGradingSettingDetails(GradingSettingRequest gradingSettingRequestList);
+    public List<Optional<GradingSettingResponse>> getAllGradingSettings();
+    public Optional<GradingSettingResponse> getAllGradingSettingsByInstitution(String beceCode);
 }

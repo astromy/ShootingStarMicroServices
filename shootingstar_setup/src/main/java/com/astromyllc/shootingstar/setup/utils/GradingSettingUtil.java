@@ -1,6 +1,7 @@
 package com.astromyllc.shootingstar.setup.utils;
 
 import com.astromyllc.shootingstar.setup.dto.request.GradingRequest;
+import com.astromyllc.shootingstar.setup.dto.request.GradingSettingDetails;
 import com.astromyllc.shootingstar.setup.dto.request.GradingSettingRequest;
 import com.astromyllc.shootingstar.setup.dto.response.GradingResponse;
 import com.astromyllc.shootingstar.setup.dto.response.GradingSettingResponse;
@@ -30,7 +31,7 @@ public class GradingSettingUtil {
         log.info("Global Grading Setting List Populated with {} records", gradingSettingsGlobalList.stream().count());
     }
 
-    public static GradingSetting mapGradeSettingRequest_ToGradeSetting(GradingSettingRequest gradingSetting) {
+    public static GradingSetting mapGradeSettingRequest_ToGradeSetting(GradingSettingDetails gradingSetting) {
         return GradingSetting.builder()
                 .examsPercentage(gradingSetting.getExamsPercentage())
                 .allowedTrails(gradingSetting.getAllowedTrails())
@@ -42,7 +43,7 @@ public class GradingSettingUtil {
                 .build();
     }
 
-    public static GradingSetting mapGradeSettingRequest_ToGradeSetting(GradingSettingRequest gradingSetting, GradingSetting gs) {
+    public static GradingSetting mapGradeSettingRequest_ToGradeSetting(GradingSettingDetails gradingSetting, GradingSetting gs) {
         gs.setExamsPercentage(gradingSetting.getExamsPercentage());
         gs.setAllowedTrails(gradingSetting.getAllowedTrails());
         gs.setClassPercentage(gradingSetting.getClassPercentage());

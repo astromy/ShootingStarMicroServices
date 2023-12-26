@@ -1,5 +1,6 @@
 package com.astromyllc.shootingstar.setup.dto.request;
 
+import com.astromyllc.shootingstar.setup.model.Department;
 import com.astromyllc.shootingstar.setup.model.Designation;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,7 +14,7 @@ import java.util.List;
 @Builder
 @Data
 public class DepartmentRequest {
-    private Long idDepartment;
-    private String name;
-    private List<DesignationRequest> designationList;
+    private String institution;
+    private List<DepartmentDetails> departmentDetailsList;
+
 }

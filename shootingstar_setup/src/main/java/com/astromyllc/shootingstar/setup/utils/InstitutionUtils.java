@@ -40,7 +40,7 @@ public class InstitutionUtils {
     static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     @Bean
-    private void fetAllInstitutions() {
+    public void fetAllInstitutions() {
         institutionGlobalList = institutionRepository.findAll();
         preOrderInstitutionGlobalList=preOrderInstitutionRepository.findAll();
         log.info("Global Institution List populated with {} records", institutionGlobalList.stream().count());
@@ -119,7 +119,8 @@ public class InstitutionUtils {
         institution.setClassList(institutionRequest.getClassList().stream().map((cr) -> ClassesUtil.mapClassRequestToClass(cr, institution.getClassList().stream().filter(c->cr.getId().equals(c.getIdClasses())).findFirst().get())).collect(Collectors.toList()));
         institution.setDepartmentList(institutionRequest.getDepartmentList().stream().map((dr) -> DepartmentUtil.mapDepartmentRequest_ToDepartment(dr,institution.getDepartmentList().stream().filter(d->dr.getIdDepartment().equals(d.getIdDepartment())).findFirst().get())).collect(Collectors.toList()));
         institution.setGradingSetting(GradingSettingUtil.mapGradeSettingRequest_ToGradeSetting(institutionRequest.getGradingSetting(),institution.getGradingSetting()));
-        institution.setSubjectList(institutionRequest.getSubjectList().stream().map((sr) -> SubjectUtil.mapSubjectRequest_ToSubject(sr,institution.getSubjectList().stream().filter(s->sr.getId().equals(s.getIdSubject())).findFirst().get())).collect(Collectors.toList()));
+        institution.setSubjectList(institutionRequest.getSubjectList().stream()
+                .map((sr) -> SubjectUtil.mapSubjectRequest_ToSubject(sr,institution.getSubjectList().stream().filter(s->sr.getId().equals(s.getIdSubject())).findFirst().get())).collect(Collectors.toList()));
         return institution;
     }
 
@@ -183,7 +184,7 @@ public class InstitutionUtils {
         Keycloak keycloak = Keycloak.getInstance(
                 "http://localhost:8090",
                 "ShootingStar",  //your realm
-                "richard.admin", //user
+                "admin", //user
                 "IdowhatIlikeIlikewhatIdo!@3", //password
                 "astroauthauth", //client id
                 clientSecret); // client secrete

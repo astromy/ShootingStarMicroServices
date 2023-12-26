@@ -15,8 +15,8 @@ import java.util.Optional;
 public interface SubjectServiceInterface {
     public void createSubject(SubjectRequest subjectRequest);
     public  void createSubjects(List<SubjectRequest> subjectRequestList);
-    public Optional<List<SubjectResponse>> getAllSubjects();
-    public Optional<List<SubjectResponse>> getAllSubjectsByClass(ClassesRequest classesRequest);
-    public Optional<List<SubjectResponse>> getAllSubjectsByInstitution(String institutionRequest);
-    public Optional<List<SubjectResponse>> getAllSubjectsByClassGroup(String classGroup);
+    public List<Optional<SubjectResponse>> getAllSubjects();
+    public List<Optional<SubjectResponse>> getAllSubjectsByClass(ClassesRequest classesRequest);
+    public List<Optional<SubjectResponse>> getAllSubjectsByInstitution(String institutionRequest);
+    public List<Optional<SubjectResponse>> getAllSubjectsByClassGroup(String classGroup);
 }

@@ -1,4 +1,6 @@
 package com.astromyllc.shootingstar.setup.service;
 
-public class JobDescriptionService {
+import com.astromyllc.shootingstar.setup.serviceInterface.JobDescriptionServiceInterface;
+
+public class JobDescriptionService implements JobDescriptionServiceInterface {
 }

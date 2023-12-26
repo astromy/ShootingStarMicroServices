@@ -5,12 +5,11 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Data
-public class GradingSettingRequest {
+public class ClassGroupRequest {
     private String institution;
-    private List<GradingSettingDetails> gradingSettingDetails;
+    private String classGroup;
 }

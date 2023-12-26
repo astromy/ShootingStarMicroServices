@@ -83,14 +83,14 @@ public class InstitutionController {
 
     @RequestMapping("/api/setup/addDepartment")
     @ResponseStatus(HttpStatus.CREATED)
-    public void SubmitPreOrderApplication(@RequestBody List<DepartmentRequest> departmentRequest) {
+    public void SubmitPreOrderApplication(@RequestBody DepartmentRequest departmentRequest) {
         log.info("Application  Received");
         departmentServiceInterface.createDepartments(departmentRequest);
     }
 
     @RequestMapping("/api/setup/getInstitutionDepartment")
     @ResponseStatus(HttpStatus.OK)
-    public Optional<List<DepartmentResponse>> getDepartmentByInstitution(@RequestBody String beceCode) {
+    public List<Optional<DepartmentResponse>> getDepartmentByInstitution(@RequestBody String beceCode) {
         log.info("Application  Received");
       return  departmentServiceInterface.getDepartmentByInstitution(beceCode);
     }
@@ -109,7 +109,7 @@ public class InstitutionController {
 
     @RequestMapping("/api/setup/getLookUpByType")
     @ResponseStatus(HttpStatus.OK)
-    public Optional<List<LookupResponse>> getLookUpType(@RequestBody String lookupType) {
+    public List<Optional<LookupResponse>> getLookUpType(@RequestBody String lookupType) {
         log.info("Request  Received");
        return lookupServiceInterface.getAllLookupsByType(lookupType);
     }
@@ -118,14 +118,14 @@ public class InstitutionController {
 
     @RequestMapping("/api/setup/addClassess")
     @ResponseStatus(HttpStatus.CREATED)
-    public void AddClassess(@RequestBody List<ClassesRequest> classesRequest) {
+    public void AddClassess(@RequestBody ClassesRequest classesRequest) {
         log.info("Class List  Received");
         classesServiceInterface.createClasses(classesRequest);
     }
 
     @RequestMapping("/api/setup/getInstitutionClassess")
     @ResponseStatus(HttpStatus.OK)
-    public Optional<List<ClassesResponse>> getClassess(@RequestBody String beceCode) {
+    public Optional<List<Optional<ClassesResponse>>> getClassess(@RequestBody String beceCode) {
         log.info("Class List  Received");
        return classesServiceInterface.getAllClassesByInstitution(beceCode);
     }
@@ -143,7 +143,7 @@ public class InstitutionController {
 
     @RequestMapping("/api/setup/getInstitutionSubjects")
     @ResponseStatus(HttpStatus.OK)
-    public Optional<List<SubjectResponse>> GetSubjects(@RequestBody String beceCode) {
+    public List<Optional<SubjectResponse>> GetSubjects(@RequestBody String beceCode) {
         log.info("Subject List  Received");
        return subjectServiceInterface.getAllSubjectsByInstitution(beceCode);
     }
@@ -155,14 +155,14 @@ public class InstitutionController {
 
     @RequestMapping("/api/setup/addGradingSetting")
     @ResponseStatus(HttpStatus.CREATED)
-    public void AddGradingSetting(@RequestBody List<GradingSettingRequest> gradingSettingRequests) {
+    public void AddGradingSetting(@RequestBody GradingSettingRequest gradingSettingRequests) {
         log.info("Grade Setting  Received");
         gradingSettingsServiceInterface.createGradingSetting(gradingSettingRequests);
     }
 
     @RequestMapping("/api/setup/getInstitutionGradingSetting")
     @ResponseStatus(HttpStatus.OK)
-    public Optional<List<GradingSettingResponse>> GetGradingSettingByCode(@RequestBody String beceCode) {
+    public Optional<GradingSettingResponse> GetGradingSettingByCode(@RequestBody String beceCode) {
         log.info("Grade Setting  Received");
        return gradingSettingsServiceInterface.getAllGradingSettingsByInstitution(beceCode);
     }

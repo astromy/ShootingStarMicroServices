@@ -5,12 +5,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Data
 public class ClassesRequest {
-    private Long id;
-    private String name;
-    private String classGroup;
+    String institution;
+    List<ClassDetail> classDetailList;
 }

@@ -7,6 +7,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface DepartmentServiceInterface {
-    void createDepartments(List<DepartmentRequest> departmentRequest);
-    Optional<List<DepartmentResponse>> getDepartmentByInstitution(String beceCode);
+    void createDepartments(DepartmentRequest departmentRequest);
+    List<Optional<DepartmentResponse>> getDepartmentByInstitution(String beceCode);
 }

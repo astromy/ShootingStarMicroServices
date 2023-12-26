@@ -1,5 +1,6 @@
 package com.astromyllc.shootingstar.setup.utils;
 
+import com.astromyllc.shootingstar.setup.dto.request.SubjectDetails;
 import com.astromyllc.shootingstar.setup.dto.request.SubjectRequest;
 import com.astromyllc.shootingstar.setup.dto.response.SubjectResponse;
 import com.astromyllc.shootingstar.setup.model.Subject;
@@ -25,7 +26,7 @@ public class SubjectUtil {
         log.info("Global list of Subjects Populated with {} Record", subjectGlobalList.stream().count());
     }
 
-    public static Subject mapSubjectRequest_ToSubject(SubjectRequest s) {
+    public static Subject mapSubjectRequest_ToSubject(SubjectDetails s) {
         return Subject.builder()
                 .classGroup(s.getClassGroup())
                 .name(s.getName())
@@ -33,7 +34,7 @@ public class SubjectUtil {
                 .build();
     }
 
-    public static Subject mapSubjectRequest_ToSubject(SubjectRequest s, Subject subject) {
+    public static Subject mapSubjectRequest_ToSubject(SubjectDetails s, Subject subject) {
         subject.setClassGroup(s.getClassGroup());
         subject.setName(s.getName());
         subject.setPreference(s.getPreference());

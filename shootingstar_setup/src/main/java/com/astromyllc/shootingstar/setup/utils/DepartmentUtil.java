@@ -1,5 +1,6 @@
 package com.astromyllc.shootingstar.setup.utils;
 
+import com.astromyllc.shootingstar.setup.dto.request.DepartmentDetails;
 import com.astromyllc.shootingstar.setup.dto.request.DepartmentRequest;
 import com.astromyllc.shootingstar.setup.dto.response.DepartmentResponse;
 import com.astromyllc.shootingstar.setup.model.Department;
@@ -26,14 +27,14 @@ public class DepartmentUtil {
         log.info("Global Department List populated with {} records",departmentGlobalList.stream().count());
     }
 
-    public static Department mapDepartmentRequest_ToDepartment(DepartmentRequest dr) {
+    public static Department mapDepartmentRequest_ToDepartment(DepartmentDetails dr) {
         return Department.builder()
                 .name(dr.getName())
                 .designationList(dr.getDesignationList().stream().map(des-> DesignationUtil.mapDesignationRequest_ToDesignation(des)).toList())
                 .build();
     }
 
-    public static Department mapDepartmentRequest_ToDepartment(DepartmentRequest dr, Department d) {
+    public static Department mapDepartmentRequest_ToDepartment(DepartmentDetails dr, Department d) {
                 d.setName(dr.getName());
                 d.setDesignationList(dr.getDesignationList().stream().map(des-> DesignationUtil.mapDesignationRequest_ToDesignation(des,d.getDesignationList().stream().filter(des1->des.getIdDesignation().equals(des1.getIdDesignation())).findFirst().get())).collect(Collectors.toList()));
                 return d;
