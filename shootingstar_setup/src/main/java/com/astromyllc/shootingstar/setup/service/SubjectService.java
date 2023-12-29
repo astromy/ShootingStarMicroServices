@@ -58,13 +58,15 @@ public class SubjectService implements SubjectServiceInterface {
     }
 
     @Override
-    public List<Optional<SubjectResponse>> getAllSubjectsByInstitution(String institutionRequest) {
-      return   institutionUtils.institutionGlobalList.stream().filter(i->i.getBececode().equals(institutionRequest)).findFirst().get().getSubjectList().stream().map(s->subjectUtil.mapSubject_ToSubjectResponse(s)).collect(Collectors.toList());
+    public List<Optional<SubjectResponse>> getAllSubjectsByInstitution(SingleStringRequest institutionRequest) {
+        String finalBeceCode= institutionRequest.getVal();
+      return   institutionUtils.institutionGlobalList.stream().filter(i->i.getBececode().equals(finalBeceCode)).findFirst().get().getSubjectList().stream().map(s->subjectUtil.mapSubject_ToSubjectResponse(s)).collect(Collectors.toList());
 
     }
 
     @Override
-    public List<Optional<SubjectResponse>> getAllSubjectsByClassGroup(String classGroup) {
+    public List<Optional<SubjectResponse>> getAllSubjectsByClassGroup(SingleStringRequest classGroup1) {
+        String classGroup= classGroup1.getVal();
        return subjectUtil.subjectGlobalList.stream().filter(s->s.getClassGroup().equals(classGroup)).map(m->subjectUtil.mapSubject_ToSubjectResponse(m)).collect(Collectors.toList());
     }
 }

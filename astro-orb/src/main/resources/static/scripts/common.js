@@ -871,46 +871,37 @@ function trialbalanaceBuild() {
 
 //-------------------------------------------------------------------------------------------------------
 
-/*function postData(url, filedata2){
-	var formData = new FormData();*/
-	// filedata = document.getElementById('picFile').value;
-	/*var header = $("meta[name='_csrf_header']").attr("content");
-	var token = $("meta[name='_csrf']").attr("content");*/
-/*
 
-				$.ajax({
-					url : url,
-					type : 'POST',
-					data : filedata2,
-					beforeSend : function(xhr) {
-						xhr.setRequestHeader(header, token);
-					},
-					cache : false,
-					contentType : false,
-					processData : false,
-					xhr : function() {
-						var myXhr = $.ajaxSettings.xhr();
-						if (myXhr.upload) {
-							myXhr.upload.addEventListener('progress', function(
-									e) {
-								if (e.lengthComputable) {
-									$('progress').attr({
-										value : e.loaded,
-										max : e.total,
-									});
-								}
-							}, false);
-						}
-						return myXhr;
-					},
-					success : function(data) {
-						alert(data);
-						document.getElementById('cancelItemType').click();
-					},
-					error : function(errMsg) {
-						alert(errMsg);
-					}
-				});
+function HttpPost(url,data){
 
-				filedata = "";
-}*/
+	var header = $("meta[name='_csrf_header']").attr("content");
+	var token = $("meta[name='_csrf']").attr("content");
+	var access_token = $("meta[name='scope']").attr("content");
+
+      return new Promise((resolve) => {
+      $.ajax({
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer' + access_token
+                },
+            url : url,
+            type : 'POST',
+            data : JSON.stringify(data),
+            beforeSend : function(xhr) {
+                xhr.setRequestHeader(header, token);
+            },
+                 success: function (data) {
+                         resolve(data);
+                 },
+                  error : function(errMsg) {
+                      swal({
+                             title: "Sorry!",
+                             text:  "Operation Failed\n" + errMsg ,
+                             type: "error"
+                        });
+                  }
+        });
+      })
+}
+

@@ -1,15 +1,20 @@
 package com.astromyllc.astroorb.dto.request;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Data
 public class JobDescriptionRequest {
-    private Long idJobDescription;
-    private String jobDescription;
+
+    @NonNull
+    private String institutionBECECOde;
+    @NonNull
+    private String departmentId;
+    @NonNull
+    private String designationId;
+    private List<JobDescriptionRequestDetails> jobDescriptionRequestDetails;
 }

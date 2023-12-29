@@ -1,10 +1,7 @@
 package com.astromyllc.shootingstar.setup.dto.request;
 
 import com.astromyllc.shootingstar.setup.model.JobDescription;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
@@ -14,8 +11,11 @@ import java.util.List;
 @Data
 public class JobDescriptionRequest {
 
+    @NonNull
     private String institutionBECECOde;
+    @NonNull
     private String departmentId;
+    @NonNull
     private String designationId;
     private List<JobDescriptionRequestDetails> jobDescriptionRequestDetails;
 }

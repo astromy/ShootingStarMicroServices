@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 
 import static com.astromyllc.shootingstar.academics.util.AssessmentUtil.institutionGlobalRequest;
 
@@ -44,9 +45,9 @@ public class ExamsAssessmentUtil {
                 .build();
     }
 
-    public ExamsAssessmentResponse mapExamsAssessment_ToExamsAssessmentResponse(ExamsAssessment car) {
+    public Optional<ExamsAssessmentResponse> mapExamsAssessment_ToExamsAssessmentResponse(ExamsAssessment car) {
         String sub=institutionGlobalRequest.stream().filter(i -> i.getBececode().equals(car.getInstitutionCode())).findFirst().get().getSubjectList().stream().filter(s -> s.getId().equals(car.getSubject())).findFirst().get().getName();
-        return ExamsAssessmentResponse
+        return Optional.of(ExamsAssessmentResponse
                 .builder()
                 .dateTime(car.getDateTime())
                 .term(car.getTerm())
@@ -56,6 +57,6 @@ public class ExamsAssessmentUtil {
                 .subject(sub)
                 .institutionCode(car.getInstitutionCode())
                 .studentId(car.getStudentId())
-                .build();
+                .build());
     }
 }

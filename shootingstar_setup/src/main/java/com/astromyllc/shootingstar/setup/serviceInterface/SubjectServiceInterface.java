@@ -2,6 +2,7 @@ package com.astromyllc.shootingstar.setup.serviceInterface;
 
 import com.astromyllc.shootingstar.setup.dto.request.ClassesRequest;
 import com.astromyllc.shootingstar.setup.dto.request.InstitutionRequest;
+import com.astromyllc.shootingstar.setup.dto.request.SingleStringRequest;
 import com.astromyllc.shootingstar.setup.dto.request.SubjectRequest;
 import com.astromyllc.shootingstar.setup.dto.response.SubjectResponse;
 import com.astromyllc.shootingstar.setup.model.Classes;
@@ -17,6 +18,6 @@ public interface SubjectServiceInterface {
     public  void createSubjects(List<SubjectRequest> subjectRequestList);
     public List<Optional<SubjectResponse>> getAllSubjects();
     public List<Optional<SubjectResponse>> getAllSubjectsByClass(ClassesRequest classesRequest);
-    public List<Optional<SubjectResponse>> getAllSubjectsByInstitution(String institutionRequest);
-    public List<Optional<SubjectResponse>> getAllSubjectsByClassGroup(String classGroup);
+    public List<Optional<SubjectResponse>> getAllSubjectsByInstitution(SingleStringRequest institutionRequest);
+    public List<Optional<SubjectResponse>> getAllSubjectsByClassGroup(SingleStringRequest classGroup);
 }

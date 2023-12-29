@@ -2,6 +2,7 @@ package com.astromyllc.shootingstar.setup.serviceInterface;
 
 import com.astromyllc.shootingstar.setup.dto.request.ClassGroupRequest;
 import com.astromyllc.shootingstar.setup.dto.request.ClassesRequest;
+import com.astromyllc.shootingstar.setup.dto.request.SingleStringRequest;
 import com.astromyllc.shootingstar.setup.dto.response.ClassesResponse;
 
 import java.util.List;
@@ -12,5 +13,5 @@ public interface ClassesServiceInterface {
     public  void createClasses(ClassesRequest classesRequestList);
     public List<Optional<ClassesResponse>> getAllClasses();
     public List<Optional<ClassesResponse>> getAllClassesByClassGroup(ClassGroupRequest classGroupRequest);
-    public Optional<List<Optional<ClassesResponse>>> getAllClassesByInstitution(String institutionRequest);
+    public Optional<List<Optional<ClassesResponse>>> getAllClassesByInstitution(SingleStringRequest institutionRequest);
 }

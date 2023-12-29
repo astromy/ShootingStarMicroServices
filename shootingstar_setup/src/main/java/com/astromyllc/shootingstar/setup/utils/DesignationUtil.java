@@ -1,6 +1,7 @@
 package com.astromyllc.shootingstar.setup.utils;
 
 import com.astromyllc.shootingstar.setup.dto.request.DesignationRequest;
+import com.astromyllc.shootingstar.setup.dto.request.DesignationRequestDetails;
 import com.astromyllc.shootingstar.setup.dto.response.DesignationResponse;
 import com.astromyllc.shootingstar.setup.model.Designation;
 import com.astromyllc.shootingstar.setup.repository.DesignationRepository;
@@ -10,6 +11,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -26,7 +28,7 @@ public class DesignationUtil {
         log.info("Global Designation List populated with {} records",designationGlobalList.stream().count());
     }
 
-    public static Designation mapDesignationRequest_ToDesignation(DesignationRequest des) {
+    public static Designation mapDesignationRequest_ToDesignation(DesignationRequestDetails des) {
         return Designation.builder()
                 .code(des.getCode())
                 .name(des.getName())
@@ -34,20 +36,20 @@ public class DesignationUtil {
                 .build();
     }
 
-    public static Designation mapDesignationRequest_ToDesignation(DesignationRequest des,Designation d) {
+    public static Designation mapDesignationRequest_ToDesignation(DesignationRequestDetails des,Designation d) {
                 d.setCode(des.getCode());
                 d.setName(des.getName());
                 d.setJobDescriptionList(des.getJobDescriptionList().stream().map(jb-> JobDescriptionUtil.mapJobDescriptionRequest_ToJobDescription(jb,d.getJobDescriptionList().stream().filter(jb1->jb.getIdJobDescription().equals(jb1.getIdJobDescription())).findFirst().get())).collect(Collectors.toList()));
                return d;
     }
 
-    public static DesignationResponse mapDesignation_ToDesignationResponse(Designation des) {
-        return DesignationResponse.builder()
+    public static Optional<DesignationResponse> mapDesignation_ToDesignationResponse(Designation des) {
+        return Optional.of(DesignationResponse.builder()
                 .idDesignation(des.getIdDesignation())
                 .code(des.getCode())
                 .name(des.getName())
-                .jobDescriptionList(des.getJobDescriptionList().stream().map(jb-> JobDescriptionUtil.mapJobDescription_ToJobDescriptionResponse(jb)).toList())
-                .build();
+                .jobDescriptionList(des.getJobDescriptionList().stream().map(jb-> JobDescriptionUtil.mapJobDescription_ToJobDescriptionResponse(jb)).collect(Collectors.toList()))
+                .build());
     }
 
 

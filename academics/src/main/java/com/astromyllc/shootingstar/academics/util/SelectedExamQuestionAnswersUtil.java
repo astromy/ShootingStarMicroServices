@@ -1,5 +1,6 @@
 package com.astromyllc.shootingstar.academics.util;
 
+import com.astromyllc.shootingstar.academics.dto.response.SelectedExamQuestionAnswersResponse;
 import com.astromyllc.shootingstar.academics.model.SelectedExamQuestionAnswers;
 import com.astromyllc.shootingstar.academics.repository.SelectedExamsQuestionAnswersRepository;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -24,6 +26,14 @@ public class SelectedExamQuestionAnswersUtil {
     private void fetAllSelectedExamQuestionAnswers() {
         selectedExamQuestionAnswersGlobalList = selectedExamsQuestionAnswersRepository.findAll();
         log.info("Global SelectedExamQuestionAnswers List populated with {} records", selectedExamQuestionAnswersGlobalList.size());
+    }
+
+    public static Optional<SelectedExamQuestionAnswersResponse> mapSelectedExamsQuestionAns_ToExamsQuestionAnsResponse(SelectedExamQuestionAnswers sea) {
+    return Optional.of(SelectedExamQuestionAnswersResponse.builder()
+                    .id(sea.getId())
+                    .answer(sea.getAnswer())
+                    .isAnswer(sea.isAnswer())
+            .build());
     }
 
 }

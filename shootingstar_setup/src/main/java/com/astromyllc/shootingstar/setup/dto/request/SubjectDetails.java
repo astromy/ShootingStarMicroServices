@@ -1,9 +1,6 @@
 package com.astromyllc.shootingstar.setup.dto.request;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -12,7 +9,9 @@ import lombok.NoArgsConstructor;
 public class SubjectDetails {
 
     private Long id;
+    @NonNull
     private String name;
+    @NonNull
     private String classGroup;
     private int preference;
 }

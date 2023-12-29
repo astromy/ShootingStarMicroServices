@@ -224,6 +224,8 @@ services:
 
   ##MAIN MICROSERVICES DOCKER COMPOSE
  # discovery-server:
+ # astro-orb:
+ # astro-preorder:
  # astro-api-gateway:
  # clinic:
  # academics:

@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -45,7 +46,7 @@ public class ExamsAssessmentService implements ExamsAssessmentServiceInterface {
     }
 
     @Override
-    public List<ExamsAssessmentResponse> getExamsAssessmentByStudent(ExamsAssessmentRequest examsAssessmentRequest) {
+    public List<Optional<ExamsAssessmentResponse>> getExamsAssessmentByStudent(ExamsAssessmentRequest examsAssessmentRequest) {
         List <ExamsAssessment> ea=examsAssessmentUtil.examsAssessmentGlobalList.stream().filter(
                 car->car.getStudentId().equals(examsAssessmentRequest.getStudentId())
                         && car.getSubject().equals(examsAssessmentRequest.getSubject())
@@ -55,12 +56,95 @@ public class ExamsAssessmentService implements ExamsAssessmentServiceInterface {
     }
 
     @Override
-    public List<ExamsAssessmentResponse> getExamsAssessmentByClass(ExamsAssessmentRequest examsAssessmentRequest) {
+    public List<Optional<ExamsAssessmentResponse>> getExamsAssessmentByClass(ExamsAssessmentRequest examsAssessmentRequest) {
         List <ExamsAssessment> ea=examsAssessmentUtil.examsAssessmentGlobalList.stream().filter(
                 car->car.getSubject().equals(examsAssessmentRequest.getSubject())
                         && car.getTerm().equals(examsAssessmentRequest.getTerm())
                         && car.getDateTime().toLocalDate().equals(LocalDateTime.parse(examsAssessmentRequest.getDateTime(),formatter).toLocalDate())).collect(Collectors.toList());
         return ea.stream().map(ear->examsAssessmentUtil.mapExamsAssessment_ToExamsAssessmentResponse(ear)).collect(Collectors.toList());
+    }
 
+    /**
+     *
+     * @param examsAssessmentRequest
+     * @return a List of Exams results for all subjects of a given Student in a given Academic Term
+     */
+    @Override
+    public List<List<Optional<ExamsAssessmentResponse>>> fetchExamsAssessmentsForStudentPerTerm(List<ExamsAssessmentRequest> examsAssessmentRequest) {
+        List<List<Optional<ExamsAssessmentResponse>>> eax= examsAssessmentRequest.stream().map(e->examsAssessmentUtil.examsAssessmentGlobalList.stream().filter(
+                ea->e.getStudentId().equals(ea.getStudentId())
+                && e.getAcademicYear().equals(ea.getAcademicYear())
+                && e.getTerm().equals(ea.getTerm())
+        ).map(r->examsAssessmentUtil.mapExamsAssessment_ToExamsAssessmentResponse(r)).collect(Collectors.toList())).collect(Collectors.toList());
+        return eax;
+    }
+
+    /**
+     *
+     * @param examsAssessmentRequest
+     * @return a List of Exams results for all subjects of a given Student in a given Academic Year
+     */
+    @Override
+    public List<List<Optional<ExamsAssessmentResponse>>> fetchExamsAssessmentsForStudentPerAcademicYear(List<ExamsAssessmentRequest> examsAssessmentRequest) {
+        List<List<Optional<ExamsAssessmentResponse>>> eax= examsAssessmentRequest.stream().map(e->examsAssessmentUtil.examsAssessmentGlobalList.stream().filter(
+                ea->e.getStudentId().equals(ea.getStudentId())
+                        && e.getAcademicYear().equals(ea.getAcademicYear())
+        ).map(r->examsAssessmentUtil.mapExamsAssessment_ToExamsAssessmentResponse(r)).collect(Collectors.toList())).collect(Collectors.toList());
+        return eax;
+    }
+
+    /**
+     *
+     * @param examsAssessmentRequest
+     * @return a List of Exams results for all subjects of a given Student in a given Academic Year
+     */
+    @Override
+    public List<List<Optional<ExamsAssessmentResponse>>> fetchStudentProgressionReport(List<ExamsAssessmentRequest> examsAssessmentRequest) {
+        List<List<Optional<ExamsAssessmentResponse>>> eax= examsAssessmentRequest.stream().map(e->examsAssessmentUtil.examsAssessmentGlobalList.stream().filter(
+                ea->e.getStudentId().equals(ea.getStudentId())
+        ).map(r->examsAssessmentUtil.mapExamsAssessment_ToExamsAssessmentResponse(r)).collect(Collectors.toList())).collect(Collectors.toList());
+        return eax;
+    }
+
+    /**
+     *
+     * @param examsAssessmentRequest
+     * @return a List of Exams results for all subjects of a given Class in a given Academic Term
+     */
+    @Override
+    public List<List<Optional<ExamsAssessmentResponse>>> fetchExamsAssessmentsForClassPerTerm(List<ExamsAssessmentRequest> examsAssessmentRequest) {
+        List<List<Optional<ExamsAssessmentResponse>>> eax= examsAssessmentRequest.stream().map(e->examsAssessmentUtil.examsAssessmentGlobalList.stream().filter(
+                ea->e.getStudentClass().equals(ea.getStudentClass())
+                        && e.getAcademicYear().equals(ea.getAcademicYear())
+                        && e.getTerm().equals(ea.getTerm())
+        ).map(r->examsAssessmentUtil.mapExamsAssessment_ToExamsAssessmentResponse(r)).collect(Collectors.toList())).collect(Collectors.toList());
+        return eax;
+    }
+
+    /**
+     *
+     * @param examsAssessmentRequest
+     * @return a List of Exams results for all subjects of a given Class in a given Academic Year
+     */
+    @Override
+    public List<List<Optional<ExamsAssessmentResponse>>> fetchExamsAssessmentsForClassPerAcademicYear(List<ExamsAssessmentRequest> examsAssessmentRequest) {
+        List<List<Optional<ExamsAssessmentResponse>>> eax= examsAssessmentRequest.stream().map(e->examsAssessmentUtil.examsAssessmentGlobalList.stream().filter(
+                ea->e.getStudentClass().equals(ea.getStudentClass())
+                        && e.getAcademicYear().equals(ea.getAcademicYear())
+        ).map(r->examsAssessmentUtil.mapExamsAssessment_ToExamsAssessmentResponse(r)).collect(Collectors.toList())).collect(Collectors.toList());
+        return eax;
+    }
+
+    /**
+     *
+     * @param examsAssessmentRequest
+     * @return a List of Exams results for all subjects of a given Class in a given Academic Year
+     */
+    @Override
+    public List<List<Optional<ExamsAssessmentResponse>>> fetchPerformance(List<ExamsAssessmentRequest> examsAssessmentRequest) {
+        List<List<Optional<ExamsAssessmentResponse>>> eax= examsAssessmentRequest.stream().map(e->examsAssessmentUtil.examsAssessmentGlobalList.stream().filter(
+                ea->e.getStudentClass().equals(ea.getStudentClass())
+        ).map(r->examsAssessmentUtil.mapExamsAssessment_ToExamsAssessmentResponse(r)).collect(Collectors.toList())).collect(Collectors.toList());
+        return eax;
     }
 }

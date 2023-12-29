@@ -16,7 +16,9 @@ public class Grading {
    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idGrading;
+ @NonNull
     private Double lowerLimit;
+ @NonNull
     private int grade;
     private String comment;
     //@ManyToOne(optional = false)

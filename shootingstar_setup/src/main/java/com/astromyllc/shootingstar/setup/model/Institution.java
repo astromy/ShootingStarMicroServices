@@ -1,10 +1,7 @@
 package com.astromyllc.shootingstar.setup.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -19,20 +16,26 @@ public class Institution {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
  
     private Long idInstitution;
+    @NonNull
     private String name;
     private String slogan;
+    @NonNull
     private String country;
     private String region;
     private String city;
+    @NonNull
     private String email;
     private String website;
+    @NonNull
     private String contact1;
     private String contact2;
     private String status;
     @Column(unique=true)
+    @NonNull
     private String bececode;
     private LocalDate creationDate;
     private String postalAddress;
+    @NonNull
     private Integer streams;
     private String subscription;
 

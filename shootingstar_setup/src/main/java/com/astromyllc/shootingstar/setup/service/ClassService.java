@@ -3,6 +3,7 @@ package com.astromyllc.shootingstar.setup.service;
 import com.astromyllc.shootingstar.setup.dto.request.ClassDetail;
 import com.astromyllc.shootingstar.setup.dto.request.ClassGroupRequest;
 import com.astromyllc.shootingstar.setup.dto.request.ClassesRequest;
+import com.astromyllc.shootingstar.setup.dto.request.SingleStringRequest;
 import com.astromyllc.shootingstar.setup.dto.response.ClassesResponse;
 import com.astromyllc.shootingstar.setup.model.Classes;
 import com.astromyllc.shootingstar.setup.model.Institution;
@@ -63,9 +64,9 @@ public class ClassService implements ClassesServiceInterface {
     }
 
     @Override
-    public Optional<List<Optional<ClassesResponse>>> getAllClassesByInstitution(String institutionRequest) {
-        String finalBeceCode= institutionRequest.split("\"")[3];
-        Optional<Institution> inst=institutionUtils.institutionGlobalList.stream().filter(x->x.getBececode().equals(institutionRequest)).findFirst();
+    public Optional<List<Optional<ClassesResponse>>> getAllClassesByInstitution(SingleStringRequest institutionRequest) {
+        String finalBeceCode= institutionRequest.getVal();
+        Optional<Institution> inst=institutionUtils.institutionGlobalList.stream().filter(x->x.getBececode().equals(finalBeceCode)).findFirst();
         return Optional.ofNullable(inst.get().getClassList().stream().map(i->classesUtil.mapClassToClassResponse(i)).collect(Collectors.toList()));
     }
 }

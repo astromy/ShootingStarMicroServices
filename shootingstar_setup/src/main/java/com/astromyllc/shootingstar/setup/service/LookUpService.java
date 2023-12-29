@@ -1,6 +1,7 @@
 package com.astromyllc.shootingstar.setup.service;
 
 import com.astromyllc.shootingstar.setup.dto.request.LookupRequest;
+import com.astromyllc.shootingstar.setup.dto.request.SingleStringRequest;
 import com.astromyllc.shootingstar.setup.dto.response.LookupResponse;
 import com.astromyllc.shootingstar.setup.model.Lookup;
 import com.astromyllc.shootingstar.setup.repository.LookUpRepository;
@@ -41,7 +42,8 @@ public class LookUpService implements LookupServiceInterface {
     }
 
     @Override
-    public List<Optional<LookupResponse>> getAllLookupsByType(String lookupType) {
+    public List<Optional<LookupResponse>> getAllLookupsByType(SingleStringRequest lookupType1) {
+        String lookupType= lookupType1.getVal();
         return lookupUtil.lookupGlobalList.stream().filter(x->x.getType().equals(lookupType)).map(y->lookupUtil.mapLookUp_ToLookUpResponse(y)).collect(Collectors.toList());
     }
 }

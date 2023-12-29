@@ -25,14 +25,15 @@ spring:
     oauth2:
       client:
         registration:
-          keycloak:
+          ShootingStar:
             client-id: astroauthauth
-            client-secret: qfIGFFAFmPn1yjKYG8Ahw9WsCGw446OV
+            client-secret: ywUvVeSUVbbwgsfABUNWyKPJimFXkcwJ
             authorization-grant-type: authorization_code
             redirect-url: http://localhost:7013/login/oauth2/code/astroauthauth
             scope:
               - openid
               - profile
               - email
+              - roles
         provider:
           keycloak.issuer-uri: http://keycloak:8080/realms/ShootingStar

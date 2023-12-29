@@ -1,9 +1,6 @@
 package com.astromyllc.shootingstar.setup.dto.request;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
@@ -12,6 +9,7 @@ import java.util.List;
 @Builder
 @Data
 public class ClassesRequest {
+    @NonNull
     String institution;
     List<ClassDetail> classDetailList;
 }

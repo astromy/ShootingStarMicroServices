@@ -1,6 +1,7 @@
 package com.astromyllc.shootingstar.setup.utils;
 
 import com.astromyllc.shootingstar.setup.dto.request.JobDescriptionRequest;
+import com.astromyllc.shootingstar.setup.dto.request.JobDescriptionRequestDetails;
 import com.astromyllc.shootingstar.setup.dto.response.JobDescriptionResponse;
 import com.astromyllc.shootingstar.setup.model.JobDescription;
 import com.astromyllc.shootingstar.setup.repository.JobDescriptionRepository;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -25,19 +27,19 @@ public class JobDescriptionUtil {
         jobDescriptionGlobalList=jobDescriptionRepository.findAll();
         log.info("Global JobDescription List populated with {} records",jobDescriptionGlobalList.stream().count());
     }
-    public static JobDescription mapJobDescriptionRequest_ToJobDescription(JobDescriptionRequest jb) {
+    public static JobDescription mapJobDescriptionRequest_ToJobDescription(JobDescriptionRequestDetails jb) {
         return JobDescription.builder()
                 .jobDescription(jb.getJobDescription())
                 .build();
     }
-    public static JobDescription mapJobDescriptionRequest_ToJobDescription(JobDescriptionRequest jb,JobDescription j) {
+    public static JobDescription mapJobDescriptionRequest_ToJobDescription(JobDescriptionRequestDetails jb,JobDescription j) {
                 j.setJobDescription(jb.getJobDescription());
                 return j;
     }
-    public static JobDescriptionResponse mapJobDescription_ToJobDescriptionResponse(JobDescription jb) {
-        return JobDescriptionResponse.builder()
+    public static Optional<JobDescriptionResponse> mapJobDescription_ToJobDescriptionResponse(JobDescription jb) {
+        return Optional.of(JobDescriptionResponse.builder()
                 .idJobDescription(jb.getIdJobDescription())
                 .jobDescription(jb.getJobDescription())
-                .build();
+                .build());
     }
 }

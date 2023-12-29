@@ -12,8 +12,7 @@ import java.util.List;
 @Builder
 @Data
 public class DesignationRequest {
-    private Long idDesignation;
-    private String name;
-    private String code;
-    private List<JobDescriptionRequest> jobDescriptionList;
+    private String institutionBECECode;
+    private String departmentId;
+    private List<DesignationRequestDetails> designationRequestDetails;
 }

@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.Optional;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,5 +16,5 @@ import java.util.List;
 public class DepartmentResponse {
     private Long idDepartment;
     private String name;
-    private List<DesignationResponse> designationList;
+    private List<Optional<DesignationResponse>> designationList;
 }

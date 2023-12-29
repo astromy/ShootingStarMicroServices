@@ -1,6 +1,7 @@
 package com.astromyllc.astroorb.controller;
 
 import com.astromyllc.astroorb.dto.request.PreOrderInstitutionRequest;
+import com.astromyllc.astroorb.dto.request.SingleStringRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import org.springframework.stereotype.Controller;
@@ -24,7 +25,6 @@ public class PreOrderController {
     private OAuth2AuthorizedClientService authorizedClientService;*/
 
     @ResponseBody
-    //@PostMapping("/preRequestInstitution")
     @RequestMapping(value = "/preRequestInstitution", method = RequestMethod.POST)
     public String preRequestInstitution(@RequestBody PreOrderInstitutionRequest jso) throws IOException {
        // jso.setCreationDate(LocalDate.now());
@@ -48,13 +48,44 @@ public class PreOrderController {
             while ((responseLine = br.readLine()) != null) {
                 response.append(responseLine.trim());
             }
-            System.out.println(response.toString());
+            //System.out.println(response.toString());
         }
 
-        return "index";
+        return "";
 //http://orb.kentengh.com/api/setup/preRequestInstitution
     }
 
+
+    @ResponseBody
+    @RequestMapping(value = "/getInstitutionByCode", method = RequestMethod.POST)
+    public String fetchInstitution(@RequestBody SingleStringRequest jso) throws IOException {
+
+        StringBuilder response = new StringBuilder();
+        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        String json = ow.writeValueAsString(jso);
+        URL url = new URL ("http://localhost:8083/api/setup/getInstitutionByCode");
+        HttpURLConnection con = (HttpURLConnection)url.openConnection();
+        con.setRequestMethod("POST");
+        con.setRequestProperty("Content-Type", "application/json");
+        con.setRequestProperty("Accept", "application/json");
+        con.setDoOutput(true);
+        String jsonInputString = json;
+        try(OutputStream os = con.getOutputStream()) {
+            byte[] input = jsonInputString.getBytes("utf-8");
+            os.write(input, 0, input.length);
+        }
+        try(BufferedReader br = new BufferedReader(
+                new InputStreamReader(con.getInputStream(), "utf-8"))) {
+            String responseLine = null;
+            while ((responseLine = br.readLine()) != null) {
+                response.append(responseLine.trim());
+            }
+           // System.out.println(response.toString());
+        }
+
+        return response.toString();
+//http://orb.kentengh.com/api/setup/preRequestInstitution
+    }
 
   /*  private OAuth2AuthorizedClient getAuthorizedClient(OAuth2AuthenticationToken authentication) {
         return this.authorizedClientService.loadAuthorizedClient(

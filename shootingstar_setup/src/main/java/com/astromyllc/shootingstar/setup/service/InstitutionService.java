@@ -2,6 +2,7 @@ package com.astromyllc.shootingstar.setup.service;
 
 import com.astromyllc.shootingstar.setup.dto.request.InstitutionRequest;
 import com.astromyllc.shootingstar.setup.dto.request.PreOrderInstitutionRequest;
+import com.astromyllc.shootingstar.setup.dto.request.SingleStringRequest;
 import com.astromyllc.shootingstar.setup.dto.response.InstitutionResponse;
 import com.astromyllc.shootingstar.setup.dto.response.PreOrderInstitutionResponse;
 import com.astromyllc.shootingstar.setup.model.Institution;
@@ -58,8 +59,8 @@ private final InstitutionUtils institutionUtils;
     }
 
     @Override
-    public Optional<InstitutionResponse> getInstitutionByBeceCode(String beceCode) {
-        String finalBeceCode= beceCode.split("\"")[3];
+    public Optional<InstitutionResponse> getInstitutionByBeceCode(SingleStringRequest beceCode) {
+        String finalBeceCode= beceCode.getVal();
         List<Institution> ii=institutionUtils.institutionGlobalList.stream().filter(x -> x.getBececode().equals(finalBeceCode)).toList();
          Optional<Institution> i=Optional.ofNullable(institutionUtils.institutionGlobalList.stream().filter(x -> x.getBececode().equals(finalBeceCode)).findFirst().get());
         return Optional.ofNullable(institutionUtils.mapInstitutionToInstitutionResponse(i.get()));

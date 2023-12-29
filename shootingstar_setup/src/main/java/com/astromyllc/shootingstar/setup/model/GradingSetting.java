@@ -17,7 +17,9 @@ public class GradingSetting {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idGradingSetting;
+    @NonNull
     private Double classPercentage;
+    @NonNull
     private Double examsPercentage;
     private Double trailingMark;
     private int allowedTrails;

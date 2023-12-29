@@ -1,16 +1,15 @@
 package com.astromyllc.astroorb.dto.request;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Data
 public class ClassesRequest {
-    private Long id;
-    private String name;
-    private String classGroup;
+    @NonNull
+    String institution;
+    List<ClassDetail> classDetailList;
 }

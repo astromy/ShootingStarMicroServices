@@ -2,6 +2,7 @@ package com.astromyllc.shootingstar.setup.service;
 
 import com.astromyllc.shootingstar.setup.dto.request.GradingSettingRequest;
 import com.astromyllc.shootingstar.setup.dto.request.InstitutionRequest;
+import com.astromyllc.shootingstar.setup.dto.request.SingleStringRequest;
 import com.astromyllc.shootingstar.setup.dto.response.GradingSettingResponse;
 import com.astromyllc.shootingstar.setup.model.GradingSetting;
 import com.astromyllc.shootingstar.setup.model.Institution;
@@ -47,7 +48,8 @@ public class GradingSystemService implements GradingSettingsServiceInterface {
     }
 
     @Override
-    public Optional<GradingSettingResponse> getAllGradingSettingsByInstitution(String institutionRequest) {
+    public Optional<GradingSettingResponse> getAllGradingSettingsByInstitution(SingleStringRequest institutionRequest1) {
+        String institutionRequest= institutionRequest1.getVal();
         return  gradingSettingUtil.mapGradeSetting_ToGradeSettingResponse(institutionUtils.institutionGlobalList.stream().filter(i->i.getBececode().equals(institutionRequest)).findFirst().get().getGradingSetting());
     }
 }

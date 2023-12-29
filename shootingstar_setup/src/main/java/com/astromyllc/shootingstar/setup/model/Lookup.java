@@ -14,6 +14,8 @@ public class Lookup {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idLookup;
+    @NonNull
     private String name;
+    @NonNull
     private String type;
 }

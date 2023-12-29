@@ -1,0 +1,29 @@
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://eureka:password@discovery-server:8761/eureka
+
+server:
+  port: 1371
+
+gateway:
+  host: ${APIGATEWAY:localhost}
+
+spring:
+  cloud:
+    compatibility-verifier:
+      enabled: false
+
+  application:
+    name=shootingStar-academics:
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdb:postgresql://postgres-shootingstar_academics:5432/shootingstar_academics
+    username: astromyllc
+    password: IdowhatIlikeIlikewhatIdo!@3
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+    database-platform: org.hibernate.dialect.PostgreSQLDialect

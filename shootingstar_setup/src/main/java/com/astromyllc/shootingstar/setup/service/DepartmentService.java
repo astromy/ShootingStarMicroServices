@@ -2,6 +2,7 @@ package com.astromyllc.shootingstar.setup.service;
 
 import com.astromyllc.shootingstar.setup.dto.request.DepartmentDetails;
 import com.astromyllc.shootingstar.setup.dto.request.DepartmentRequest;
+import com.astromyllc.shootingstar.setup.dto.request.SingleStringRequest;
 import com.astromyllc.shootingstar.setup.dto.response.DepartmentResponse;
 import com.astromyllc.shootingstar.setup.model.Department;
 import com.astromyllc.shootingstar.setup.model.Institution;
@@ -43,7 +44,8 @@ public class DepartmentService implements DepartmentServiceInterface {
     }
 
     @Override
-    public List<Optional<DepartmentResponse>> getDepartmentByInstitution(String beceCode) {
-        return institutionUtils.institutionGlobalList.stream().filter(i->i.getBececode().equals(beceCode)).findFirst().get().getDepartmentList().stream().map(x->departmentUtil.mapDepartment_ToDepartmentResponse(x)).collect(Collectors.toList());
+    public List<Optional<DepartmentResponse>> getDepartmentByInstitution(SingleStringRequest beceCode) {
+        String finalBeceCode= beceCode.getVal();
+        return institutionUtils.institutionGlobalList.stream().filter(i->i.getBececode().equals(finalBeceCode)).findFirst().get().getDepartmentList().stream().map(x->departmentUtil.mapDepartment_ToDepartmentResponse(x)).collect(Collectors.toList());
     }
 }

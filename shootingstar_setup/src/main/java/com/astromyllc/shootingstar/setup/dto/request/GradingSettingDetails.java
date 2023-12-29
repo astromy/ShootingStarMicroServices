@@ -1,9 +1,6 @@
 package com.astromyllc.shootingstar.setup.dto.request;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
@@ -13,8 +10,11 @@ import java.util.List;
 @Data
 public class GradingSettingDetails {
     private Long id;
+    @NonNull
     private Double classPercentage;
+    @NonNull
     private Double examsPercentage;
+    @NonNull
     private Double trailingMark;
     private int allowedTrails;
     private List<GradingRequest> gradingList;

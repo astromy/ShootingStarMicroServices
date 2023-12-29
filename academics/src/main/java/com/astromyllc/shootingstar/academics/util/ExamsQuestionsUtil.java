@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -40,14 +41,14 @@ public class ExamsQuestionsUtil {
                 .build();
     }
 
-    public ExamsQuestionsResponse mapExamsQuestions_ToExamsQuestionResponse(ExamsQuestions eq) {
-        return ExamsQuestionsResponse.builder()
+    public Optional<ExamsQuestionsResponse> mapExamsQuestions_ToExamsQuestionResponse(ExamsQuestions eq) {
+        return Optional.of(ExamsQuestionsResponse.builder()
                 .questionDetail(eq.getQuestionDetail())
                 .classId(eq.getClassId())
                 .term(eq.getTerm())
                 .subjectId(eq.getSubjectId())
                 .institutionCode(eq.getInstitutionCode())
                 .examsAnswersResponses(eq.getExamsAnswers().stream().map(eqa->ExamsAnswersUtil.mapAnswerRequestToExamsAnswersResponse(eqa)).collect(Collectors.toList()))
-                .build();
+                .build());
     }
 }

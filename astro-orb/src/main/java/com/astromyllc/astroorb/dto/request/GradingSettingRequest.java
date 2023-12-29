@@ -1,9 +1,6 @@
 package com.astromyllc.astroorb.dto.request;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 @NoArgsConstructor
@@ -11,10 +8,7 @@ import java.util.List;
 @Builder
 @Data
 public class GradingSettingRequest {
-    private Long id;
-    private Double classPercentage;
-    private Double examsPercentage;
-    private Double trailingMark;
-    private int allowedTrails;
-    private List<GradingRequest> gradingList;
+    @NonNull
+    private String institution;
+    private List<GradingSettingDetails> gradingSettingDetails;
 }

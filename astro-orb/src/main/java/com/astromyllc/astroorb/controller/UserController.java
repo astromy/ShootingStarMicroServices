@@ -25,6 +25,7 @@ public class UserController {
         model.addAttribute("clientName",authorizedClient.getClientRegistration().getClientId());
         model.addAttribute("scopes",authorizedClient.getAccessToken().getScopes());
         model.addAttribute("access",authorizedClient.getAccessToken().getTokenValue());
+        model.addAttribute("institutions",authentication.getPrincipal().getAttribute("institution_group"));
         return "index";
 
     }

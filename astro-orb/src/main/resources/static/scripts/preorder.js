@@ -1,5 +1,6 @@
 var selectPlan,institution,slogan,country,region,city,email,contact1,contact2,bececode,postalAddress,streams,population,website;
-
+var instId = $("meta[name='institutionId']").attr("content");
+fetchInstitution(instId);
     $(".selectPlan").on('click', function(event){
          event.preventDefault();
          $('.subscriptionOption').removeClass('active');
@@ -50,63 +51,10 @@ var selectPlan,institution,slogan,country,region,city,email,contact1,contact2,be
 
                 // Show notification
     //        Example code for post form
-debugger
 
+    var servercallResult= HttpPost("preRequestInstitution",jso);
 
-	var header = $("meta[name='_csrf_header']").attr("content");
-	var token = $("meta[name='_csrf']").attr("content");
-	var access_token = $("meta[name='scope']").attr("content");
-
-        $.ajax({
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer' + access_token
-                },
-            url : "preRequestInstitution",
-            type : 'POST',
-            data : JSON.stringify(jso),
-            beforeSend : function(xhr) {
-                xhr.setRequestHeader(header, token);
-            },
-            cache : false,
-            contentType : false,
-            processData : false,
-            xhr : function() {
-                var myXhr = $.ajaxSettings.xhr();
-                if (myXhr.upload) {
-                    myXhr.upload.addEventListener('progress', function(
-                            e) {
-                        if (e.lengthComputable) {
-                            $('progress').attr({
-                                value : e.loaded,
-                                max : e.total,
-                            });
-                        }
-                    }, false);
-                }
-                return myXhr;
-            },
-            success : function(data) {
-                    swal({
-                           title: "Thank you!",
-                           text: "Your application is being submitted",
-                           type: "success"
-                      });
-            },
-            error : function(errMsg) {
-                swal({
-                       title: "Sorry!",
-                       text:  "Operation Failed",
-                       type: "error"
-                  });
-            }
-        });
-
-
-	/*$.post("preRequestInstitution", jso, function(data) {
-
-	})*/
+        debugger;
 
             }
             } else {
@@ -309,5 +257,30 @@ input.addEventListener("change", () => {
     imagesArray.splice(index, 1)
     imagesArray=[];
     displayImages()
+  }
+
+  async function fetchInstitution(instId){
+    var v= instId.replace(/[\[\]']+/g,'')
+    v=v.replace(/\//g, '')
+    var instRequest={"val":v}
+    return  HttpPost("getInstitutionByCode",instRequest)
+     .then(function (result) {
+
+    console.log(result);
+    $('[name="clientName"]').val(result.name);
+    $('[name="slogan"]').val(result.slogan);
+    $('[name="country"]').val(result.country);
+    $('[name="region"]').val(result.region);
+    $('[name="city"]').val(result.city);
+    $('[name="email"]').val(result.email);
+    $('[name="contact1"]').val(result.contact1);
+    $('[name="contact2"]').val(result.contact2);
+    $('[name="bececode"]').val(result.bececode);
+    $('[name="postalAddress"]').val(result.postalAddress);
+    $('[name="streams"]').val(result.streams);
+    //$('[name="population"]').val()=result.;
+    $('[name="website"]').val(result.website);
+
+  })
   }
 
