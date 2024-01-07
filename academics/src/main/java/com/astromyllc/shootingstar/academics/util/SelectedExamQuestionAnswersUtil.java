@@ -32,7 +32,7 @@ public class SelectedExamQuestionAnswersUtil {
     return Optional.of(SelectedExamQuestionAnswersResponse.builder()
                     .id(sea.getId())
                     .answer(sea.getAnswer())
-                    .isAnswer(sea.isAnswer())
+                    .isQuestionAnswer(sea.getIsQuestionAnswer())
             .build());
     }
 

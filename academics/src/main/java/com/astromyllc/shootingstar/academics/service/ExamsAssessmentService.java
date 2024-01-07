@@ -1,9 +1,7 @@
 package com.astromyllc.shootingstar.academics.service;
 
-import com.astromyllc.shootingstar.academics.dto.request.ContinuousAssessmentRequest;
 import com.astromyllc.shootingstar.academics.dto.request.ExamsAssessmentRequest;
 import com.astromyllc.shootingstar.academics.dto.response.ExamsAssessmentResponse;
-import com.astromyllc.shootingstar.academics.model.ContinuousAssessment;
 import com.astromyllc.shootingstar.academics.model.ExamsAssessment;
 import com.astromyllc.shootingstar.academics.repository.ExamsAssessmentRepository;
 import com.astromyllc.shootingstar.academics.serviceInterface.ExamsAssessmentServiceInterface;

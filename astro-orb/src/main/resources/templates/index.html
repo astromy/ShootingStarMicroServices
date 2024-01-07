@@ -15,7 +15,7 @@
 
     <!-- Page title -->
     <title>ORB | Services</title>
-    <link rel="stylesheet" href="styles/allz.min.css">
+   <!-- <link rel="stylesheet" href="styles/all.min.css">-->
     <link rel="stylesheet" href="styles/style.css">
 
     <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
@@ -23,8 +23,8 @@
 
     <!-- Vendor styles -->
    <link rel="stylesheet" href="vendor/fontawesome/css/font-awesome.css" />
-    <!-- <link rel="stylesheet" href="vendor/metisMenu/dist/metisMenu.css" />
-    <link rel="stylesheet" href="vendor/animate.css/animate.css" />-->
+     <link rel="stylesheet" href="vendor/metisMenu/dist/metisMenu.css" />
+    <link rel="stylesheet" href="vendor/animate.css/animate.css" />
     <link rel="stylesheet" href="vendor/bootstrap/dist/css/bootstrap.css" />
 
     <!-- App styles -->
@@ -136,8 +136,8 @@
                     <li><a id="subject"><span class="fa fa-book"></span>  Subject</a></li>
                     <li><a id="admission"><span class="fa fa-plus-square"></span>  Admission</a></li>
                     <li><a id="department"><span class="fa fa-sitemap"></span>  Department</a></li>
-                    <li><a id="grading"><span class="fa fa-star-half-stroke"></span>  Grading</a></li>
-                    <li><a id="permissions"><span class="fa fa-shield-alt"></span>  Permissions</a></li>
+                    <li><a id="grading"><span class="fa-regular fa-star-half-full"></span>  Grading</a></li>
+                    <li><a id="permissions"><span class="fa fa-shield"></span>  Permissions</a></li>
                 </ul>
             </li>
             <li>
@@ -159,7 +159,7 @@
                     <li><a  id="feecollection"><span class="fas fa-cash-register"></span> Fee Collection</a></li>
                     <li><a  id="paymenthistory"><span class="fas fa-file-invoice"></span> Payment History</a></li>
                     <li><a  id="paymentchecker"><span class="fas fa-comments-dollar"></span> Payment Checker</a></li>
-                    <li><a  id="salarysetup"><span class="fas fa-hand-holding-usd"></span> Salary Setup</a></li>
+                    <li><a  id="salarysetup"><span class="fab fa-cc-visa"></span> Salary Setup</a></li>
                     <li><a  id="payslipgeneration"><span class="fas fa-money-bill"></span> Payslip </a></li>
                     <li><a  id="ledgerbooks"><span class="fas fa-book"></span> Ledger Books</a></li>
                     <li><a  id="incomestatement"><span class="fas fa-coins"></span> Income Statement</a></li>
@@ -354,7 +354,8 @@
         <span class="pull-right">
             ORB
         </span>
-        Astromy LLC 2013-2023
+        <span class="fa fa-copyright"></span>
+        Astromy LLC 2013-<span id="copyrightYear"></span>
     </footer>
 
 </div>
@@ -372,6 +373,7 @@
 <!-- App scripts -->
 <script src="scripts/homer.js"></script>
 <script src="scripts/common.js"></script>
+<!--<script src="scripts/all.min.js"></script>-->
 
 <script>
 

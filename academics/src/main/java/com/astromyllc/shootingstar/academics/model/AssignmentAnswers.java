@@ -17,5 +17,5 @@ public class AssignmentAnswers {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String answer;
-    private Boolean isAnswer;
+    private Boolean isQuestionAnswer;
 }

@@ -38,6 +38,7 @@ public class InstitutionRequest {
     @NonNull
     private Integer streams;
     private String subscription;
+    private String crest;
 
     private GradingSettingDetails gradingSetting;
     private List<SubjectDetails> subjectList;

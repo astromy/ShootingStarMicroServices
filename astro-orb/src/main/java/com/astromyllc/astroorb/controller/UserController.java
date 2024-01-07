@@ -15,7 +15,7 @@ public class UserController {
     @Autowired
     private OAuth2AuthorizedClientService authorizedClientService;
 
-    @GetMapping({"/","index"})
+    @GetMapping({"/","index","/home"})
     public String getIndex(Model model, @AuthenticationPrincipal OAuth2User principal, OAuth2AuthenticationToken authentication) {
         OAuth2AuthorizedClient authorizedClient = this.getAuthorizedClient(authentication);
         //authentication.getPrincipal().getAttributes().forEach((k, v) -> System.out.println("key: " + k + " value:" + v));

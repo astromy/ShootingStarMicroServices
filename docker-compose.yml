@@ -239,7 +239,7 @@ services:
   ## Eureka Server
 
   discovery-server:
-    image: astromyllc/discoveryserver:0.001
+    image: astromyllc/discoveryserver:0.003
     container_name: discovery-server
     pull_policy: always
     ports:
@@ -257,7 +257,7 @@ services:
       - astro_network
 
   astro-orb:
-    image: astromyllc/astro-orb:0.001
+    image: astromyllc/astro-orb:0.003
     container_name: astro-orb
     pull_policy: always
     ports:
@@ -273,7 +273,7 @@ services:
 
 
   astro-preorder:
-    image: astromyllc/astro-preorder:0.001
+    image: astromyllc/astro-preorder:0.003
     container_name: astro-preorder
     pull_policy: always
     ports:
@@ -291,7 +291,7 @@ services:
 
 
   astro-api-gateway:
-    image: astromyllc/astro-api-gateway:0.001
+    image: astromyllc/astro-api-gateway:0.003
     container_name: astro-api-gateway
     pull_policy: always
     ports:
@@ -318,7 +318,7 @@ services:
    ## Clinic Service
 
   clinic:
-    image: astromyllc/clinic:0.001
+    image: astromyllc/clinic:0.003
     container_name: clinic
     pull_policy: always
     command: ["-p","1370"]
@@ -348,7 +348,7 @@ services:
 
 ## Academics Server
   academics:
-    image: astromyllc/academics:0.001
+    image: astromyllc/academics:0.003
     container_name: shootingStar-academics
     pull_policy: always
     command: ["-p","1371"]
@@ -380,7 +380,7 @@ services:
      ## Finance Service
 
   finance:
-    image: astromyllc/finance:0.001
+    image: astromyllc/finance:0.003
     container_name: finance
     pull_policy: always
     command: ["-p","1372"]
@@ -409,7 +409,7 @@ services:
 
 ## SETUP Service
   shootingstar_setup:
-    image: astromyllc/shootingstar_setup:0.001
+    image: astromyllc/shootingstar_setup:0.003
     container_name: shootingStar-setup
     pull_policy: always
     command: ["-p","1373"]
@@ -434,7 +434,7 @@ services:
 
   ## ASTROAUTHAUTH Service
  # astroauthauth:
- #   image: astromyllc/astroauthauth:0.001
+ #   image: astromyllc/astroauthauth:0.003
  #   container_name: astroauthauth
  #   pull_policy: always
  #   command: ["-p","7013"]
@@ -463,7 +463,7 @@ services:
 ## HR-Service Docker Compose Config
   hr-service:
     container_name: HR-Service
-    image: astromyllc/hr-service:0.001
+    image: astromyllc/hr-service:0.003
     pull_policy: always
     command: ["-p","1374"]
     ports:
@@ -489,7 +489,7 @@ services:
 
   online-application:
     container_name: online-application
-    image: astromyllc/online-application:0.001
+    image: astromyllc/online-application:0.003
     pull_policy: always
     command: ["-p","1375"]
     ports:
@@ -515,7 +515,7 @@ services:
 
   administration-pta:
     container_name: administration-pta
-    image: astromyllc/administration-pta:0.001
+    image: astromyllc/administration-pta:0.003
     pull_policy: always
     command: ["-p","1376"]
     ports:

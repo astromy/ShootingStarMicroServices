@@ -10,13 +10,15 @@ import com.astromyllc.shootingstar.setup.repository.InstitutionRepository;
 import com.astromyllc.shootingstar.setup.repository.PreOrderInstitutionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.keycloak.OAuth2Constants;
+import org.keycloak.adapters.springboot.KeycloakSpringBootProperties;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.admin.client.resource.GroupResource;
 import org.keycloak.admin.client.resource.GroupsResource;
 import org.keycloak.admin.client.resource.RealmResource;
-import org.keycloak.representations.idm.GroupRepresentation;
+import org.keycloak.representations.idm.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
@@ -24,9 +26,13 @@ import javax.ws.rs.core.Response;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static org.keycloak.admin.client.CreatedResponseUtil.getCreatedId;
 
 @Component
 @RequiredArgsConstructor
@@ -36,13 +42,14 @@ public class InstitutionUtils {
     private final PreOrderInstitutionRepository preOrderInstitutionRepository;
     public static List<Institution> institutionGlobalList = null;
     public static List<PreOrderInstitution> preOrderInstitutionGlobalList = null;
+    public static List<String> permissions = null;
 
     static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     @Bean
     public void fetAllInstitutions() {
         institutionGlobalList = institutionRepository.findAll();
-        preOrderInstitutionGlobalList=preOrderInstitutionRepository.findAll();
+        preOrderInstitutionGlobalList = preOrderInstitutionRepository.findAll();
         log.info("Global Institution List populated with {} records", institutionGlobalList.stream().count());
         log.info("Global Pre-Ordered Institution List populated with {} records", preOrderInstitutionGlobalList.stream().count());
     }
@@ -64,6 +71,7 @@ public class InstitutionUtils {
                 .postalAddress(institutionRequest.getPostalAddress())
                 .streams(institutionRequest.getStreams())
                 .subscription(institutionRequest.getSubscription())
+                .crest(institutionRequest.getCrest())
                 .admissions(AdmissionUtil.mapAdmissionRequestToAdmission(institutionRequest.getAdmissions()))
                 .classList(institutionRequest.getClassList().stream().map(c -> ClassesUtil.mapClassRequestToClass(c)).toList())
                 .gradingSetting(GradingSettingUtil.mapGradeSettingRequest_ToGradeSetting(institutionRequest.getGradingSetting()))
@@ -90,6 +98,7 @@ public class InstitutionUtils {
                 .postalAddress(institution.getPostalAddress())
                 .streams(institution.getStreams())
                 .subscription(institution.getSubscription())
+                .crest(institution.getCrest())
                 .admissions(AdmissionUtil.mapAdmissionRequestToAdmission(institution.getAdmissions()))
                 .classList(institution.getClassList().stream().map(c -> ClassesUtil.mapClassToClassResponse(c)).toList())
                 .gradingSetting(GradingSettingUtil.mapGradeSetting_ToGradeSettingResponse(institution.getGradingSetting()))
@@ -114,13 +123,14 @@ public class InstitutionUtils {
         institution.setStreams(institutionRequest.getStreams());
         institution.setWebsite(institutionRequest.getWebsite());
         institution.setSubscription(institutionRequest.getSubscription());
-        institution.setCreationDate(LocalDate.parse(institutionRequest.getCreationDate().replace("T"," "), formatter));
-        institution.setAdmissions(AdmissionUtil.mapAdmissionRequestToAdmission(institutionRequest.getAdmissions(),institution.getAdmissions()));
-        institution.setClassList(institutionRequest.getClassList().stream().map((cr) -> ClassesUtil.mapClassRequestToClass(cr, institution.getClassList().stream().filter(c->cr.getId().equals(c.getIdClasses())).findFirst().get())).collect(Collectors.toList()));
-        institution.setDepartmentList(institutionRequest.getDepartmentList().stream().map((dr) -> DepartmentUtil.mapDepartmentRequest_ToDepartment(dr,institution.getDepartmentList().stream().filter(d->dr.getIdDepartment().equals(d.getIdDepartment())).findFirst().get())).collect(Collectors.toList()));
-        institution.setGradingSetting(GradingSettingUtil.mapGradeSettingRequest_ToGradeSetting(institutionRequest.getGradingSetting(),institution.getGradingSetting()));
+        institution.setCrest(institutionRequest.getCrest());
+        institution.setCreationDate(LocalDate.parse(institutionRequest.getCreationDate().replace("T", " "), formatter));
+        institution.setAdmissions(AdmissionUtil.mapAdmissionRequestToAdmission(institutionRequest.getAdmissions(), institution.getAdmissions()));
+        institution.setClassList(institutionRequest.getClassList().stream().map((cr) -> ClassesUtil.mapClassRequestToClass(cr, institution.getClassList().stream().filter(c -> cr.getId().equals(c.getIdClasses())).findFirst().get())).collect(Collectors.toList()));
+        institution.setDepartmentList(institutionRequest.getDepartmentList().stream().map((dr) -> DepartmentUtil.mapDepartmentRequest_ToDepartment(dr, institution.getDepartmentList().stream().filter(d -> dr.getIdDepartment().equals(d.getIdDepartment())).findFirst().get())).collect(Collectors.toList()));
+        institution.setGradingSetting(GradingSettingUtil.mapGradeSettingRequest_ToGradeSetting(institutionRequest.getGradingSetting(), institution.getGradingSetting()));
         institution.setSubjectList(institutionRequest.getSubjectList().stream()
-                .map((sr) -> SubjectUtil.mapSubjectRequest_ToSubject(sr,institution.getSubjectList().stream().filter(s->sr.getId().equals(s.getIdSubject())).findFirst().get())).collect(Collectors.toList()));
+                .map((sr) -> SubjectUtil.mapSubjectRequest_ToSubject(sr, institution.getSubjectList().stream().filter(s -> sr.getId().equals(s.getIdSubject())).findFirst().get())).collect(Collectors.toList()));
         return institution;
     }
 
@@ -170,7 +180,8 @@ public class InstitutionUtils {
     }
 
 
-    public void createKeycloakCredentials(String institution){
+    public void createKeycloakCredentials(PreOrderInstitution institution) {
+
         String clientSecret = "ywUvVeSUVbbwgsfABUNWyKPJimFXkcwJ";
         /*Keycloak keycloak = KeycloakBuilder.builder()
                 .serverUrl("http://keycloak:8080/auth")
@@ -178,47 +189,135 @@ public class InstitutionUtils {
                 .clientId("admin-cli")
                 .username("admin")
                 .password("IdowhatIlikeIlikewhatIdo!@3")
-                .build();*/
+                .build();
+                */
 
+        Keycloak kc = KeycloakBuilder.builder()
+                .serverUrl("http://localhost:8090/")
+                .realm("master")
+                .grantType(OAuth2Constants.PASSWORD)
+                .username("admin")
+                .password("IdowhatIlikeIlikewhatIdo!@3")
+                .clientId("admin-cli")
+                .resteasyClient(
+                        new ResteasyClientBuilder()
+                                .connectionPoolSize(10).build()
+                ).build();
 
-        Keycloak keycloak = Keycloak.getInstance(
-                "http://localhost:8090",
-                "ShootingStar",  //your realm
-                "admin", //user
-                "IdowhatIlikeIlikewhatIdo!@3", //password
-                "astroauthauth", //client id
-                clientSecret); // client secrete
+        /**
+         * Create Groups(Institution) and subGroups (User types)
+         */
+        RealmResource realm = kc.realm("ShootingStar");
+        GroupRepresentation topGroup = new GroupRepresentation();
+        topGroup.setName(institution.getBececode());
+        topGroup = createGroup(realm, topGroup);
 
-        RealmResource realmResource = keycloak.realm("ShootingStar");
-        //GroupsResource groupResource = realmResource.groups();
+        createSubGroup(realm, topGroup.getId(), "Admin");
+        createSubGroup(realm, topGroup.getId(), "User");
 
         GroupRepresentation groupRepresentation = new GroupRepresentation();
-        groupRepresentation.setName(institution);
-       // groupRepresentation= createGroup(realm, groupRepresentation);
-       // Response gresponse=groupResource.add(groupRepresentation);
-        //Response response = realmResource.groups().add(groupRepresentation);
+        groupRepresentation.setName(institution.getBececode());
 
-        Response result = null;
+        /**
+         * Create Default School admin User
+         */
+        List<CredentialRepresentation> credentials = new ArrayList<CredentialRepresentation>();
+        List<String> sysRoles = new ArrayList<String>();
+        CredentialRepresentation credential = new CredentialRepresentation();
+        credential.setType(CredentialRepresentation.PASSWORD);
+        credential.setValue(institution.getBececode());
+        credentials.add(credential);
+
+        sysRoles.add(institution.getBececode()+"/Admin");
+        sysRoles.add(institution.getBececode()+"/User");
+        sysRoles.add(institution.getBececode());
+
+        String client = "Admin" + institution.getBececode();
+        UserRepresentation userRepresentation = new UserRepresentation();
+        userRepresentation.setUsername(client);
+        userRepresentation.setEmail(institution.getEmail());
+        userRepresentation.setCredentials(credentials);
+        userRepresentation.setRealmRoles(permissions);
+        userRepresentation.setEnabled(true);
+        userRepresentation.setGroups(sysRoles);
+
         try {
-            result = realmResource.groups().add(groupRepresentation);//groupResource.add(groupRepresentation);
-        } catch(Exception e) {
-            System.out.println(e);
+            kc.realm("ShootingStar").users().create(userRepresentation);
+        } catch (Exception e) {
+            System.out.println(e.toString());
         }
-
-        if (result==null || result.getStatus() != 201) {
-            System.err.println("Couldn't create Keycloak user.");
-        }else{
-            System.out.println("Keycloak user created.... verify in keycloak!");
-        }
-
     }
 
-   /* private GroupRepresentation createGroup(RealmResource realm, GroupRepresentation group) {
+    private void createSubGroup(RealmResource realm, String parentGroupId, String subGroupName) {
+        GroupRepresentation subgroup = new GroupRepresentation();
+        subgroup.setName(subGroupName);
+        try (Response response = realm.groups().group(parentGroupId).subGroup(subgroup)) {
+            if (response.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL) {
+                System.out.println("Created Subgroup : " + subGroupName);
+            } else {
+                //logger.severe("Error Creating Subgroup : " + subGroupName + ", Error Message : " + getErrorMessage(response));
+            }
+        }
+    }
+
+    private GroupRepresentation createGroup(RealmResource realm, GroupRepresentation group) {
         try (Response response = realm.groups().add(group)) {
             String groupId = getCreatedId(response);
             group.setId(groupId);
             return group;
         }
-    }*/
+    }
+
+
+    @Bean
+    private void createPermissions() {
+        List<String> permissions = new ArrayList<String>();
+        permissions.add("setup classes");
+        permissions.add("setup subject");
+        permissions.add("setup admission");
+        permissions.add("setup department");
+        permissions.add("setup grading");
+        permissions.add("setup permissions");
+        permissions.add("Human_Resouce onloading");
+        permissions.add("Human_Resouce records");
+        permissions.add("Human_Resouce leave");
+        permissions.add("Human_Resouce appraisals");
+        permissions.add("Human_Resouce designation");
+        permissions.add("Human_Resouce offloading");
+        permissions.add("Finance billcreation");
+        permissions.add("Finance billing");
+        permissions.add("Finance feecollection");
+        permissions.add("Finance paymenthistory");
+        permissions.add("Finance paymentchecker");
+        permissions.add("Finance salarysetup");
+        permissions.add("Finance payslipgeneration");
+        permissions.add("Finance ledgerbooks");
+        permissions.add("Finance incomestatement");
+        permissions.add("Finance cashflow");
+        permissions.add("Finance trialbalanace");
+
+
+        Keycloak kc = KeycloakBuilder.builder()
+                .serverUrl("http://localhost:8090/")
+                .realm("master")
+                .grantType(OAuth2Constants.PASSWORD)
+                .username("admin")
+                .password("IdowhatIlikeIlikewhatIdo!@3")
+                .clientId("admin-cli")
+                .resteasyClient(
+                        new ResteasyClientBuilder()
+                                .connectionPoolSize(10).build()
+                ).build();
+
+        for (String role : permissions) {
+            try {
+                RoleRepresentation roleRepresentation = new RoleRepresentation();
+                roleRepresentation.setName(role);
+                kc.realm("ShootingStar").roles().create(roleRepresentation);
+            } catch (Exception e) {
+                System.out.println(e);
+            }
+        }
+    }
 
 }

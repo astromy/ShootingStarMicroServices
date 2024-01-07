@@ -25,14 +25,14 @@ public class AssignmentAnswersUtil {
     public static AssignmentAnswers mapAnswerRequestToAssignmentAnswers(AssignmentAnswersRequest aqa) {
         return AssignmentAnswers.builder()
                 .answer(aqa.getAnswer())
-                .isAnswer(aqa.getIsAnswer())
+                .isQuestionAnswer(aqa.getIsQuestionAnswer())
                 .build();
     }
 
     public static AssignmentAnswersResponse mapAnswerRequestToAssignmentAnswersResponse(AssignmentAnswers aqa) {
       return   AssignmentAnswersResponse.builder()
               .answer(aqa.getAnswer())
-              .isAnswer(aqa.getIsAnswer())
+              .isQuestionAnswer(aqa.getIsQuestionAnswer())
               .build();
     }
 

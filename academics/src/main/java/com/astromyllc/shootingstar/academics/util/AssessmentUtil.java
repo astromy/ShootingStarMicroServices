@@ -53,14 +53,13 @@ public class AssessmentUtil {
 
     @Bean
     private void fetchSetupdata() {
-        institutionGlobalRequest =
+        institutionGlobalRequest=
                 webClientBuilder.build().post()
-                        .uri("http://"+host+":8083/api/setup/getAllinstitution")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .retrieve()
-                        .bodyToMono(new ParameterizedTypeReference<List<InstitutionRequest>>() {
-                        }).block();
+                         .uri("http://"+host+":8083/api/setup/getAllinstitution")
+                         .contentType(MediaType.APPLICATION_JSON)
+                         .accept(MediaType.APPLICATION_JSON)
+                         .retrieve()
+                         .bodyToMono(new ParameterizedTypeReference<List<InstitutionRequest>>() {}).block();
         log.info("Global Setup List populated with {} records", institutionGlobalRequest.size());
         //return result;
     }
@@ -71,8 +70,7 @@ public class AssessmentUtil {
                 .uri("http://"+host+":8083/api/administration-pta/getAllStudents")
                 .contentType(MediaType.APPLICATION_JSON)
                 .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<List<Students>>() {
-                }).block();
+                .bodyToMono(new ParameterizedTypeReference<List<Students>>() {}).block();
          log.info("Global Students List populated with {} records", studentsGlobalRequest.size());
     }
 

@@ -7,6 +7,6 @@ import jakarta.persistence.Id;
 public class SelectedAssignmentQuestionAnswersResponse {
     private Long id;
     private String answer;
-    private boolean isAnswer;
+    private boolean isQuestionAnswer;
 
 }

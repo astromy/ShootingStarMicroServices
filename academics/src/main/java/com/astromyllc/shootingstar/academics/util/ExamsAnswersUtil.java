@@ -32,14 +32,14 @@ public class ExamsAnswersUtil {
     public static ExamsAnswers mapAnswerRequestToExamsAnswers(ExamsAnswersRequest eqa) {
        return ExamsAnswers.builder()
                .answer(eqa.getAnswer())
-               .isAnswer(eqa.getIsAnswer())
+               .isQuestionAnswer(eqa.getIsQuestionAnswer())
                .build();
     }
 
     public static ExamsAnswersResponse mapAnswerRequestToExamsAnswersResponse(ExamsAnswers eqa) {
         return ExamsAnswersResponse.builder()
                 .answer(eqa.getAnswer())
-                .isAnswer(eqa.getIsAnswer())
+                .isQuestionAnswer(eqa.getIsQuestionAnswer())
                 .build();
     }
 

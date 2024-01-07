@@ -11,6 +11,7 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Document(value = "staff")
@@ -47,7 +48,7 @@ public class Staff {
     private String staffPicture;
     private String nextOfKing;
     private String institutionCode;
-/*
+
 
     @OneToMany(fetch = FetchType.EAGER,targetEntity =Portfolio.class, cascade = CascadeType.ALL)
     @JoinColumn(name = "staffPortfolio",referencedColumnName = "id")
@@ -67,6 +68,6 @@ public class Staff {
 
     @OneToMany(fetch = FetchType.EAGER,targetEntity = StaffDocuments.class, cascade = CascadeType.ALL)
     @JoinColumn(name = "staffDocs",referencedColumnName = "id")
-    private List<StaffDocuments> staffDocuments;*/
+    private List<StaffDocuments> staffDocuments;
 
 }

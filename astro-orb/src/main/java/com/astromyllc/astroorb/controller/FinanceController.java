@@ -4,33 +4,39 @@ import com.astromyllc.astroorb.dto.request.PreOrderInstitutionRequest;
 import com.astromyllc.astroorb.dto.request.SingleStringRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.time.LocalDate;
 
 @Controller
 @ResponseBody
-public class PreOrderController {
+@RequiredArgsConstructor
+public class FinanceController {
+
+    @Value("${gateway.host}")
+    private String backendserve;
 
     /*@Autowired
     private OAuth2AuthorizedClientService authorizedClientService;*/
 
     @ResponseBody
-    @RequestMapping(value = "/preRequestInstitution", method = RequestMethod.POST)
-    public String preRequestInstitution(@RequestBody PreOrderInstitutionRequest jso) throws IOException {
+    @RequestMapping(value = "/addfinance", method = RequestMethod.POST)
+    public String preRequestInstitutionx(@RequestBody PreOrderInstitutionRequest jso) throws IOException {
        // jso.setCreationDate(LocalDate.now());
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
         String json = ow.writeValueAsString(jso);
-       URL url = new URL ("http://localhost:8083/api/setup/preRequestInstitution");
+       URL url = new URL ("http://" + backendserve +"/api/setup/addLookUp");
         HttpURLConnection con = (HttpURLConnection)url.openConnection();
         con.setRequestMethod("POST");
         con.setRequestProperty("Content-Type", "application/json");
@@ -52,13 +58,14 @@ public class PreOrderController {
         }
 
         return "";
-//http://orb.kentengh.com/api/setup/preRequestInstitution
     }
 
 
+
+
     @ResponseBody
-    @RequestMapping(value = "/getInstitutionByCode", method = RequestMethod.POST)
-    public String fetchInstitution(@RequestBody SingleStringRequest jso) throws IOException {
+    @RequestMapping(value = "/getFinanceInstitutionByCode", method = RequestMethod.POST)
+    public String fetchInstitutionx(@RequestBody SingleStringRequest jso) throws IOException {
 
         StringBuilder response = new StringBuilder();
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();

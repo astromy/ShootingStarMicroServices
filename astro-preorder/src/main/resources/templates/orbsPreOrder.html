@@ -520,6 +520,81 @@
                                     </div>
                                     <div class="col-lg-12">
                                         <div class="row">
+
+                                            <div class="col-lg-3 text-center">
+                                                <div>
+                                                    <label for="crest">School Crest</label>
+                                                </div>
+                                                <output class="imageOutput" name="crest" id="crest_"
+                                                        style="height: 220px; width:220px; border-radius: 10px;display: inline-block;"></output>
+                                                <input class="imageInput" type="file"
+                                                       style="width: 200px;padding: 12px;display: inline;"
+                                                       accept="image/jpeg, image/png, image/jpg">
+                                            </div>
+                                            <div class="col-lg-9">
+                                                <div class="row">
+                                                    <div class="form-group col-lg-12">
+                                                        <label for="clientName" class="controllabel col-lg-3">Institution: </label>
+                                                        <label name="clientName_"></label>
+                                                    </div>
+                                                    <div class="form-group col-lg-12">
+                                                        <label for="slogan" class="controllabel col-lg-3">Slogan of Institution: </label>
+                                                        <label name="slogan_"></label>
+                                                    </div>
+                                                    <div class="form-group col-lg-12">
+                                                        <label for="country" class="controllabel col-lg-3">Country: </label>
+                                                        <label  name="country_"></label>
+                                                    </div>
+                                                    <div class="form-group col-lg-12">
+                                                        <label for="region" class="controllabel col-lg-3">Region: </label>
+                                                        <label name="region_"></label>
+                                                    </div>
+                                                    <div class="form-group col-lg-12">
+                                                        <label for="city" class="controllabel col-lg-3">City: </label>
+                                                        <label name="city_"></label>
+                                                    </div>
+                                                    <div class="form-group col-lg-12">
+                                                        <label for="email" class="controllabel col-lg-3">Email: </label>
+                                                        <label name="email_"></label>
+                                                    </div>
+
+                                                    <div class="form-group col-lg-12">
+                                                        <label for="contact1" class="controllabel col-lg-3">Contact: </label>
+                                                        <label name="contact1_"></label>
+                                                    </div>
+                                                    <div class="form-group col-lg-12">
+                                                        <label for="contact2" class="controllabel col-lg-3">Alt Contact: </label>
+                                                        <label name="contact2_"></label>
+                                                    </div>
+                                                    <div class="form-group col-lg-12">
+                                                        <label for="bececode" class="controllabel col-lg-3">BECE Code: </label>
+                                                        <label name="bececode_"></label>
+                                                    </div>
+                                                    <div class="form-group col-lg-12">
+                                                        <label for="postalAddress" class="controllabel col-lg-3">Postal Address: </label>
+                                                        <label name="postalAddress_"></label>
+                                                    </div>
+
+                                                    <div class="form-group col-lg-12">
+                                                        <label for="streams" class="controllabel col-lg-3">Streams: </label>
+                                                        <label name="streams_"></label>
+                                                    </div>
+
+                                                    <div class="form-group col-lg-12">
+                                                        <label for="population" class="controllabel col-lg-3">Population: </label>
+                                                        <label class="" name="population_"></label>
+                                                    </div>
+
+                                                    <div class="form-group col-lg-12">
+                                                        <label for="website" class="controllabel col-lg-3">Website: </label>
+                                                        <label name="website_"></label>
+                                                    </div>
+                                                    <div class="form-group col-lg-12">
+                                                        <label for="website" class="controllabel col-lg-3">Subscription Plan: </label>
+                                                        <label name="subscription_"></label>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -580,8 +655,8 @@
                     <div class="panel-body modalbody" id="modb">
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary">Print Copy</button>
+                        <button type="button" class="btn btn-default" id="dismiss" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" id="printToPdf">Print Copy</button>
                     </div>
                 </div>
             </div>
@@ -590,9 +665,10 @@
     <!-- Footer-->
     <footer class="footer">
         <span class="pull-right">
-            Orb -preorder
+            ORB
         </span>
-        Astromy LLC 2013-2023
+        <span class="fa fa-copyright"></span>
+        Astromy LLC 2013-<span id="copyrightYear"></span>
     </footer>
 
 </div>
@@ -618,6 +694,7 @@
 <!-- App scripts -->
 <script src="scripts/homer.js"></script>
 <script src="scripts/preorder.js"></script>
+<!--<script src="scripts/all.min.js"></script>-->
 
 <script>
 

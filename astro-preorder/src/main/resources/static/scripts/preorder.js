@@ -20,7 +20,7 @@ var selectPlan,institution,slogan,country,region,city,email,contact1,contact2,be
         header.addClass('btn-default');
         header1.prev().removeClass('btn-default').addClass('btn-primary');
     });
-    
+
     $('.next').click(function () {
         
        var tabs= $('.tab-pane');
@@ -34,6 +34,7 @@ var selectPlan,institution,slogan,country,region,city,email,contact1,contact2,be
        header.addClass('btn-default');
        header1.next().removeClass('btn-default').addClass('btn-primary');
        document.getElementById('client').innerHTML=document.getElementsByName('clientName')[0].value;
+       confdata();
     });
 
     $('.tnc').click(function(){
@@ -122,6 +123,26 @@ debugger;
             }
 });
 
+$('#copyrightYear').text(getYear());
+
+    function confdata(){
+
+    $('[name="clientName_"]').text( $('[name="clientName"]').val());
+    $('[name="slogan_"]').text($('[name="slogan"]').val());
+    $('[name="country_"]').text($('[name="country"]').val());
+    $('[name="region_"]').text($('[name="region"]').val());
+    $('[name="city_"]').text($('[name="city"]').val());
+    $('[name="email_"]').text($('[name="email"]').val());
+    $('[name="contact1_"]').text($('[name="contact1"]').val());
+    $('[name="contact2_"]').text($('[name="contact2"]').val());
+    $('[name="bececode_"]').text($('[name="bececode"]').val());
+    $('[name="postalAddress_"]').text($('[name="postalAddress"]').val());
+    $('[name="streams_"]').text($('[name="streams"]').val());
+    $('[name="population_"]').text($('[name="population"]').val());
+    $('[name="website_"]').text($('[name="website"]').val());
+    $('[name="subscription_"]').text(selectPlan);
+    //crest=getBase64Image(document.getElementById("crestImage"));
+    }
      
     function postdata(){
 
@@ -331,6 +352,25 @@ var objToday = new Date(),
 var today = curHour + ":" + curMinute + "." + curSeconds + curMeridiem + " " + dayOfWeek + " " + dayOfMonth + " of " + curMonth + ", " + curYear;
 return objToday
 }
+
+function getYear(){
+var objToday = new Date();
+curYear = objToday.getFullYear();
+return curYear;
+}
+
+$("#printToPdf").click(function() {
+            var divContents = document.getElementById("modb").innerHTML;
+            var printWindow = window.open('', '', 'height=400,width=800');
+            printWindow.document.write('<html><head><title>DIV Contents</title>');
+            printWindow.document.write('</head><body >');
+            printWindow.document.write(divContents);
+            printWindow.document.write('</body></html>');
+            printWindow.document.close();
+            printWindow.print();
+            printWindow.close();
+            $("#dismiss").click();
+        });
 
 
 

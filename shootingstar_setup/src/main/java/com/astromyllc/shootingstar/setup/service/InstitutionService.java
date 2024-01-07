@@ -51,7 +51,7 @@ private final InstitutionUtils institutionUtils;
         PreOrderInstitution institution1=new PreOrderInstitution();
             institution1 = institutionUtils.mapPreOrderInstitutionRequest_ToPreOrderInstitution(institutionRequest);
             preOrderInstitutionRepository.save(institution1);
-            institutionUtils.createKeycloakCredentials(institution1.getName());
+            institutionUtils.createKeycloakCredentials(institution1);
             institutionUtils.preOrderInstitutionGlobalList.add(institution1);
             log.info("Institution {} Saved Successfully", institution1.getIdInstitution());
 

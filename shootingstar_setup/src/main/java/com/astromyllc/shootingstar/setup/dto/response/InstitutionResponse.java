@@ -30,6 +30,7 @@ public class InstitutionResponse {
     private String postalAddress;
     private Integer streams;
     private String subscription;
+    private String crest;
 
     private Optional<GradingSettingResponse> gradingSetting;
     private List<Optional<SubjectResponse>> subjectList;

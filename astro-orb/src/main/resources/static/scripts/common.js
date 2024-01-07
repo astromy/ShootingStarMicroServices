@@ -3,6 +3,15 @@ window.addEventListener("load", (event) => {
     const absoultePath = [];
 
 
+    $('#copyrightYear').text(getYear());
+
+
+    function getYear(){
+    var objToday = new Date();
+    curYear = objToday.getFullYear();
+    return curYear;
+    }
+
     $('script').each(function () {
         defaultScripts.forEach((item, ind) => {
 
@@ -176,6 +185,11 @@ function classgroupnBuild() {
     script1.setAttribute("src", "vendor/jquery-validation/jquery.validate.min.js");
     document.getElementsByTagName("body")[0].appendChild(script1);
 
+    var script12x = document.createElement("script");
+    script12x.setAttribute("type", "text/javascript");
+    script12x.setAttribute("src", "vendor/sweetalert/lib/sweet-alert.min.js");
+    document.getElementsByTagName("body")[0].appendChild(script12x);
+
     var script2 = document.createElement("script");
     script2.setAttribute("type", "text/javascript");
     script2.setAttribute("src", "vendor/sparkline/index.js");
@@ -186,10 +200,10 @@ function classgroupnBuild() {
     script3.setAttribute("src", "vendor/datatables/media/js/jquery.dataTables.min.js");
     document.getElementsByTagName("body")[0].appendChild(script3);
 
-    var script4 = document.createElement("script");
-    script4.setAttribute("type", "text/javascript");
-    script4.setAttribute("src", "vendor/datatables.net-bs/js/dataTables.bootstrap.min.js");
-    document.getElementsByTagName("body")[0].appendChild(script4);
+    var script10 = document.createElement("script");
+    script10.setAttribute("type", "text/javascript");
+    script10.setAttribute("src", "vendor/datatables.net-buttons-bs/js/buttons.bootstrap.min.js");
+    document.getElementsByTagName("body")[0].appendChild(script10);
 
     var script5 = document.createElement("script");
     script5.setAttribute("type", "text/javascript");
@@ -216,16 +230,10 @@ function classgroupnBuild() {
     script9.setAttribute("src", "vendor/datatables.net-buttons/js/dataTables.buttons.min.js");
     document.getElementsByTagName("body")[0].appendChild(script9);
 
-    var script10 = document.createElement("script");
-    script10.setAttribute("type", "text/javascript");
-    script10.setAttribute("src", "vendor/datatables.net-buttons-bs/js/buttons.bootstrap.min.js");
-    document.getElementsByTagName("body")[0].appendChild(script10);
-
     var script11 = document.createElement("script");
     script11.setAttribute("type", "text/javascript");
     script11.setAttribute("src", "scripts/subscripts/classgroup.js");
     document.getElementsByTagName("body")[0].appendChild(script11);
-
 
     /**========================================= */
 
@@ -233,6 +241,11 @@ function classgroupnBuild() {
     link.setAttribute("rel", "stylesheet");
     link.setAttribute("href", "vendor/sweetalert/lib/sweet-alert.css");
     document.getElementsByTagName("head")[0].appendChild(link);
+
+    var link3 = document.createElement("link");
+    link3.setAttribute("rel", "stylesheet");
+    link3.setAttribute("href", "vendor/datatables.net-bs/css/dataTables.bootstrap.min.css");
+    document.getElementsByTagName("head")[0].appendChild(link3);
     
     var link1 = document.createElement("link");
     link1.setAttribute("rel", "stylesheet");
@@ -244,20 +257,15 @@ function classgroupnBuild() {
     link2.setAttribute("href", "vendor/animate.css/animate.css");
     document.getElementsByTagName("head")[0].appendChild(link2);
     
-    var link3 = document.createElement("link");
-    link3.setAttribute("rel", "stylesheet");
-    link3.setAttribute("href", "vendor/datatables.net-bs/css/dataTables.bootstrap.min.css");
-    document.getElementsByTagName("head")[0].appendChild(link3);
-    
-    var link4 = document.createElement("link");
+   /* var link4 = document.createElement("link");
     link4.setAttribute("rel", "stylesheet");
     link4.setAttribute("href", "fonts/pe-icon-7-stroke/css/pe-icon-7-stroke.css");
-    document.getElementsByTagName("head")[0].appendChild(link4);
-    
+    document.getElementsByTagName("head")[0].appendChild(link4);*/
+  /*
     var link5 = document.createElement("link");
     link5.setAttribute("rel", "stylesheet");
     link5.setAttribute("href", "fonts/pe-icon-7-stroke/css/helper.css");
-    document.getElementsByTagName("head")[0].appendChild(link5);
+    document.getElementsByTagName("head")[0].appendChild(link5);*/
 
 }
 //-------------------------------------------------------------------------------------------------------
@@ -341,7 +349,7 @@ function classesBuild() {
     link3.setAttribute("href", "vendor/datatables.net-bs/css/dataTables.bootstrap.min.css");
     document.getElementsByTagName("head")[0].appendChild(link3);
     
-    var link4 = document.createElement("link");
+    /*var link4 = document.createElement("link");
     link4.setAttribute("rel", "stylesheet");
     link4.setAttribute("href", "fonts/pe-icon-7-stroke/css/pe-icon-7-stroke.css");
     document.getElementsByTagName("head")[0].appendChild(link4);
@@ -349,7 +357,7 @@ function classesBuild() {
     var link5 = document.createElement("link");
     link5.setAttribute("rel", "stylesheet");
     link5.setAttribute("href", "fonts/pe-icon-7-stroke/css/helper.css");
-    document.getElementsByTagName("head")[0].appendChild(link5);
+    document.getElementsByTagName("head")[0].appendChild(link5);*/
 
 }
 
@@ -434,7 +442,7 @@ function subjectBuild() {
     link3.setAttribute("href", "vendor/datatables.net-bs/css/dataTables.bootstrap.min.css");
     document.getElementsByTagName("head")[0].appendChild(link3);
     
-    var link4 = document.createElement("link");
+  /*  var link4 = document.createElement("link");
     link4.setAttribute("rel", "stylesheet");
     link4.setAttribute("href", "fonts/pe-icon-7-stroke/css/pe-icon-7-stroke.css");
     document.getElementsByTagName("head")[0].appendChild(link4);
@@ -442,7 +450,7 @@ function subjectBuild() {
     var link5 = document.createElement("link");
     link5.setAttribute("rel", "stylesheet");
     link5.setAttribute("href", "fonts/pe-icon-7-stroke/css/helper.css");
-    document.getElementsByTagName("head")[0].appendChild(link5);
+    document.getElementsByTagName("head")[0].appendChild(link5);*/
 
 }
 
@@ -543,7 +551,7 @@ function admissionBuild() {
     link3.setAttribute("href", "vendor/datatables.net-bs/css/dataTables.bootstrap.min.css");
     document.getElementsByTagName("head")[0].appendChild(link3);
     
-    var link4 = document.createElement("link");
+   /* var link4 = document.createElement("link");
     link4.setAttribute("rel", "stylesheet");
     link4.setAttribute("href", "fonts/pe-icon-7-stroke/css/pe-icon-7-stroke.css");
     document.getElementsByTagName("head")[0].appendChild(link4);
@@ -551,7 +559,7 @@ function admissionBuild() {
     var link5 = document.createElement("link");
     link5.setAttribute("rel", "stylesheet");
     link5.setAttribute("href", "fonts/pe-icon-7-stroke/css/helper.css");
-    document.getElementsByTagName("head")[0].appendChild(link5);
+    document.getElementsByTagName("head")[0].appendChild(link5);*/
 }
 
 //-------------------------------------------------------------------------------------------------------
@@ -641,7 +649,7 @@ function gradingBuild() {
     link3.setAttribute("href", "vendor/datatables.net-bs/css/dataTables.bootstrap.min.css");
     document.getElementsByTagName("head")[0].appendChild(link3);
     
-    var link4 = document.createElement("link");
+    /*var link4 = document.createElement("link");
     link4.setAttribute("rel", "stylesheet");
     link4.setAttribute("href", "fonts/pe-icon-7-stroke/css/pe-icon-7-stroke.css");
     document.getElementsByTagName("head")[0].appendChild(link4);
@@ -649,7 +657,7 @@ function gradingBuild() {
     var link5 = document.createElement("link");
     link5.setAttribute("rel", "stylesheet");
     link5.setAttribute("href", "fonts/pe-icon-7-stroke/css/helper.css");
-    document.getElementsByTagName("head")[0].appendChild(link5);
+    document.getElementsByTagName("head")[0].appendChild(link5);*/
 
 }
 
@@ -755,7 +763,7 @@ function permissionsBuild() {
     link4.setAttribute("href", "fonts/pe-icon-7-stroke/css/pe-icon-7-stroke.css");
     document.getElementsByTagName("head")[0].appendChild(link4);
     
-    var link5 = document.createElement("link");
+    /*var link5 = document.createElement("link");
     link5.setAttribute("rel", "stylesheet");
     link5.setAttribute("href", "fonts/pe-icon-7-stroke/css/helper.css");
     document.getElementsByTagName("head")[0].appendChild(link5);
@@ -763,7 +771,7 @@ function permissionsBuild() {
     var link5a = document.createElement("link");
     link5a.setAttribute("rel", "stylesheet");
     link5a.setAttribute("href", "styles/switch.css");
-    document.getElementsByTagName("head")[0].appendChild(link5a);
+    document.getElementsByTagName("head")[0].appendChild(link5a);*/
 
 }
 

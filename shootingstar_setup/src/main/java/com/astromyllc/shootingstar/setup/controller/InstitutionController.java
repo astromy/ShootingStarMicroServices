@@ -103,11 +103,17 @@ public class InstitutionController {
 
 //================================= LOOKUPS ============================================================================
 
-    @PostMapping("/api/setup/addClassGroups")
+    @PostMapping("/api/setup/addLookUp")
     @ResponseStatus(HttpStatus.CREATED)
-    public void SubmitPreOrderApplication(@RequestBody LookupRequest lookupRequest) {
+    public void SubmitLookup(@RequestBody LookupRequest lookupRequest) {
         log.info("Application  Received");
         lookupServiceInterface.createLookup(lookupRequest);
+    }
+    @PostMapping("/api/setup/addLookUps")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void SubmitLookupList(@RequestBody List<LookupRequest> lookupRequest) {
+        log.info("Application  Received");
+        lookupServiceInterface.createLookups(lookupRequest);
     }
 
     @PostMapping("/api/setup/getLookUpByType")

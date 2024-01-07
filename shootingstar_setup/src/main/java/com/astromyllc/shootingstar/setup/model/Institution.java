@@ -38,6 +38,7 @@ public class Institution {
     @NonNull
     private Integer streams;
     private String subscription;
+    private String crest;
 
     @OneToOne(targetEntity = GradingSetting.class,cascade = CascadeType.ALL)
     private GradingSetting gradingSetting;

@@ -25,10 +25,11 @@ $(function () {
             <table id="example1" class="table table-striped table-bordered table-hover" width="100%">
                 <thead>
                 <tr>
-                    <th style="visibility=hidden">id</th>
+                    <th hidden>id</th>
                     <th>Group Name</th>
                 </tr>
                 </thead>
+                <tbody id="classGroupTable"></tbody>
             </table>
 
         </div>
@@ -50,7 +51,10 @@ $(function () {
 
             <div class="col-sm-9">
                 <div class="row">
-                    <div class="col-md-12"><input type="text" placeholder="Enter Class Group Name" class="form-control newClassGrouptxt"></div>
+                    <div class="col-md-12">
+                    <input type="text" placeholder="Enter Class Group Name" name="classgroups" class="form-control newClassGrouptxt"/>
+                    <input type="text" name="type" value="ClassGroup" display='none'/>
+                    </div>
                 </div>
             </div>
         </div>
@@ -59,7 +63,7 @@ $(function () {
                 <button type="button" class="btn btn-primary left test"><i class="fa fa-plus-square"><span style="margin-left:5px"/>Add More</i></button>
                 <button type="button" class="btn btn-default"
                     data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Save changes</button>
+                <button type="button" class="btn btn-primary saveClassGroup">Save changes</button>
             </div>
         </div>
     </div>
@@ -75,10 +79,11 @@ $(function () {
     document.getElementsByClassName("test")[0].addEventListener("click", classgroupIndut);
     document.getElementById("modalopn").addEventListener("click", modalopn);
 
-    /*var script14 = document.createElement("script");
-    script14.setAttribute("type", "text/javascript");
-    script14.setAttribute("src", "scripts/preorder.js");
-    document.getElementsByTagName("body")[0].appendChild(script14);*/
+
+    var script12 = document.createElement("script");
+    script12.setAttribute("type", "text/javascript");
+    script12.setAttribute("src", "scripts/lookups.js");
+    document.getElementsByTagName("body")[0].appendChild(script12);
 });
 
 //document.getElementById("institution").addEventListener("click", institutionBuild);
@@ -92,7 +97,10 @@ function classgroupIndut() {
     <div class="row"><label class="col-sm-3 control-label">Group Name</label>
         <div class="col-sm-9">
             <div class="row">
-                <div class="col-md-12"><input type="text" placeholder="Enter Class Group Name" class="form-control newClassGrouptxt"></div>
+                <div class="col-md-12">
+                    <input type="text" placeholder="Enter Class Group Name" class="form-control newClassGrouptxt"/>
+                    <input type="text" value="ClassGroup" name="type" hidden/>
+                    </div>
             </div>
         </div>
     </div>
@@ -101,18 +109,3 @@ function classgroupIndut() {
 }
 
 
-$(function () {
-
-    // Initialize Example 1
-    $('#example1').dataTable({
-        "ajax": 'api/datatables.json',
-        dom: "<'row'<'col-sm-4'l><'col-sm-4 text-center'B><'col-sm-4'f>>tp",
-        "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
-        buttons: [
-            { extend: 'copy', className: 'btn-sm' },
-            { extend: 'csv', title: 'ExampleFile', className: 'btn-sm' },
-            { extend: 'pdf', title: 'ExampleFile', className: 'btn-sm' },
-            { extend: 'print', className: 'btn-sm' }
-        ]
-    });
-});

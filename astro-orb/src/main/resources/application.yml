@@ -1,6 +1,9 @@
 server:
   port: 7013
 
+gateway:
+  host: ${APIGATEWAY:localhost:8083}
+
 logging:
   level:
     root: INFO
