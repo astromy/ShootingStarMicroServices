@@ -58,7 +58,7 @@ var selectPlan,institution,slogan,country,region,city,email,contact1,contact2,be
                 // Show notification
     //        Example code for post form
 
-debugger;
+;
 	var header = $("meta[name='_csrf_header']").attr("content");
 	var token = $("meta[name='_csrf']").attr("content");
 

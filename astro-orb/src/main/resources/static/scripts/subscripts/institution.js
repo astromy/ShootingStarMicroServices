@@ -502,7 +502,7 @@ $(function () {
 
 
 
-
+/*
 
 // Bind normal buttons
 $('.ladda-button').ladda('bind', { timeout: 2000 });
@@ -537,4 +537,4 @@ l.click(function () {
     }, 12000)
 
 
-});
+});*/

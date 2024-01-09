@@ -3,69 +3,65 @@ $(function () {
     let header = `
             <div class="panel-body">
                 <div id="hbreadcrumb" class="pull-right">
-                <button class="btn btn-info" type="button" id="modalopn" data-toggle="modal"
-                data-target="#mysubjectModal">New Subject</button>
+                    <button class="btn btn-info" type="button" id="modalopn" data-toggle="modal" data-target="#mysubjectModal">New Subject</button>
                 </div>
             </div>
     `
 
-    //function institutionBuild() {
     let subject = `
-    
-    
-    <div class="content animate-panel" id="pagecontent">
-    <div class="hpanel">
 
-        <div class="panel-heading">
-            <div class="panel-tools">
+        <div class="content animate-panel" id="pagecontent">
+            <div class="hpanel">
+                <div class="panel-heading">
+                    <div class="panel-tools">
+                        <a class="showhide"><i class="fa fa-chevron-up"></i></a>
+                        <a class="closebox"><i class="fa fa-times"></i></a>
+                    </div>
+                    Subjects
+                </div>
+                <div class="panel-body">
+                    <table id="subjectTable" class="table table-striped table-bordered table-hover" width="100%">
+                        <thead>
+                            <tr>
+                                <th hidden></th>
+                                <th>Subject Name</th>
+                                <th>Class</th>
+                                <th>Class Group</th>
+                            </tr>
+                        </thead>
+                        <tbody id="subjectTableBody"></tbody>
+                    </table>
+                </div>
             </div>
-            Subjects
-        </div>
-        <div class="panel-body">
-            <table id="subjectTable" class="table table-striped table-bordered table-hover" width="100%">
-                <thead>
-                <tr>
-                    <th>Subject Name</th>
-                    <th>Class</th>
-                    <th>Class Group</th>
-                </tr>
-                </thead>
-            </table>
-
-        </div>
-    </div>
     
 
     
-    <div class="modal fade hmodal-info" id="mysubjectModal" tabindex="-1" role="dialog"
-    aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="color-line"></div>
-            <div class="modal-header">
-                <h4 class="modal-title">Add Subject</h4>
-                <small class="font-bold">Select a Class Group, and its corresponding Class then enter the name of the subject you wish to create.</small>
-            </div>
-            <div class="panel-body modalbody">
-            <div class="form-group"><label class="col-sm-3 control-label">Group Name</label>
-
-            <div class="col-sm-9">
-                <div class="row">
-                    <div class="col-md-12"><input type="text" placeholder="Enter Subject Name" class="form-control newsubjecttxt"></div>
+            <div class="modal fade hmodal-info" id="mysubjectModal" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="color-line"></div>
+                        <div class="modal-header">
+                            <h4 class="modal-title">Add Subject</h4>
+                            <small class="font-bold">Select a Class Group, and its corresponding Class then enter the name of the subject you wish to create.</small>
+                        </div>
+                        <div class="panel-body modalbody">
+                            <div class="form-group"><label class="col-sm-3 control-label">Group Name</label>
+                                <div class="col-sm-9">
+                                    <div class="row">
+                                        <div class="col-md-12"><input type="text" placeholder="Enter Subject Name" class="form-control newsubjecttxt"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary left test"><i class="fa fa-plus-square"><span style="margin-left:5px"/>Add More</i></button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary">Save changes</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary left test"><i class="fa fa-plus-square"><span style="margin-left:5px"/>Add More</i></button>
-                <button type="button" class="btn btn-default"
-                    data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Save changes</button>
-            </div>
-        </div>
-    </div>
-</div>
-</div>
     `
 
 
@@ -76,10 +72,10 @@ $(function () {
     document.getElementsByClassName("test")[0].addEventListener("click", subjectIndut);
     document.getElementById("modalopn").addEventListener("click", modalopn);
 
-    /*var script14 = document.createElement("script");
+    var script14 = document.createElement("script");
     script14.setAttribute("type", "text/javascript");
-    script14.setAttribute("src", "scripts/preorder.js");
-    document.getElementsByTagName("body")[0].appendChild(script14);*/
+    script14.setAttribute("src", "scripts/_subjects.js");
+    document.getElementsByTagName("body")[0].appendChild(script14);
 });
 
 //document.getElementById("institution").addEventListener("click", institutionBuild);
@@ -91,18 +87,10 @@ function modalopn(){
 function subjectIndut() {
     let div = `
     <div class="row">
-
         <div class="col-sm-4">
             <div class="row">
-                <div class="col-md-12"><select class="form-control m-b" name="classGroup">
+                <div class="col-md-12"><select class="form-control m-b" name="classGroup" id="subjectClassGroups">
                 <option>Select Class Group</option>
-                </select></div>
-            </div>
-        </div>
-        <div class="col-sm-4">
-            <div class="row">
-                <div class="col-md-12"><select class="form-control m-b" name="class">
-                <option>Select Class</option>
                 </select></div>
             </div>
         </div>
@@ -111,13 +99,18 @@ function subjectIndut() {
                 <div class="col-md-12"><input type="text" placeholder="Enter Subject Name" class="form-control newclassestxt"></div>
             </div>
         </div>
+        <div class="col-sm-4">
+            <div class="row">
+                <div class="col-md-12"><input type="number" class="orm-control subjectPref" name="subjectPref"/></div>
+            </div>
+        </div>
     </div>
     <div class="hr-line-dashed"></div>`
     document.getElementsByClassName("modalbody")[0].insertAdjacentHTML('beforeend', div);
 }
 
 
-$(function () {
+/*$(function () {
 
     // Initialize Example 1
     $('#subjectTable').dataTable({
@@ -131,4 +124,5 @@ $(function () {
             { extend: 'print', className: 'btn-sm' }
         ]
     });
-});
+});*/
+
