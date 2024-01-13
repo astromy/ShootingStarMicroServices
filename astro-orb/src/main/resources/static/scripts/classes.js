@@ -62,8 +62,6 @@ fetchClass(instId);
                       });
     })
 
-        debugger;
-
             }
             } else {
                 // Show notification
@@ -273,7 +271,6 @@ input.addEventListener("change", () => {
     var instRequest={"val":v}
     return  HttpPost("getInstitutionByCode",instRequest)
      .then(function (result) {
-debugger
     console.log(result);
     $('[name="clientName"]').val(result.name);
     $('[name="slogan"]').val(result.slogan);

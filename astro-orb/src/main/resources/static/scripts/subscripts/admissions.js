@@ -25,14 +25,16 @@ $(function () {
                 <table id="admissionsTable" class="table table-striped table-bordered table-hover" width="100%">
                     <thead>
                     <tr>
-                        <th>Name</th>
-                        <th>Position</th>
-                        <th>Office</th>
-                        <th width="15%">Age</th>
-                        <th width="15%">Start date</th>
-                        <th width="15%">Salary</th>
+                        <th>Form Type</th>
+                        <th>Quantity</th>
+                        <th>Unit Price</th>
+                        <th width="15%">Payment Form</th>
+                        <th width="15%">Sales Period</th>
+                        <th width="15%">Interview Period</th>
+                        <th width="15%">Daily Appointments</th>
                     </tr>
                     </thead>
+                    <tbody id="admissionsTableBody"></tbody>
                 </table>
 
             </div>
@@ -87,10 +89,10 @@ $(function () {
     document.getElementsByClassName("test")[1].addEventListener("click", admissionsCategory);
     document.getElementById("modalopn").addEventListener("click", modalopn);
 
-    /*var script14 = document.createElement("script");
+    var script14 = document.createElement("script");
     script14.setAttribute("type", "text/javascript");
-    script14.setAttribute("src", "scripts/preorder.js");
-    document.getElementsByTagName("body")[0].appendChild(script14);*/
+    script14.setAttribute("src", "scripts/_admissions.js");
+    document.getElementsByTagName("body")[0].appendChild(script14);
 });
 
 //document.getElementById("institution").addEventListener("click", institutionBuild);

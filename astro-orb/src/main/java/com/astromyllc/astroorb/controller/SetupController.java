@@ -34,7 +34,7 @@ public class SetupController {
        // jso.setCreationDate(LocalDate.now());
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
         String json = ow.writeValueAsString(jso);
-       URL url = new URL ("http://" + backendserve +"/api/setup/preRequestInstitution");
+       URL url = new URL ("http://" + backendserve +"/api/setup/signupInstitution");
         HttpURLConnection con = (HttpURLConnection)url.openConnection();
         con.setRequestMethod("POST");
         con.setRequestProperty("Content-Type", "application/json");
@@ -52,9 +52,9 @@ public class SetupController {
             while ((responseLine = br.readLine()) != null) {
                 response.append(responseLine.trim());
             }
+            return response.toString();
             //System.out.println(response.toString());
         }
-        return "";
     }
 
     @ResponseBody
@@ -81,8 +81,8 @@ public class SetupController {
             while ((responseLine = br.readLine()) != null) {
                 response.append(responseLine.trim());
             }
+            return response.toString();
         }
-        return "";
     }
 
     @ResponseBody
@@ -109,8 +109,8 @@ public class SetupController {
             while ((responseLine = br.readLine()) != null) {
                 response.append(responseLine.trim());
             }
+            return response.toString();
         }
-        return "";
     }
 
     @ResponseBody
@@ -137,8 +137,8 @@ public class SetupController {
             while ((responseLine = br.readLine()) != null) {
                 response.append(responseLine.trim());
             }
+            return response.toString();
         }
-        return "";
     }
 
 
@@ -166,8 +166,8 @@ public class SetupController {
             while ((responseLine = br.readLine()) != null) {
                 response.append(responseLine.trim());
             }
+            return response.toString();
         }
-        return "";
     }
 
 
@@ -195,8 +195,8 @@ public class SetupController {
             while ((responseLine = br.readLine()) != null) {
                 response.append(responseLine.trim());
             }
+            return response.toString();
         }
-        return "";
     }
 
 
@@ -224,8 +224,8 @@ public class SetupController {
             while ((responseLine = br.readLine()) != null) {
                 response.append(responseLine.trim());
             }
+            return response.toString();
         }
-        return "";
     }
 
 
@@ -253,8 +253,8 @@ public class SetupController {
             while ((responseLine = br.readLine()) != null) {
                 response.append(responseLine.trim());
             }
+            return response.toString();
         }
-        return "";
     }
 
 
@@ -284,9 +284,9 @@ public class SetupController {
                 response.append(responseLine.trim());
             }
             // System.out.println(response.toString());
+            return response.toString();
         }
 
-        return response.toString();
 //http://orb.kentengh.com/api/setup/preRequestInstitution
     }
 
@@ -316,9 +316,9 @@ public class SetupController {
                 response.append(responseLine.trim());
             }
              System.out.println(response.toString());
+            return response.toString();
         }
 
-        return response.toString();
     }
 
     @ResponseBody
@@ -346,9 +346,9 @@ public class SetupController {
                 response.append(responseLine.trim());
             }
             System.out.println(response.toString());
+            return response.toString();
         }
 
-        return response.toString();
     }
 
     @ResponseBody
@@ -376,9 +376,39 @@ public class SetupController {
                 response.append(responseLine.trim());
             }
             System.out.println(response.toString());
-        }
 
-        return response.toString();
+            return response.toString();
+        }
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/getInstitutionAdmissionSetup", method = RequestMethod.POST)
+    public String getInstitutionAdmissionSetup(@RequestBody SingleStringRequest jso) throws IOException {
+
+        StringBuilder response = new StringBuilder();
+        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        String json = ow.writeValueAsString(jso);
+        URL url = new URL ("http://localhost:8083/api/setup/getInstitutionAdmissionSetup");
+        HttpURLConnection con = (HttpURLConnection)url.openConnection();
+        con.setRequestMethod("POST");
+        con.setRequestProperty("Content-Type", "application/json");
+        con.setRequestProperty("Accept", "application/json");
+        con.setDoOutput(true);
+        String jsonInputString = json;
+        try(OutputStream os = con.getOutputStream()) {
+            byte[] input = jsonInputString.getBytes("utf-8");
+            os.write(input, 0, input.length);
+        }
+        try(BufferedReader br = new BufferedReader(
+                new InputStreamReader(con.getInputStream(), "utf-8"))) {
+            String responseLine = null;
+            while ((responseLine = br.readLine()) != null) {
+                response.append(responseLine.trim());
+            }
+            System.out.println(response.toString());
+
+            return response.toString();
+        }
     }
 
 

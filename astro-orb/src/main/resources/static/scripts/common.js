@@ -18,33 +18,21 @@
  "vendor/datatables.net-buttons/js/dataTables.buttons.min.js",
  "vendor/datatables.net-buttons-bs/js/buttons.bootstrap.min.js",
 
- "vendor/jquery/dist/jquery.min.js",
- "vendor/jquery-ui/jquery-ui.min.js",
- "vendor/slimScroll/jquery.slimscroll.min.js",
- "vendor/bootstrap/dist/js/bootstrap.min.js",
+
  "vendor/jquery-flot/jquery.flot.js",
  "vendor/jquery-flot/jquery.flot.resize.js",
  "vendor/jquery-flot/jquery.flot.pie.js",
  "vendor/flot.curvedlines/curvedLines.js",
  "vendor/jquery.flot.spline/index.js",
- "vendor/metisMenu/dist/metisMenu.min.js",
  "vendor/moment/min/moment.min.js",
  "vendor/fullcalendar/dist/fullcalendar.min.js",
  "vendor/iCheck/icheck.min.js",
- "vendor/peity/jquery.peity.min.js",
  "vendor/sparkline/index.js",
  "vendor/ladda/dist/spin.min.js",
  "vendor/ladda/dist/ladda.min.js",
  "vendor/ladda/dist/ladda.jquery.min.js",
- "vendor/datatables/media/js/jquery.dataTables.min.js",
- "vendor/datatables.net-bs/js/dataTables.bootstrap.min.js",
- "vendor/pdfmake/build/pdfmake.min.js",
- "vendor/pdfmake/build/vfs_fonts.js",
- "vendor/datatables.net-buttons/js/buttons.html5.min.js",
- "vendor/datatables.net-buttons/js/buttons.print.min.js",
- "vendor/datatables.net-buttons/js/dataTables.buttons.min.js",
- "vendor/datatables.net-buttons-bs/js/buttons.bootstrap.min.js",
- "vendor/summernote/dist/summernote.min.js"
+ "vendor/summernote/dist/summernote.min.js",
+ "dataTables/datatables.min.js"
  ];
     const absoultePath = [];
 
@@ -53,10 +41,24 @@
     "images/favicon.ico",
     "vendor/fontawesome/css/font-awesome.css",
     "vendor/bootstrap/dist/css/bootstrap.css",
-    "styles/style.css","styles/all.min.css"
+    "styles/style.css","styles/all.min.css",
+    "dataTables/datatables.min.css"
     ];
     const absoultelinkPath = [];
 
+  Array.from(document.getElementsByTagName("script")).forEach(function(s) {
+        defaultScripts.forEach(function(d,i) {
+            if(s.src.indexOf(d,i)!=-1){
+              absoultePath[i] = s.src
+            }
+        })
+    })
+
+      Array.from(document.getElementsByTagName("script")).forEach(function(s) {
+          if (absoultePath.indexOf(s.src) == -1) {
+             s.parentNode.removeChild(s);
+           }
+        })
 
 
 window.addEventListener("load", (event) => {
@@ -319,10 +321,10 @@ function classgroupnBuild() {
     });
 
 
-/*    var script1 = document.createElement("script");
+    var script1 = document.createElement("script");
     script1.setAttribute("type", "text/javascript");
     script1.setAttribute("src", "vendor/jquery-validation/jquery.validate.min.js");
-    document.getElementsByTagName("body")[0].appendChild(script1);*/
+    document.getElementsByTagName("body")[0].appendChild(script1);
 
     var script12x = document.createElement("script");
     script12x.setAttribute("type", "text/javascript");
@@ -411,10 +413,10 @@ function classesBuild() {
     });
 
 
- /*   var script1 = document.createElement("script");
+    var script1 = document.createElement("script");
     script1.setAttribute("type", "text/javascript");
     script1.setAttribute("src", "vendor/jquery-validation/jquery.validate.min.js");
-    document.getElementsByTagName("body")[0].appendChild(script1);*/
+    document.getElementsByTagName("body")[0].appendChild(script1);
 
     var script2 = document.createElement("script");
     script2.setAttribute("type", "text/javascript");

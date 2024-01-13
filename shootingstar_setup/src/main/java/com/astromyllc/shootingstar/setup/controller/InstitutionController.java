@@ -27,6 +27,7 @@ public class InstitutionController {
     private final GradingSettingsServiceInterface gradingSettingsServiceInterface;
     private final DesignationServiceInterface designationServiceInterface;
     private final JobDescriptionServiceInterface jobDescriptionServiceInterface;
+    private final AdmissionsServiceInterface admissionsServiceInterface;
 
 //=============================== INSTITUTION ========================================================
     /**
@@ -35,10 +36,10 @@ public class InstitutionController {
      */
     @PostMapping("/api/setup/signupInstitution")
     @ResponseStatus(HttpStatus.CREATED)
-    @CircuitBreaker(name = "Institution",fallbackMethod = "fallBack0")
-    public void SubmitApplication(@RequestBody InstitutionRequest institutionRequest) {
+    //@CircuitBreaker(name = "Institution",fallbackMethod = "fallBack0")
+    public InstitutionResponse SubmitApplication(@RequestBody InstitutionRequest institutionRequest) {
         log.info("Application  Received");
-        institutionService.createInstitution(institutionRequest);
+        return institutionService.createInstitution(institutionRequest);
     }
 
     @PostMapping("/api/setup/getAllinstitution")
@@ -210,6 +211,25 @@ public class InstitutionController {
     public List<List<List<Optional<JobDescriptionResponse>>>> getInstitutionJobDescriptions(@RequestBody SingleStringRequest beceCode) {
         log.info("Job Description Request  Received");
         return jobDescriptionServiceInterface.getAllJobDescriptionsByInstitution(beceCode);
+    }
+
+
+
+
+//======================================== ADMISSIONS =============================================================
+
+    @PostMapping("/api/setup/addAdmissionSetup")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Optional<AdmissionsResponse> AddAdmission(@RequestBody AdmissionsEntryRequest admissionsEntryRequest) {
+        log.info("Admission Setup Requirement Received");
+        return  admissionsServiceInterface.createAdmissionSetup(admissionsEntryRequest);
+    }
+
+    @PostMapping("/api/setup/getInstitutionAdmissionSetup")
+    @ResponseStatus(HttpStatus.OK)
+    public Optional<AdmissionsResponse> getInstitutionAdmissionSetup(@RequestBody SingleStringRequest beceCode) {
+        log.info("Job Description Request  Received");
+        return admissionsServiceInterface.getAllAdmissionSetupByInstitution(beceCode);
     }
 
 

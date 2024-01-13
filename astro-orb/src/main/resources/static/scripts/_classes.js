@@ -19,7 +19,7 @@ fetchInstitutionClasses(instId.split(",")[0]);
 
      
     function postdata(){
-   let classGroup=[];
+   var classGroup=[];
     classGroup= document.getElementsByClassName('newClassGrouptxt');
     for(var i=0;i<classGroup.length; i++){
     name[i]=classGroup[i].value;
@@ -81,7 +81,16 @@ var bar = new Promise((resolve, reject) => {
    }
 
   function dataTableInit(){
-    $('#classTable').dataTable();
+    $('#classTable').dataTable({
+       dom: "<'row'<'col-sm-4'l><'col-sm-4 text-center'B><'col-sm-4'f>>tp",
+       "lengthMenu": [[5,10, 25, 50, -1], [5,10, 25, 50, "All"]],
+       buttons: [
+           { extend: 'copy', className: 'btn-sm' },
+           { extend: 'csv', title: 'ExampleFile', className: 'btn-sm' },
+           { extend: 'pdf', title: 'ExampleFile', className: 'btn-sm' },
+           { extend: 'print', className: 'btn-sm' }
+       ]
+   });
 
   }
 

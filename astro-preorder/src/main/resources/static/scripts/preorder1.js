@@ -47,7 +47,6 @@ $('#submitRequest').click(function () {
             var jso = buildJson();
             // Serialize data to post method
             var datastring = $("#simpleForm").serialize();
-            debugger
             // Show notification
             swal({
                 title: "Thank you!",

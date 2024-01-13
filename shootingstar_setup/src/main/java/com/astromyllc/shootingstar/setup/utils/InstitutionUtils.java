@@ -99,12 +99,12 @@ public class InstitutionUtils {
                 .streams(institution.getStreams())
                 .subscription(institution.getSubscription())
                 .crest(institution.getCrest())
-                .admissions(AdmissionUtil.mapAdmissionRequestToAdmission(institution.getAdmissions()))
-                .classList(institution.getClassList().stream().map(c -> ClassesUtil.mapClassToClassResponse(c)).toList())
+                .admissions(AdmissionUtil.mapAdmissionToAdmissionResponse(institution.getAdmissions()))
+                .classList(institution.getClassList().stream().map(ClassesUtil::mapClassToClassResponse).toList())
                 .gradingSetting(GradingSettingUtil.mapGradeSetting_ToGradeSettingResponse(institution.getGradingSetting()))
-                .subjectList(institution.getSubjectList().stream().map(s -> SubjectUtil.mapSubject_ToSubjectResponse(s)).toList())
-                .classList(institution.getClassList().stream().map(c -> ClassesUtil.mapClassToClassResponse(c)).toList())
-                .departmentList(institution.getDepartmentList().stream().map(d -> DepartmentUtil.mapDepartment_ToDepartmentResponse(d)).toList())
+                .subjectList(institution.getSubjectList().stream().map(SubjectUtil::mapSubject_ToSubjectResponse).toList())
+                .classList(institution.getClassList().stream().map(ClassesUtil::mapClassToClassResponse).toList())
+                .departmentList(institution.getDepartmentList().stream().map(DepartmentUtil::mapDepartment_ToDepartmentResponse).toList())
                 .build();
     }
 
@@ -124,13 +124,13 @@ public class InstitutionUtils {
         institution.setWebsite(institutionRequest.getWebsite());
         institution.setSubscription(institutionRequest.getSubscription());
         institution.setCrest(institutionRequest.getCrest());
-        institution.setCreationDate(LocalDate.parse(institutionRequest.getCreationDate().replace("T", " "), formatter));
-        institution.setAdmissions(AdmissionUtil.mapAdmissionRequestToAdmission(institutionRequest.getAdmissions(), institution.getAdmissions()));
-        institution.setClassList(institutionRequest.getClassList().stream().map((cr) -> ClassesUtil.mapClassRequestToClass(cr, institution.getClassList().stream().filter(c -> cr.getId().equals(c.getIdClasses())).findFirst().get())).collect(Collectors.toList()));
-        institution.setDepartmentList(institutionRequest.getDepartmentList().stream().map((dr) -> DepartmentUtil.mapDepartmentRequest_ToDepartment(dr, institution.getDepartmentList().stream().filter(d -> dr.getIdDepartment().equals(d.getIdDepartment())).findFirst().get())).collect(Collectors.toList()));
-        institution.setGradingSetting(GradingSettingUtil.mapGradeSettingRequest_ToGradeSetting(institutionRequest.getGradingSetting(), institution.getGradingSetting()));
-        institution.setSubjectList(institutionRequest.getSubjectList().stream()
-                .map((sr) -> SubjectUtil.mapSubjectRequest_ToSubject(sr, institution.getSubjectList().stream().filter(s -> sr.getId().equals(s.getIdSubject())).findFirst().get())).collect(Collectors.toList()));
+        //institution.setCreationDate(LocalDate.parse(institutionRequest.getCreationDate().replace("T", " "), formatter));
+        //institution.setAdmissions(AdmissionUtil.mapAdmissionRequestToAdmission(institutionRequest.getAdmissions(), institution.getAdmissions()));
+        //institution.setClassList(institutionRequest.getClassList().stream().map((cr) -> ClassesUtil.mapClassRequestToClass(cr, institution.getClassList().stream().filter(c -> cr.getId().equals(c.getIdClasses())).findFirst().get())).collect(Collectors.toList()));
+        //institution.setDepartmentList(institutionRequest.getDepartmentList().stream().map((dr) -> DepartmentUtil.mapDepartmentRequest_ToDepartment(dr, institution.getDepartmentList().stream().filter(d -> dr.getIdDepartment().equals(d.getIdDepartment())).findFirst().get())).collect(Collectors.toList()));
+        //institution.setGradingSetting(GradingSettingUtil.mapGradeSettingRequest_ToGradeSetting(institutionRequest.getGradingSetting(), institution.getGradingSetting()));
+        //institution.setSubjectList(institutionRequest.getSubjectList().stream()
+               // .map((sr) -> SubjectUtil.mapSubjectRequest_ToSubject(sr, institution.getSubjectList().stream().filter(s -> sr.getId().equals(s.getIdSubject())).findFirst().get())).collect(Collectors.toList()));
         return institution;
     }
 

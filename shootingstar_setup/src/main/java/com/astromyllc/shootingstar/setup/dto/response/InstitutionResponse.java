@@ -1,5 +1,6 @@
 package com.astromyllc.shootingstar.setup.dto.response;
 
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -30,6 +31,7 @@ public class InstitutionResponse {
     private String postalAddress;
     private Integer streams;
     private String subscription;
+    @Size(max = 1147483647)
     private String crest;
 
     private Optional<GradingSettingResponse> gradingSetting;

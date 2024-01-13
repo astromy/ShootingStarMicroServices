@@ -57,7 +57,7 @@ public class AdmissionUtil {
                 return  a;
     }
 
-    public static Optional<AdmissionsResponse> mapAdmissionRequestToAdmission(Admissions admissions) {
+    public static Optional<AdmissionsResponse> mapAdmissionToAdmissionResponse(Admissions admissions) {
         return Optional.of(Optional.ofNullable(AdmissionsResponse.builder()
                 .id(admissions.getIdAdmissions())
                 .admissionCriteriaList((List<AdmissionCriteriaResponse>) admissions.getAdmissionCriteriaList().stream().map(criteria -> {

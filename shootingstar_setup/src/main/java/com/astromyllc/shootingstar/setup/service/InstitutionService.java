@@ -32,16 +32,19 @@ public class InstitutionService implements InstitutionServiceInterface {
 private final InstitutionUtils institutionUtils;
     @Override
     public InstitutionResponse createInstitution(InstitutionRequest institutionRequest) {
-        Optional <Institution> institution = institutionUtils.institutionGlobalList.stream().filter(x -> x.getBececode().equals(institutionRequest.getBececode())).findFirst();
+        Optional <Institution> institution = InstitutionUtils.institutionGlobalList.stream().filter(x -> x.getBececode().equals(institutionRequest.getBececode())).findFirst();
         Institution institution1=new Institution();
         if (institution.isEmpty()) {
              institution1 = institutionUtils.mapInstitutionRequest_ToInstitution(institutionRequest);
             institutionRepository.save(institution1);
 
-            institutionUtils.institutionGlobalList.add(institution1);
+            InstitutionUtils.institutionGlobalList.add(institution1);
             log.info("Institution {} Saved Successfully", institution1.getIdInstitution());
         } else {
-            institutionRepository.save(institutionUtils.mapInstitutionRequestToInstitution(institution.get(), institutionRequest));
+           Institution institution2=institutionUtils.mapInstitutionRequestToInstitution(institution.get(), institutionRequest);
+            institutionRepository.save(institution2);
+            InstitutionUtils.institutionGlobalList.add(institution2);
+            return institutionUtils.mapInstitutionToInstitutionResponse(institution2);
         }
         return institutionUtils.mapInstitutionToInstitutionResponse(institution1);
     }
@@ -52,7 +55,7 @@ private final InstitutionUtils institutionUtils;
             institution1 = institutionUtils.mapPreOrderInstitutionRequest_ToPreOrderInstitution(institutionRequest);
             preOrderInstitutionRepository.save(institution1);
             institutionUtils.createKeycloakCredentials(institution1);
-            institutionUtils.preOrderInstitutionGlobalList.add(institution1);
+            InstitutionUtils.preOrderInstitutionGlobalList.add(institution1);
             log.info("Institution {} Saved Successfully", institution1.getIdInstitution());
 
         return "Request Processed";
@@ -61,16 +64,14 @@ private final InstitutionUtils institutionUtils;
     @Override
     public Optional<InstitutionResponse> getInstitutionByBeceCode(SingleStringRequest beceCode) {
         String finalBeceCode= beceCode.getVal();
-        List<Institution> ii=institutionUtils.institutionGlobalList.stream().filter(x -> x.getBececode().equals(finalBeceCode)).toList();
-         Optional<Institution> i=Optional.ofNullable(institutionUtils.institutionGlobalList.stream().filter(x -> x.getBececode().equals(finalBeceCode)).findFirst().get());
+        List<Institution> ii= InstitutionUtils.institutionGlobalList.stream().filter(x -> x.getBececode().equals(finalBeceCode)).toList();
+         Optional<Institution> i=Optional.of(InstitutionUtils.institutionGlobalList.stream().filter(x -> x.getBececode().equals(finalBeceCode)).findFirst().get());
         return Optional.ofNullable(institutionUtils.mapInstitutionToInstitutionResponse(i.get()));
     }
 
     @Override
     public Optional<List<InstitutionResponse>> getAllInstitution() {
-        return Optional.of(institutionUtils.institutionGlobalList.stream().filter(i->i.getAdmissions()!=null && i.getAdmissions()!=null && i.getClassList()!=null && i.getSubjectList()!=null && i.getDepartmentList()!=null).map(inst -> {
-            return institutionUtils.mapInstitutionToInstitutionResponse(inst);
-        }).toList());
+        return Optional.of(InstitutionUtils.institutionGlobalList.stream().filter(i->i.getAdmissions()!=null && i.getGradingSetting()!=null && i.getClassList()!=null && i.getSubjectList()!=null && i.getDepartmentList()!=null).map(institutionUtils::mapInstitutionToInstitutionResponse).toList());
     }
 
     @Override
@@ -105,9 +106,7 @@ private final InstitutionUtils institutionUtils;
 
     @Override
     public Optional<List<PreOrderInstitutionResponse>> getAllPreOrderedInstitution() {
-        return Optional.of(institutionUtils.preOrderInstitutionGlobalList.stream().map(inst -> {
-            return institutionUtils.mapPreOrderInstitutionToPreOrderInstitutionResponse(inst);
-        }).toList());
+        return Optional.of(InstitutionUtils.preOrderInstitutionGlobalList.stream().map(institutionUtils::mapPreOrderInstitutionToPreOrderInstitutionResponse).toList());
     }
 
 }

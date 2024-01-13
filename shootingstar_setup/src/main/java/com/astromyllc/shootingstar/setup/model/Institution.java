@@ -1,6 +1,7 @@
 package com.astromyllc.shootingstar.setup.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -38,6 +39,7 @@ public class Institution {
     @NonNull
     private Integer streams;
     private String subscription;
+    @Size(max = 1147483647)
     private String crest;
 
     @OneToOne(targetEntity = GradingSetting.class,cascade = CascadeType.ALL)

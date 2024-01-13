@@ -24,7 +24,7 @@ $(function () {
                                        <form id="institutionForm" role="form">
                                            <div class="row">
                                                <div class="col-lg-3 text-center">
-                                                   <i class="fa fa-university fa-5x text-gradien"></i>
+                                                   <i class="fa fa-university fa-5x text-gradien" style="color: cornflowerblue;"></i>
                                                    <p class="small m-t-md">
                                                        <strong>Astromy LLC's Orb</strong> is a comprehensive school
                                                        management system designed with just the needs of the schools in

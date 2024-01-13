@@ -5,6 +5,7 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -38,6 +39,7 @@ public class InstitutionRequest {
     @NonNull
     private Integer streams;
     private String subscription;
+    @Size(max = 1147483647)
     private String crest;
 
     private GradingSettingDetails gradingSetting;

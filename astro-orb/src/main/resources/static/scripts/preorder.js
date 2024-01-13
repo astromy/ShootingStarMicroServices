@@ -54,15 +54,14 @@ fetchInstitution(instId.split(",")[0]);
 
     return HttpPost("preRequestInstitution",jso)
     .then(function(result){
-
-                    swal({
-                           title: "Thank you!",
-                           text: "Your application is being submitted",
-                           type: "success"
-                      });
+    displayFetchInstitution(result);
+        swal({
+               title: "Thank you!",
+               text: "Operation processed successfully",
+               type: "success"
+          });
     })
 
-        debugger;
 
             }
             } else {
@@ -239,19 +238,19 @@ return true;
 };
 
 
-const input = document.querySelector(".imageInput")
-const output = document.querySelector(".imageOutput")
-let imagesArray = []
+var input = document.querySelector(".imageInput")
+var output = document.querySelector(".imageOutput")
+var imagesArray = []
 
 input.addEventListener("change", () => {
-    const file = input.files
+    var file = input.files
     imagesArray=[];
     imagesArray.push(file[0])
     displayImages()
   })
 
   function displayImages() {
-    let images = ""
+    var images = ""
     imagesArray.forEach((image, index) => {
       images += `<div class="crest">
                   <img src="${URL.createObjectURL(image)}" alt="image" id="crestImage" class="crest">
@@ -260,6 +259,14 @@ input.addEventListener("change", () => {
     })
     output.innerHTML = images
   }
+
+    function displayFetchImages(srcs) {
+      var images = ""
+        images += `<div class="crest">
+                    <img src=`+ srcs + ` alt="image" id="crestImage" class="crest">
+                  </div>`
+      output.innerHTML = images
+    }
 
   function deleteImage(index) {
     imagesArray.splice(index, 1)
@@ -273,8 +280,11 @@ input.addEventListener("change", () => {
     var instRequest={"val":v}
     return  HttpPost("getInstitutionByCode",instRequest)
      .then(function (result) {
-debugger
-    console.log(result);
+    displayFetchInstitution(result);
+    })
+    }
+
+    function displayFetchInstitution(result){
     $('[name="clientName"]').val(result.name);
     $('[name="slogan"]').val(result.slogan);
     $('[name="country"]').val(result.country);
@@ -288,7 +298,13 @@ debugger
     $('[name="streams"]').val(result.streams);
     //$('[name="population"]').val()=result.;
     $('[name="website"]').val(result.website);
+    displayFetchImages('data:image/png;base64,' + result.crest);
 
-  })
+    Array.from(document.getElementsByClassName("subscriptionPlan")).forEach(function(s) {
+            if(s.innerHTML==result.subscription){
+              var t=s.closest('.subscriptionOption');
+              t.classList.add("active");
+            }
+        })
   }
 
