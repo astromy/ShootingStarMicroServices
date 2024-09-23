@@ -2,16 +2,12 @@ package com.astromyllc.shootingstar.setup.controller;
 
 import com.astromyllc.shootingstar.setup.dto.request.*;
 import com.astromyllc.shootingstar.setup.dto.response.*;
-import com.astromyllc.shootingstar.setup.service.InstitutionService;
 import com.astromyllc.shootingstar.setup.serviceInterface.*;
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
 
@@ -45,21 +41,21 @@ public class InstitutionController {
     @PostMapping("/api/setup/getAllinstitution")
     @ResponseStatus(HttpStatus.OK)
     public Optional<List<InstitutionResponse>> getAllInstitution() {
-        log.info("Application  Received");
+        log.info("Retrieving All Institutions");
         return institutionService.getAllInstitution();
     }
 
     @PostMapping("/api/setup/getInstitutionByCode")
     @ResponseStatus(HttpStatus.OK)
     public Optional<InstitutionResponse> getInstitutionByBeceCode(@RequestBody SingleStringRequest beceCode) {
-        log.info("Application  Received");
+        log.info("Retrieving Institution By Code");
         return institutionService.getInstitutionByBeceCode(beceCode);
     }
 
     @GetMapping("/api/setup/getInstitutionByCode?institutionCode")
     @ResponseStatus(HttpStatus.OK)
     public Optional<InstitutionResponse> getInstitutionByBeceCodePath(@PathVariable ("institutionCode") SingleStringRequest beceCode) {
-        log.info("Application  Received");
+        log.info("Retrieving Institution By Code By a Get Request");
         return institutionService.getInstitutionByBeceCode(beceCode);
     }
 
@@ -69,9 +65,9 @@ public class InstitutionController {
  //========================== PRE-REQUEST ===============================================
     @PostMapping("/api/setup/preRequestInstitution")
     @ResponseStatus(HttpStatus.CREATED)
-    public void SubmitPreOrderApplication(@RequestBody PreOrderInstitutionRequest institutionRequest) {
+    public String SubmitPreOrderApplication(@RequestBody PreOrderInstitutionRequest institutionRequest) {
         log.info("Application  Received");
-        institutionService.createPreOrderInstitution(institutionRequest);
+      return institutionService.createPreOrderInstitution(institutionRequest);
     }
 
     @PostMapping("/api/setup/getPreOrderAllinstitution")
@@ -79,6 +75,13 @@ public class InstitutionController {
     public Optional<List<PreOrderInstitutionResponse>> getAllPreOrderedInstitution() {
         log.info("Application  Received");
         return institutionService.getAllPreOrderedInstitution();
+    }
+
+    @PostMapping("/api/setup/migratePreOrder")
+    @ResponseStatus(HttpStatus.CREATED)
+    public InstitutionResponse migratePreOrder(@RequestBody SingleStringRequest beceCode) {
+        log.info("Application  Received");
+        return institutionService.migratePreOrder(beceCode.getVal());
     }
 
 
@@ -112,9 +115,9 @@ public class InstitutionController {
     }
     @PostMapping("/api/setup/addLookUps")
     @ResponseStatus(HttpStatus.CREATED)
-    public void SubmitLookupList(@RequestBody List<LookupRequest> lookupRequest) {
+    public List<Optional<LookupResponse>>  SubmitLookupList(@RequestBody List<LookupRequest> lookupRequest) {
         log.info("Application  Received");
-        lookupServiceInterface.createLookups(lookupRequest);
+        return  lookupServiceInterface.createLookups(lookupRequest);
     }
 
     @PostMapping("/api/setup/getLookUpByType")
@@ -146,14 +149,14 @@ public class InstitutionController {
 
     @PostMapping("/api/setup/addSubjects")
     @ResponseStatus(HttpStatus.CREATED)
-    public void AddSubjects(@RequestBody List<SubjectRequest> subjectRequest) {
+    public void AddSubjects(@RequestBody SubjectRequest subjectRequest) {
         log.info("Subject List  Received");
-        subjectServiceInterface.createSubjects(subjectRequest);
+        subjectServiceInterface.createSubject(subjectRequest);
     }
 
     @PostMapping("/api/setup/getInstitutionSubjects")
     @ResponseStatus(HttpStatus.OK)
-    public List<Optional<SubjectResponse>> GetSubjects(@RequestBody SingleStringRequest beceCode) {
+    public Optional<List<Optional<SubjectResponse>>> GetSubjects(@RequestBody SingleStringRequest beceCode) {
         log.info("Subject List  Received");
        return subjectServiceInterface.getAllSubjectsByInstitution(beceCode);
     }

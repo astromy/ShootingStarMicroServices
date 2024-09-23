@@ -1,3 +1,15 @@
+window.type;
+window.id;
+window.clonable;
+window.clonable1b;
+window.clonable2;
+window.name=[];
+window.resultlist=[];
+window.el;
+window.instId = $("meta[name='institutionId']").attr("content");
+    type= $('[name="type"]').val();
+
+var scriptsToRemove = [];
  const defaultScripts = [
  "vendor/jquery/dist/jquery.min.js",
  "vendor/jquery-ui/jquery-ui.min.js",
@@ -34,37 +46,28 @@
  "vendor/summernote/dist/summernote.min.js",
  "dataTables/datatables.min.js"
  ];
-    const absoultePath = [];
+
+ const absoultePath = [];
 
 
-    const defaultlink = [
+    const defaultLinks = [
     "images/favicon.ico",
     "vendor/fontawesome/css/font-awesome.css",
     "vendor/bootstrap/dist/css/bootstrap.css",
     "styles/style.css","styles/all.min.css",
     "dataTables/datatables.min.css"
     ];
+
     const absoultelinkPath = [];
 
-  Array.from(document.getElementsByTagName("script")).forEach(function(s) {
-        defaultScripts.forEach(function(d,i) {
-            if(s.src.indexOf(d,i)!=-1){
-              absoultePath[i] = s.src
-            }
-        })
-    })
-
-      Array.from(document.getElementsByTagName("script")).forEach(function(s) {
-          if (absoultePath.indexOf(s.src) == -1) {
-             s.parentNode.removeChild(s);
-           }
-        })
+// Track current state of active scripts and links
+let activeScripts = new Set();
+let activeLinks = new Set();
 
 
-window.addEventListener("load", (event) => {
+window.addEventListener("load", () => {
 
     $('#copyrightYear').text(getYear());
-
 
     function getYear(){
     var objToday = new Date();
@@ -72,7 +75,32 @@ window.addEventListener("load", (event) => {
     return curYear;
     }
 
-    $('script').each(function () {
+    initializeDefaults();
+    addEventListeners();  // Attach all event listeners
+});
+
+function initializeDefaults() {
+    trackExistingResources("script", defaultScripts, activeScripts);
+    trackExistingResources("link", defaultLinks, activeLinks);
+}
+
+function trackExistingResources(tagName, defaultArray, activeSet) {
+    // Track all resources matching default scripts or links
+    document.querySelectorAll(tagName).forEach((el) => {
+        const srcOrHref = el.src || el.href;
+        defaultArray.forEach((item) => {
+            if (srcOrHref.includes(item)) {
+                activeSet.add(srcOrHref);
+            }
+        });
+    });
+}
+
+
+
+
+
+/*    $('script').each(function () {
         defaultScripts.forEach((item, ind) => {
 
             if (this.src.indexOf(item) != -1) {
@@ -85,10 +113,11 @@ window.addEventListener("load", (event) => {
 
         if (absoultePath.indexOf(this.src) == -1) {
 
-            this.parentNode.removeChild(this);
-        }
-    });
 
+           scriptsToRemove.push(this);
+        }
+    });*/
+function addEventListeners() {
     document.getElementById("institution").addEventListener("click", institutionBuild);
     document.getElementById("classgroup").addEventListener("click", classgroupnBuild);
     document.getElementById("classes").addEventListener("click", classesBuild);
@@ -133,6 +162,7 @@ window.addEventListener("load", (event) => {
     document.getElementById("institution").addEventListener("click", institutionBuild);*/
 
 
+/*
     $('link').each(function () {
         defaultlink.forEach((item, ind) => {
 
@@ -146,360 +176,149 @@ window.addEventListener("load", (event) => {
 
         if (absoultelinkPath.indexOf(this.href) == -1) {
 
-            this.parentNode.removeChild(this);
+
+           scriptsToRemove.push(this);
         }
     });
+*/
 
 
-})
+}
+
+    // Utility to remove unwanted scripts/links
+function removeUnwantedResources(tagName) {
+        const mother=document.getElementsByTagName("body")[0];
+        var lst=[];
+        lst=Array.from(mother.getElementsByTagName(tagName))
+                  .filter(el => el.getAttribute('data-dynamic') === 'true');
+        for(i=0; i< lst.length; i++){
+              mother.removeChild(lst[i])
+         }
+        if(mother.getElementsByClassName("sweet-overlay").length>0){
+        //mother.removeChild(mother.getElementsByClassName("sweet-overlay")[0].parentNode)
+    }
+}
+
+// Utility to add new scripts or links
+function addNewResources(tagName, newResources) {
+    const parentTag = tagName === "script" ? "body" : "head";
+    newResources.forEach((srcOrHref) => {
+        const newElement = document.createElement(tagName);
+        if (tagName === "script") {
+            newElement.src = srcOrHref;
+            newElement.type = "text/javascript";
+        } else {
+            newElement.href = srcOrHref;
+            newElement.rel = "stylesheet";
+        }
+        newElement.setAttribute("data-dynamic", "true");  // Mark as dynamically added
+        document.querySelector(parentTag).appendChild(newElement);
+    });
+}
 
 
 
 
 function institutionBuild() {
+    // Define new resources specific to this view
+    const newScripts = [
+ "vendor/jquery-validation/jquery.validate.min.js",
+"vendor/sparkline/index.js",
+"vendor/sweetalert/lib/sweet-alert.min.js",
+"vendor/ladda/dist/spin.min.js",
+"vendor/ladda/dist/ladda.min.js",
+"vendor/ladda/dist/ladda.jquery.min.js",
+"scripts/subscripts/institution.js"
+    ];
 
-    $('script').each(function () {
-        defaultScripts.forEach((item, ind) => {
+    const newLinks = [
+"vendor/sweetalert/lib/sweet-alert.css",
+"vendor/fontawesome/css/font-awesome.css",
+"vendor/metisMenu/dist/metisMenu.css",
+"vendor/animate.css/animate.css",
+"vendor/bootstrap/dist/css/bootstrap.css",
+"vendor/ladda/dist/ladda-themeless.min.css"
+    ];
 
-            if (this.src.indexOf(item) != -1) {
-                absoultePath[ind] = this.src
-            }
-        });
-    });
+    // Remove previous non-default scripts/links
+    removeUnwantedResources("script", activeScripts);
+    removeUnwantedResources("link", activeLinks);
 
-    $('script').each(function () {
+    // Add new resources
+    addNewResources("script", newScripts);
+    addNewResources("link", newLinks);
 
-        if (absoultePath.indexOf(this.src) == -1) {
-
-            this.parentNode.removeChild(this);
-        }
-    });
-
-    $('link').each(function () {
-        defaultlink.forEach((item, ind) => {
-
-            if (this.href.indexOf(item) != -1) {
-                absoultelinkPath[ind] = this.href
-            }
-        });
-    });
-
-    $('link').each(function () {
-
-        if (absoultelinkPath.indexOf(this.href) == -1) {
-
-            this.parentNode.removeChild(this);
-        }
-    });
-
-    $('.sweet-overlay').each(function () {
-     this.parentNode.parentNode.removeChild(this.parentNode);
-    });
-
-    $('.sweet-alert').each(function () {
-     this.parentNode.parentNode.removeChild(this.parentNode);
-    });
-
-    var script1 = document.createElement("script");
-    script1.setAttribute("type", "text/javascript");
-    script1.setAttribute("src", "vendor/jquery-validation/jquery.validate.min.js");
-    document.getElementsByTagName("body")[0].appendChild(script1);
-
-    var script7 = document.createElement("script");
-    script7.setAttribute("type", "text/javascript");
-    script7.setAttribute("src", "vendor/sparkline/index.js");
-    document.getElementsByTagName("body")[0].appendChild(script7);
-
-    /*var script8 = document.createElement("script");
-    script8.setAttribute("type", "text/javascript");
-    script8.setAttribute("src", "vendor/sweetalert/lib/sweet-alert.min.js");
-    document.getElementsByTagName("body")[0].appendChild(script8);*/
-
-    var script12 = document.createElement("script");
-    script12.setAttribute("type", "text/javascript");
-    script12.setAttribute("src", "vendor/sweetalert/lib/sweet-alert.min.js");
-    document.getElementsByTagName("body")[0].appendChild(script12);
-
-
-    var script9 = document.createElement("script");
-    script9.setAttribute("type", "text/javascript");
-    script9.setAttribute("src", "vendor/ladda/dist/spin.min.js");
-    document.getElementsByTagName("body")[0].appendChild(script9);
-
-    var script10 = document.createElement("script");
-    script10.setAttribute("type", "text/javascript");
-    script10.setAttribute("src", "vendor/ladda/dist/ladda.min.js");
-    document.getElementsByTagName("body")[0].appendChild(script10);
-
-    var script11 = document.createElement("script");
-    script11.setAttribute("type", "text/javascript");
-    script11.setAttribute("src", "vendor/ladda/dist/ladda.jquery.min.js");
-    document.getElementsByTagName("body")[0].appendChild(script11);
-
-    var script15 = document.createElement("script");
-    script15.setAttribute("type", "text/javascript");
-    script15.setAttribute("src", "scripts/subscripts/institution.js");
-    document.getElementsByTagName("body")[0].appendChild(script15);
-
-
-    /**========================================= */
-
-    var link = document.createElement("link");
-    link.setAttribute("rel", "stylesheet");
-    link.setAttribute("href", "vendor/sweetalert/lib/sweet-alert.css");
-    document.getElementsByTagName("head")[0].appendChild(link);
-
-    var link1 = document.createElement("link");
-    link1.setAttribute("rel", "stylesheet");
-    link1.setAttribute("href", "vendor/fontawesome/css/font-awesome.css");
-    document.getElementsByTagName("head")[0].appendChild(link1);
-
-    var link2 = document.createElement("link");
-    link2.setAttribute("rel", "stylesheet");
-    link2.setAttribute("href", "vendor/metisMenu/dist/metisMenu.css");
-    document.getElementsByTagName("head")[0].appendChild(link2);
-
-    var link3 = document.createElement("link");
-    link3.setAttribute("rel", "stylesheet");
-    link3.setAttribute("href", "vendor/animate.css/animate.css");
-    document.getElementsByTagName("head")[0].appendChild(link3);
-
-    var link4 = document.createElement("link");
-    link4.setAttribute("rel", "stylesheet");
-    link4.setAttribute("href", "vendor/bootstrap/dist/css/bootstrap.css");
-    document.getElementsByTagName("head")[0].appendChild(link4);
-
-    var link5 = document.createElement("link");
-    link5.setAttribute("rel", "stylesheet");
-    link5.setAttribute("href", "vendor/ladda/dist/ladda-themeless.min.css");
-    document.getElementsByTagName("head")[0].appendChild(link5);
+    // Update the active state with new resources
+    newScripts.forEach((src) => activeScripts.add(src));
+    newLinks.forEach((href) => activeLinks.add(href));
 }
 //-------------------------------------------------------------------------------------------------------
 
 function classgroupnBuild() {
 
-    $('script').each(function () {
-        defaultScripts.forEach((item, ind) => {
+    // Define new resources specific to this view
+        const newScripts = [
+            "vendor/jquery-validation/jquery.validate.min.js",
+                 "vendor/sweetalert/lib/sweet-alert.min.js",
+                 "vendor/sparkline/index.js",
+                 "scripts/subscripts/classgroup.js"
+        ];
+        const newLinks = [
+            "vendor/sweetalert/lib/sweet-alert.css",
+                "vendor/datatables.net-bs/css/dataTables.bootstrap.min.css",
+                "vendor/metisMenu/dist/metisMenu.css",
+                "vendor/animate.css/animate.css"
+        ];
 
-            if (this.src.indexOf(item) != -1) {
-                absoultePath[ind] = this.src
-            }
-        });
-    });
+        // Remove previous non-default scripts/links
+        removeUnwantedResources("script", activeScripts);
+        removeUnwantedResources("link", activeLinks);
 
-    $('script').each(function () {
+        // Add new resources
+        addNewResources("script", newScripts);
+        addNewResources("link", newLinks);
 
-        if (absoultePath.indexOf(this.src) == -1) {
-
-            this.parentNode.removeChild(this);
-        }
-    });
-
-    $('link').each(function () {
-        defaultlink.forEach((item, ind) => {
-
-            if (this.href.indexOf(item) != -1) {
-                absoultelinkPath[ind] = this.href
-            }
-        });
-    });
-
-    $('link').each(function () {
-
-        if (absoultelinkPath.indexOf(this.href) == -1) {
-
-            this.parentNode.removeChild(this);
-        }
-    });
-
-    $('.sweet-overlay').each(function () {
-     this.parentNode.parentNode.removeChild(this.parentNode);
-    });
-
-    $('.sweet-alert').each(function () {
-     this.parentNode.parentNode.removeChild(this.parentNode);
-    });
-
-
-    var script1 = document.createElement("script");
-    script1.setAttribute("type", "text/javascript");
-    script1.setAttribute("src", "vendor/jquery-validation/jquery.validate.min.js");
-    document.getElementsByTagName("body")[0].appendChild(script1);
-
-    var script12x = document.createElement("script");
-    script12x.setAttribute("type", "text/javascript");
-    script12x.setAttribute("src", "vendor/sweetalert/lib/sweet-alert.min.js");
-    document.getElementsByTagName("body")[0].appendChild(script12x);
-
-    var script2 = document.createElement("script");
-    script2.setAttribute("type", "text/javascript");
-    script2.setAttribute("src", "vendor/sparkline/index.js");
-    document.getElementsByTagName("body")[0].appendChild(script2);
-
-    var script11 = document.createElement("script");
-    script11.setAttribute("type", "text/javascript");
-    script11.setAttribute("src", "scripts/subscripts/classgroup.js");
-    document.getElementsByTagName("body")[0].appendChild(script11);
-
-    /**========================================= */
-
-    var link = document.createElement("link");
-    link.setAttribute("rel", "stylesheet");
-    link.setAttribute("href", "vendor/sweetalert/lib/sweet-alert.css");
-    document.getElementsByTagName("head")[0].appendChild(link);
-
-    var link3 = document.createElement("link");
-    link3.setAttribute("rel", "stylesheet");
-    link3.setAttribute("href", "vendor/datatables.net-bs/css/dataTables.bootstrap.min.css");
-    document.getElementsByTagName("head")[0].appendChild(link3);
-    
-    var link1 = document.createElement("link");
-    link1.setAttribute("rel", "stylesheet");
-    link1.setAttribute("href", "vendor/metisMenu/dist/metisMenu.css");
-    document.getElementsByTagName("head")[0].appendChild(link1);
-    
-    var link2 = document.createElement("link");
-    link2.setAttribute("rel", "stylesheet");
-    link2.setAttribute("href", "vendor/animate.css/animate.css");
-    document.getElementsByTagName("head")[0].appendChild(link2);
-
-   /* var link4 = document.createElement("link");
-    link4.setAttribute("rel", "stylesheet");
-    link4.setAttribute("href", "fonts/pe-icon-7-stroke/css/pe-icon-7-stroke.css");
-    document.getElementsByTagName("head")[0].appendChild(link4);*/
-  /*
-    var link5 = document.createElement("link");
-    link5.setAttribute("rel", "stylesheet");
-    link5.setAttribute("href", "fonts/pe-icon-7-stroke/css/helper.css");
-    document.getElementsByTagName("head")[0].appendChild(link5);*/
+        // Update the active state with new resources
+        newScripts.forEach((src) => activeScripts.add(src));
+        newLinks.forEach((href) => activeLinks.add(href));
 
 }
 //-------------------------------------------------------------------------------------------------------
 
 function classesBuild() {
 
-    $('script').each(function () {
-        defaultScripts.forEach((item, ind) => {
+    // Define new resources specific to this view
+        const newScripts = [
+            "vendor/jquery-validation/jquery.validate.min.js",
+                "vendor/sparkline/index.js",
+                "vendor/datatables/media/js/jquery.dataTables.min.js",
+                "vendor/datatables.net-bs/js/dataTables.bootstrap.min.js",
+                "vendor/pdfmake/build/pdfmake.min.js",
+                 "vendor/pdfmake/build/vfs_fonts.js",
+                 "vendor/datatables.net-buttons/js/buttons.html5.min.js",
+                  "vendor/datatables.net-buttons/js/buttons.print.min.js",
+                  "vendor/datatables.net-buttons/js/dataTables.buttons.min.js",
+                  "vendor/datatables.net-buttons-bs/js/buttons.bootstrap.min.js",
+                  "scripts/subscripts/classes.js"
+        ];
+        const newLinks = [
+            "vendor/sweetalert/lib/sweet-alert.css",
+                "vendor/metisMenu/dist/metisMenu.css",
+                "vendor/animate.css/animate.css",
+                "vendor/datatables.net-bs/css/dataTables.bootstrap.min.css"
+        ];
 
-            if (this.src.indexOf(item) != -1) {
-                absoultePath[ind] = this.src
-            }
-        });
-    });
+        // Remove previous non-default scripts/links
+        removeUnwantedResources("script", activeScripts);
+        removeUnwantedResources("link", activeLinks);
 
-    $('script').each(function () {
+        // Add new resources
+        addNewResources("script", newScripts);
+        addNewResources("link", newLinks);
 
-        if (absoultePath.indexOf(this.src) == -1) {
-
-            this.parentNode.removeChild(this);
-        }
-    });
-
-    $('link').each(function () {
-        defaultlink.forEach((item, ind) => {
-
-            if (this.href.indexOf(item) != -1) {
-                absoultelinkPath[ind] = this.href
-            }
-        });
-    });
-
-    $('link').each(function () {
-
-        if (absoultelinkPath.indexOf(this.href) == -1) {
-
-            this.parentNode.removeChild(this);
-        }
-    });
-
-
-    var script1 = document.createElement("script");
-    script1.setAttribute("type", "text/javascript");
-    script1.setAttribute("src", "vendor/jquery-validation/jquery.validate.min.js");
-    document.getElementsByTagName("body")[0].appendChild(script1);
-
-    var script2 = document.createElement("script");
-    script2.setAttribute("type", "text/javascript");
-    script2.setAttribute("src", "vendor/sparkline/index.js");
-    document.getElementsByTagName("body")[0].appendChild(script2);
-
-    var script3 = document.createElement("script");
-    script3.setAttribute("type", "text/javascript");
-    script3.setAttribute("src", "vendor/datatables/media/js/jquery.dataTables.min.js");
-    document.getElementsByTagName("body")[0].appendChild(script3);
-
-    var script4 = document.createElement("script");
-    script4.setAttribute("type", "text/javascript");
-    script4.setAttribute("src", "vendor/datatables.net-bs/js/dataTables.bootstrap.min.js");
-    document.getElementsByTagName("body")[0].appendChild(script4);
-
-    var script5 = document.createElement("script");
-    script5.setAttribute("type", "text/javascript");
-    script5.setAttribute("src", "vendor/pdfmake/build/pdfmake.min.js");
-    document.getElementsByTagName("body")[0].appendChild(script5);
-
-    var script6 = document.createElement("script");
-    script6.setAttribute("type", "text/javascript");
-    script6.setAttribute("src", "vendor/pdfmake/build/vfs_fonts.js");
-    document.getElementsByTagName("body")[0].appendChild(script6);
-
-    var script7 = document.createElement("script");
-    script7.setAttribute("type", "text/javascript");
-    script7.setAttribute("src", "vendor/datatables.net-buttons/js/buttons.html5.min.js");
-    document.getElementsByTagName("body")[0].appendChild(script7);
-
-    var script8 = document.createElement("script");
-    script8.setAttribute("type", "text/javascript");
-    script8.setAttribute("src", "vendor/datatables.net-buttons/js/buttons.print.min.js");
-    document.getElementsByTagName("body")[0].appendChild(script8);
-
-    var script9 = document.createElement("script");
-    script9.setAttribute("type", "text/javascript");
-    script9.setAttribute("src", "vendor/datatables.net-buttons/js/dataTables.buttons.min.js");
-    document.getElementsByTagName("body")[0].appendChild(script9);
-
-    var script10 = document.createElement("script");
-    script10.setAttribute("type", "text/javascript");
-    script10.setAttribute("src", "vendor/datatables.net-buttons-bs/js/buttons.bootstrap.min.js");
-    document.getElementsByTagName("body")[0].appendChild(script10);
-
-    var script11 = document.createElement("script");
-    script11.setAttribute("type", "text/javascript");
-    script11.setAttribute("src", "scripts/subscripts/classes.js");
-    document.getElementsByTagName("body")[0].appendChild(script11);
-
-
-    /**========================================= */
-
-    var link = document.createElement("link");
-    link.setAttribute("rel", "stylesheet");
-    link.setAttribute("href", "vendor/sweetalert/lib/sweet-alert.css");
-    document.getElementsByTagName("head")[0].appendChild(link);
-    
-    var link1 = document.createElement("link");
-    link1.setAttribute("rel", "stylesheet");
-    link1.setAttribute("href", "vendor/metisMenu/dist/metisMenu.css");
-    document.getElementsByTagName("head")[0].appendChild(link1);
-    
-    var link2 = document.createElement("link");
-    link2.setAttribute("rel", "stylesheet");
-    link2.setAttribute("href", "vendor/animate.css/animate.css");
-    document.getElementsByTagName("head")[0].appendChild(link2);
-    
-    var link3 = document.createElement("link");
-    link3.setAttribute("rel", "stylesheet");
-    link3.setAttribute("href", "vendor/datatables.net-bs/css/dataTables.bootstrap.min.css");
-    document.getElementsByTagName("head")[0].appendChild(link3);
-
-    /*var link4 = document.createElement("link");
-    link4.setAttribute("rel", "stylesheet");
-    link4.setAttribute("href", "fonts/pe-icon-7-stroke/css/pe-icon-7-stroke.css");
-    document.getElementsByTagName("head")[0].appendChild(link4);
-
-    var link5 = document.createElement("link");
-    link5.setAttribute("rel", "stylesheet");
-    link5.setAttribute("href", "fonts/pe-icon-7-stroke/css/helper.css");
-    document.getElementsByTagName("head")[0].appendChild(link5);*/
+        // Update the active state with new resources
+        newScripts.forEach((src) => activeScripts.add(src));
+        newLinks.forEach((href) => activeLinks.add(href));
 
 }
 
@@ -507,128 +326,37 @@ function classesBuild() {
 
 function subjectBuild() {
 
-    $('script').each(function () {
-        defaultScripts.forEach((item, ind) => {
+    // Define new resources specific to this view
+        const newScripts = [
+            "vendor/sparkline/index.js",
+                "vendor/datatables/media/js/jquery.dataTables.min.js",
+                "vendor/datatables.net-bs/js/dataTables.bootstrap.min.js",
+                "vendor/pdfmake/build/pdfmake.min.js",
+                "vendor/pdfmake/build/vfs_fonts.js",
+                "vendor/datatables.net-buttons/js/buttons.html5.min.js",
+                "vendor/datatables.net-buttons/js/buttons.print.min.js",
+                "vendor/datatables.net-buttons/js/dataTables.buttons.min.js",
+                "vendor/datatables.net-buttons-bs/js/buttons.bootstrap.min.js",
+                "scripts/subscripts/subject.js"
+        ];
+        const newLinks = [
+            "vendor/sweetalert/lib/sweet-alert.css",
+                "vendor/metisMenu/dist/metisMenu.css",
+                "vendor/animate.css/animate.css",
+                "vendor/datatables.net-bs/css/dataTables.bootstrap.min.css"
+        ];
 
-            if (this.src.indexOf(item) != -1) {
-                absoultePath[ind] = this.src
-            }
-        });
-    });
+        // Remove previous non-default scripts/links
+        removeUnwantedResources("script", activeScripts);
+        removeUnwantedResources("link", activeLinks);
 
-    $('script').each(function () {
+        // Add new resources
+        addNewResources("script", newScripts);
+        addNewResources("link", newLinks);
 
-        if (absoultePath.indexOf(this.src) == -1) {
-
-            this.parentNode.removeChild(this);
-        }
-    });
-
-    $('link').each(function () {
-        defaultlink.forEach((item, ind) => {
-
-            if (this.href.indexOf(item) != -1) {
-                absoultelinkPath[ind] = this.href
-            }
-        });
-    });
-
-    $('link').each(function () {
-
-        if (absoultelinkPath.indexOf(this.href) == -1) {
-
-            this.parentNode.removeChild(this);
-        }
-    });
-
-
-   /* var script1 = document.createElement("script");
-    script1.setAttribute("type", "text/javascript");
-    script1.setAttribute("src", "vendor/jquery-validation/jquery.validate.min.js");
-    document.getElementsByTagName("body")[0].appendChild(script1);*/
-
-    var script2 = document.createElement("script");
-    script2.setAttribute("type", "text/javascript");
-    script2.setAttribute("src", "vendor/sparkline/index.js");
-    document.getElementsByTagName("body")[0].appendChild(script2);
-
-    var script3 = document.createElement("script");
-    script3.setAttribute("type", "text/javascript");
-    script3.setAttribute("src", "vendor/datatables/media/js/jquery.dataTables.min.js");
-    document.getElementsByTagName("body")[0].appendChild(script3);
-
-    var script4 = document.createElement("script");
-    script4.setAttribute("type", "text/javascript");
-    script4.setAttribute("src", "vendor/datatables.net-bs/js/dataTables.bootstrap.min.js");
-    document.getElementsByTagName("body")[0].appendChild(script4);
-
-    var script5 = document.createElement("script");
-    script5.setAttribute("type", "text/javascript");
-    script5.setAttribute("src", "vendor/pdfmake/build/pdfmake.min.js");
-    document.getElementsByTagName("body")[0].appendChild(script5);
-
-    var script6 = document.createElement("script");
-    script6.setAttribute("type", "text/javascript");
-    script6.setAttribute("src", "vendor/pdfmake/build/vfs_fonts.js");
-    document.getElementsByTagName("body")[0].appendChild(script6);
-
-    var script7 = document.createElement("script");
-    script7.setAttribute("type", "text/javascript");
-    script7.setAttribute("src", "vendor/datatables.net-buttons/js/buttons.html5.min.js");
-    document.getElementsByTagName("body")[0].appendChild(script7);
-
-    var script8 = document.createElement("script");
-    script8.setAttribute("type", "text/javascript");
-    script8.setAttribute("src", "vendor/datatables.net-buttons/js/buttons.print.min.js");
-    document.getElementsByTagName("body")[0].appendChild(script8);
-
-    var script9 = document.createElement("script");
-    script9.setAttribute("type", "text/javascript");
-    script9.setAttribute("src", "vendor/datatables.net-buttons/js/dataTables.buttons.min.js");
-    document.getElementsByTagName("body")[0].appendChild(script9);
-
-    var script10 = document.createElement("script");
-    script10.setAttribute("type", "text/javascript");
-    script10.setAttribute("src", "vendor/datatables.net-buttons-bs/js/buttons.bootstrap.min.js");
-    document.getElementsByTagName("body")[0].appendChild(script10);
-
-    var script11 = document.createElement("script");
-    script11.setAttribute("type", "text/javascript");
-    script11.setAttribute("src", "scripts/subscripts/subject.js");
-    document.getElementsByTagName("body")[0].appendChild(script11);
-
-
-    /**========================================= */
-
-    var link = document.createElement("link");
-    link.setAttribute("rel", "stylesheet");
-    link.setAttribute("href", "vendor/sweetalert/lib/sweet-alert.css");
-    document.getElementsByTagName("head")[0].appendChild(link);
-    
-    var link1 = document.createElement("link");
-    link1.setAttribute("rel", "stylesheet");
-    link1.setAttribute("href", "vendor/metisMenu/dist/metisMenu.css");
-    document.getElementsByTagName("head")[0].appendChild(link1);
-    
-    var link2 = document.createElement("link");
-    link2.setAttribute("rel", "stylesheet");
-    link2.setAttribute("href", "vendor/animate.css/animate.css");
-    document.getElementsByTagName("head")[0].appendChild(link2);
-    
-    var link3 = document.createElement("link");
-    link3.setAttribute("rel", "stylesheet");
-    link3.setAttribute("href", "vendor/datatables.net-bs/css/dataTables.bootstrap.min.css");
-    document.getElementsByTagName("head")[0].appendChild(link3);
-    
-  /*  var link4 = document.createElement("link");
-    link4.setAttribute("rel", "stylesheet");
-    link4.setAttribute("href", "fonts/pe-icon-7-stroke/css/pe-icon-7-stroke.css");
-    document.getElementsByTagName("head")[0].appendChild(link4);
-    
-    var link5 = document.createElement("link");
-    link5.setAttribute("rel", "stylesheet");
-    link5.setAttribute("href", "fonts/pe-icon-7-stroke/css/helper.css");
-    document.getElementsByTagName("head")[0].appendChild(link5);*/
+        // Update the active state with new resources
+        newScripts.forEach((src) => activeScripts.add(src));
+        newLinks.forEach((href) => activeLinks.add(href));
 
 }
 
@@ -636,186 +364,82 @@ function subjectBuild() {
 
 function admissionBuild() {
 
-    $('script').each(function () {
-        defaultScripts.forEach((item, ind) => {
+    // Define new resources specific to this view
+        const newScripts = [
+            "scripts/moment.min.js",
+                "scripts/daterangepicker.js",
+                "vendor/jquery-validation/jquery.validate.min.js",
+                "vendor/sparkline/index.js",
+                "vendor/datatables/media/js/jquery.dataTables.min.js",
+                "vendor/datatables.net-bs/js/dataTables.bootstrap.min.js",
+                "vendor/pdfmake/build/pdfmake.min.js",
+                "vendor/pdfmake/build/vfs_fonts.js",
+                "vendor/datatables.net-buttons/js/buttons.html5.min.js",
+                "vendor/datatables.net-buttons/js/buttons.print.min.js",
+                "vendor/datatables.net-buttons/js/dataTables.buttons.min.js",
+                "vendor/datatables.net-buttons-bs/js/buttons.bootstrap.min.js",
+                "scripts/subscripts/admissions.js"
+        ];
+        const newLinks = [
+            "vendor/sweetalert/lib/sweet-alert.css",
+                "styles/daterangepicker.css",
+                "vendor/metisMenu/dist/metisMenu.css",
+                "vendor/animate.css/animate.css",
+                "vendor/datatables.net-bs/css/dataTables.bootstrap.min.css"
+        ];
 
-            if (this.src.indexOf(item) != -1) {
-                absoultePath[ind] = this.src
-            }
-        });
-    });
+        // Remove previous non-default scripts/links
+        removeUnwantedResources("script", activeScripts);
+        removeUnwantedResources("link", activeLinks);
 
-    $('script').each(function () {
+        // Add new resources
+        addNewResources("script", newScripts);
+        addNewResources("link", newLinks);
 
-        if (absoultePath.indexOf(this.src) == -1) {
-
-            this.parentNode.removeChild(this);
-        }
-    });
-
-    $('link').each(function () {
-        defaultlink.forEach((item, ind) => {
-
-            if (this.href.indexOf(item) != -1) {
-                absoultelinkPath[ind] = this.href
-            }
-        });
-    });
-
-    $('link').each(function () {
-
-        if (absoultelinkPath.indexOf(this.href) == -1) {
-
-            this.parentNode.removeChild(this);
-        }
-    });
-
-
-
-
-    var script1b = document.createElement("script");
-    script1b.setAttribute("type", "text/javascript");
-    script1b.setAttribute("src", "scripts/moment.min.js");
-    document.getElementsByTagName("body")[0].appendChild(script1b);
-    
-    var script1a = document.createElement("script");
-    script1a.setAttribute("type", "text/javascript");
-    script1a.setAttribute("src", "scripts/daterangepicker.js");
-    document.getElementsByTagName("body")[0].appendChild(script1a);
-
-    var script1 = document.createElement("script");
-    script1.setAttribute("type", "text/javascript");
-    script1.setAttribute("src", "vendor/jquery-validation/jquery.validate.min.js");
-    document.getElementsByTagName("body")[0].appendChild(script1);
-
-    var script2 = document.createElement("script");
-    script2.setAttribute("type", "text/javascript");
-    script2.setAttribute("src", "vendor/sparkline/index.js");
-    document.getElementsByTagName("body")[0].appendChild(script2);
-
-    var script3 = document.createElement("script");
-    script3.setAttribute("type", "text/javascript");
-    script3.setAttribute("src", "vendor/datatables/media/js/jquery.dataTables.min.js");
-    document.getElementsByTagName("body")[0].appendChild(script3);
-
-    var script4 = document.createElement("script");
-    script4.setAttribute("type", "text/javascript");
-    script4.setAttribute("src", "vendor/datatables.net-bs/js/dataTables.bootstrap.min.js");
-    document.getElementsByTagName("body")[0].appendChild(script4);
-
-    var script5 = document.createElement("script");
-    script5.setAttribute("type", "text/javascript");
-    script5.setAttribute("src", "vendor/pdfmake/build/pdfmake.min.js");
-    document.getElementsByTagName("body")[0].appendChild(script5);
-
-    var script6 = document.createElement("script");
-    script6.setAttribute("type", "text/javascript");
-    script6.setAttribute("src", "vendor/pdfmake/build/vfs_fonts.js");
-    document.getElementsByTagName("body")[0].appendChild(script6);
-
-    var script7 = document.createElement("script");
-    script7.setAttribute("type", "text/javascript");
-    script7.setAttribute("src", "vendor/datatables.net-buttons/js/buttons.html5.min.js");
-    document.getElementsByTagName("body")[0].appendChild(script7);
-
-    var script8 = document.createElement("script");
-    script8.setAttribute("type", "text/javascript");
-    script8.setAttribute("src", "vendor/datatables.net-buttons/js/buttons.print.min.js");
-    document.getElementsByTagName("body")[0].appendChild(script8);
-
-    var script9 = document.createElement("script");
-    script9.setAttribute("type", "text/javascript");
-    script9.setAttribute("src", "vendor/datatables.net-buttons/js/dataTables.buttons.min.js");
-    document.getElementsByTagName("body")[0].appendChild(script9);
-
-    var script10 = document.createElement("script");
-    script10.setAttribute("type", "text/javascript");
-    script10.setAttribute("src", "vendor/datatables.net-buttons-bs/js/buttons.bootstrap.min.js");
-    document.getElementsByTagName("body")[0].appendChild(script10);
-
-    var script11 = document.createElement("script");
-    script11.setAttribute("type", "text/javascript");
-    script11.setAttribute("src", "scripts/subscripts/admissions.js");
-    document.getElementsByTagName("body")[0].appendChild(script11);
-
-
-    /**========================================= */
-
-    var link = document.createElement("link");
-    link.setAttribute("rel", "stylesheet");
-    link.setAttribute("href", "vendor/sweetalert/lib/sweet-alert.css");
-    document.getElementsByTagName("head")[0].appendChild(link);
-
-    var link = document.createElement("link");
-    link.setAttribute("rel", "stylesheet");
-    link.setAttribute("href", "styles/daterangepicker.css");
-    document.getElementsByTagName("head")[0].appendChild(link);
-    
-    var link1 = document.createElement("link");
-    link1.setAttribute("rel", "stylesheet");
-    link1.setAttribute("href", "vendor/metisMenu/dist/metisMenu.css");
-    document.getElementsByTagName("head")[0].appendChild(link1);
-    
-    var link2 = document.createElement("link");
-    link2.setAttribute("rel", "stylesheet");
-    link2.setAttribute("href", "vendor/animate.css/animate.css");
-    document.getElementsByTagName("head")[0].appendChild(link2);
-    
-    var link3 = document.createElement("link");
-    link3.setAttribute("rel", "stylesheet");
-    link3.setAttribute("href", "vendor/datatables.net-bs/css/dataTables.bootstrap.min.css");
-    document.getElementsByTagName("head")[0].appendChild(link3);
-    
-   /* var link4 = document.createElement("link");
-    link4.setAttribute("rel", "stylesheet");
-    link4.setAttribute("href", "fonts/pe-icon-7-stroke/css/pe-icon-7-stroke.css");
-    document.getElementsByTagName("head")[0].appendChild(link4);
-    
-    var link5 = document.createElement("link");
-    link5.setAttribute("rel", "stylesheet");
-    link5.setAttribute("href", "fonts/pe-icon-7-stroke/css/helper.css");
-    document.getElementsByTagName("head")[0].appendChild(link5);*/
+        // Update the active state with new resources
+        newScripts.forEach((src) => activeScripts.add(src));
+        newLinks.forEach((href) => activeLinks.add(href));
 }
 
 //-------------------------------------------------------------------------------------------------------
 
 function departmentBuild() {
 
-    $('script').each(function () {
-        defaultScripts.forEach((item, ind) => {
+    // Define new resources specific to this view
+        const newScripts = [
+            "scripts/moment.min.js",
+                "scripts/daterangepicker.js",
+                "vendor/jquery-validation/jquery.validate.min.js",
+                "vendor/sparkline/index.js",
+                "vendor/datatables/media/js/jquery.dataTables.min.js",
+                "vendor/datatables.net-bs/js/dataTables.bootstrap.min.js",
+                "vendor/pdfmake/build/pdfmake.min.js",
+                "vendor/pdfmake/build/vfs_fonts.js",
+                "vendor/datatables.net-buttons/js/buttons.html5.min.js",
+                "vendor/datatables.net-buttons/js/buttons.print.min.js",
+                "vendor/datatables.net-buttons/js/dataTables.buttons.min.js",
+                "vendor/datatables.net-buttons-bs/js/buttons.bootstrap.min.js",
+                "scripts/subscripts/department.js"
+        ];
+        const newLinks = [
+            "vendor/sweetalert/lib/sweet-alert.css",
+                "styles/daterangepicker.css",
+                "vendor/metisMenu/dist/metisMenu.css",
+                "vendor/animate.css/animate.css",
+                "vendor/datatables.net-bs/css/dataTables.bootstrap.min.css"
+        ];
 
-            if (this.src.indexOf(item) != -1) {
-                absoultePath[ind] = this.src
-            }
-        });
-    });
+        // Remove previous non-default scripts/links
+        removeUnwantedResources("script", activeScripts);
+        removeUnwantedResources("link", activeLinks);
 
-    $('script').each(function () {
+        // Add new resources
+        addNewResources("script", newScripts);
+        addNewResources("link", newLinks);
 
-        if (absoultePath.indexOf(this.src) == -1) {
-
-            this.parentNode.removeChild(this);
-        }
-    });
-
-    $('link').each(function () {
-        defaultlink.forEach((item, ind) => {
-
-            if (this.href.indexOf(item) != -1) {
-                absoultelinkPath[ind] = this.href
-            }
-        });
-    });
-
-    $('link').each(function () {
-
-        if (absoultelinkPath.indexOf(this.href) == -1) {
-
-            this.parentNode.removeChild(this);
-        }
-    });
-
-
+        // Update the active state with new resources
+        newScripts.forEach((src) => activeScripts.add(src));
+        newLinks.forEach((href) => activeLinks.add(href));
 
 
 }
@@ -825,6 +449,15 @@ function departmentBuild() {
 function gradingBuild() {
 
     $('script').each(function () {
+
+            if (absoultePath.indexOf('subscripts') != -1) {
+
+
+           scriptsToRemove.push(this);
+            }
+        });
+
+    $('script').each(function () {
         defaultScripts.forEach((item, ind) => {
 
             if (this.src.indexOf(item) != -1) {
@@ -837,7 +470,8 @@ function gradingBuild() {
 
         if (absoultePath.indexOf(this.src) == -1) {
 
-            this.parentNode.removeChild(this);
+
+           scriptsToRemove.push(this);
         }
     });
 
@@ -854,10 +488,16 @@ function gradingBuild() {
 
         if (absoultelinkPath.indexOf(this.href) == -1) {
 
-            this.parentNode.removeChild(this);
+
+           scriptsToRemove.push(this);
         }
     });
 
+    scriptsToRemove.forEach(function(script) {
+        if (script.parentNode) {
+            script.parentNode.removeChild(script);
+        }
+    });
 
 
     var script1 = document.createElement("script");
@@ -922,27 +562,27 @@ function gradingBuild() {
     link.setAttribute("rel", "stylesheet");
     link.setAttribute("href", "vendor/sweetalert/lib/sweet-alert.css");
     document.getElementsByTagName("head")[0].appendChild(link);
-    
+
     var link1 = document.createElement("link");
     link1.setAttribute("rel", "stylesheet");
     link1.setAttribute("href", "vendor/metisMenu/dist/metisMenu.css");
     document.getElementsByTagName("head")[0].appendChild(link1);
-    
+
     var link2 = document.createElement("link");
     link2.setAttribute("rel", "stylesheet");
     link2.setAttribute("href", "vendor/animate.css/animate.css");
     document.getElementsByTagName("head")[0].appendChild(link2);
-    
+
     var link3 = document.createElement("link");
     link3.setAttribute("rel", "stylesheet");
     link3.setAttribute("href", "vendor/datatables.net-bs/css/dataTables.bootstrap.min.css");
     document.getElementsByTagName("head")[0].appendChild(link3);
-    
+
     /*var link4 = document.createElement("link");
     link4.setAttribute("rel", "stylesheet");
     link4.setAttribute("href", "fonts/pe-icon-7-stroke/css/pe-icon-7-stroke.css");
     document.getElementsByTagName("head")[0].appendChild(link4);
-    
+
     var link5 = document.createElement("link");
     link5.setAttribute("rel", "stylesheet");
     link5.setAttribute("href", "fonts/pe-icon-7-stroke/css/helper.css");
@@ -953,6 +593,15 @@ function gradingBuild() {
 //-------------------------------------------------------------------------------------------------------
 
 function permissionsBuild() {
+
+    $('script').each(function () {
+
+            if (absoultePath.indexOf('subscripts') != -1) {
+
+
+           scriptsToRemove.push(this);
+            }
+        });
 
     $('script').each(function () {
         defaultScripts.forEach((item, ind) => {
@@ -967,7 +616,8 @@ function permissionsBuild() {
 
         if (absoultePath.indexOf(this.src) == -1) {
 
-            this.parentNode.removeChild(this);
+
+           scriptsToRemove.push(this);
         }
     });
 
@@ -984,18 +634,23 @@ function permissionsBuild() {
 
         if (absoultelinkPath.indexOf(this.href) == -1) {
 
-            this.parentNode.removeChild(this);
+
+           scriptsToRemove.push(this);
         }
     });
 
-
+    scriptsToRemove.forEach(function(script) {
+        if (script.parentNode) {
+            script.parentNode.removeChild(script);
+        }
+    });
 
 
     var script1b = document.createElement("script");
     script1b.setAttribute("type", "text/javascript");
     script1b.setAttribute("src", "scripts/moment.min.js");
     document.getElementsByTagName("body")[0].appendChild(script1b);
-    
+
     var script1a = document.createElement("script");
     script1a.setAttribute("type", "text/javascript");
     script1a.setAttribute("src", "scripts/daterangepicker.js");
@@ -1068,33 +723,33 @@ function permissionsBuild() {
     link.setAttribute("rel", "stylesheet");
     link.setAttribute("href", "styles/daterangepicker.css");
     document.getElementsByTagName("head")[0].appendChild(link);
-    
+
     var link1 = document.createElement("link");
     link1.setAttribute("rel", "stylesheet");
     link1.setAttribute("href", "vendor/metisMenu/dist/metisMenu.css");
     document.getElementsByTagName("head")[0].appendChild(link1);
-    
+
     var link2 = document.createElement("link");
     link2.setAttribute("rel", "stylesheet");
     link2.setAttribute("href", "vendor/animate.css/animate.css");
     document.getElementsByTagName("head")[0].appendChild(link2);
-    
+
     var link3 = document.createElement("link");
     link3.setAttribute("rel", "stylesheet");
     link3.setAttribute("href", "vendor/datatables.net-bs/css/dataTables.bootstrap.min.css");
     document.getElementsByTagName("head")[0].appendChild(link3);
-    
+
     var link4 = document.createElement("link");
     link4.setAttribute("rel", "stylesheet");
     link4.setAttribute("href", "fonts/pe-icon-7-stroke/css/pe-icon-7-stroke.css");
     document.getElementsByTagName("head")[0].appendChild(link4);
-    
-    /*var link5 = document.createElement("link");
+
+    var link5 = document.createElement("link");
     link5.setAttribute("rel", "stylesheet");
-    link5.setAttribute("href", "fonts/pe-icon-7-stroke/css/helper.css");
+    link5.setAttribute("href", "styles/switch.css");
     document.getElementsByTagName("head")[0].appendChild(link5);
-    
-    var link5a = document.createElement("link");
+
+   /* var link5a = document.createElement("link");
     link5a.setAttribute("rel", "stylesheet");
     link5a.setAttribute("href", "styles/switch.css");
     document.getElementsByTagName("head")[0].appendChild(link5a);*/
@@ -1106,6 +761,15 @@ function permissionsBuild() {
 function onloadingBuild() {
 
     $('script').each(function () {
+
+            if (absoultePath.indexOf('subscripts') != -1) {
+
+
+           scriptsToRemove.push(this);
+            }
+        });
+
+    $('script').each(function () {
         defaultScripts.forEach((item, ind) => {
 
             if (this.src.indexOf(item) != -1) {
@@ -1118,7 +782,8 @@ function onloadingBuild() {
 
         if (absoultePath.indexOf(this.src) == -1) {
 
-            this.parentNode.removeChild(this);
+
+           scriptsToRemove.push(this);
         }
     });
 
@@ -1135,11 +800,16 @@ function onloadingBuild() {
 
         if (absoultelinkPath.indexOf(this.href) == -1) {
 
-            this.parentNode.removeChild(this);
+
+           scriptsToRemove.push(this);
         }
     });
 
-
+    scriptsToRemove.forEach(function(script) {
+        if (script.parentNode) {
+            script.parentNode.removeChild(script);
+        }
+    });
 
 
 }
@@ -1149,6 +819,15 @@ function onloadingBuild() {
 function recordsBuild() {
 
     $('script').each(function () {
+
+            if (absoultePath.indexOf('subscripts') != -1) {
+
+
+           scriptsToRemove.push(this);
+            }
+        });
+
+    $('script').each(function () {
         defaultScripts.forEach((item, ind) => {
 
             if (this.src.indexOf(item) != -1) {
@@ -1161,7 +840,8 @@ function recordsBuild() {
 
         if (absoultePath.indexOf(this.src) == -1) {
 
-            this.parentNode.removeChild(this);
+
+           scriptsToRemove.push(this);
         }
     });
 
@@ -1178,11 +858,16 @@ function recordsBuild() {
 
         if (absoultelinkPath.indexOf(this.href) == -1) {
 
-            this.parentNode.removeChild(this);
+
+           scriptsToRemove.push(this);
         }
     });
 
-
+    scriptsToRemove.forEach(function(script) {
+        if (script.parentNode) {
+            script.parentNode.removeChild(script);
+        }
+    });
 
 
 }
@@ -1192,6 +877,15 @@ function recordsBuild() {
 function leaveBuild() {
 
     $('script').each(function () {
+
+            if (absoultePath.indexOf('subscripts') != -1) {
+
+
+           scriptsToRemove.push(this);
+            }
+        });
+
+    $('script').each(function () {
         defaultScripts.forEach((item, ind) => {
 
             if (this.src.indexOf(item) != -1) {
@@ -1204,7 +898,8 @@ function leaveBuild() {
 
         if (absoultePath.indexOf(this.src) == -1) {
 
-            this.parentNode.removeChild(this);
+
+           scriptsToRemove.push(this);
         }
     });
 
@@ -1221,11 +916,16 @@ function leaveBuild() {
 
         if (absoultelinkPath.indexOf(this.href) == -1) {
 
-            this.parentNode.removeChild(this);
+
+           scriptsToRemove.push(this);
         }
     });
 
-
+    scriptsToRemove.forEach(function(script) {
+        if (script.parentNode) {
+            script.parentNode.removeChild(script);
+        }
+    });
 
 
 }
@@ -1235,6 +935,15 @@ function leaveBuild() {
 function appraisalsBuild() {
 
     $('script').each(function () {
+
+            if (absoultePath.indexOf('subscripts') != -1) {
+
+
+           scriptsToRemove.push(this);
+            }
+        });
+
+    $('script').each(function () {
         defaultScripts.forEach((item, ind) => {
 
             if (this.src.indexOf(item) != -1) {
@@ -1247,7 +956,8 @@ function appraisalsBuild() {
 
         if (absoultePath.indexOf(this.src) == -1) {
 
-            this.parentNode.removeChild(this);
+
+           scriptsToRemove.push(this);
         }
     });
 
@@ -1264,11 +974,16 @@ function appraisalsBuild() {
 
         if (absoultelinkPath.indexOf(this.href) == -1) {
 
-            this.parentNode.removeChild(this);
+
+           scriptsToRemove.push(this);
         }
     });
 
-
+    scriptsToRemove.forEach(function(script) {
+        if (script.parentNode) {
+            script.parentNode.removeChild(script);
+        }
+    });
 
 
 }
@@ -1278,6 +993,15 @@ function appraisalsBuild() {
 function designationBuild() {
 
     $('script').each(function () {
+
+            if (absoultePath.indexOf('subscripts') != -1) {
+
+
+           scriptsToRemove.push(this);
+            }
+        });
+
+    $('script').each(function () {
         defaultScripts.forEach((item, ind) => {
 
             if (this.src.indexOf(item) != -1) {
@@ -1290,7 +1014,8 @@ function designationBuild() {
 
         if (absoultePath.indexOf(this.src) == -1) {
 
-            this.parentNode.removeChild(this);
+
+           scriptsToRemove.push(this);
         }
     });
 
@@ -1307,12 +1032,16 @@ function designationBuild() {
 
         if (absoultelinkPath.indexOf(this.href) == -1) {
 
-            this.parentNode.removeChild(this);
+
+           scriptsToRemove.push(this);
         }
     });
 
-
-
+    scriptsToRemove.forEach(function(script) {
+        if (script.parentNode) {
+            script.parentNode.removeChild(script);
+        }
+    });
 
 }
 
@@ -1321,6 +1050,15 @@ function designationBuild() {
 function offloadingBuild() {
 
     $('script').each(function () {
+
+            if (absoultePath.indexOf('subscripts') != -1) {
+
+
+           scriptsToRemove.push(this);
+            }
+        });
+
+    $('script').each(function () {
         defaultScripts.forEach((item, ind) => {
 
             if (this.src.indexOf(item) != -1) {
@@ -1333,7 +1071,8 @@ function offloadingBuild() {
 
         if (absoultePath.indexOf(this.src) == -1) {
 
-            this.parentNode.removeChild(this);
+
+           scriptsToRemove.push(this);
         }
     });
 
@@ -1350,12 +1089,16 @@ function offloadingBuild() {
 
         if (absoultelinkPath.indexOf(this.href) == -1) {
 
-            this.parentNode.removeChild(this);
+
+           scriptsToRemove.push(this);
         }
     });
 
-
-
+    scriptsToRemove.forEach(function(script) {
+        if (script.parentNode) {
+            script.parentNode.removeChild(script);
+        }
+    });
 
 }
 
@@ -1364,6 +1107,15 @@ function offloadingBuild() {
 function billcreationBuild() {
 
     $('script').each(function () {
+
+            if (absoultePath.indexOf('subscripts') != -1) {
+
+
+           scriptsToRemove.push(this);
+            }
+        });
+
+    $('script').each(function () {
         defaultScripts.forEach((item, ind) => {
 
             if (this.src.indexOf(item) != -1) {
@@ -1376,7 +1128,8 @@ function billcreationBuild() {
 
         if (absoultePath.indexOf(this.src) == -1) {
 
-            this.parentNode.removeChild(this);
+
+           scriptsToRemove.push(this);
         }
     });
 
@@ -1393,11 +1146,16 @@ function billcreationBuild() {
 
         if (absoultelinkPath.indexOf(this.href) == -1) {
 
-            this.parentNode.removeChild(this);
+
+           scriptsToRemove.push(this);
         }
     });
 
-
+    scriptsToRemove.forEach(function(script) {
+        if (script.parentNode) {
+            script.parentNode.removeChild(script);
+        }
+    });
 
 
 }
@@ -1407,8 +1165,13 @@ function billcreationBuild() {
 function billingBuild() {
 
     $('script').each(function () {
-        defaultScripts.forEach((item, ind) => {
+            if (absoultePath.indexOf('subscripts') != -1) {
+           scriptsToRemove.push(this);
+            }
+        });
 
+    $('script').each(function () {
+        defaultScripts.forEach((item, ind) => {
             if (this.src.indexOf(item) != -1) {
                 absoultePath[ind] = this.src
             }
@@ -1416,10 +1179,8 @@ function billingBuild() {
     });
 
     $('script').each(function () {
-
         if (absoultePath.indexOf(this.src) == -1) {
-
-            this.parentNode.removeChild(this);
+           scriptsToRemove.push(this);
         }
     });
 
@@ -1432,11 +1193,9 @@ function billingBuild() {
         });
     });
 
-    $('link').each(function () {
 
     $('script').each(function () {
         defaultScripts.forEach((item, ind) => {
-
             if (this.src.indexOf(item) != -1) {
                 absoultePath[ind] = this.src
             }
@@ -1444,20 +1203,22 @@ function billingBuild() {
     });
 
     $('script').each(function () {
-
         if (absoultePath.indexOf(this.src) == -1) {
-
-            this.parentNode.removeChild(this);
+           scriptsToRemove.push(this);
         }
     });
 
+$('link').each(function () {
         if (absoultelinkPath.indexOf(this.href) == -1) {
-
-            this.parentNode.removeChild(this);
+           scriptsToRemove.push(this);
         }
     });
 
-
+    scriptsToRemove.forEach(function(script) {
+        if (script.parentNode) {
+            script.parentNode.removeChild(script);
+        }
+    });
 
 
 }
@@ -1467,8 +1228,13 @@ function billingBuild() {
 function feecollectionBuild() {
 
     $('script').each(function () {
-        defaultScripts.forEach((item, ind) => {
+            if (absoultePath.indexOf('subscripts') != -1) {
+           scriptsToRemove.push(this);
+            }
+        });
 
+    $('script').each(function () {
+        defaultScripts.forEach((item, ind) => {
             if (this.src.indexOf(item) != -1) {
                 absoultePath[ind] = this.src
             }
@@ -1476,16 +1242,13 @@ function feecollectionBuild() {
     });
 
     $('script').each(function () {
-
         if (absoultePath.indexOf(this.src) == -1) {
-
-            this.parentNode.removeChild(this);
+           scriptsToRemove.push(this);
         }
     });
 
     $('link').each(function () {
         defaultlink.forEach((item, ind) => {
-
             if (this.href.indexOf(item) != -1) {
                 absoultelinkPath[ind] = this.href
             }
@@ -1493,15 +1256,16 @@ function feecollectionBuild() {
     });
 
     $('link').each(function () {
-
         if (absoultelinkPath.indexOf(this.href) == -1) {
-
-            this.parentNode.removeChild(this);
+           scriptsToRemove.push(this);
         }
     });
 
-
-
+    scriptsToRemove.forEach(function(script) {
+        if (script.parentNode) {
+            script.parentNode.removeChild(script);
+        }
+    });
 
 }
 
@@ -1510,8 +1274,13 @@ function feecollectionBuild() {
 function paymenthistoryBuild() {
 
     $('script').each(function () {
-        defaultScripts.forEach((item, ind) => {
+            if (absoultePath.indexOf('subscripts') != -1) {
+           scriptsToRemove.push(this);
+            }
+        });
 
+    $('script').each(function () {
+        defaultScripts.forEach((item, ind) => {
             if (this.src.indexOf(item) != -1) {
                 absoultePath[ind] = this.src
             }
@@ -1519,16 +1288,13 @@ function paymenthistoryBuild() {
     });
 
     $('script').each(function () {
-
         if (absoultePath.indexOf(this.src) == -1) {
-
-            this.parentNode.removeChild(this);
+           scriptsToRemove.push(this);
         }
     });
 
     $('link').each(function () {
         defaultlink.forEach((item, ind) => {
-
             if (this.href.indexOf(item) != -1) {
                 absoultelinkPath[ind] = this.href
             }
@@ -1536,14 +1302,16 @@ function paymenthistoryBuild() {
     });
 
     $('link').each(function () {
-
         if (absoultelinkPath.indexOf(this.href) == -1) {
-
-            this.parentNode.removeChild(this);
+           scriptsToRemove.push(this);
         }
     });
 
-
+    scriptsToRemove.forEach(function(script) {
+        if (script.parentNode) {
+            script.parentNode.removeChild(script);
+        }
+    });
 
 
 }
@@ -1553,8 +1321,13 @@ function paymenthistoryBuild() {
 function paymentcheckerBuild() {
 
     $('script').each(function () {
-        defaultScripts.forEach((item, ind) => {
+            if (absoultePath.indexOf('subscripts') != -1) {
+           scriptsToRemove.push(this);
+            }
+        });
 
+    $('script').each(function () {
+        defaultScripts.forEach((item, ind) => {
             if (this.src.indexOf(item) != -1) {
                 absoultePath[ind] = this.src
             }
@@ -1562,16 +1335,13 @@ function paymentcheckerBuild() {
     });
 
     $('script').each(function () {
-
         if (absoultePath.indexOf(this.src) == -1) {
-
-            this.parentNode.removeChild(this);
+           scriptsToRemove.push(this);
         }
     });
 
     $('link').each(function () {
         defaultlink.forEach((item, ind) => {
-
             if (this.href.indexOf(item) != -1) {
                 absoultelinkPath[ind] = this.href
             }
@@ -1579,15 +1349,16 @@ function paymentcheckerBuild() {
     });
 
     $('link').each(function () {
-
         if (absoultelinkPath.indexOf(this.href) == -1) {
-
-            this.parentNode.removeChild(this);
+           scriptsToRemove.push(this);
         }
     });
 
-
-
+    scriptsToRemove.forEach(function(script) {
+        if (script.parentNode) {
+            script.parentNode.removeChild(script);
+        }
+    });
 
 }
 
@@ -1596,8 +1367,13 @@ function paymentcheckerBuild() {
 function salarysetupBuild() {
 
     $('script').each(function () {
-        defaultScripts.forEach((item, ind) => {
+            if (absoultePath.indexOf('subscripts') != -1) {
+           scriptsToRemove.push(this);
+            }
+        });
 
+    $('script').each(function () {
+        defaultScripts.forEach((item, ind) => {
             if (this.src.indexOf(item) != -1) {
                 absoultePath[ind] = this.src
             }
@@ -1605,16 +1381,13 @@ function salarysetupBuild() {
     });
 
     $('script').each(function () {
-
         if (absoultePath.indexOf(this.src) == -1) {
-
-            this.parentNode.removeChild(this);
+           scriptsToRemove.push(this);
         }
     });
 
     $('link').each(function () {
         defaultlink.forEach((item, ind) => {
-
             if (this.href.indexOf(item) != -1) {
                 absoultelinkPath[ind] = this.href
             }
@@ -1622,14 +1395,16 @@ function salarysetupBuild() {
     });
 
     $('link').each(function () {
-
         if (absoultelinkPath.indexOf(this.href) == -1) {
-
-            this.parentNode.removeChild(this);
+           scriptsToRemove.push(this);
         }
     });
 
-
+    scriptsToRemove.forEach(function(script) {
+        if (script.parentNode) {
+            script.parentNode.removeChild(script);
+        }
+    });
 
 
 }
@@ -1639,6 +1414,12 @@ function salarysetupBuild() {
 function payslipgenerationBuild() {
 
     $('script').each(function () {
+            if (absoultePath.indexOf('subscripts') != -1) {
+           scriptsToRemove.push(this);
+            }
+        });
+
+    $('script').each(function () {
         defaultScripts.forEach((item, ind) => {
 
             if (this.src.indexOf(item) != -1) {
@@ -1648,16 +1429,13 @@ function payslipgenerationBuild() {
     });
 
     $('script').each(function () {
-
         if (absoultePath.indexOf(this.src) == -1) {
-
-            this.parentNode.removeChild(this);
+           scriptsToRemove.push(this);
         }
     });
 
     $('link').each(function () {
         defaultlink.forEach((item, ind) => {
-
             if (this.href.indexOf(item) != -1) {
                 absoultelinkPath[ind] = this.href
             }
@@ -1665,14 +1443,16 @@ function payslipgenerationBuild() {
     });
 
     $('link').each(function () {
-
         if (absoultelinkPath.indexOf(this.href) == -1) {
-
-            this.parentNode.removeChild(this);
+           scriptsToRemove.push(this);
         }
     });
 
-
+    scriptsToRemove.forEach(function(script) {
+        if (script.parentNode) {
+            script.parentNode.removeChild(script);
+        }
+    });
 
 
 }
@@ -1682,6 +1462,13 @@ function payslipgenerationBuild() {
 function ledgerbooksBuild() {
 
     $('script').each(function () {
+
+            if (absoultePath.indexOf('subscripts') != -1) {
+           scriptsToRemove.push(this);
+            }
+        });
+
+    $('script').each(function () {
         defaultScripts.forEach((item, ind) => {
 
             if (this.src.indexOf(item) != -1) {
@@ -1691,16 +1478,13 @@ function ledgerbooksBuild() {
     });
 
     $('script').each(function () {
-
         if (absoultePath.indexOf(this.src) == -1) {
-
-            this.parentNode.removeChild(this);
+           scriptsToRemove.push(this);
         }
     });
 
     $('link').each(function () {
         defaultlink.forEach((item, ind) => {
-
             if (this.href.indexOf(item) != -1) {
                 absoultelinkPath[ind] = this.href
             }
@@ -1708,15 +1492,16 @@ function ledgerbooksBuild() {
     });
 
     $('link').each(function () {
-
         if (absoultelinkPath.indexOf(this.href) == -1) {
-
-            this.parentNode.removeChild(this);
+           scriptsToRemove.push(this);
         }
     });
 
-
-
+    scriptsToRemove.forEach(function(script) {
+        if (script.parentNode) {
+            script.parentNode.removeChild(script);
+        }
+    });
 
 }
 
@@ -1725,8 +1510,13 @@ function ledgerbooksBuild() {
 function incomestatementBuild() {
 
     $('script').each(function () {
-        defaultScripts.forEach((item, ind) => {
+            if (absoultePath.indexOf('subscripts') != -1) {
+           scriptsToRemove.push(this);
+            }
+        });
 
+    $('script').each(function () {
+        defaultScripts.forEach((item, ind) => {
             if (this.src.indexOf(item) != -1) {
                 absoultePath[ind] = this.src
             }
@@ -1734,16 +1524,13 @@ function incomestatementBuild() {
     });
 
     $('script').each(function () {
-
         if (absoultePath.indexOf(this.src) == -1) {
-
-            this.parentNode.removeChild(this);
+           scriptsToRemove.push(this);
         }
     });
 
     $('link').each(function () {
         defaultlink.forEach((item, ind) => {
-
             if (this.href.indexOf(item) != -1) {
                 absoultelinkPath[ind] = this.href
             }
@@ -1751,14 +1538,16 @@ function incomestatementBuild() {
     });
 
     $('link').each(function () {
-
         if (absoultelinkPath.indexOf(this.href) == -1) {
-
-            this.parentNode.removeChild(this);
+           scriptsToRemove.push(this);
         }
     });
 
-
+    scriptsToRemove.forEach(function(script) {
+        if (script.parentNode) {
+            script.parentNode.removeChild(script);
+        }
+    });
 
 
 }
@@ -1768,8 +1557,13 @@ function incomestatementBuild() {
 function cashflowBuild() {
 
     $('script').each(function () {
-        defaultScripts.forEach((item, ind) => {
+            if (absoultePath.indexOf('subscripts') != -1) {
+           scriptsToRemove.push(this);
+            }
+        });
 
+    $('script').each(function () {
+        defaultScripts.forEach((item, ind) => {
             if (this.src.indexOf(item) != -1) {
                 absoultePath[ind] = this.src
             }
@@ -1777,16 +1571,13 @@ function cashflowBuild() {
     });
 
     $('script').each(function () {
-
         if (absoultePath.indexOf(this.src) == -1) {
-
-            this.parentNode.removeChild(this);
+           scriptsToRemove.push(this);
         }
     });
 
     $('link').each(function () {
         defaultlink.forEach((item, ind) => {
-
             if (this.href.indexOf(item) != -1) {
                 absoultelinkPath[ind] = this.href
             }
@@ -1794,14 +1585,16 @@ function cashflowBuild() {
     });
 
     $('link').each(function () {
-
         if (absoultelinkPath.indexOf(this.href) == -1) {
-
-            this.parentNode.removeChild(this);
+           scriptsToRemove.push(this);
         }
     });
 
-
+    scriptsToRemove.forEach(function(script) {
+        if (script.parentNode) {
+            script.parentNode.removeChild(script);
+        }
+    });
 
 
 }
@@ -1811,25 +1604,28 @@ function cashflowBuild() {
 function trialbalanaceBuild() {
 
     $('script').each(function () {
-        defaultScripts.forEach((item, ind) => {
+            if (absoultePath.indexOf('subscripts') != -1) {
+           scriptsToRemove.push(this);
+            }
+        });
 
+    $('script').each(function () {
+        defaultScripts.forEach((item, ind) =>{
             if (this.src.indexOf(item) != -1) {
                 absoultePath[ind] = this.src
             }
+            });
         });
-    });
 
     $('script').each(function () {
 
         if (absoultePath.indexOf(this.src) == -1) {
-
-            this.parentNode.removeChild(this);
+           scriptsToRemove.push(this);
         }
     });
 
     $('link').each(function () {
         defaultlink.forEach((item, ind) => {
-
             if (this.href.indexOf(item) != -1) {
                 absoultelinkPath[ind] = this.href
             }
@@ -1839,12 +1635,15 @@ function trialbalanaceBuild() {
     $('link').each(function () {
 
         if (absoultelinkPath.indexOf(this.href) == -1) {
-
-            this.parentNode.removeChild(this);
+           scriptsToRemove.push(this);
         }
     });
 
-
+    scriptsToRemove.forEach(function(script) {
+        if (script.parentNode) {
+            script.parentNode.removeChild(script);
+        }
+    });
 
 
 }
@@ -1864,7 +1663,7 @@ function HttpPost(url,data){
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
-                    'Authorization': 'Bearer' + access_token
+                    'Authorization': 'Bearer ' + access_token
                 },
             url : url,
             type : 'POST',
@@ -1875,10 +1674,11 @@ function HttpPost(url,data){
                  success: function (data) {
                          resolve(data);
                  },
-                  error : function(errMsg) {
+                  error : function(jqXHR, textStatus, errorThrown) {
+                  console.log("Error Details: ", jqXHR, textStatus, errorThrown);
                       swal({
                              title: "Sorry!",
-                             text:  "Operation Failed\n" + errMsg ,
+                             text:  "Operation Failed\n"   + jqXHR.responseText ,
                              type: "error"
                         });
                   }

@@ -30,13 +30,13 @@ public class SubjectService implements SubjectServiceInterface {
     private final InstitutionRepository institutionRepository;
     @Override
     public void createSubject(SubjectRequest subjectRequest) {
-        Optional<Institution> inst=institutionUtils.institutionGlobalList.stream().filter(x->x.getBececode().equals(subjectRequest.getInstitution())).findFirst();
+        Optional<Institution> inst= InstitutionUtils.institutionGlobalList.stream().filter(x->x.getBececode().equals(subjectRequest.getInstitution())).findFirst();
         List<SubjectDetails> sl=subjectRequest.getSubjectDetails().stream().filter(ci->ci.getId()==null).collect(Collectors.toList());
         if(sl.isEmpty()){
-            List<Subject> sl1= (List<Subject>) subjectRequest.getSubjectDetails().stream().map(c -> subjectUtil.mapSubjectRequest_ToSubject(c, (Subject) subjectUtil.subjectGlobalList.stream().filter(x->x.getIdSubject().equals(c.getId()))));
+            List<Subject> sl1= (List<Subject>) subjectRequest.getSubjectDetails().stream().map(c -> SubjectUtil.mapSubjectRequest_ToSubject(c, (Subject) SubjectUtil.subjectGlobalList.stream().filter(x->x.getIdSubject().equals(c.getId()))));
             subjectRepository.saveAll(sl1);
         }else {
-            inst.get().setClassList((List<Classes>) sl.stream().map(c -> subjectUtil.mapSubjectRequest_ToSubject(c)));
+            inst.get().setSubjectList(sl.stream().map(SubjectUtil::mapSubjectRequest_ToSubject).collect(Collectors.toList()));
             institutionRepository.save(inst.get());
         }
     }
@@ -48,25 +48,28 @@ public class SubjectService implements SubjectServiceInterface {
 
     @Override
     public List<Optional<SubjectResponse>> getAllSubjects() {
-       return subjectUtil.subjectGlobalList.stream().map(s->subjectUtil.mapSubject_ToSubjectResponse(s)).collect(Collectors.toList());
+       return SubjectUtil.subjectGlobalList.stream().map(s->subjectUtil.mapSubject_ToSubjectResponse(s)).collect(Collectors.toList());
     }
 
     @Override
     public List<Optional<SubjectResponse>> getAllSubjectsByClass(ClassesRequest classesRequest) {
-       return institutionUtils.institutionGlobalList.stream().filter(i->i.getIdInstitution().equals(classesRequest.getInstitution())).findFirst().get().getClassList()
+       return InstitutionUtils.institutionGlobalList.stream().filter(i->i.getIdInstitution().equals(classesRequest.getInstitution())).findFirst().get().getClassList()
                 .stream().map(cl->classesRequest.getClassDetailList().stream().filter(c->c.getId().equals(cl.getIdClasses()))).map(s->subjectUtil.mapSubject_ToSubjectResponse((Subject) s)).collect(Collectors.toList());
     }
 
     @Override
-    public List<Optional<SubjectResponse>> getAllSubjectsByInstitution(SingleStringRequest institutionRequest) {
+    public Optional<List<Optional<SubjectResponse>>> getAllSubjectsByInstitution(SingleStringRequest institutionRequest) {
         String finalBeceCode= institutionRequest.getVal();
-      return   institutionUtils.institutionGlobalList.stream().filter(i->i.getBececode().equals(finalBeceCode)).findFirst().get().getSubjectList().stream().map(s->subjectUtil.mapSubject_ToSubjectResponse(s)).collect(Collectors.toList());
-
+        Optional<List<Optional<SubjectResponse>>> collect = Optional.of(InstitutionUtils.institutionGlobalList.stream()
+                .filter(i -> i.getBececode().equals(finalBeceCode))
+                .findFirst().get().getSubjectList().stream()
+                .map(s->subjectUtil.mapSubject_ToSubjectResponse(s)).collect(Collectors.toList()));
+        return collect;
     }
 
     @Override
     public List<Optional<SubjectResponse>> getAllSubjectsByClassGroup(SingleStringRequest classGroup1) {
         String classGroup= classGroup1.getVal();
-       return subjectUtil.subjectGlobalList.stream().filter(s->s.getClassGroup().equals(classGroup)).map(m->subjectUtil.mapSubject_ToSubjectResponse(m)).collect(Collectors.toList());
+       return SubjectUtil.subjectGlobalList.stream().filter(s->s.getClassGroup().equals(classGroup)).map(m->subjectUtil.mapSubject_ToSubjectResponse(m)).collect(Collectors.toList());
     }
 }

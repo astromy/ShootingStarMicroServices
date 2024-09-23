@@ -61,7 +61,7 @@ $(function () {
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary left test"><i class="fa fa-plus-square"><span style="margin-left:5px"/>Add More</i></button>
-                <button type="button" class="btn btn-default"
+                <button type="button" class="btn btn-default dismissClassGroup"
                     data-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-primary saveClassGroup">Save changes</button>
             </div>
@@ -82,7 +82,8 @@ $(function () {
 
     var script12 = document.createElement("script");
     script12.setAttribute("type", "text/javascript");
-    script12.setAttribute("src", "scripts/lookups.js");
+    script12.setAttribute("src", "scripts/_lookups.js");
+    script12.setAttribute("data-dynamic", "true");
     document.getElementsByTagName("body")[0].appendChild(script12);
 });
 

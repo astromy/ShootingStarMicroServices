@@ -1,17 +1,17 @@
-var type,id;
-var name=[];
-var resultlist=[]
+
+name=[];
+resultlist=[];
     type= $('[name="type"]').val();
-var instId = $("meta[name='institutionId']").attr("content");
-fetchLookup();
+    id="";
+/*fetchLookup();*/
 fetchInstitutionSubject(instId.split(",")[0]);
 
 
-    $('.saveClassGroup').click(async function() {
+    $('.saveSubjects').click(async function() {
 
-                postdata();
-                var jso= buildJson();
-                return HttpPost("addLookUps",jso)
+
+                var jso=  postdata(); //buildJson();
+                return HttpPost("addSubjects",jso)
                 .then(function(result){
                     swal({
                            title: "Thank you!",
@@ -23,11 +23,25 @@ fetchInstitutionSubject(instId.split(",")[0]);
 
 
     function postdata(){
-   var classGroup=[];
-    classGroup= document.getElementsByClassName('newClassGrouptxt');
-    for(var i=0;i<classGroup.length; i++){
-    name[i]=classGroup[i].value;
+   let subjects=[];
+    subjects= document.getElementsByClassName('clonable');
+    for(var i=0;i<subjects.length; i++){
+    var c =subjects[i].getElementsByClassName('classOptions')[0];
+    var jsonObject={
+                "id":id,
+                "name":subjects[i].getElementsByClassName('newSubjectTxt')[0].value,
+                "classGroup":subjects[i].getElementsByClassName('classOption')[0].value,
+                "preference":subjects[i].getElementsByClassName('subjectPref')[0].value
+            };
+        resultlist.push(jsonObject);
     }
+    var v= instId.split(",")[0].replace(/[\[\]']+/g,'')
+        v=v.replace(/\//g, '')
+    var finalJsonObject={
+                    "institution":v,
+                    "subjectDetails":resultlist
+                };
+    return finalJsonObject;
     }
 
     function buildJson(){
@@ -47,33 +61,44 @@ fetchInstitutionSubject(instId.split(",")[0]);
     var v= instId.replace(/[\[\]']+/g,'')
     v=v.replace(/\//g, '')
     var instRequest={"val":v}
-    return  HttpPost("getInstitutionSubjects",instRequest)
-     .then(function (result) {
-       populateTable(result)
-  })
+     try {
+            // Await the result of the HTTP request
+            const result = await HttpPost("getInstitutionSubjects", instRequest);
+
+            // Pass the result to fetchLookup and await it
+            return await fetchLookup(result);
+        } catch (error) {
+            console.error("Error in fetchInstitutionSubject:", error);
+        }
   }
 
-    async function fetchLookup(){
+    async function fetchLookup(result1){
       var instRequest={"val":"ClassGroup"}
       return  HttpPost("getLookUpByType",instRequest)
        .then(function (result) {
+         populateTable(result1)
          populateClassGroup(result)
     })
     }
 
+
+
   function populateClassGroup(data){
-  data.forEach(function(d) {
-        var details="<option value='" + d.id + "'>" + d.name +" </option>"
-        $("#subjectClassGroups").append(details);
-    });
+    data.forEach(function(d) {
+    var classOptions = document.getElementById("classGroupOptions");
+    var option = document.createElement("option");
+                    option.value = d.id;
+                    option.textContent = d.name;
+                    classOptions.appendChild(option);
+        });
   }
 
   function populateTable(data){
 var bar = new Promise((resolve, reject) => {
   data.forEach((d,index, array) =>  {
-        var details="<tr> <td hidden>" + d.id + " </td> <td> "+ d.name +"</td><td>"+ d.classGroup +"</td><td>"+ d.preference +"</td> </tr>"
+        var details="<tr> <td hidden>" + d.id + " </td> <td> "+ d.name +"</td><td>"+ d.classGroupName +"</td><td>"+ d.preference +"</td> </tr>"
         $("#subjectTableBody").append(details);
-     if (index === array.length -1) resolve();
+            if (index === array.length -1) resolve();
            });
        });
        bar.then(() => {
@@ -86,7 +111,7 @@ function dataTableInit(){
         // Initialize Example 1
             $('#subjectTable').dataTable({
                 dom: "<'row'<'col-sm-4'l><'col-sm-4 text-center'B><'col-sm-4'f>>tp",
-                "lengthMenu": [[5,10, 25, 50, -1], [5,10, 25, 50, "All"]],
+                "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
                 buttons: [
                     { extend: 'copy', className: 'btn-sm' },
                     { extend: 'csv', title: 'ExampleFile', className: 'btn-sm' },

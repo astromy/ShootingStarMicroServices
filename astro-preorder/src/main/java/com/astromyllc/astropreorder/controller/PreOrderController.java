@@ -4,6 +4,7 @@ package com.astromyllc.astropreorder.controller;
 import com.astromyllc.astropreorder.dto.request.PreOrderInstitutionRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,6 +22,8 @@ import java.net.URL;
 @ResponseBody
 public class PreOrderController {
 
+    @Value("${gateway.host}")
+    private String backendserve;
     /*@Autowired
     private OAuth2AuthorizedClientService authorizedClientService;*/
 
@@ -31,7 +34,7 @@ public class PreOrderController {
        // jso.setCreationDate(LocalDate.now());
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
         String json = ow.writeValueAsString(jso);
-       URL url = new URL ("http://localhost:8083/api/setup/preRequestInstitution");
+       URL url = new URL ("http://" + backendserve +"/api/setup/preRequestInstitution");
         HttpURLConnection con = (HttpURLConnection)url.openConnection();
         con.setRequestMethod("POST");
         con.setRequestProperty("Content-Type", "application/json");
@@ -50,16 +53,9 @@ public class PreOrderController {
                 response.append(responseLine.trim());
             }
             System.out.println(response.toString());
+
+            return response.toString();
         }
-
-        return "index";
-//http://orb.kentengh.com/api/setup/preRequestInstitution
     }
-
-
-  /*  private OAuth2AuthorizedClient getAuthorizedClient(OAuth2AuthenticationToken authentication) {
-        return this.authorizedClientService.loadAuthorizedClient(
-                authentication.getAuthorizedClientRegistrationId(), authentication.getName());
-    }*/
 
 }

@@ -1,6 +1,7 @@
 package com.astromyllc.shootingstar.setup.dto.request;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Lob;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -35,6 +36,7 @@ public class PreOrderInstitutionRequest {
     private String subscription;
     @NonNull
     private String population;
-    private String crest;
+    @Lob
+    private byte[] crest;
 
 }

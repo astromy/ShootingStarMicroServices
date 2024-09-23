@@ -1,8 +1,7 @@
-var type,id;
-var name=[];
-var resultlist=[]
-    type= $('[name="type"]').val();
-var instId = $("meta[name='institutionId']").attr("content");
+type= $('[name="type"]').val();
+name=[];
+resultlist=[];
+id="";
 fetchInstitution(instId.split(",")[0]);
 //fetchInstitution(instId);
 
@@ -13,6 +12,9 @@ fetchInstitution(instId.split(",")[0]);
                 var jso= buildJson();
                 return HttpPost("addLookUps",jso)
                 .then(function(result){
+                $('#example1').DataTable().destroy();
+                $('.dismissClassGroup').click();
+                populateTable(result)
                     swal({
                            title: "Thank you!",
                            text: "Your application is being submitted",
@@ -23,9 +25,10 @@ fetchInstitution(instId.split(",")[0]);
 
      
     function postdata(){
-   var classGroup=[];
-    classGroup= document.getElementsByClassName('newClassGrouptxt');
-    for(var i=0;i<classGroup.length; i++){
+   //var classGroup=[];
+   var module = $(".newClassGrouptxt");
+    const classGroup= document.getElementsByClassName('newClassGrouptxt');
+    for(let i=0;i<classGroup.length; i++){
     name[i]=classGroup[i].value;
     }
     }
@@ -67,7 +70,7 @@ $(function () {
     // Initialize Example 1
     $('#example1').dataTable({
         dom: "<'row'<'col-sm-4'l><'col-sm-4 text-center'B><'col-sm-4'f>>tp",
-        "lengthMenu": [[5,10, 25, 50, -1], [5,10, 25, 50, "All"]],
+        "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
         buttons: [
             { extend: 'copy', className: 'btn-sm' },
             { extend: 'csv', title: 'ExampleFile', className: 'btn-sm' },

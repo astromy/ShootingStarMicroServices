@@ -19,6 +19,7 @@ import org.keycloak.admin.client.resource.GroupResource;
 import org.keycloak.admin.client.resource.GroupsResource;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.representations.idm.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
@@ -26,10 +27,7 @@ import javax.ws.rs.core.Response;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.keycloak.admin.client.CreatedResponseUtil.getCreatedId;
@@ -38,8 +36,13 @@ import static org.keycloak.admin.client.CreatedResponseUtil.getCreatedId;
 @RequiredArgsConstructor
 @Slf4j
 public class InstitutionUtils {
+
+    @Value("${gateway.host}")
+    private String keycloakSecrete;
+
     private final InstitutionRepository institutionRepository;
     private final PreOrderInstitutionRepository preOrderInstitutionRepository;
+    private final SubjectUtil subjectUtil;
     public static List<Institution> institutionGlobalList = null;
     public static List<PreOrderInstitution> preOrderInstitutionGlobalList = null;
     public static List<String> permissions = null;
@@ -73,10 +76,10 @@ public class InstitutionUtils {
                 .subscription(institutionRequest.getSubscription())
                 .crest(institutionRequest.getCrest())
                 .admissions(AdmissionUtil.mapAdmissionRequestToAdmission(institutionRequest.getAdmissions()))
-                .classList(institutionRequest.getClassList().stream().map(c -> ClassesUtil.mapClassRequestToClass(c)).toList())
+                .classList(institutionRequest.getClassList().stream().map(ClassesUtil::mapClassRequestToClass).toList())
                 .gradingSetting(GradingSettingUtil.mapGradeSettingRequest_ToGradeSetting(institutionRequest.getGradingSetting()))
-                .subjectList(institutionRequest.getSubjectList().stream().map(s -> SubjectUtil.mapSubjectRequest_ToSubject(s)).toList())
-                .departmentList(institutionRequest.getDepartmentList().stream().map(d -> DepartmentUtil.mapDepartmentRequest_ToDepartment(d)).toList())
+                .subjectList(institutionRequest.getSubjectList().stream().map(SubjectUtil::mapSubjectRequest_ToSubject).toList())
+                .departmentList(institutionRequest.getDepartmentList().stream().map(DepartmentUtil::mapDepartmentRequest_ToDepartment).toList())
                 .build();
     }
 
@@ -99,12 +102,36 @@ public class InstitutionUtils {
                 .streams(institution.getStreams())
                 .subscription(institution.getSubscription())
                 .crest(institution.getCrest())
-                .admissions(AdmissionUtil.mapAdmissionToAdmissionResponse(institution.getAdmissions()))
-                .classList(institution.getClassList().stream().map(ClassesUtil::mapClassToClassResponse).toList())
-                .gradingSetting(GradingSettingUtil.mapGradeSetting_ToGradeSettingResponse(institution.getGradingSetting()))
-                .subjectList(institution.getSubjectList().stream().map(SubjectUtil::mapSubject_ToSubjectResponse).toList())
-                .classList(institution.getClassList().stream().map(ClassesUtil::mapClassToClassResponse).toList())
-                .departmentList(institution.getDepartmentList().stream().map(DepartmentUtil::mapDepartment_ToDepartmentResponse).toList())
+                .admissions(institution.getAdmissions() != null
+                        ? AdmissionUtil.mapAdmissionToAdmissionResponse(institution.getAdmissions())
+                        : null)
+                .classList(institution.getClassList() != null
+                        ?institution.getClassList().stream()
+                        .filter(Objects::nonNull)
+                        .map(ClassesUtil::mapClassToClassResponse)
+                        .collect(Collectors.toList())
+                : Collections.emptyList())
+                .gradingSetting(institution.getGradingSetting()!=null
+                        ?GradingSettingUtil.mapGradeSetting_ToGradeSettingResponse(institution.getGradingSetting())
+                        :null)
+                .subjectList(institution.getSubjectList()!=null
+                        ?institution.getSubjectList().stream()
+                        .filter(Objects::nonNull)
+                        .map(s->subjectUtil.mapSubject_ToSubjectResponse(s))
+                        .collect(Collectors.toList())
+                        : Collections.emptyList())
+                .classList(institution.getClassList()!=null
+                        ?institution.getClassList().stream()
+                        .filter(Objects::nonNull)
+                        .map(ClassesUtil::mapClassToClassResponse)
+                        .collect(Collectors.toList())
+                        : Collections.emptyList())
+                .departmentList(institution.getDepartmentList()!=null
+                        ?institution.getDepartmentList().stream()
+                        .filter(Objects::nonNull)
+                        .map(DepartmentUtil::mapDepartment_ToDepartmentResponse)
+                        .collect(Collectors.toList())
+                        : Collections.emptyList())
                 .build();
     }
 
@@ -130,8 +157,29 @@ public class InstitutionUtils {
         //institution.setDepartmentList(institutionRequest.getDepartmentList().stream().map((dr) -> DepartmentUtil.mapDepartmentRequest_ToDepartment(dr, institution.getDepartmentList().stream().filter(d -> dr.getIdDepartment().equals(d.getIdDepartment())).findFirst().get())).collect(Collectors.toList()));
         //institution.setGradingSetting(GradingSettingUtil.mapGradeSettingRequest_ToGradeSetting(institutionRequest.getGradingSetting(), institution.getGradingSetting()));
         //institution.setSubjectList(institutionRequest.getSubjectList().stream()
-               // .map((sr) -> SubjectUtil.mapSubjectRequest_ToSubject(sr, institution.getSubjectList().stream().filter(s -> sr.getId().equals(s.getIdSubject())).findFirst().get())).collect(Collectors.toList()));
+        // .map((sr) -> SubjectUtil.mapSubjectRequest_ToSubject(sr, institution.getSubjectList().stream().filter(s -> sr.getId().equals(s.getIdSubject())).findFirst().get())).collect(Collectors.toList()));
         return institution;
+    }
+
+    public Institution mapPreorderInstitutionToInstitution(PreOrderInstitution preOrderInstitution) {
+        return Institution.builder()
+                .name(preOrderInstitution.getName())
+                .slogan(preOrderInstitution.getSlogan())
+                .city(preOrderInstitution.getCity())
+                .region(preOrderInstitution.getRegion())
+                .country(preOrderInstitution.getCountry())
+                .bececode(preOrderInstitution.getBececode())
+                .contact1(preOrderInstitution.getContact1())
+                .contact2(preOrderInstitution.getContact2())
+                .email(preOrderInstitution.getEmail())
+                .postalAddress(preOrderInstitution.getPostalAddress())
+                .status(preOrderInstitution.getStatus())
+                .streams(preOrderInstitution.getStreams())
+                .website(preOrderInstitution.getWebsite())
+                .subscription(preOrderInstitution.getSubscription())
+                .creationDate(preOrderInstitution.getCreationDate())
+                .crest(Arrays.toString(preOrderInstitution.getCrest()))
+                .build();
     }
 
     public PreOrderInstitution mapPreOrderInstitutionRequest_ToPreOrderInstitution(PreOrderInstitutionRequest institutionRequest) {
@@ -182,7 +230,7 @@ public class InstitutionUtils {
 
     public void createKeycloakCredentials(PreOrderInstitution institution) {
 
-        String clientSecret = "ywUvVeSUVbbwgsfABUNWyKPJimFXkcwJ";
+        String clientSecret = keycloakSecrete;
         /*Keycloak keycloak = KeycloakBuilder.builder()
                 .serverUrl("http://keycloak:8080/auth")
                 .realm("ShootingStar")
@@ -193,7 +241,7 @@ public class InstitutionUtils {
                 */
 
         Keycloak kc = KeycloakBuilder.builder()
-                .serverUrl("http://localhost:8090/")
+                .serverUrl("https://keycloak.astromyllc.com/")
                 .realm("master")
                 .grantType(OAuth2Constants.PASSWORD)
                 .username("admin")
@@ -228,8 +276,8 @@ public class InstitutionUtils {
         credential.setValue(institution.getBececode());
         credentials.add(credential);
 
-        sysRoles.add(institution.getBececode()+"/Admin");
-        sysRoles.add(institution.getBececode()+"/User");
+        sysRoles.add(institution.getBececode() + "/Admin");
+        sysRoles.add(institution.getBececode() + "/User");
         sysRoles.add(institution.getBececode());
 
         String client = "Admin" + institution.getBececode();
@@ -298,7 +346,7 @@ public class InstitutionUtils {
 
 
         Keycloak kc = KeycloakBuilder.builder()
-                .serverUrl("http://localhost:8090/")
+                .serverUrl("http://keycloak:8080/")
                 .realm("master")
                 .grantType(OAuth2Constants.PASSWORD)
                 .username("admin")

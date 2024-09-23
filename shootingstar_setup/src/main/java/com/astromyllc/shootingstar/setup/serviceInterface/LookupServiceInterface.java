@@ -14,4 +14,5 @@ public interface LookupServiceInterface {
     public  List<Optional<LookupResponse>> createLookups(List<LookupRequest> lookupRequestList);
     public List<Optional<LookupResponse>> getAllLookups();
     public List<Optional<LookupResponse>> getAllLookupsByType(SingleStringRequest lookupType);
+    public  Optional<Optional<LookupResponse>> getLookUpById(String id);
 }

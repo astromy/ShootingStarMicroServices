@@ -1,15 +1,22 @@
+server:
+  port: 3017
+
+gateway:
+  host: ${APIGATEWAY:localhost:8083}
+
+
 logging:
   level:
     root: INFO
     org.springframework.web: INFO
-    org.springframework.security: INFO
+    org.springframework.security: DEBUG
     org.springframework.boot.autoconfigure: INFO
-    org.springframework.web.client.RestTemplate: DEBUG
+    org.springframework.web.client.RestTemplate: ERROR
 
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://eureka:password@localhost:8761/eureka
+      defaultZone: http://eureka:password@discovery-server:8761/eureka
 
 spring:
   thymeleaf:

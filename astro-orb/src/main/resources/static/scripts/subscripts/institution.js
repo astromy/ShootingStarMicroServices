@@ -494,7 +494,8 @@ $(function () {
 
     var script14 = document.createElement("script");
     script14.setAttribute("type", "text/javascript");
-    script14.setAttribute("src", "scripts/preorder.js");
+    script14.setAttribute("src", "scripts/_preorder.js");
+    script14.setAttribute("data-dynamic", "true");
     document.getElementsByTagName("body")[0].appendChild(script14);
 });
 

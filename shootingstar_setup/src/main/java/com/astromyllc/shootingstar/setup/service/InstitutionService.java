@@ -14,8 +14,7 @@ import com.astromyllc.shootingstar.setup.utils.InstitutionUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.keycloak.admin.client.Keycloak;
-import org.keycloak.admin.client.KeycloakBuilder;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,7 +28,7 @@ import java.util.Optional;
 public class InstitutionService implements InstitutionServiceInterface {
     private final InstitutionRepository institutionRepository;
     private final PreOrderInstitutionRepository preOrderInstitutionRepository;
-private final InstitutionUtils institutionUtils;
+    private final InstitutionUtils institutionUtils;
     @Override
     public InstitutionResponse createInstitution(InstitutionRequest institutionRequest) {
         Optional <Institution> institution = InstitutionUtils.institutionGlobalList.stream().filter(x -> x.getBececode().equals(institutionRequest.getBececode())).findFirst();
@@ -42,6 +41,18 @@ private final InstitutionUtils institutionUtils;
             log.info("Institution {} Saved Successfully", institution1.getIdInstitution());
         } else {
            Institution institution2=institutionUtils.mapInstitutionRequestToInstitution(institution.get(), institutionRequest);
+            institutionRepository.save(institution2);
+            InstitutionUtils.institutionGlobalList.add(institution2);
+            return institutionUtils.mapInstitutionToInstitutionResponse(institution2);
+        }
+        return institutionUtils.mapInstitutionToInstitutionResponse(institution1);
+    }
+    @Override
+    public InstitutionResponse migratePreOrder(String institutionCode) {
+        Optional <PreOrderInstitution> institution = InstitutionUtils.preOrderInstitutionGlobalList.stream().filter(x -> x.getBececode().equals(institutionCode)).findFirst();
+        Institution institution1=new Institution();
+        if (institution.isPresent()) {
+            Institution institution2 = institutionUtils.mapPreorderInstitutionToInstitution(institution.get());
             institutionRepository.save(institution2);
             InstitutionUtils.institutionGlobalList.add(institution2);
             return institutionUtils.mapInstitutionToInstitutionResponse(institution2);
@@ -65,8 +76,10 @@ private final InstitutionUtils institutionUtils;
     public Optional<InstitutionResponse> getInstitutionByBeceCode(SingleStringRequest beceCode) {
         String finalBeceCode= beceCode.getVal();
         List<Institution> ii= InstitutionUtils.institutionGlobalList.stream().filter(x -> x.getBececode().equals(finalBeceCode)).toList();
-         Optional<Institution> i=Optional.of(InstitutionUtils.institutionGlobalList.stream().filter(x -> x.getBececode().equals(finalBeceCode)).findFirst().get());
-        return Optional.ofNullable(institutionUtils.mapInstitutionToInstitutionResponse(i.get()));
+        if(ii.size()==0){
+            migratePreOrder(finalBeceCode);
+        }
+         return Optional.ofNullable(institutionUtils.mapInstitutionToInstitutionResponse(ii.get(0)));
     }
 
     @Override

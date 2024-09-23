@@ -11,6 +11,7 @@ logging:
     root: INFO
     org:
       springframework:
+        security=DEBUG:
         cloud:
           gateway:
             route:

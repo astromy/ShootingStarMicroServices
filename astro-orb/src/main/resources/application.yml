@@ -6,18 +6,27 @@ gateway:
 
 logging:
   level:
-    root: INFO
-    org.springframework.web: INFO
-    org.springframework.security: INFO
-    org.springframework.boot.autoconfigure: INFO
-    org.springframework.web.client.RestTemplate: DEBUG
+    org:
+      springframework:
+        security=ERROR:
+    root: ERROR
+    org.springframework.web: ERROR
+    org.springframework.security: ERROR
+    org.springframework.boot.autoconfigure: ERROR
+    org.springframework.web.client.RestTemplate: ERROR
 
 eureka:
   client:
     serviceUrl:
       defaultZone: http://eureka:password@localhost:8761/eureka
 
+
 spring:
+  web:
+    error:
+      include-stacktrace=always:
+  mvc:
+    throw-exception-if-no-handler-found=true:
   thymeleaf:
     cache: false
 
@@ -32,17 +41,16 @@ spring:
             client-id: astroauthauth
             client-secret: ywUvVeSUVbbwgsfABUNWyKPJimFXkcwJ
             authorization-grant-type: authorization_code
-            redirect-url: http://localhost:7013/login/oauth2/code/astroauthauth
+            redirect-uri: "{baseUrl}/login/oauth2/code/astroauthauth"
             scope:
               - openid
               - profile
               - email
               - roles
         provider:
-          ShootingStar.issuer-uri: http://localhost:8090/realms/ShootingStar
-     # resourceserver:
-     #   jwt:
-     #     issuer-uri: http://localhost:8080/realms/ShootingStar
+          ShootingStar:
+            issuer-uri: "https://keycloak.astromyllc.com/realms/ShootingStar"
+
 
   servlet:
     multipart:

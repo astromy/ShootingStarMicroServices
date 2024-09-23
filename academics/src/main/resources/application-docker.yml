@@ -7,7 +7,7 @@ server:
   port: 1371
 
 gateway:
-  host: ${APIGATEWAY:localhost}
+  host: ${APIGATEWAY:astro-api-gateway}
 
 spring:
   cloud:

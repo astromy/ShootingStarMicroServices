@@ -309,6 +309,7 @@ return true;
 
 const input = document.querySelector(".imageInput")
 const output = document.querySelector(".imageOutput")
+var verfyOutput=document.querySelector("#crest_")
 let imagesArray = []
 
 input.addEventListener("change", () => {
@@ -327,6 +328,7 @@ input.addEventListener("change", () => {
                 </div>`
     })
     output.innerHTML = images
+    verfyOutput=images
   }
 
   function deleteImage(index) {
@@ -425,51 +427,129 @@ var contract=`
                         </div>
                     </div>
                     <div class="panel-body">
-                        <p>
-                            Maecenas placerat facilisis interdum. Mauris eu dolor nisi. Suspendisse ullamcorper purus nec nibh maximus, ut sollicitudin enim venenatis.
-                            Nullam interdum, odio sit amet dapibus mollis, ligula diam pretium sapien, eget suscipit felis ipsum sed lorem. <br/>
-                            <br/> Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Curabitur ultrices aliquam nisi, vel semper augue auctor eu. Pellentesque a
-                            sollicitudin tellus. Aenean posuere pharetra ipsum, ornare pretium lorem convallis non. Vivamus ac sodales sem. Nunc congue dolor ut dui maximus, imperdiet sollicitudin
-                            velit auctor. Integer tincidunt iaculis vehicula. Nunc faucibus orci non imperdiet ultricies. Nunc pellentesque dui nisi, vel convallis quam malesuada ornare. Nunc ac purus
-                            velit. Cras aliquet porta sodales. Proin blandit ornare bibendum.
-                        </p>
-                        <br/>
-                        <blockquote class="pull-left" style="max-width: 250px">
-                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-                        </blockquote>
-                        <p>
-                            There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in
-                            some form, by injected humour, or randomised words which don't look even slightly believable. If you are going to use a passage of Lorem Ipsum...
-                        </p>
-                        <br/>
 
-                        <p>
-                            Duis rutrum felis at lorem scelerisque, vel iaculis risus viverra. Integer sed gravida libero. Maecenas sit amet lacus et erat rhoncus sodales quis non nunc. Morbi in
-                            mattis massa. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Phasellus bibendum posuere sapien eget vehicula. Nulla sit amet
-                            laoreet ante, sed ornare mauris. In interdum ex et leo suscipit sagittis. Pellentesque ac eleifend quam. Nam eu lacinia lacus. Vestibulum lacinia nisl lectus, fringilla
-                            molestie diam imperdiet dignissim.
+                        <p class="agreement">
+                             1. INTRODUCTION
                         </p>
 
-                        <p>
-                            In scelerisque urna ut neque imperdiet, sit amet pretium eros suscipit. Cras efficitur ante sit amet mi porta, varius volutpat nulla hendrerit. Pellentesque nec risus
-                            malesuada, scelerisque libero at, lacinia magna. Aliquam tellus nunc, viverra in ipsum sed, tristique finibus nibh. Proin gravida lobortis erat, nec aliquam lorem eleifend
-                            eget. Integer quis augue id felis ultricies finibus. Curabitur et ligula mauris. Suspendisse vel fringilla quam. Quisque quis metus rhoncus, eleifend leo in, sagittis
-                            libero. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Fusce ullamcorper nisl risus, a scelerisque dui hendrerit nec.
+                        <p class="agreement">
+                            Welcome to the ORB! We start every new subscriber relationship with a contract.
+                            The following contract spells out what you can expect from us, and what we expect from you.
+                            If you agree to what you read below, you should click "Yes" at the end of the contract to acknowledge that you have agreed.
+                            We intend this to be the legal equivalent of your signature on a written contract, and equally binding.
+                            Only by agreeing to this contract will you be able to access and use the services available on this Web Site.
                         </p>
                         <br/>
-                        <blockquote class="pull-right" style="max-width: 250px">
-                            <p>Fusce ac tellus eu nisl lobortis maximus</p>
-                        </blockquote>
-                        <p>
-                            Praesent eget euismod nibh. Fusce ac tellus eu nisl lobortis maximus ac eget sapien. Nulla malesuada mauris non nulla imperdiet ullamcorper.
+                        <p class="agreement">
+                            2.	ACCESS AND SERVICES
                         </p>
-                        <br/>
 
-                        <p>
-                            Sed porta libero metus, nec feugiat enim pharetra vel. Sed vel sagittis augue. Donec hendrerit nibh ac dolor lobortis, eu varius odio sollicitudin. Proin non condimentum
-                            nulla, quis dictum leo. Vestibulum lobortis urna eu mauris viverra porttitor. Cras consequat leo condimentum lacus viverra sollicitudin. Donec dignissim ornare est, nec
-                            scelerisque purus mollis eu. Phasellus dictum suscipit ligula. Donec malesuada gravida velit. Nulla egestas diam in ligula mollis, nec tincidunt diam porta. Proin eleifend
-                            lacinia diam quis pretium. Sed lacinia varius nisi et euismod. Ut ac arcu vulputate, porta nibh non, ultricies erat. Nulla facilisi.
+                        <p class="agreement">
+                            Your access to the various services available on this system depends on the level of access you select.
+                            You may change or discontinue your account at any time.
+                            We reserve the right to modify, suspend or terminate access to the service on our system at any time for
+                            any reason without notice or refund, including the right to require you to change your login identification code or password.
+                        </p>
+                        <br/>
+                        <p class="agreement">
+                            3.	FEES AND PAYMENT
+                        </p>
+
+                        <p class="agreement">
+                            Depending on the type of subscription chosen, we may charge you an annual fee for using our system which shall be depending on your school’s population.
+                            You will be given the opportunity to pay by credit card or by check when you sign up.
+                            You can cancel your account at any time, but you will remain liable for all charges accrued up to that time, including full annual charges for the year for which you discontinued service.
+                            We reserve the right to change our fees at any time for any reason, but, whenever possible, we will give you at least one month's advance notice of such change.
+                        </p>
+                        <br/>
+                        <p class="agreement">
+                            4.	SYSTEM RULES
+                        </p>
+
+                        <p class="agreement">
+                            You agree to be bound by certain rules which are important for the proper use of this service.
+                            Your failure to follow these rules, whether listed below in the contract or in bulletins posted at various points in the system, may result in termination of your service.
+                            First, do not tell others your password or let your account be used by anyone except yourself.
+                            Third, while you should feel free to express yourself, you should respect other users of the system and not do anything to attack or injure others.
+                            Fourth, do not use our system to commit a crime, or to plan, encourage or help others commit a crime, including crimes relating to computers.
+                        </p>
+                        <br/>
+                        <p class="agreement">
+                            5.	PROPRIETARY RIGHTS
+                        </p>
+
+                        <p class="agreement">
+                            By uploading questions and their corresponding answers on our system, you are hereby granting to the us an unrestricted
+                            license to use, copy, modify, adapt, or document in any form any set of questions and their corresponding answers,
+                            information, or any underlying work in which you may possess proprietary rights, including but not limited to copyright rights.
+                            All users of the system are therefore deemed to have disclaimed or waived all copyright ownership rights in
+                            their uploaded questions and their corresponding answers, even if they contain copyright notices. You shall have absolutely no
+                            recourse against us as the system provider for any alleged or actual infringement of any proprietary rights to which you may claim ownership.
+
+                            <br/>
+                            Your use of our system affords you access to many of the features of our system, but some aspects of our system remain within
+                            our exclusive proprietary control. We or our suppliers own the intellectual property rights to any and all protectable
+                            components of our system, including but not limited to the computer software, the related documentation, the end-user interfaces,
+                            the name of our system, many of the individual features, and the collective works consisting of sequences of all public messages
+                            on our system. You may not reproduce any sequence of messages from our system, either electronically or in print, without our
+                            permission. In addition; you may not copy, modify, adapt, reproduce, translate, distribute, reverse engineer, decompile or
+                            dissemble any aspect of the system which we or our suppliers own.
+                        </p>
+                        <br/>
+                        <p class="agreement">
+                            6.	LIMITATION OF LIABILITY
+                        </p>
+
+                        <p class="agreement">
+                            You must bear the risk of any liability relating to your use of our system. We would not be able to afford to operate this
+                            system if we were held accountable for every wrongful action by every Online subscriber. ACCORDINGLY, YOUR USE OF THE ONLINE
+                            SYSTEM IS ENTIRELY AT YOUR SOLE RISK. WE WILL NOT BE RESPONSIBLE TO YOU OR ANY THIRD PARTIES FOR ANY DIRECT OR INDIRECT,
+                            CONSEQUENTIAL, SPECIAL OR PUNITIVE DAMAGES OR LOSSES YOU MAY INCUR IN CONNECTION WITH OUR SYSTEM, YOUR USE THEREOF OR ANY OF
+                            THE DATA OR OTHER MATERIALS TRANSMITTED THROUGH OR RESIDING ON OUR SYSTEM, REGARDLESS OF THE TYPE OF CLAIM OR THE NATURE OF THE
+                            CAUSE OF ACTION, EVEN IF WE HAVE ADVISED OF THE POSSIBILITY OF SUCH DAMAGE OR LOSS.
+                        </p>
+                        <br/>
+                        <p class="agreement">
+                            7.	INDEMNITY
+                        </p>
+
+                        <p class="agreement">
+                            You shall defend and indemnify us and hold us harmless from and against any and all claims, proceedings, damages, injuries,
+                            liabilities, losses, costs and expenses (including reasonable attorneys' fees), relating to any acts by you or materials or
+                            information transmitted by you in connection with our system, leading wholly or partially to claims against us or our
+                            system by other subscribers or third parties, regardless of the type of claim or the nature of the cause of action.
+                        </p>
+                        <br/>
+                        <p class="agreement">
+                            8.	DISCLAIMERS OF WARRANTY
+                        </p>
+
+                        <p class="agreement">
+                            THE SYSTEM IS PROVIDED "AS IS" AND WE MAKE NO WARRANTIES, EXPRESS OR IMPLIED, AS TO THE MERCHANTABILITY, FITNESS FOR A
+                            PARTICULAR USE OR PURPOSE, TITLE, NON-INFRINGEMENT OR ANY OTHER WARRANTY, CONDITION, GUARANTY, OR REPRESENTATION,
+                            WHETHER ORAL, IN WRITING OR IN ELECTRONIC FORM, INCLUDING BUT NOT LIMITED TO THE ACCURACY OR COMPLETENESS OF ANY INFORMATION
+                            CONTAINED THEREIN OR PROVIDED BY THE SERVICE.
+                        </p>
+                        <br/>
+                        <p class="agreement">
+                            9.	CHOICE OF LAW
+                        </p>
+
+                        <p class="agreement">
+                            You agree that this Agreement shall for all purposes be governed by and construed in accordance with the laws of Ghana,
+                            and that any action arising out of this Agreement shall be litigated and enforced under the laws of Ghana. In addition,
+                            you agree to submit to the jurisdiction of the courts of Ghana, and that any legal action pursued by you shall be within
+                            the exclusive jurisdiction of the courts of Ghana.
+                        </p>
+                        <br/>
+                        <p class="agreement">
+                            10.	ACKNOWLEDGMENT
+                        </p>
+
+                        <p class="agreement">
+                            This Agreement represents the entire understanding between you and us regarding your relationship to Online and
+                            supersedes any prior statements or representations. IF YOU AGREE TO BE BOUND BY THE TERMS OF THIS ONLINE SUBSCRIBER AGREEMENT,
+                            please check the checkbox below. If you do not agree to the terms of the Subscriber Agreement, please log off the system.
                         </p>
 
                     </div>

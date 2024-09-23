@@ -70,7 +70,7 @@ public class FinanceController {
         StringBuilder response = new StringBuilder();
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
         String json = ow.writeValueAsString(jso);
-        URL url = new URL ("http://localhost:8083/api/setup/getInstitutionByCode");
+        URL url = new URL ("http://" + backendserve +"/api/setup/getInstitutionByCode");
         HttpURLConnection con = (HttpURLConnection)url.openConnection();
         con.setRequestMethod("POST");
         con.setRequestProperty("Content-Type", "application/json");

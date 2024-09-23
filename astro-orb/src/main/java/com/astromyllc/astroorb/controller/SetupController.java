@@ -4,22 +4,28 @@ import com.astromyllc.astroorb.dto.request.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.keycloak.representations.idm.authorization.PermissionRequest;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.List;
 
 @Controller
 @ResponseBody
 @RequiredArgsConstructor
+@Slf4j
 public class SetupController {
 
     @Value("${gateway.host}")
@@ -30,388 +36,250 @@ public class SetupController {
 
     @ResponseBody
     @RequestMapping(value = "/preRequestInstitution", method = RequestMethod.POST)
-    public String preRequestInstitution(@RequestBody PreOrderInstitutionRequest jso) throws IOException {
-       // jso.setCreationDate(LocalDate.now());
-        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-        String json = ow.writeValueAsString(jso);
-       URL url = new URL ("http://" + backendserve +"/api/setup/signupInstitution");
-        HttpURLConnection con = (HttpURLConnection)url.openConnection();
-        con.setRequestMethod("POST");
-        con.setRequestProperty("Content-Type", "application/json");
-        con.setRequestProperty("Accept", "application/json");
-        con.setDoOutput(true);
-        String jsonInputString = json;
-        try(OutputStream os = con.getOutputStream()) {
-            byte[] input = jsonInputString.getBytes("utf-8");
-            os.write(input, 0, input.length);
-        }
-        try(BufferedReader br = new BufferedReader(
-                new InputStreamReader(con.getInputStream(), "utf-8"))) {
-            StringBuilder response = new StringBuilder();
-            String responseLine = null;
-            while ((responseLine = br.readLine()) != null) {
-                response.append(responseLine.trim());
-            }
-            return response.toString();
-            //System.out.println(response.toString());
-        }
+    public ResponseEntity<String> preRequestInstitution(@RequestBody PreOrderInstitutionRequest jso) throws IOException {
+
+        ResponseEntity<String> responseData = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/signupInstitution");
+        return responseData;
+    }
+
+    @ResponseBody
+    //@PostMapping("/migratePreOrder")
+    @RequestMapping(value = "/migratePreOrder", method = RequestMethod.POST)
+    public ResponseEntity<String> migratePreorder(@RequestBody String jso) throws IOException {
+
+        ResponseEntity<String> responseData = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/migratePreOrder");
+        return responseData;
     }
 
     @ResponseBody
     @RequestMapping(value = "/addLookUps", method = RequestMethod.POST)
-    public String addLookUp(@RequestBody List<LookupRequest> jso) throws IOException {
+    public ResponseEntity<String> addLookUp(@RequestBody List<LookupRequest> jso) throws IOException {
 
-        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-        String json = ow.writeValueAsString(jso);
-        URL url = new URL ("http://" + backendserve +"/api/setup/addLookUps");
-        HttpURLConnection con = (HttpURLConnection)url.openConnection();
-        con.setRequestMethod("POST");
-        con.setRequestProperty("Content-Type", "application/json");
-        con.setRequestProperty("Accept", "application/json");
-        con.setDoOutput(true);
-        String jsonInputString = json;
-        try(OutputStream os = con.getOutputStream()) {
-            byte[] input = jsonInputString.getBytes("utf-8");
-            os.write(input, 0, input.length);
-        }
-        try(BufferedReader br = new BufferedReader(
-                new InputStreamReader(con.getInputStream(), "utf-8"))) {
-            StringBuilder response = new StringBuilder();
-            String responseLine = null;
-            while ((responseLine = br.readLine()) != null) {
-                response.append(responseLine.trim());
-            }
-            return response.toString();
-        }
+        ResponseEntity<String> responseData = BACKENDCOMMPOSTLIST(Collections.singletonList(jso), "http://" + backendserve + "/api/setup/addLookUps");
+        return responseData;
     }
 
     @ResponseBody
     @RequestMapping(value = "/addClasses", method = RequestMethod.POST)
-    public String addClasses(@RequestBody ClassesRequest jso) throws IOException {
-
-        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-        String json = ow.writeValueAsString(jso);
-        URL url = new URL ("http://" + backendserve +"/api/setup/addClasses");
-        HttpURLConnection con = (HttpURLConnection)url.openConnection();
-        con.setRequestMethod("POST");
-        con.setRequestProperty("Content-Type", "application/json");
-        con.setRequestProperty("Accept", "application/json");
-        con.setDoOutput(true);
-        String jsonInputString = json;
-        try(OutputStream os = con.getOutputStream()) {
-            byte[] input = jsonInputString.getBytes("utf-8");
-            os.write(input, 0, input.length);
-        }
-        try(BufferedReader br = new BufferedReader(
-                new InputStreamReader(con.getInputStream(), "utf-8"))) {
-            StringBuilder response = new StringBuilder();
-            String responseLine = null;
-            while ((responseLine = br.readLine()) != null) {
-                response.append(responseLine.trim());
-            }
-            return response.toString();
-        }
+    public ResponseEntity<String> addClasses(@RequestBody ClassesRequest jso) throws IOException {
+        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/addClasses");
+        return response;
     }
 
     @ResponseBody
     @RequestMapping(value = "/addSubjects", method = RequestMethod.POST)
-    public String addSubjects(@RequestBody SubjectRequest jso) throws IOException {
+    public ResponseEntity<String>  addSubjects(@RequestBody SubjectRequest jso) throws IOException {
 
-        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-        String json = ow.writeValueAsString(jso);
-        URL url = new URL ("http://" + backendserve +"/api/setup/addSubjects");
-        HttpURLConnection con = (HttpURLConnection)url.openConnection();
-        con.setRequestMethod("POST");
-        con.setRequestProperty("Content-Type", "application/json");
-        con.setRequestProperty("Accept", "application/json");
-        con.setDoOutput(true);
-        String jsonInputString = json;
-        try(OutputStream os = con.getOutputStream()) {
-            byte[] input = jsonInputString.getBytes("utf-8");
-            os.write(input, 0, input.length);
-        }
-        try(BufferedReader br = new BufferedReader(
-                new InputStreamReader(con.getInputStream(), "utf-8"))) {
-            StringBuilder response = new StringBuilder();
-            String responseLine = null;
-            while ((responseLine = br.readLine()) != null) {
-                response.append(responseLine.trim());
-            }
-            return response.toString();
-        }
+        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/addSubjects");
+        return response;
     }
 
 
     @ResponseBody
     @RequestMapping(value = "/addAdmissions", method = RequestMethod.POST)
-    public String addAdmissions(@RequestBody AdmissionsRequest jso) throws IOException {
+    public ResponseEntity<String> addAdmissions(@RequestBody AdmissionsRequest jso) throws IOException {
 
-        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-        String json = ow.writeValueAsString(jso);
-        URL url = new URL ("http://" + backendserve +"/api/setup/addAdmissions");
-        HttpURLConnection con = (HttpURLConnection)url.openConnection();
-        con.setRequestMethod("POST");
-        con.setRequestProperty("Content-Type", "application/json");
-        con.setRequestProperty("Accept", "application/json");
-        con.setDoOutput(true);
-        String jsonInputString = json;
-        try(OutputStream os = con.getOutputStream()) {
-            byte[] input = jsonInputString.getBytes("utf-8");
-            os.write(input, 0, input.length);
-        }
-        try(BufferedReader br = new BufferedReader(
-                new InputStreamReader(con.getInputStream(), "utf-8"))) {
-            StringBuilder response = new StringBuilder();
-            String responseLine = null;
-            while ((responseLine = br.readLine()) != null) {
-                response.append(responseLine.trim());
-            }
-            return response.toString();
-        }
+        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/addAdmissions");
+        return response;
     }
 
 
     @ResponseBody
     @RequestMapping(value = "/addDepartment", method = RequestMethod.POST)
-    public String addDepartments(@RequestBody DepartmentRequest jso) throws IOException {
+    public ResponseEntity<String>  addDepartments(@RequestBody DepartmentRequest jso) throws IOException {
 
-        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-        String json = ow.writeValueAsString(jso);
-        URL url = new URL ("http://" + backendserve +"/api/setup/addDepartment");
-        HttpURLConnection con = (HttpURLConnection)url.openConnection();
-        con.setRequestMethod("POST");
-        con.setRequestProperty("Content-Type", "application/json");
-        con.setRequestProperty("Accept", "application/json");
-        con.setDoOutput(true);
-        String jsonInputString = json;
-        try(OutputStream os = con.getOutputStream()) {
-            byte[] input = jsonInputString.getBytes("utf-8");
-            os.write(input, 0, input.length);
-        }
-        try(BufferedReader br = new BufferedReader(
-                new InputStreamReader(con.getInputStream(), "utf-8"))) {
-            StringBuilder response = new StringBuilder();
-            String responseLine = null;
-            while ((responseLine = br.readLine()) != null) {
-                response.append(responseLine.trim());
-            }
-            return response.toString();
-        }
+        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/addDepartment");
+        return response;
     }
 
 
     @ResponseBody
     @RequestMapping(value = "/addGradingSetting", method = RequestMethod.POST)
-    public String addGrading(@RequestBody GradingRequest jso) throws IOException {
+    public ResponseEntity<String> addGrading(@RequestBody GradingRequest jso) throws IOException {
 
-        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-        String json = ow.writeValueAsString(jso);
-        URL url = new URL ("http://" + backendserve +"/api/setup/addGradingSetting");
-        HttpURLConnection con = (HttpURLConnection)url.openConnection();
-        con.setRequestMethod("POST");
-        con.setRequestProperty("Content-Type", "application/json");
-        con.setRequestProperty("Accept", "application/json");
-        con.setDoOutput(true);
-        String jsonInputString = json;
-        try(OutputStream os = con.getOutputStream()) {
-            byte[] input = jsonInputString.getBytes("utf-8");
-            os.write(input, 0, input.length);
-        }
-        try(BufferedReader br = new BufferedReader(
-                new InputStreamReader(con.getInputStream(), "utf-8"))) {
-            StringBuilder response = new StringBuilder();
-            String responseLine = null;
-            while ((responseLine = br.readLine()) != null) {
-                response.append(responseLine.trim());
-            }
-            return response.toString();
-        }
+        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/addGradingSetting");
+        return response;
     }
 
 
     @ResponseBody
     @RequestMapping(value = "/addPermissions", method = RequestMethod.POST)
-    public String addPermissions(@RequestBody PermissionRequest jso) throws IOException {
+    public ResponseEntity<String> addPermissions(@RequestBody PermissionRequest jso) throws IOException {
 
-        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-        String json = ow.writeValueAsString(jso);
-        URL url = new URL ("http://" + backendserve +"/api/setup/addLookUp");
-        HttpURLConnection con = (HttpURLConnection)url.openConnection();
-        con.setRequestMethod("POST");
-        con.setRequestProperty("Content-Type", "application/json");
-        con.setRequestProperty("Accept", "application/json");
-        con.setDoOutput(true);
-        String jsonInputString = json;
-        try(OutputStream os = con.getOutputStream()) {
-            byte[] input = jsonInputString.getBytes("utf-8");
-            os.write(input, 0, input.length);
-        }
-        try(BufferedReader br = new BufferedReader(
-                new InputStreamReader(con.getInputStream(), "utf-8"))) {
-            StringBuilder response = new StringBuilder();
-            String responseLine = null;
-            while ((responseLine = br.readLine()) != null) {
-                response.append(responseLine.trim());
-            }
-            return response.toString();
-        }
+        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/addLookUp");
+        return response;
     }
-
-
 
     @ResponseBody
     @RequestMapping(value = "/getInstitutionByCode", method = RequestMethod.POST)
-    public String fetchInstitution(@RequestBody SingleStringRequest jso) throws IOException {
+    public ResponseEntity<String> fetchInstitution(@RequestBody SingleStringRequest jso) throws IOException {
 
-        StringBuilder response = new StringBuilder();
-        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-        String json = ow.writeValueAsString(jso);
-        URL url = new URL ("http://localhost:8083/api/setup/getInstitutionByCode");
-        HttpURLConnection con = (HttpURLConnection)url.openConnection();
-        con.setRequestMethod("POST");
-        con.setRequestProperty("Content-Type", "application/json");
-        con.setRequestProperty("Accept", "application/json");
-        con.setDoOutput(true);
-        String jsonInputString = json;
-        try(OutputStream os = con.getOutputStream()) {
-            byte[] input = jsonInputString.getBytes("utf-8");
-            os.write(input, 0, input.length);
-        }
-        try(BufferedReader br = new BufferedReader(
-                new InputStreamReader(con.getInputStream(), "utf-8"))) {
-            String responseLine = null;
-            while ((responseLine = br.readLine()) != null) {
-                response.append(responseLine.trim());
-            }
-            // System.out.println(response.toString());
-            return response.toString();
-        }
-
-//http://orb.kentengh.com/api/setup/preRequestInstitution
+        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/getInstitutionByCode");
+        return response;
     }
 
 
     @ResponseBody
     @RequestMapping(value = "/getLookUpByType", method = RequestMethod.POST)
-    public String getLookUpByType(@RequestBody SingleStringRequest jso) throws IOException {
+    public ResponseEntity<String> getLookUpByType(@RequestBody SingleStringRequest jso) throws IOException {
 
-        StringBuilder response = new StringBuilder();
-        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-        String json = ow.writeValueAsString(jso);
-        URL url = new URL ("http://localhost:8083/api/setup/getLookUpByType");
-        HttpURLConnection con = (HttpURLConnection)url.openConnection();
-        con.setRequestMethod("POST");
-        con.setRequestProperty("Content-Type", "application/json");
-        con.setRequestProperty("Accept", "application/json");
-        con.setDoOutput(true);
-        String jsonInputString = json;
-        try(OutputStream os = con.getOutputStream()) {
-            byte[] input = jsonInputString.getBytes("utf-8");
-            os.write(input, 0, input.length);
-        }
-        try(BufferedReader br = new BufferedReader(
-                new InputStreamReader(con.getInputStream(), "utf-8"))) {
-            String responseLine = null;
-            while ((responseLine = br.readLine()) != null) {
-                response.append(responseLine.trim());
-            }
-             System.out.println(response.toString());
-            return response.toString();
-        }
-
+        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/getLookUpByType");
+        return response;
     }
 
     @ResponseBody
     @RequestMapping(value = "/getInstitutionClasses", method = RequestMethod.POST)
-    public String getInstitutionClasses(@RequestBody SingleStringRequest jso) throws IOException {
+    public ResponseEntity<String> getInstitutionClasses(@RequestBody SingleStringRequest jso) throws IOException {
 
-        StringBuilder response = new StringBuilder();
-        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-        String json = ow.writeValueAsString(jso);
-        URL url = new URL ("http://localhost:8083/api/setup/getInstitutionClasses");
-        HttpURLConnection con = (HttpURLConnection)url.openConnection();
-        con.setRequestMethod("POST");
-        con.setRequestProperty("Content-Type", "application/json");
-        con.setRequestProperty("Accept", "application/json");
-        con.setDoOutput(true);
-        String jsonInputString = json;
-        try(OutputStream os = con.getOutputStream()) {
-            byte[] input = jsonInputString.getBytes("utf-8");
-            os.write(input, 0, input.length);
-        }
-        try(BufferedReader br = new BufferedReader(
-                new InputStreamReader(con.getInputStream(), "utf-8"))) {
-            String responseLine = null;
-            while ((responseLine = br.readLine()) != null) {
-                response.append(responseLine.trim());
-            }
-            System.out.println(response.toString());
-            return response.toString();
-        }
-
+        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/getInstitutionClasses");
+        return response;
     }
 
     @ResponseBody
     @RequestMapping(value = "/getInstitutionSubjects", method = RequestMethod.POST)
-    public String getInstitutionSubjects(@RequestBody SingleStringRequest jso) throws IOException {
+    public ResponseEntity<String> getInstitutionSubjects(@RequestBody SingleStringRequest jso) throws IOException {
 
-        StringBuilder response = new StringBuilder();
-        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-        String json = ow.writeValueAsString(jso);
-        URL url = new URL ("http://localhost:8083/api/setup/getInstitutionSubjects");
-        HttpURLConnection con = (HttpURLConnection)url.openConnection();
-        con.setRequestMethod("POST");
-        con.setRequestProperty("Content-Type", "application/json");
-        con.setRequestProperty("Accept", "application/json");
-        con.setDoOutput(true);
-        String jsonInputString = json;
-        try(OutputStream os = con.getOutputStream()) {
-            byte[] input = jsonInputString.getBytes("utf-8");
-            os.write(input, 0, input.length);
-        }
-        try(BufferedReader br = new BufferedReader(
-                new InputStreamReader(con.getInputStream(), "utf-8"))) {
-            String responseLine = null;
-            while ((responseLine = br.readLine()) != null) {
-                response.append(responseLine.trim());
-            }
-            System.out.println(response.toString());
-
-            return response.toString();
-        }
+        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/getInstitutionSubjects");
+        return response;
     }
 
     @ResponseBody
     @RequestMapping(value = "/getInstitutionAdmissionSetup", method = RequestMethod.POST)
-    public String getInstitutionAdmissionSetup(@RequestBody SingleStringRequest jso) throws IOException {
+    public ResponseEntity<String> getInstitutionAdmissionSetup(@RequestBody SingleStringRequest jso) throws IOException {
 
+        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/getInstitutionAdmissionSetup");
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/getInstitutionDepartment", method = RequestMethod.POST)
+    public ResponseEntity<String> getInstitutionDepartment(@RequestBody SingleStringRequest jso) throws IOException {
+
+        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/getInstitutionDepartment");
+        return response;
+    }
+
+    public ResponseEntity<String> BACKENDCOMMPOSTLIST(List<Object> jso, String url) {
+
+        HttpURLConnection httpURLConnection = null;
         StringBuilder response = new StringBuilder();
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-        String json = ow.writeValueAsString(jso);
-        URL url = new URL ("http://localhost:8083/api/setup/getInstitutionAdmissionSetup");
-        HttpURLConnection con = (HttpURLConnection)url.openConnection();
-        con.setRequestMethod("POST");
-        con.setRequestProperty("Content-Type", "application/json");
-        con.setRequestProperty("Accept", "application/json");
-        con.setDoOutput(true);
-        String jsonInputString = json;
-        try(OutputStream os = con.getOutputStream()) {
-            byte[] input = jsonInputString.getBytes("utf-8");
-            os.write(input, 0, input.length);
-        }
-        try(BufferedReader br = new BufferedReader(
-                new InputStreamReader(con.getInputStream(), "utf-8"))) {
-            String responseLine = null;
-            while ((responseLine = br.readLine()) != null) {
-                response.append(responseLine.trim());
-            }
-            System.out.println(response.toString());
+        BufferedReader br = null;
+        try {
 
-            return response.toString();
+            httpURLConnection = (HttpURLConnection) new URL(url).openConnection();
+            httpURLConnection.setRequestMethod("POST");
+            httpURLConnection.setRequestProperty("Content-Type", "application/json");
+            httpURLConnection.setRequestProperty("Accept", "application/json");
+            httpURLConnection.setDoOutput(true);
+            httpURLConnection.setDoInput(true);
+
+            DataOutputStream wr = new DataOutputStream(httpURLConnection.getOutputStream());
+            String json = ow.writeValueAsString(jso);
+            json = json.substring(1, json.length() - 1);
+            wr.write(json.getBytes(StandardCharsets.UTF_8));
+            wr.flush();
+            wr.close();
+
+            InputStream inputStream;
+
+            int status = httpURLConnection.getResponseCode();
+
+            if (status != HttpURLConnection.HTTP_OK && status != HttpURLConnection.HTTP_ACCEPTED && status != HttpURLConnection.HTTP_CREATED && status != HttpURLConnection.HTTP_NO_CONTENT)
+                inputStream = httpURLConnection.getErrorStream();
+            else
+                inputStream = httpURLConnection.getInputStream();
+            InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+
+            try (BufferedReader brIn = new BufferedReader(
+                    new InputStreamReader(inputStream, "utf-8"))) {
+                String responseLine = null;
+                while ((responseLine = brIn.readLine()) != null) {
+                    response.append(responseLine.trim());
+                }
+                log.error("GOT HERE---- > " + response);
+            }
+            // System.out.println(response.toString());
+            return ResponseEntity.ok(response.toString());
+        } catch (IOException e) {
+            // Log the error for debugging
+            e.printStackTrace();
+            // Return a generic error response with status 500 Internal Server Error
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error occurred while fetching institution: " + e.getMessage());
+        } finally {
+            if (httpURLConnection != null) {
+                httpURLConnection.disconnect();
+            }
+            if (br != null) {
+                try {
+                    br.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
+    public ResponseEntity<String> BACKENDCOMMPOST(Object jso, String url) {
 
+        HttpURLConnection httpURLConnection = null;
+        StringBuilder response = new StringBuilder();
+        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        BufferedReader br = null;
+        try {
 
+            httpURLConnection = (HttpURLConnection) new URL(url).openConnection();
+            httpURLConnection.setRequestMethod("POST");
+            httpURLConnection.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
+            httpURLConnection.setRequestProperty("Accept", "application/json");
+            httpURLConnection.setDoOutput(true);
+            httpURLConnection.setDoInput(true);
+
+            DataOutputStream wr = new DataOutputStream(httpURLConnection.getOutputStream());
+            String json = ow.writeValueAsString(jso);
+            wr.writeBytes(json);
+            wr.flush();
+            wr.close();
+
+            InputStream inputStream;
+
+            int status = httpURLConnection.getResponseCode();
+
+            if (status != HttpURLConnection.HTTP_OK)
+                inputStream = httpURLConnection.getErrorStream();
+            else
+                inputStream = httpURLConnection.getInputStream();
+            InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+
+            try (BufferedReader brIn = new BufferedReader(
+                    new InputStreamReader(httpURLConnection.getInputStream(), "utf-8"))) {
+                String responseLine = null;
+                while ((responseLine = brIn.readLine()) != null) {
+                    response.append(responseLine.trim());
+                }
+                log.error("GOT HERE---- > " + response);
+            }
+            // System.out.println(response.toString());
+            return ResponseEntity.ok(response.toString());
+        } catch (IOException e) {
+            // Log the error for debugging
+            e.printStackTrace();
+            // Return a generic error response with status 500 Internal Server Error
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error occurred while fetching institution: " + e.getMessage());
+        } finally {
+            if (httpURLConnection != null) {
+                httpURLConnection.disconnect();
+            }
+            if (br != null) {
+                try {
+                    br.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 
 }

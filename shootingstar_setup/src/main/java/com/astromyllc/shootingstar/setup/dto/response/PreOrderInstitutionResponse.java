@@ -1,6 +1,7 @@
 package com.astromyllc.shootingstar.setup.dto.response;
 
-import jakarta.persistence.Column;
+
+import jakarta.persistence.Lob;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -30,6 +31,7 @@ public class PreOrderInstitutionResponse {
     private Integer streams;
     private String subscription;
     private String population;
-    private String crest;
+    @Lob
+    private byte[] crest;
 
 }

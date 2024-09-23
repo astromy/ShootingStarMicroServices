@@ -4,13 +4,13 @@ $(function () {
             <div class="panel-body">
                 <div id="hbreadcrumb" class="pull-right">
                 <button class="btn btn-info" type="button" id="modalopn" data-toggle="modal"
-                data-target="#myclassGroupModal">New Class Group</button>
+                data-target="#departmentModal">New Department</button>
                 </div>
             </div>
     `
 
     //function institutionBuild() {
-    let classgroup = `
+    let department = `
     
     
     <div class="content animate-panel" id="pagecontent">
@@ -18,23 +18,18 @@ $(function () {
 
         <div class="panel-heading">
             <div class="panel-tools">
-                <a class="showhide"><i class="fa fa-chevron-up"></i></a>
-                <a class="closebox"><i class="fa fa-times"></i></a>
             </div>
-            Class Groups
+            Departments
         </div>
         <div class="panel-body">
-            <table id="example1" class="table table-striped table-bordered table-hover" width="100%">
+            <table id="departmentTable" class="table table-striped table-bordered table-hover" width="100%">
                 <thead>
                 <tr>
                     <th>Name</th>
-                    <th>Position</th>
-                    <th>Office</th>
-                    <th width="15%">Age</th>
-                    <th width="15%">Start date</th>
-                    <th width="15%">Salary</th>
+                    <th>Number of Designations</th>
                 </tr>
                 </thead>
+                <tbody id="departmentTableBody"></tbody>
             </table>
 
         </div>
@@ -42,13 +37,13 @@ $(function () {
     
 
     
-    <div class="modal fade hmodal-info" id="myclassGroupModal" tabindex="-1" role="dialog"
+    <div class="modal fade hmodal-info" id="departmentModal" tabindex="-1" role="dialog"
     aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="color-line"></div>
             <div class="modal-header">
-                <h4 class="modal-title">Add Class Group</h4>
+                <h4 class="modal-title">Add Department</h4>
                 <small class="font-bold">A class group is a collection of classes eg. Creche, Nursery, KG, Lower Primary, Upper Primary etc.</small>
             </div>
             <div class="panel-body modalbody">
@@ -77,23 +72,24 @@ $(function () {
 
 
     document.getElementById("wrapper").innerHTML = header;
-    document.getElementById("wrapper").insertAdjacentHTML('beforeend', classgroup);
-    document.getElementsByClassName("test")[0].addEventListener("click", classgroupIndut);
+    document.getElementById("wrapper").insertAdjacentHTML('beforeend', department);
+    document.getElementsByClassName("test")[0].addEventListener("click", departmentInput);
     document.getElementById("modalopn").addEventListener("click", modalopn);
 
-    /*var script14 = document.createElement("script");
+    var script14 = document.createElement("script");
     script14.setAttribute("type", "text/javascript");
-    script14.setAttribute("src", "scripts/preorder.js");
-    document.getElementsByTagName("body")[0].appendChild(script14);*/
+    script14.setAttribute("src", "scripts/_department.js");
+    script14.setAttribute("data-dynamic", "true");
+    document.getElementsByTagName("body")[0].appendChild(script14);
 });
 
 //document.getElementById("institution").addEventListener("click", institutionBuild);
 function modalopn(){
     document.getElementsByClassName("modalbody")[0].innerHTML="";
-    classgroupIndut();
+    departmentInput();
 }
 
-function classgroupIndut() {
+function departmentInput() {
     let div = `
     <div class="row"><label class="col-sm-3 control-label">Group Name</label>
         <div class="col-sm-9">
@@ -106,19 +102,3 @@ function classgroupIndut() {
     document.getElementsByClassName("modalbody")[0].insertAdjacentHTML('beforeend', div);
 }
 
-
-$(function () {
-
-    // Initialize Example 1
-    $('#example1').dataTable({
-        "ajax": 'api/datatables.json',
-        dom: "<'row'<'col-sm-4'l><'col-sm-4 text-center'B><'col-sm-4'f>>tp",
-        "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
-        buttons: [
-            { extend: 'copy', className: 'btn-sm' },
-            { extend: 'csv', title: 'ExampleFile', className: 'btn-sm' },
-            { extend: 'pdf', title: 'ExampleFile', className: 'btn-sm' },
-            { extend: 'print', className: 'btn-sm' }
-        ]
-    });
-});

@@ -1,6 +1,8 @@
 package com.astromyllc.shootingstar.setup.model;
 
+import com.sun.mail.iap.ByteArray;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -42,6 +44,7 @@ public class PreOrderInstitution {
     private String subscription;
     @NonNull
     private String population;
-    private String crest;
+    @Lob
+    private byte[] crest;
 
 }

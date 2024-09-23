@@ -13,6 +13,7 @@ logging:
     root: INFO
     org:
       springframework:
+        security=DEBUG:
         cloud:
           gateway:
             route:
@@ -30,13 +31,13 @@ spring:
   #  oauth2:
   #    client:
   #      provider:
-  #        keycloak.issuer-uri: http://keycloak:8080/realms/ShootingStar
+  #        ShootingStar.issuer-uri: http://keycloak:8080/realms/ShootingStar
   #      registration:
-  #        keycloak:
+  #        ShootingStar:
   #          client-id: astroauthauth
-  #          client-secret: XAvKHNDMCqpdEk0mBwA0KdmDH7xDq6KW
-  #          authorization-grant-type: Client Credentials
-  #          redirect-url: http://localhost:8083/login/oauth2/code/astroauthauth
+  #          client-secret: xw4eACct2grsmYDeFtkp4iUNyJCQO0OA
+  #          authorization-grant-type: authorization_code #Client Credentials
+  #          redirect-url: "{baseUrl}/login/oauth2/code/astroauthauth"
 
   cloud:
     compatibility-verifier:
@@ -109,6 +110,19 @@ spring:
         - id: discovery_server_static
           uri: http://localhost:8761
           predicates[0]: Path=/eureka/**
+
+  ## Astro Orb Front End Static Files
+      #routes[9]:
+        - id:  astro_orb
+          uri: http://localhost:7013
+          predicates[0]: Path=/astro_orb/web
+          filters[0]: SetPath=/
+
+  ## Astro Orb Front End Static Files
+      #routes[9]:
+        - id: astro_orb_static
+          uri: http://localhost:7013
+          predicates[0]: Path=/orb/**
 
 
   sleuth:

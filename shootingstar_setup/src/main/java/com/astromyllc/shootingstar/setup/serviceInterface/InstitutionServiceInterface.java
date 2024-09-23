@@ -20,6 +20,7 @@ public interface InstitutionServiceInterface {
     public Optional<List<InstitutionResponse>> getAllInstitutionByCity(String city);
     public Optional<List<InstitutionResponse>> getAllInstitutionByRegion(String region);
     public  Optional<List<InstitutionResponse>> getAllInstitutionByPackage(String subscription);
+    public InstitutionResponse migratePreOrder(String institutionCode);
 
     Optional<List<PreOrderInstitutionResponse>> getAllPreOrderedInstitution();
 }

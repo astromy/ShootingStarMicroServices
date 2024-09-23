@@ -5,8 +5,11 @@ import com.astromyllc.shootingstar.setup.dto.request.SubjectRequest;
 import com.astromyllc.shootingstar.setup.dto.response.SubjectResponse;
 import com.astromyllc.shootingstar.setup.model.Subject;
 import com.astromyllc.shootingstar.setup.repository.SubjectRepository;
+import com.astromyllc.shootingstar.setup.service.LookUpService;
+import com.astromyllc.shootingstar.setup.serviceInterface.LookupServiceInterface;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
@@ -18,6 +21,8 @@ import java.util.Optional;
 @Slf4j
 public class SubjectUtil {
     private final SubjectRepository subjectRepository;
+
+    private final LookUpService l;
     public static List<Subject> subjectGlobalList = null;
 
     @Bean
@@ -42,11 +47,12 @@ public class SubjectUtil {
     }
 
 
-    public static Optional<SubjectResponse> mapSubject_ToSubjectResponse(Subject s) {
+    public Optional<SubjectResponse> mapSubject_ToSubjectResponse(Subject s) {
         return Optional.ofNullable(SubjectResponse.builder()
                 .id(s.getIdSubject())
                 .classGroup(s.getClassGroup())
                 .name(s.getName())
+                .classGroupName(l.getLookUpById(s.getClassGroup()).get().get().getName())
                 .preference(s.getPreference())
                 .build());
     }

@@ -1,6 +1,11 @@
 server:
   port: 3017
 
+
+gateway:
+  host: ${APIGATEWAY:localhost:8083}
+
+
 logging:
   level:
     root: INFO

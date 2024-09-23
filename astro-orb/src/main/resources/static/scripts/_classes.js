@@ -1,14 +1,16 @@
 
-var instId = $("meta[name='institutionId']").attr("content");
 fetchInstitutionClasses(instId.split(",")[0]);
 
 
-    $('.saveClassGroup').click(async function() {
+    $('.saveClass').click(async function() {
 
                 postdata();
                 var jso= buildJson();
                 return HttpPost("addLookUps",jso)
                 .then(function(result){
+                $('#classTable').DataTable().destroy();
+                $('.dismissClass').click();
+                populateTable(result)
                     swal({
                            title: "Thank you!",
                            text: "Your application is being submitted",
@@ -17,7 +19,7 @@ fetchInstitutionClasses(instId.split(",")[0]);
                     })
                 });
 
-     
+
     function postdata(){
    var classGroup=[];
     classGroup= document.getElementsByClassName('newClassGrouptxt');
@@ -45,9 +47,7 @@ fetchInstitutionClasses(instId.split(",")[0]);
     v=v.replace(/\//g, '')
     var instRequest={"val":v}
     return  HttpPost("getInstitutionClasses",instRequest)
-     .then(function (result) {
-     fetchLookup(result);
-  })
+     .then(result => fetchLookup(result))
   }
 
     async function fetchLookup(result1){
@@ -60,17 +60,20 @@ fetchInstitutionClasses(instId.split(",")[0]);
     }
 
   function populateClassGroup(data){
-  data.forEach(function(d) {
-        var details="<option value='" + d.id + "'>" + d.name +" </option>"
-        $("#classGroupOptions").append(details);
-    });
+    data.forEach(function(d) {
+    var classOptions = document.getElementById("classOptions");
+    var option = document.createElement("option");
+                    option.value = d.id;
+                    option.textContent = d.name;
+                    classOptions.appendChild(option);
+        });
   }
 
   function populateTable(data){
 var bar = new Promise((resolve, reject) => {
   data.forEach((d,index, array) =>  {
         var details="<tr> <td hidden>" + d.id + " </td> <td> "+ d.name +"</td><td>"+ d.classGroup +"</td> </tr>"
-        $("#classesTableBody").append(details);
+        document.getElementById("classesTableBody").insertAdjacentHTML('beforeend', details);
         if (index === array.length -1) resolve();
         });
     });
@@ -83,7 +86,7 @@ var bar = new Promise((resolve, reject) => {
   function dataTableInit(){
     $('#classTable').dataTable({
        dom: "<'row'<'col-sm-4'l><'col-sm-4 text-center'B><'col-sm-4'f>>tp",
-       "lengthMenu": [[5,10, 25, 50, -1], [5,10, 25, 50, "All"]],
+       "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
        buttons: [
            { extend: 'copy', className: 'btn-sm' },
            { extend: 'csv', title: 'ExampleFile', className: 'btn-sm' },

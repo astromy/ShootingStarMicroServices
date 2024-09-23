@@ -30,20 +30,38 @@ public class LookUpService implements LookupServiceInterface {
 
     @Override
     public List<Optional<LookupResponse>> createLookups(List<LookupRequest> lookupRequestList) {
-        List<Lookup> lu=lookupRequestList.stream().map(l->lookupUtil.mapLookupRequest_ToLookup(l)).collect(Collectors.toList());
-        lookUpRepository.saveAll(lu);
-        lookupUtil.lookupGlobalList.addAll(lu);
-        return lu.stream().map(u->lookupUtil.mapLookUp_ToLookUpResponse(u)).collect(Collectors.toList());
+
+        List<Lookup> lu = lookupRequestList.stream()
+                .filter(c -> LookupUtil.lookupGlobalList.stream()
+                        .noneMatch(d -> c.getName().equals(d.getName()) && c.getType().equals(d.getType()))) // Filter out matching Lookup
+                .map(lookupUtil::mapLookupRequest_ToLookup) // Directly map remaining Lookups
+                .collect(Collectors.toList());
+
+        if (lu.size() > 0) {
+            lookUpRepository.saveAll(lu);
+            LookupUtil.lookupGlobalList.addAll(lu);
+        }
+            return lu.stream().map(lookupUtil::mapLookUp_ToLookUpResponse).collect(Collectors.toList());
+
     }
 
     @Override
     public List<Optional<LookupResponse>> getAllLookups() {
-        return lookupUtil.lookupGlobalList.stream().map(l->lookupUtil.mapLookUp_ToLookUpResponse(l)).collect(Collectors.toList());
+        return LookupUtil.lookupGlobalList.stream().map(lookupUtil::mapLookUp_ToLookUpResponse).collect(Collectors.toList());
     }
 
     @Override
     public List<Optional<LookupResponse>> getAllLookupsByType(SingleStringRequest lookupType1) {
         String lookupType= lookupType1.getVal();
-        return lookupUtil.lookupGlobalList.stream().filter(x->x.getType().equals(lookupType)).map(y->lookupUtil.mapLookUp_ToLookUpResponse(y)).collect(Collectors.toList());
+        return LookupUtil.lookupGlobalList.stream().filter(x->x.getType().equals(lookupType)).map(lookupUtil::mapLookUp_ToLookUpResponse).collect(Collectors.toList());
+    }
+
+    @Override
+    public Optional<Optional<LookupResponse>> getLookUpById(String id) {
+
+        return Optional.ofNullable(LookupUtil.lookupGlobalList.stream()
+                .filter(x->x.getIdLookup().toString().equals(id))
+                .findFirst().get())
+                .map(lookupUtil::mapLookUp_ToLookUpResponse);
     }
 }

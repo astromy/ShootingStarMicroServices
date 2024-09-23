@@ -1,3 +1,4 @@
+
 $(function () {
 
     let header = `
@@ -14,8 +15,6 @@ $(function () {
             <div class="hpanel">
                 <div class="panel-heading">
                     <div class="panel-tools">
-                        <a class="showhide"><i class="fa fa-chevron-up"></i></a>
-                        <a class="closebox"><i class="fa fa-times"></i></a>
                     </div>
                     Subjects
                 </div>
@@ -25,8 +24,8 @@ $(function () {
                             <tr>
                                 <th hidden></th>
                                 <th>Subject Name</th>
-                                <th>Class</th>
                                 <th>Class Group</th>
+                                <th>Subject Preference</th>
                             </tr>
                         </thead>
                         <tbody id="subjectTableBody"></tbody>
@@ -56,7 +55,7 @@ $(function () {
                         <div class="modal-footer">
                             <button type="button" class="btn btn-primary left test"><i class="fa fa-plus-square"><span style="margin-left:5px"/>Add More</i></button>
                             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-primary">Save changes</button>
+                            <button type="button" class="btn btn-primary saveSubjects">Save changes</button>
                         </div>
                     </div>
                 </div>
@@ -71,10 +70,14 @@ $(function () {
     document.getElementById("wrapper").insertAdjacentHTML('beforeend', subject);
     document.getElementsByClassName("test")[0].addEventListener("click", subjectIndut);
     document.getElementById("modalopn").addEventListener("click", modalopn);
+    createModalElements();
+    document.getElementsByClassName("modalbody")[0].appendChild(clonable);
+    document.getElementsByClassName("modalbody")[0].appendChild(clonable2);
 
     var script14 = document.createElement("script");
     script14.setAttribute("type", "text/javascript");
     script14.setAttribute("src", "scripts/_subjects.js");
+    script14.setAttribute("data-dynamic", "true");
     document.getElementsByTagName("body")[0].appendChild(script14);
 });
 
@@ -85,29 +88,93 @@ function modalopn(){
 }
 
 function subjectIndut() {
-    let div = `
-    <div class="row">
-        <div class="col-sm-4">
-            <div class="row">
-                <div class="col-md-12"><select class="form-control m-b" name="classGroup" id="subjectClassGroups">
-                <option>Select Class Group</option>
-                </select></div>
-            </div>
-        </div>
-        <div class="col-sm-4">
-            <div class="row">
-                <div class="col-md-12"><input type="text" placeholder="Enter Subject Name" class="form-control newclassestxt"></div>
-            </div>
-        </div>
-        <div class="col-sm-4">
-            <div class="row">
-                <div class="col-md-12"><input type="number" class="orm-control subjectPref" name="subjectPref"/></div>
-            </div>
-        </div>
-    </div>
-    <div class="hr-line-dashed"></div>`
-    document.getElementsByClassName("modalbody")[0].insertAdjacentHTML('beforeend', div);
+// Clone the elements with their child nodes (true means deep clone)
+    const clone1 = clonable.cloneNode(true);
+    const clone2 = clonable2.cloneNode(true);
+
+    // Append the cloned elements to the modal body
+    const modalBody = document.getElementsByClassName("modalbody")[0];
+    modalBody.appendChild(clone1);
+    modalBody.appendChild(clone2);
 }
+
+
+function createModalElements(){
+clonable=document.createElement("div");
+clonable.setAttribute("class", "row clonable");
+
+var el1=document.createElement("div");
+el1.setAttribute("class", "col-sm-4");
+
+var el2=document.createElement("div");
+el2.setAttribute("class", "row");
+
+var el3=document.createElement("div");
+el3.setAttribute("class", "col-md-12");
+
+var el4=document.createElement("select");
+el4.setAttribute("class", "form-control m-b classOption");
+el4.setAttribute("name", "classesgroups");
+el4.setAttribute("id", "classGroupOptions");
+
+var el5=document.createElement("option");
+el5.innerHTML=("Select Class Group");
+
+el4.appendChild(el5);   // Append default option to select
+    el3.appendChild(el4);   // Append select to col-md-12
+    el2.appendChild(el3);   // Append col-md-12 to inner row
+    el1.appendChild(el2);   // Append inner row to col-sm-4
+    clonable.appendChild(el1); // Append col-sm-4 to outer row (clonable)
+
+
+
+var ela=document.createElement("div");
+ela.setAttribute("class", "col-sm-4");
+
+var elb=document.createElement("div");
+elb.setAttribute("class", "row");
+
+var elc=document.createElement("div");
+elc.setAttribute("class", "col-md-12");
+
+var eld=document.createElement("input");
+eld.setAttribute("class", "form-control newSubjectTxt");
+eld.setAttribute("type", "text");
+eld.setAttribute("placeholder", "Enter Subject Name");
+
+
+    elc.appendChild(eld);   // Append input to col-md-12
+    elb.appendChild(elc);   // Append col-md-12 to inner row
+    ela.appendChild(elb);   // Append inner row to col-sm-4
+    clonable.appendChild(ela); // Append col-sm-4 to outer row (clonable)
+
+
+
+
+var eli=document.createElement("div");
+eli.setAttribute("class", "col-sm-4");
+
+var elii=document.createElement("div");
+elii.setAttribute("class", "row");
+
+var eliii=document.createElement("div");
+eliii.setAttribute("class", "col-md-12");
+
+var eliv=document.createElement("input");
+eliv.setAttribute("class", "form-control subjectPref");
+eliv.setAttribute("type", "number");
+eliv.setAttribute("placeholder", "Enter Subject Preference");
+
+
+    eliii.appendChild(eliv);   // Append input to col-md-12
+    elii.appendChild(eliii);   // Append col-md-12 to inner row
+    eli.appendChild(elii);   // Append inner row to col-sm-4
+    clonable.appendChild(eli); // Append col-sm-4 to outer row (clonable)
+
+clonable2=document.createElement("div");
+clonable2.setAttribute("class", "hr-line-dashed");
+}
+
 
 
 /*$(function () {
