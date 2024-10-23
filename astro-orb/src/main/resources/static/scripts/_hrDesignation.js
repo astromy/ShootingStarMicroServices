@@ -1,87 +1,150 @@
 
-var instId = $("meta[name='institutionId']").attr("content");
-fetchInstitutionClasses(instId.split(",")[0]);
+id="";
+fetchDepartment(instId.split(",")[0]);
 
 
-    $('.saveClassGroup').click(async function() {
+    window.copyrights();
 
-                postdata();
-                var jso= buildJson();
-                return HttpPost("addLookUps",jso)
+    $('.saveDesignation').click(async function() {
+                var jso= postdata();
+                return HttpPost("addDesignation",jso)
                 .then(function(result){
+                    $('#designationTable').DataTable().destroy();
+                    $('.dismissDesignation').click();
+                    populateDesignationTable(result)
                     swal({
                            title: "Thank you!",
-                           text: "Your application is being submitted",
+                           text: "Settings Save Successfully",
                            type: "success"
                       });
                     })
                 });
 
-     
+
     function postdata(){
-   var classGroup=[];
-    classGroup= document.getElementsByClassName('newClassGrouptxt');
-    for(var i=0;i<classGroup.length; i++){
-    name[i]=classGroup[i].value;
-    }
+        resultlist=[]
+        resultlist2=[];
+        let joDescriptionList=[];
+        joDescriptionList= document.getElementsByClassName('clonableJobDescription');
+
+        for(var i=0;i<joDescriptionList.length; i++){
+            var jsonObject={
+                            "idJobDescription":Number(id),
+                            "jobDescription":joDescriptionList[i].getElementsByClassName('newJobDescriptionTxt')[0].value
+                        };
+                    resultlist.push(jsonObject);
+        }
+        //for(var i=0;i<categoryList.length; i++){
+            var jsonObject2={
+                            "idDesignation":Number(id),
+                            "name":document.getElementsByClassName('newDesignationName')[0].value,
+                            "code":document.getElementsByClassName('newDesignationCode')[0].value,
+                            "jobDescriptionList":resultlist
+                             };
+                        debugger;
+                    resultlist2.push(jsonObject2);
+        //}
+            var v= instId.split(",")[0].replace(/[\[\]']+/g,'')
+                v=v.replace(/\//g, '')
+
+            var finalJsonObject={
+                    "institutionBECECode":v,
+                    "departmentId":document.getElementsByClassName('newDesignationDepartment')[0].value,
+                    "designationRequestDetails":resultlist2
+                };
+                debugger;
+            return finalJsonObject;
     }
 
-    function buildJson(){
-    var resultlist=[]
-    for(var i=0;i<name.length; i++){
-        var jsonObject={
-            "id":id,
-            "name":name[i],
-            "type":type
-        };
-        resultlist.push(jsonObject);
-      }
-        return resultlist
-    }
 
 
-  async function fetchInstitutionClasses(instId){
+/*  async function fetchInstitutionDesignations(instId){
     var v= instId.replace(/[\[\]']+/g,'')
     v=v.replace(/\//g, '')
     var instRequest={"val":v}
-    return  HttpPost("getInstitutionClasses",instRequest)
+    return  HttpPost("getDesignation",instRequest)
      .then(function (result) {
-     fetchLookup(result);
+     fetchDepartment(result);
   })
-  }
+  }*/
 
-    async function fetchLookup(result1){
-      var instRequest={"val":"ClassGroup"}
-      return  HttpPost("getLookUpByType",instRequest)
+    async function fetchDepartment(instId){
+      var v= instId.split(",")[0].replace(/[\[\]']+/g,'')
+          v=v.replace(/\//g, '')
+          var instRequest={"val":v}
+      return  HttpPost("getInstitutionDepartment",instRequest)
        .then(function (result) {
-         populateTable(result1)
-         populateClassGroup(result)
+         populateDepartment(result)
+         populateTable(result)
     })
     }
 
-  function populateClassGroup(data){
-  data.forEach(function(d) {
-        var details="<option value='" + d.id + "'>" + d.name +" </option>"
-        $("#classGroupOptions").append(details);
-    });
+  function populateDepartment(data){
+  var n=document.getElementsByClassName("newDesignationDepartment");
+    data.forEach(function(d) {
+        var classOptions = document.getElementsByClassName("newDesignationDepartment")[0];
+        var option = document.createElement("option");
+                        option.value = d.idDepartment;
+                        option.textContent = d.name;
+                        classOptions.appendChild(option);
+            });
   }
 
   function populateTable(data){
-var bar = new Promise((resolve, reject) => {
-  data.forEach((d,index, array) =>  {
-        var details="<tr> <td hidden>" + d.id + " </td> <td> "+ d.name +"</td><td>"+ d.classGroup +"</td> </tr>"
-        $("#classesTableBody").append(details);
-        if (index === array.length -1) resolve();
+  $("#designationTableBody").empty();
+
+  if(data!=null){
+    var bar = new Promise((resolve, reject) => {
+        data.forEach((d,index, array) =>  {
+
+            d.designationList.forEach((dl,index1, array1) =>  {
+                var details="<tr id="+ dl.code +"> <td>" + dl.name + " </td> <td> "+ dl.code +"</td>  </tr>"
+                $("#designationTableBody").append(details);
+                if (index1 === array1.length -1) resolve();
+            });
         });
     });
     bar.then(() => {
         console.log('All done!');
         dataTableInit();
     });
+    }
    }
 
+
+
+
+  function populateDesignationTable(data){
+  $("#designationTableBody").empty();
+
+  if(data!=null){
+    var bar = new Promise((resolve, reject) => {
+        data.forEach((d,index, array) =>  {
+            var details="<tr id="+ d.code +"> <td>" + d.name + " </td> <td> "+ d.code +"</td>  </tr>"
+            $("#designationTableBody").append(details);
+            if (index === array.length -1) resolve();
+        });
+    });
+    bar.then(() => {
+        console.log('All done!');
+        dataTableInit();
+    });
+    }
+   }
+
+
+
   function dataTableInit(){
-    $('#classTable').dataTable();
+    $('#designationTable').dataTable({
+         dom: "<'row'<'col-sm-4'l><'col-sm-4 text-center'B><'col-sm-4'f>>tp",
+         "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+         buttons: [
+             { extend: 'copy', className: 'btn-sm' },
+             { extend: 'csv', title: 'Designation Details', className: 'btn-sm' },
+             { extend: 'pdf', title: 'Designation Details', className: 'btn-sm' },
+             { extend: 'print', className: 'btn-sm' }
+         ]
+     });
 
   }
 

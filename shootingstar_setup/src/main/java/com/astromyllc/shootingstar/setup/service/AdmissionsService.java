@@ -1,10 +1,14 @@
 package com.astromyllc.shootingstar.setup.service;
 
 import com.astromyllc.shootingstar.setup.dto.request.AdmissionsEntryRequest;
-import com.astromyllc.shootingstar.setup.dto.request.AdmissionsRequest;
 import com.astromyllc.shootingstar.setup.dto.request.SingleStringRequest;
 import com.astromyllc.shootingstar.setup.dto.response.AdmissionsResponse;
+import com.astromyllc.shootingstar.setup.model.AdmissionCriteria;
 import com.astromyllc.shootingstar.setup.model.Admissions;
+import com.astromyllc.shootingstar.setup.model.ApplicationCategory;
+import com.astromyllc.shootingstar.setup.model.Institution;
+import com.astromyllc.shootingstar.setup.repository.AdmissionsRepository;
+import com.astromyllc.shootingstar.setup.repository.InstitutionRepository;
 import com.astromyllc.shootingstar.setup.serviceInterface.AdmissionsServiceInterface;
 import com.astromyllc.shootingstar.setup.utils.AdmissionUtil;
 import com.astromyllc.shootingstar.setup.utils.InstitutionUtils;
@@ -23,12 +27,30 @@ import java.util.stream.Collectors;
 @Transactional
 public class AdmissionsService implements AdmissionsServiceInterface {
     private final AdmissionUtil admissionUtil;
+    private final AdmissionsRepository admissionsRepository;
+    private final InstitutionRepository institutionRepository;
 
     @Override
     public Optional<AdmissionsResponse> createAdmissionSetup(AdmissionsEntryRequest admissionsRequest) {
-        Admissions admissions=AdmissionUtil.mapAdmissionRequestToAdmission(admissionsRequest.getAdmissionList());
-        InstitutionUtils.institutionGlobalList.stream().filter(i -> i.getBececode().equals(admissionsRequest.getInstitutioin())).findFirst().get().setAdmissions(admissions);
-        return AdmissionUtil.mapAdmissionToAdmissionResponse(admissions);
+        //admissionsRepository.save(admissions);
+        Institution inst= InstitutionUtils.institutionGlobalList.stream().filter(i -> i.getBececode().equalsIgnoreCase(admissionsRequest.getInstitution())).findFirst().get();
+
+        // Get existiting criteria and categories and add to them
+        Admissions existingAdmission=inst.getAdmissions();
+        if(existingAdmission!=null) {
+            if (admissionsRequest.getAdmissionList().getAdmissionCriteriaList().size() > 0) {
+                inst.getAdmissions().getAdmissionCriteriaList().addAll(admissionsRequest.getAdmissionList().getAdmissionCriteriaList().stream().map(AdmissionUtil::mapCriteriaRequestToCriteria).toList());
+            }
+            if (admissionsRequest.getAdmissionList().getApplicationCategoryList().size() > 0) {
+                inst.getAdmissions().getApplicationCategoryList().addAll(admissionsRequest.getAdmissionList().getApplicationCategoryList().stream().map(AdmissionUtil::mapCategoryRequestToCategory).toList());
+            }
+        }else {
+            Admissions admissions=AdmissionUtil.mapAdmissionRequestToAdmission(admissionsRequest.getAdmissionList());
+            inst.setAdmissions(admissions);
+        }
+        institutionRepository.save(inst);
+
+        return AdmissionUtil.mapAdmissionToAdmissionResponse(inst.getAdmissions());
     }
 
     @Override
@@ -49,6 +71,11 @@ public class AdmissionsService implements AdmissionsServiceInterface {
 
     @Override
     public Optional<AdmissionsResponse> getAllAdmissionSetupByInstitution(SingleStringRequest beceCode) {
-        return AdmissionUtil.mapAdmissionToAdmissionResponse(InstitutionUtils.institutionGlobalList.stream().filter(i -> i.getBececode().equals(beceCode.getVal())).findFirst().get().getAdmissions());
+        Optional<AdmissionsResponse> admissionsResponse= AdmissionUtil.mapAdmissionToAdmissionResponse(
+                InstitutionUtils.institutionGlobalList.stream()
+                        .filter(i -> i.getBececode().equalsIgnoreCase(beceCode.getVal()))
+                        .findFirst().get()
+                        .getAdmissions());
+        return admissionsResponse;
     }
 }

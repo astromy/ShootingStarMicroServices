@@ -26,7 +26,7 @@ public class ApplicationRequest {
     @NonNull
     private String applicantCountryOfBirth;
     @NonNull
-    private String applicantNationality;
+    private String applicantResidencetialLocality;
     @NonNull
     private String applicantPicture;
     @NonNull

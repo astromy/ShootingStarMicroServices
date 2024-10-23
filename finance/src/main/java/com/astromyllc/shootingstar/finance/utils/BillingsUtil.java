@@ -31,30 +31,24 @@ public class BillingsUtil {
     }
 
 
-    public Billings mapBillingRequest_ToBilling(BillingsRequest billingsRequest) {
+    public Billings mapBillingRequest_ToBilling(String inst, String studClass, String term, Double amnt,Double billBal, String billDesc, String billName, String student) {
         return Billings.builder()
-                .billingDate(LocalDateTime.parse(billingsRequest.getBillingDate(), formatter))
-                .institutionCode(billingsRequest.getInstitutionCode())
-                .billamnt(billingsRequest.getBillamnt())
-                .billamntbal(billingsRequest.getBillamntbal())
-                .BillDisc(billingsRequest.getBillDisc())
-                .term(billingsRequest.getTerm())
-                .studentClass(billingsRequest.getStudentClass())
-                .billname(billingsRequest.getBillname())
-                .studentId(billingsRequest.getStudentId())
+                //.billingDate(LocalDateTime.parse(billingsRequest.getBillingDate(), formatter))
+                .billingDate(LocalDateTime.now())
+                .institutionCode(inst)
+                .billamnt(amnt)
+                .billamntbal(billBal)
+                .BillDisc(billDesc)
+                .term(term)
+                .studentClass(studClass)
+                .billname(billName)
+                .studentId(student)
                 .build();
     }
 
     public Billings mapBillingRequest_ToBilling(BillingsRequest billingsRequest, Billings billings) {
-        billings.setBillingDate(LocalDateTime.parse(billingsRequest.getBillingDate(), formatter));
-        billings.setInstitutionCode(billingsRequest.getInstitutionCode());
-        billings.setBillamnt(billingsRequest.getBillamnt());
-        billings.setBillamntbal(billingsRequest.getBillamntbal());
-        billings.setBillDisc(billingsRequest.getBillDisc());
-        billings.setTerm(billingsRequest.getTerm());
-        billings.setStudentClass(billingsRequest.getStudentClass());
-        billings.setBillname(billingsRequest.getBillname());
-        billings.setStudentId(billingsRequest.getStudentId());
+
+        //billings.setBillamntbal(billingsRequest.getBillamntbal());
         return billings;
     }
 

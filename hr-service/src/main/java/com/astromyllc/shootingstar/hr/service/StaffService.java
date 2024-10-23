@@ -35,7 +35,7 @@ public class StaffService implements StaffServiceInterface {
 
     @Override
     public StaffResponse createStaff(StaffRequest staffRequest) throws IOException, URISyntaxException {
-        Optional<Staff> staff = staffUtil.staffGlobalList.stream().filter(s -> s.getInstitutionCode().equals(staffRequest.getInstitutionCode())).findFirst();
+        Optional<Staff> staff = staffUtil.staffGlobalList.stream().filter(s -> s.getInstitutionCode().equalsIgnoreCase(staffRequest.getInstitutionCode())).findFirst();
         if (staff.isEmpty()) {
             Staff newStaff = staffUtil.mapStaffRequest_ToStaff(staffRequest);
             staffRepository.save(newStaff);
@@ -65,7 +65,7 @@ public class StaffService implements StaffServiceInterface {
 
     @Override
     public StaffResponse getStaffByCode(StaffCodeRequest staffCode) throws URISyntaxException, IOException {
-        Optional<Staff> staff = staffUtil.staffGlobalList.stream().filter(s -> s.getInstitutionCode().equals(staffCode.getInstitutionCode()) && s.getStaffCode().equals(staffCode.getStaffCode())).findFirst();
+        Optional<Staff> staff = staffUtil.staffGlobalList.stream().filter(s -> s.getInstitutionCode().equalsIgnoreCase(staffCode.getInstitutionCode()) && s.getStaffCode().equalsIgnoreCase(staffCode.getStaffCode())).findFirst();
        if(!staff.isEmpty()) {
          return  staffUtil.mapStaff_ToStaffResponse(staff.get());
        }

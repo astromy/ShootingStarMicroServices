@@ -30,22 +30,24 @@ public class DepartmentService implements DepartmentServiceInterface {
     private final DepartmentRepository departmentRepository;
     private final DepartmentUtil departmentUtil;
     @Override
-    public void createDepartments(DepartmentRequest departmentRequest) {
-        Optional<Institution> inst=institutionUtils.institutionGlobalList.stream().filter(x->x.getBececode().equals(departmentRequest.getInstitution())).findFirst();
-        List<DepartmentDetails> sl=departmentRequest.getDepartmentDetailsList().stream().filter(ci->ci.getIdDepartment()==null).collect(Collectors.toList());
-        if(sl.isEmpty()){
-            List<Department> dl1= (List<Department>) departmentRequest.getDepartmentDetailsList().stream().map(c -> departmentUtil.mapDepartmentRequest_ToDepartment(c, (Department) departmentUtil.departmentGlobalList.stream().filter(x->x.getIdDepartment().equals(c.getIdDepartment()))));
-            departmentRepository.saveAll(dl1);
-        }else {
-            inst.get().setDepartmentList((List<Department>) sl.stream().map(c -> departmentUtil.mapDepartmentRequest_ToDepartment(c)));
-            institutionRepository.save(inst.get());
-        }
+    public Optional<List<Optional<DepartmentResponse>>> createDepartments(DepartmentRequest departmentRequest) {
+        Optional<Institution> inst=institutionUtils.institutionGlobalList.stream().filter(x->x.getBececode().equalsIgnoreCase(departmentRequest.getInstitution())).findFirst();
+        List<Department> dl=inst.get().getDepartmentList();
+        dl.addAll(departmentRequest.getDepartmentDetailsList().stream().map(DepartmentUtil::mapDepartmentRequest_ToDepartment).toList());
+        inst.get().setDepartmentList(dl);
+        institutionRepository.save(inst.get());
+        Optional<List<Optional<DepartmentResponse>>> dr= Optional.ofNullable(inst.get().getDepartmentList().stream().map(s->departmentUtil.mapDepartment_ToDepartmentResponse(s)).collect(Collectors.toList()));
+        return dr;
 
     }
 
     @Override
-    public List<Optional<DepartmentResponse>> getDepartmentByInstitution(SingleStringRequest beceCode) {
+    public Optional<List<Optional<DepartmentResponse>>> getDepartmentByInstitution(SingleStringRequest beceCode) {
         String finalBeceCode= beceCode.getVal();
-        return institutionUtils.institutionGlobalList.stream().filter(i->i.getBececode().equals(finalBeceCode)).findFirst().get().getDepartmentList().stream().map(x->departmentUtil.mapDepartment_ToDepartmentResponse(x)).collect(Collectors.toList());
+        return Optional.ofNullable(institutionUtils.institutionGlobalList.stream()
+                .filter(i->i.getBececode().equalsIgnoreCase(finalBeceCode))
+                .findFirst().get()
+                .getDepartmentList().stream()
+                .map(x->departmentUtil.mapDepartment_ToDepartmentResponse(x)).collect(Collectors.toList()));
     }
 }

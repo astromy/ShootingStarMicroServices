@@ -1,43 +1,60 @@
-
 package com.astromyllc.astroorb.config;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.session.SessionRegistryImpl;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.oauth2.client.oidc.web.logout.OidcClientInitiatedLogoutSuccessHandler;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
-import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.stereotype.Component;
-
-import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
-@EnableWebSecurity
-@RequiredArgsConstructor
-@Component
 public class SecurityConfig {
 
     @Bean
-    protected SessionAuthenticationStrategy sessionAuthenticationStrategy() {
-        return new RegisterSessionAuthenticationStrategy(new SessionRegistryImpl());
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, ClientRegistrationRepository clientRegistrationRepository) throws Exception {
+        http
+                // OAuth2 Login configuration using Keycloak
+                .oauth2Login(oauth2 -> oauth2
+                        .loginPage("/oauth2/authorization/ShootingStar")
+                )
+                // Logout configuration
+                .logout(logout -> logout
+                        .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+                        .logoutSuccessHandler(oidcLogoutSuccessHandler(clientRegistrationRepository))
+                        .invalidateHttpSession(true)
+                        .clearAuthentication(true)
+                )
+                // Handle unauthorized access by redirecting to the login page
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
+                )
+                // Authorize requests
+                .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers("/public/**", "/resources/**").permitAll()  // Use requestMatchers instead of antMatchers
+                        .anyRequest().authenticated()
+                )
+                // Session management to handle expired sessions
+                .sessionManagement(session -> session
+                        .sessionFixation().newSession()
+                        .invalidSessionUrl("/oauth2/authorization/ShootingStar")  // Redirect to login when session expires
+                );
+        ;
+
+        return http.build();
     }
 
-    @Bean
-    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
-        return http.getSharedObject(AuthenticationManagerBuilder.class)
-                .build();
+    // OIDC logout handler to redirect to Keycloak's logout endpoint
+    private LogoutSuccessHandler oidcLogoutSuccessHandler(ClientRegistrationRepository clientRegistrationRepository) {
+        OidcClientInitiatedLogoutSuccessHandler oidcLogoutSuccessHandler =
+                new OidcClientInitiatedLogoutSuccessHandler(clientRegistrationRepository);
+
+        // Specify the post-logout redirect URI
+        oidcLogoutSuccessHandler.setPostLogoutRedirectUri("http://localhost:7013");
+
+        return oidcLogoutSuccessHandler;
     }
 }
-

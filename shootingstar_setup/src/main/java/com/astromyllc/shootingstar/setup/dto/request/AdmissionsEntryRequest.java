@@ -5,13 +5,11 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Data
 public class AdmissionsEntryRequest {
-    private String institutioin;
+    private String institution;
     private AdmissionsRequest admissionList;
 }

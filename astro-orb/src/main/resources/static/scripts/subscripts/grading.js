@@ -22,19 +22,35 @@ $(function () {
             Grading
         </div>
         <div class="panel-body">
+        <div class="row" style="margin-bottom:12px">
             <table id="gradingTable" class="table table-striped table-bordered table-hover" width="100%">
                 <thead>
                 <tr>
-                    <th>Name</th>
-                    <th>Position</th>
-                    <th>Office</th>
-                    <th width="15%">Age</th>
-                    <th width="15%">Start date</th>
-                    <th width="15%">Salary</th>
+                    <th hidden></th>
+                    <th class="col-md-3">Class Percentage</th>
+                    <th class="col-md-3">Exams Percentage</th>
+                    <th class="col-md-3">Trailing Mark</th>
+                    <th class="col-md-3">Allowed Trails</th>
                 </tr>
                 </thead>
-            </table>
+                <tbody  id="gradingSettingsBody" style="margin-bottom:12px"></tbody>
 
+            </table>
+        </div>
+        <div class="row" style="margin-top:12px">
+            <table id="gradingTable2" class="table table-striped table-bordered table-hover" width="100%">
+                <thead>
+                    <tr>
+                        <th hidden></th>
+                        <th class="col-sm-3">Upper Limit</th>
+                        <th class="col-sm-3">Lower Limit</th>
+                        <th class="col-sm-3">Grade</th>
+                        <th class="col-sm-3">Comment</th>
+                    </tr>
+                </thead>
+                <tbody id="gradingBracketsBody"> </tbody>
+            </table>
+            </div>
         </div>
     </div>
     
@@ -69,13 +85,23 @@ $(function () {
                     <div class="modal-footer">
                         <!--<button type="button" class="btn btn-primary left test"><i class="fa fa-plus-square"><span style="margin-left:5px"/>Add More Criteria</i></button>-->
                         <button type="button" class="btn btn-primary left test"><i class="fa fa-plus-square"><span style="margin-left:5px"/>Add More Grade Brackets</i></button>
-                        <button type="button" class="btn btn-default"data-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary">Save changes</button>
+                        <button type="button" class="btn btn-default dismissGrading"data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary saveGrading">Save changes</button>
                     </div>
                 </div>
              </div>
         </div>
     </div>
+
+
+      <!-- Footer-->
+        <footer class="footer">
+            <span class="pull-right">
+                ORB
+            </span>
+            <span class="fa fa-copyright"></span>
+            Astromy LLC 2013-<span id="copyrightYear"></span>
+        </footer>
     `
 
 
@@ -87,10 +113,10 @@ $(function () {
     //document.getElementsByClassName("test")[1].addEventListener("click", gradebrackets);
     document.getElementById("modalopn").addEventListener("click", modalopn);
 
-    /*var script14 = document.createElement("script");
+    var script14 = document.createElement("script");
     script14.setAttribute("type", "text/javascript");
-    script14.setAttribute("src", "scripts/preorder.js");
-    document.getElementsByTagName("body")[0].appendChild(script14);*/
+    script14.setAttribute("src", "scripts/_grading.js");
+    document.getElementsByTagName("body")[0].appendChild(script14);
 });
 
 //document.getElementById("institution").addEventListener("click", institutionBuild);
@@ -103,31 +129,31 @@ function modalopn(){
 
 function gradesettings() {
     let div = `
-    <div class="row">
+    <div class="row gradeSettings">
 
         <div class="col-sm-3">
             <div class="row">
                 <div class="col-md-12">
-                    <input type="number" placeholder="Class Percentage" class="form-control newclassestxt">
+                    <input type="number" placeholder="Class Percentage" class="form-control newClassPercentage">
                 </div>
             </div>
         </div>
         <div class="col-sm-3">
             <div class="row">
-                <div class="col-md-12"><input type="number" placeholder="Exams Percentage" class="form-control newcriteriaValue"></div>
+                <div class="col-md-12"><input type="number" placeholder="Exams Percentage" class="form-control newExamsPercentage"></div>
             </div>
         </div>
         <div class="col-sm-3">
             <div class="row">
                 <div class="col-md-12">
-                    <input type="number" placeholder="Trailling Mark" class="form-control newclassestxt">
+                    <input type="number" placeholder="Trailing Mark" class="form-control newTrailingMark">
                 </div>
             </div>
         </div>
         <div class="col-sm-3">
             <div class="row">
                 <div class="col-md-12">
-                    <input type="number" placeholder="Allowed Trails" class="form-control newclassestxt">
+                    <input type="number" placeholder="Allowed Trails" class="form-control newAllowedTrails">
                 </div>
             </div>
         </div>
@@ -138,23 +164,23 @@ function gradesettings() {
 
 function gradebrackets() {
     let div = `
-    <div class="row">
+    <div class="row gradeBrackets">
 
         <div class="col-sm-4">
             <div class="row">
-                <div class="col-md-12"><input type="number" placeholder="Lower Limit" class="form-control newclassestxt"></div>
+                <div class="col-md-12"><input type="number" placeholder="Lower Limit" class="form-control lowerLimit"></div>
             </div>
         </div>
 
         <div class="col-sm-4">
             <div class="row">
-            <div class="col-md-12"><input type="text" placeholder="Grade" class="form-control newclassestxt"></div>
+            <div class="col-md-12"><input type="text" placeholder="Grade" class="form-control grade"></div>
             </div>
         </div>
 
         <div class="col-sm-4">
             <div class="row">
-            <div class="col-md-12"><input type="text" placeholder="Comment" class="form-control newclassestxt"></div>
+            <div class="col-md-12"><input type="text" placeholder="Comment" class="form-control comment"></div>
             </div>
         </div>
     </div>
@@ -162,18 +188,3 @@ function gradebrackets() {
     document.getElementsByClassName("modalbody")[1].insertAdjacentHTML('beforeend', div);
 }
 
-$(function () {
-
-    // Initialize Example 1
-    $('#gradingTable').dataTable({
-        "ajax": 'api/datatables.json',
-        dom: "<'row'<'col-sm-4'l><'col-sm-4 text-center'B><'col-sm-4'f>>tp",
-        "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
-        buttons: [
-            { extend: 'copy', className: 'btn-sm' },
-            { extend: 'csv', title: 'ExampleFile', className: 'btn-sm' },
-            { extend: 'pdf', title: 'ExampleFile', className: 'btn-sm' },
-            { extend: 'print', className: 'btn-sm' }
-        ]
-    });
-});

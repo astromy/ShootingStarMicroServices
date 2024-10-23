@@ -24,7 +24,7 @@ public class SelectedExamQuestionsService implements SelectedExamQuestionsServic
 
     @Override
     public List<Optional<SelectedExamQuestionsResponse>> fetchSelectedQuestionsByClassAndTerm(ExamsQuestionsRequest examsQuestionsRequest) {
-        return selectedExamQuestionsUtil.selectedExamQuestionsGlobalList.stream().filter(se->se.getClassId().equals(examsQuestionsRequest.getClassId()) && se.getTerm().equals(examsQuestionsRequest.getTerm())).map(s->selectedExamQuestionsUtil.mapSelectedExamsQuestion_ToSelectedExamsQuestionResponse(s)).collect(Collectors.toList());
+        return selectedExamQuestionsUtil.selectedExamQuestionsGlobalList.stream().filter(se->se.getClassId().equalsIgnoreCase(examsQuestionsRequest.getClassId()) && se.getTerm().equalsIgnoreCase(examsQuestionsRequest.getTerm())).map(s->selectedExamQuestionsUtil.mapSelectedExamsQuestion_ToSelectedExamsQuestionResponse(s)).collect(Collectors.toList());
     }
 
     @Override

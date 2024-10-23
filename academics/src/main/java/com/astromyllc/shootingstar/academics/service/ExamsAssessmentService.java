@@ -46,9 +46,9 @@ public class ExamsAssessmentService implements ExamsAssessmentServiceInterface {
     @Override
     public List<Optional<ExamsAssessmentResponse>> getExamsAssessmentByStudent(ExamsAssessmentRequest examsAssessmentRequest) {
         List <ExamsAssessment> ea=examsAssessmentUtil.examsAssessmentGlobalList.stream().filter(
-                car->car.getStudentId().equals(examsAssessmentRequest.getStudentId())
+                car->car.getStudentId().equalsIgnoreCase(examsAssessmentRequest.getStudentId())
                         && car.getSubject().equals(examsAssessmentRequest.getSubject())
-                        && car.getTerm().equals(examsAssessmentRequest.getTerm())
+                        && car.getTerm().equalsIgnoreCase(examsAssessmentRequest.getTerm())
                         && car.getDateTime().toLocalDate().equals(LocalDateTime.parse(examsAssessmentRequest.getDateTime(),formatter).toLocalDate())).collect(Collectors.toList());
         return ea.stream().map(car->examsAssessmentUtil.mapExamsAssessment_ToExamsAssessmentResponse(car)).collect(Collectors.toList());
     }
@@ -57,7 +57,7 @@ public class ExamsAssessmentService implements ExamsAssessmentServiceInterface {
     public List<Optional<ExamsAssessmentResponse>> getExamsAssessmentByClass(ExamsAssessmentRequest examsAssessmentRequest) {
         List <ExamsAssessment> ea=examsAssessmentUtil.examsAssessmentGlobalList.stream().filter(
                 car->car.getSubject().equals(examsAssessmentRequest.getSubject())
-                        && car.getTerm().equals(examsAssessmentRequest.getTerm())
+                        && car.getTerm().equalsIgnoreCase(examsAssessmentRequest.getTerm())
                         && car.getDateTime().toLocalDate().equals(LocalDateTime.parse(examsAssessmentRequest.getDateTime(),formatter).toLocalDate())).collect(Collectors.toList());
         return ea.stream().map(ear->examsAssessmentUtil.mapExamsAssessment_ToExamsAssessmentResponse(ear)).collect(Collectors.toList());
     }
@@ -70,9 +70,9 @@ public class ExamsAssessmentService implements ExamsAssessmentServiceInterface {
     @Override
     public List<List<Optional<ExamsAssessmentResponse>>> fetchExamsAssessmentsForStudentPerTerm(List<ExamsAssessmentRequest> examsAssessmentRequest) {
         List<List<Optional<ExamsAssessmentResponse>>> eax= examsAssessmentRequest.stream().map(e->examsAssessmentUtil.examsAssessmentGlobalList.stream().filter(
-                ea->e.getStudentId().equals(ea.getStudentId())
-                && e.getAcademicYear().equals(ea.getAcademicYear())
-                && e.getTerm().equals(ea.getTerm())
+                ea->e.getStudentId().equalsIgnoreCase(ea.getStudentId())
+                && e.getAcademicYear().equalsIgnoreCase(ea.getAcademicYear())
+                && e.getTerm().equalsIgnoreCase(ea.getTerm())
         ).map(r->examsAssessmentUtil.mapExamsAssessment_ToExamsAssessmentResponse(r)).collect(Collectors.toList())).collect(Collectors.toList());
         return eax;
     }
@@ -85,8 +85,8 @@ public class ExamsAssessmentService implements ExamsAssessmentServiceInterface {
     @Override
     public List<List<Optional<ExamsAssessmentResponse>>> fetchExamsAssessmentsForStudentPerAcademicYear(List<ExamsAssessmentRequest> examsAssessmentRequest) {
         List<List<Optional<ExamsAssessmentResponse>>> eax= examsAssessmentRequest.stream().map(e->examsAssessmentUtil.examsAssessmentGlobalList.stream().filter(
-                ea->e.getStudentId().equals(ea.getStudentId())
-                        && e.getAcademicYear().equals(ea.getAcademicYear())
+                ea->e.getStudentId().equalsIgnoreCase(ea.getStudentId())
+                        && e.getAcademicYear().equalsIgnoreCase(ea.getAcademicYear())
         ).map(r->examsAssessmentUtil.mapExamsAssessment_ToExamsAssessmentResponse(r)).collect(Collectors.toList())).collect(Collectors.toList());
         return eax;
     }
@@ -99,7 +99,7 @@ public class ExamsAssessmentService implements ExamsAssessmentServiceInterface {
     @Override
     public List<List<Optional<ExamsAssessmentResponse>>> fetchStudentProgressionReport(List<ExamsAssessmentRequest> examsAssessmentRequest) {
         List<List<Optional<ExamsAssessmentResponse>>> eax= examsAssessmentRequest.stream().map(e->examsAssessmentUtil.examsAssessmentGlobalList.stream().filter(
-                ea->e.getStudentId().equals(ea.getStudentId())
+                ea->e.getStudentId().equalsIgnoreCase(ea.getStudentId())
         ).map(r->examsAssessmentUtil.mapExamsAssessment_ToExamsAssessmentResponse(r)).collect(Collectors.toList())).collect(Collectors.toList());
         return eax;
     }
@@ -112,9 +112,9 @@ public class ExamsAssessmentService implements ExamsAssessmentServiceInterface {
     @Override
     public List<List<Optional<ExamsAssessmentResponse>>> fetchExamsAssessmentsForClassPerTerm(List<ExamsAssessmentRequest> examsAssessmentRequest) {
         List<List<Optional<ExamsAssessmentResponse>>> eax= examsAssessmentRequest.stream().map(e->examsAssessmentUtil.examsAssessmentGlobalList.stream().filter(
-                ea->e.getStudentClass().equals(ea.getStudentClass())
-                        && e.getAcademicYear().equals(ea.getAcademicYear())
-                        && e.getTerm().equals(ea.getTerm())
+                ea->e.getStudentClass().equalsIgnoreCase(ea.getStudentClass())
+                        && e.getAcademicYear().equalsIgnoreCase(ea.getAcademicYear())
+                        && e.getTerm().equalsIgnoreCase(ea.getTerm())
         ).map(r->examsAssessmentUtil.mapExamsAssessment_ToExamsAssessmentResponse(r)).collect(Collectors.toList())).collect(Collectors.toList());
         return eax;
     }
@@ -127,8 +127,8 @@ public class ExamsAssessmentService implements ExamsAssessmentServiceInterface {
     @Override
     public List<List<Optional<ExamsAssessmentResponse>>> fetchExamsAssessmentsForClassPerAcademicYear(List<ExamsAssessmentRequest> examsAssessmentRequest) {
         List<List<Optional<ExamsAssessmentResponse>>> eax= examsAssessmentRequest.stream().map(e->examsAssessmentUtil.examsAssessmentGlobalList.stream().filter(
-                ea->e.getStudentClass().equals(ea.getStudentClass())
-                        && e.getAcademicYear().equals(ea.getAcademicYear())
+                ea->e.getStudentClass().equalsIgnoreCase(ea.getStudentClass())
+                        && e.getAcademicYear().equalsIgnoreCase(ea.getAcademicYear())
         ).map(r->examsAssessmentUtil.mapExamsAssessment_ToExamsAssessmentResponse(r)).collect(Collectors.toList())).collect(Collectors.toList());
         return eax;
     }
@@ -141,7 +141,7 @@ public class ExamsAssessmentService implements ExamsAssessmentServiceInterface {
     @Override
     public List<List<Optional<ExamsAssessmentResponse>>> fetchPerformance(List<ExamsAssessmentRequest> examsAssessmentRequest) {
         List<List<Optional<ExamsAssessmentResponse>>> eax= examsAssessmentRequest.stream().map(e->examsAssessmentUtil.examsAssessmentGlobalList.stream().filter(
-                ea->e.getStudentClass().equals(ea.getStudentClass())
+                ea->e.getStudentClass().equalsIgnoreCase(ea.getStudentClass())
         ).map(r->examsAssessmentUtil.mapExamsAssessment_ToExamsAssessmentResponse(r)).collect(Collectors.toList())).collect(Collectors.toList());
         return eax;
     }

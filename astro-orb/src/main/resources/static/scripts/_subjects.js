@@ -7,15 +7,18 @@ resultlist=[];
 fetchInstitutionSubject(instId.split(",")[0]);
 
 
+    window.copyrights();
+
     $('.saveSubjects').click(async function() {
-
-
-                var jso=  postdata(); //buildJson();
+                var jso=  postdata();
                 return HttpPost("addSubjects",jso)
                 .then(function(result){
+                $('#subjectTable').DataTable().destroy();
+                $('.dismissSubject').click();
+                populateTable(result)
                     swal({
                            title: "Thank you!",
-                           text: "Your application is being submitted",
+                           text: "Subject Saved Successfully",
                            type: "success"
                       });
                     })
@@ -24,6 +27,7 @@ fetchInstitutionSubject(instId.split(",")[0]);
 
     function postdata(){
    let subjects=[];
+    resultlist=[];
     subjects= document.getElementsByClassName('clonable');
     for(var i=0;i<subjects.length; i++){
     var c =subjects[i].getElementsByClassName('classOptions')[0];
@@ -44,17 +48,6 @@ fetchInstitutionSubject(instId.split(",")[0]);
     return finalJsonObject;
     }
 
-    function buildJson(){
-    for(var i=0;i<name.length; i++){
-        var jsonObject={
-            "id":id,
-            "name":name[i],
-            "type":type
-        };
-        resultlist.push(jsonObject);
-      }
-        return resultlist
-    }
 
 
   async function fetchInstitutionSubject(instId){
@@ -94,8 +87,9 @@ fetchInstitutionSubject(instId.split(",")[0]);
   }
 
   function populateTable(data){
-var bar = new Promise((resolve, reject) => {
-  data.forEach((d,index, array) =>  {
+    $("#subjectTableBody").empty();
+    var bar = new Promise((resolve, reject) => {
+    data.forEach((d,index, array) =>  {
         var details="<tr> <td hidden>" + d.id + " </td> <td> "+ d.name +"</td><td>"+ d.classGroupName +"</td><td>"+ d.preference +"</td> </tr>"
         $("#subjectTableBody").append(details);
             if (index === array.length -1) resolve();
@@ -114,8 +108,8 @@ function dataTableInit(){
                 "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
                 buttons: [
                     { extend: 'copy', className: 'btn-sm' },
-                    { extend: 'csv', title: 'ExampleFile', className: 'btn-sm' },
-                    { extend: 'pdf', title: 'ExampleFile', className: 'btn-sm' },
+                    { extend: 'csv', title: 'Subject List', className: 'btn-sm' },
+                    { extend: 'pdf', title: 'Subject List', className: 'btn-sm' },
                     { extend: 'print', className: 'btn-sm' }
                 ]
             });

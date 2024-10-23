@@ -71,6 +71,16 @@ $(function () {
     </div>
 </div>
 </div>
+
+
+  <!-- Footer-->
+    <footer class="footer">
+        <span class="pull-right">
+            ORB
+        </span>
+        <span class="fa fa-copyright"></span>
+        Astromy LLC 2013-<span id="copyrightYear"></span>
+    </footer>
     `
 
 

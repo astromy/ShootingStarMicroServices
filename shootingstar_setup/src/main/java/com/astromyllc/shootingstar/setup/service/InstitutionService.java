@@ -31,7 +31,7 @@ public class InstitutionService implements InstitutionServiceInterface {
     private final InstitutionUtils institutionUtils;
     @Override
     public InstitutionResponse createInstitution(InstitutionRequest institutionRequest) {
-        Optional <Institution> institution = InstitutionUtils.institutionGlobalList.stream().filter(x -> x.getBececode().equals(institutionRequest.getBececode())).findFirst();
+        Optional <Institution> institution = InstitutionUtils.institutionGlobalList.stream().filter(x -> x.getBececode().equalsIgnoreCase(institutionRequest.getBececode())).findFirst();
         Institution institution1=new Institution();
         if (institution.isEmpty()) {
              institution1 = institutionUtils.mapInstitutionRequest_ToInstitution(institutionRequest);
@@ -49,7 +49,7 @@ public class InstitutionService implements InstitutionServiceInterface {
     }
     @Override
     public InstitutionResponse migratePreOrder(String institutionCode) {
-        Optional <PreOrderInstitution> institution = InstitutionUtils.preOrderInstitutionGlobalList.stream().filter(x -> x.getBececode().equals(institutionCode)).findFirst();
+        Optional <PreOrderInstitution> institution = InstitutionUtils.preOrderInstitutionGlobalList.stream().filter(x -> x.getBececode().equalsIgnoreCase(institutionCode)).findFirst();
         Institution institution1=new Institution();
         if (institution.isPresent()) {
             Institution institution2 = institutionUtils.mapPreorderInstitutionToInstitution(institution.get());
@@ -61,7 +61,7 @@ public class InstitutionService implements InstitutionServiceInterface {
     }
     @Override
     public String createPreOrderInstitution(PreOrderInstitutionRequest institutionRequest) {
-       // Optional <PreOrderInstitution> institution = institutionUtils.institutionGlobalList.stream().filter(x -> x.getBececode().equals(institutionRequest.getBececode())).findFirst();
+       // Optional <PreOrderInstitution> institution = institutionUtils.institutionGlobalList.stream().filter(x -> x.getBececode().equalsIgnoreCase(institutionRequest.getBececode())).findFirst();
         PreOrderInstitution institution1=new PreOrderInstitution();
             institution1 = institutionUtils.mapPreOrderInstitutionRequest_ToPreOrderInstitution(institutionRequest);
             preOrderInstitutionRepository.save(institution1);
@@ -75,7 +75,7 @@ public class InstitutionService implements InstitutionServiceInterface {
     @Override
     public Optional<InstitutionResponse> getInstitutionByBeceCode(SingleStringRequest beceCode) {
         String finalBeceCode= beceCode.getVal();
-        List<Institution> ii= InstitutionUtils.institutionGlobalList.stream().filter(x -> x.getBececode().equals(finalBeceCode)).toList();
+        List<Institution> ii= InstitutionUtils.institutionGlobalList.stream().filter(x -> x.getBececode().equalsIgnoreCase(finalBeceCode)).toList();
         if(ii.size()==0){
             migratePreOrder(finalBeceCode);
         }

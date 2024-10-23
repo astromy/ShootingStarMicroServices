@@ -153,11 +153,11 @@ public class InstitutionUtils {
         institution.setCrest(institutionRequest.getCrest());
         //institution.setCreationDate(LocalDate.parse(institutionRequest.getCreationDate().replace("T", " "), formatter));
         //institution.setAdmissions(AdmissionUtil.mapAdmissionRequestToAdmission(institutionRequest.getAdmissions(), institution.getAdmissions()));
-        //institution.setClassList(institutionRequest.getClassList().stream().map((cr) -> ClassesUtil.mapClassRequestToClass(cr, institution.getClassList().stream().filter(c -> cr.getId().equals(c.getIdClasses())).findFirst().get())).collect(Collectors.toList()));
-        //institution.setDepartmentList(institutionRequest.getDepartmentList().stream().map((dr) -> DepartmentUtil.mapDepartmentRequest_ToDepartment(dr, institution.getDepartmentList().stream().filter(d -> dr.getIdDepartment().equals(d.getIdDepartment())).findFirst().get())).collect(Collectors.toList()));
+        //institution.setClassList(institutionRequest.getClassList().stream().map((cr) -> ClassesUtil.mapClassRequestToClass(cr, institution.getClassList().stream().filter(c -> cr.getId().equalsIgnoreCase(c.getIdClasses())).findFirst().get())).collect(Collectors.toList()));
+        //institution.setDepartmentList(institutionRequest.getDepartmentList().stream().map((dr) -> DepartmentUtil.mapDepartmentRequest_ToDepartment(dr, institution.getDepartmentList().stream().filter(d -> dr.getIdDepartment().equalsIgnoreCase(d.getIdDepartment())).findFirst().get())).collect(Collectors.toList()));
         //institution.setGradingSetting(GradingSettingUtil.mapGradeSettingRequest_ToGradeSetting(institutionRequest.getGradingSetting(), institution.getGradingSetting()));
         //institution.setSubjectList(institutionRequest.getSubjectList().stream()
-        // .map((sr) -> SubjectUtil.mapSubjectRequest_ToSubject(sr, institution.getSubjectList().stream().filter(s -> sr.getId().equals(s.getIdSubject())).findFirst().get())).collect(Collectors.toList()));
+        // .map((sr) -> SubjectUtil.mapSubjectRequest_ToSubject(sr, institution.getSubjectList().stream().filter(s -> sr.getId().equalsIgnoreCase(s.getIdSubject())).findFirst().get())).collect(Collectors.toList()));
         return institution;
     }
 
@@ -226,6 +226,7 @@ public class InstitutionUtils {
                 .crest(institution.getCrest())
                 .build();
     }
+
 
 
     public void createKeycloakCredentials(PreOrderInstitution institution) {

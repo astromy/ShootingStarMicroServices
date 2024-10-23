@@ -33,7 +33,7 @@ public class LookUpService implements LookupServiceInterface {
 
         List<Lookup> lu = lookupRequestList.stream()
                 .filter(c -> LookupUtil.lookupGlobalList.stream()
-                        .noneMatch(d -> c.getName().equals(d.getName()) && c.getType().equals(d.getType()))) // Filter out matching Lookup
+                        .noneMatch(d -> c.getName().equalsIgnoreCase(d.getName()) && c.getType().equalsIgnoreCase(d.getType()))) // Filter out matching Lookup
                 .map(lookupUtil::mapLookupRequest_ToLookup) // Directly map remaining Lookups
                 .collect(Collectors.toList());
 
@@ -53,14 +53,14 @@ public class LookUpService implements LookupServiceInterface {
     @Override
     public List<Optional<LookupResponse>> getAllLookupsByType(SingleStringRequest lookupType1) {
         String lookupType= lookupType1.getVal();
-        return LookupUtil.lookupGlobalList.stream().filter(x->x.getType().equals(lookupType)).map(lookupUtil::mapLookUp_ToLookUpResponse).collect(Collectors.toList());
+        return LookupUtil.lookupGlobalList.stream().filter(x->x.getType().equalsIgnoreCase(lookupType)).map(lookupUtil::mapLookUp_ToLookUpResponse).collect(Collectors.toList());
     }
 
     @Override
     public Optional<Optional<LookupResponse>> getLookUpById(String id) {
 
         return Optional.ofNullable(LookupUtil.lookupGlobalList.stream()
-                .filter(x->x.getIdLookup().toString().equals(id))
+                .filter(x->x.getIdLookup().toString().equalsIgnoreCase(id))
                 .findFirst().get())
                 .map(lookupUtil::mapLookUp_ToLookUpResponse);
     }

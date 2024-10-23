@@ -77,9 +77,9 @@ public class SetupController {
 
     @ResponseBody
     @RequestMapping(value = "/addAdmissions", method = RequestMethod.POST)
-    public ResponseEntity<String> addAdmissions(@RequestBody AdmissionsRequest jso) throws IOException {
+    public ResponseEntity<String> addAdmissions(@RequestBody AdmissionsEntryRequest jso) throws IOException {
 
-        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/addAdmissions");
+        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/addAdmissionSetup");
         return response;
     }
 
@@ -95,12 +95,11 @@ public class SetupController {
 
     @ResponseBody
     @RequestMapping(value = "/addGradingSetting", method = RequestMethod.POST)
-    public ResponseEntity<String> addGrading(@RequestBody GradingRequest jso) throws IOException {
+    public ResponseEntity<String> addGrading(@RequestBody GradingSettingRequest jso) throws IOException {
 
         ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/addGradingSetting");
         return response;
     }
-
 
     @ResponseBody
     @RequestMapping(value = "/addPermissions", method = RequestMethod.POST)
@@ -110,6 +109,19 @@ public class SetupController {
         return response;
     }
 
+    @ResponseBody
+    @RequestMapping(value = "/addDesignation", method = RequestMethod.POST)
+    public ResponseEntity<String> addDesignation(@RequestBody DesignationRequest jso) throws IOException {
+
+        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/addDesignations");
+        return response;
+    }
+
+
+
+
+
+//=======================================================================================================================
     @ResponseBody
     @RequestMapping(value = "/getInstitutionByCode", method = RequestMethod.POST)
     public ResponseEntity<String> fetchInstitution(@RequestBody SingleStringRequest jso) throws IOException {
@@ -159,7 +171,32 @@ public class SetupController {
         return response;
     }
 
-    public ResponseEntity<String> BACKENDCOMMPOSTLIST(List<Object> jso, String url) {
+    @ResponseBody
+    @RequestMapping(value = "/getInstitutionGradingSetting", method = RequestMethod.POST)
+    public ResponseEntity<String> getInstitutionGrading(@RequestBody SingleStringRequest jso) throws IOException {
+
+        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/getInstitutionGradingSetting");
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/getDesignation", method = RequestMethod.POST)
+    public ResponseEntity<String> getDesignation(@RequestBody SingleStringRequest jso) throws IOException {
+
+        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/getInstitutionDesignations");
+        return response;
+    }
+
+
+
+
+
+
+
+
+
+
+    private ResponseEntity<String> BACKENDCOMMPOSTLIST(List<Object> jso, String url) {
 
         HttpURLConnection httpURLConnection = null;
         StringBuilder response = new StringBuilder();
@@ -197,7 +234,6 @@ public class SetupController {
                 while ((responseLine = brIn.readLine()) != null) {
                     response.append(responseLine.trim());
                 }
-                log.error("GOT HERE---- > " + response);
             }
             // System.out.println(response.toString());
             return ResponseEntity.ok(response.toString());
@@ -221,7 +257,7 @@ public class SetupController {
         }
     }
 
-    public ResponseEntity<String> BACKENDCOMMPOST(Object jso, String url) {
+    private ResponseEntity<String> BACKENDCOMMPOST(Object jso, String url) {
 
         HttpURLConnection httpURLConnection = null;
         StringBuilder response = new StringBuilder();
@@ -246,7 +282,7 @@ public class SetupController {
 
             int status = httpURLConnection.getResponseCode();
 
-            if (status != HttpURLConnection.HTTP_OK)
+            if (status != HttpURLConnection.HTTP_OK && !String.valueOf(status).contains("2"))
                 inputStream = httpURLConnection.getErrorStream();
             else
                 inputStream = httpURLConnection.getInputStream();
@@ -258,7 +294,6 @@ public class SetupController {
                 while ((responseLine = brIn.readLine()) != null) {
                     response.append(responseLine.trim());
                 }
-                log.error("GOT HERE---- > " + response);
             }
             // System.out.println(response.toString());
             return ResponseEntity.ok(response.toString());

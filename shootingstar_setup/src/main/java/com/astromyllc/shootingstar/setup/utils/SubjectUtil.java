@@ -1,8 +1,11 @@
 package com.astromyllc.shootingstar.setup.utils;
 
+import com.astromyllc.shootingstar.setup.dto.request.LookupRequest;
 import com.astromyllc.shootingstar.setup.dto.request.SubjectDetails;
 import com.astromyllc.shootingstar.setup.dto.request.SubjectRequest;
+import com.astromyllc.shootingstar.setup.dto.response.LookupResponse;
 import com.astromyllc.shootingstar.setup.dto.response.SubjectResponse;
+import com.astromyllc.shootingstar.setup.model.Lookup;
 import com.astromyllc.shootingstar.setup.model.Subject;
 import com.astromyllc.shootingstar.setup.repository.SubjectRepository;
 import com.astromyllc.shootingstar.setup.service.LookUpService;
@@ -48,6 +51,7 @@ public class SubjectUtil {
 
 
     public Optional<SubjectResponse> mapSubject_ToSubjectResponse(Subject s) {
+       String lc=s.getClassGroup();
         return Optional.ofNullable(SubjectResponse.builder()
                 .id(s.getIdSubject())
                 .classGroup(s.getClassGroup())

@@ -84,7 +84,7 @@ public class StudentUtil {
                 .denomination(s.getApplicantDenomination())
                 .firstName(s.getApplicantFirstName())
                 .gender(s.getApplicantGender())
-                .nationality(s.getApplicantNationality())
+                .residentialLocality(s.getApplicantResidencetialLocality())
                 .otherName(s.getApplicantOtherName())
                 .picture(s.getApplicantPicture())
                 .placeOfBirth(s.getApplicantPlaceOfBirth())
@@ -120,7 +120,7 @@ public class StudentUtil {
     private String generateStudentId(String applicationInstitution) {
        long studentCount=0l;
        if(studentsGlobalList.size()>0) {
-           studentCount = 1+ studentsGlobalList.stream().filter(s -> s.getInstitutionCode().equals(applicationInstitution)).count();
+           studentCount = 1+ studentsGlobalList.stream().filter(s -> s.getInstitutionCode().equalsIgnoreCase(applicationInstitution)).count();
        }else{
            studentCount=1;
        }
@@ -139,7 +139,7 @@ public class StudentUtil {
                 .denomination(s.getDenomination())
                 .firstName(s.getFirstName())
                 .gender(s.getGender())
-                .nationality(s.getNationality())
+                .nationality(s.getResidentialLocality())
                 .otherName(s.getOtherName())
                 .picture(s.getPicture())
                 .placeOfBirth(s.getPlaceOfBirth())

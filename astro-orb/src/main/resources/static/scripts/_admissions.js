@@ -3,17 +3,18 @@ id="";
 fetchInstitutionAdmissionsSettings(instId.split(",")[0]);
 
 
-    $('.saveAdmissions').click(async function() {
+    window.copyrights();
 
-                postdata();
-                var jso= buildJson();
-                return HttpPost("addLookUps",jso)
+    $('.saveAdmissions').click(async function() {
+                var jso= postdata();
+                return HttpPost("addAdmissions",jso)
                 .then(function(result){
                     $('#admissionsTable').DataTable().destroy();
                     $('.dismissAdmission').click();
+                    populateTable(result)
                     swal({
                            title: "Thank you!",
-                           text: "Your application is being submitted",
+                           text: "Settings Save Successfully",
                            type: "success"
                       });
                     })
@@ -21,24 +22,63 @@ fetchInstitutionAdmissionsSettings(instId.split(",")[0]);
 
      
     function postdata(){
-   var classGroup=[];
-    classGroup= document.getElementsByClassName('newClassGrouptxt');
-    for(var i=0;i<classGroup.length; i++){
-    name[i]=classGroup[i].value;
+        resultlist=[]
+        resultlist2=[];
+        let criteriaList=[];
+        let categoryList=[];
+        criteriaList= document.getElementsByClassName('clonableCriteria');
+        categoryList= document.getElementsByClassName('clonableCategory');
+        for(var i=0;i<criteriaList.length; i++){
+            var jsonObject={
+                            "id":Number(id),
+                            "criteria":criteriaList[i].getElementsByClassName('newadmissionCriteria')[0].value,
+                            "value":criteriaList[i].getElementsByClassName('newcriteriaValue')[0].value,
+                            "operand":criteriaList[i].getElementsByClassName('newcriteriaOperand')[0].value
+                        };
+                    resultlist.push(jsonObject);
+        }
+        for(var i=0;i<categoryList.length; i++){
+            let salesStart=(categoryList[i].getElementsByClassName('salesPeriodDatePicker')[0].value.split(" - ")[0]);
+            var jsonObject2={
+                            "id":Number(id),
+                            "applicationFormAmount":categoryList[i].getElementsByClassName('newFormPricetxt')[0].value,
+                            "applicationFormType":categoryList[i].getElementsByClassName('newFormTypetxt')[0].value,
+                            "applicationFormQNT":categoryList[i].getElementsByClassName('newFormQNTtxt')[0].value,
+                            "paymentMedium":categoryList[i].getElementsByClassName('newFormPaymentOptiontxt')[0].value,
+                            "commencement":convertToISO(categoryList[i].getElementsByClassName('salesPeriodDatePicker')[0].value.split(" - ")[0]),
+                            "closure":convertToISO(categoryList[i].getElementsByClassName('salesPeriodDatePicker')[0].value.split(" - ")[1]),
+                            "appointmentPerDay":categoryList[i].getElementsByClassName('appointmentPerDay')[0].value,
+                            "appointmentCommencement":convertToISO(categoryList[i].getElementsByClassName('interviewPeriodDatePicker')[0].value.split(" - ")[0]),
+                            "appointmentClosure":convertToISO(categoryList[i].getElementsByClassName('interviewPeriodDatePicker')[0].value.split(" - ")[1])
+                        };
+                        debugger;
+                    resultlist2.push(jsonObject2);
+        }
+            var v= instId.split(",")[0].replace(/[\[\]']+/g,'')
+                v=v.replace(/\//g, '')
+            var intermediateJsonObject={
+                    "id":Number(id),
+                    "admissionCriteriaList":resultlist,
+                    "applicationCategoryList":resultlist2
+                };
+            var finalJsonObject={
+                    "institution":v,
+                    "admissionList":intermediateJsonObject
+                };
+            return finalJsonObject;
     }
-    }
+    function convertToISO(dateStr) {
+        // Split the input string into date and time
+        const [datePart, timePart] = dateStr.split(' ');
 
-    function buildJson(){
-    var resultlist=[]
-    for(var i=0;i<name.length; i++){
-        var jsonObject={
-            "id":id,
-            "name":name[i],
-            "type":type
-        };
-        resultlist.push(jsonObject);
-      }
-        return resultlist
+        // Split the date into components (month/day/year)
+        const [month, day, year] = datePart.split('/');
+
+        // Combine the components into an ISO format date string
+        const isoDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+
+        // Return the final ISO string with time (timePart already in HH:mm format)
+        return `${isoDate} ${timePart}:00`;
     }
 
 
@@ -46,7 +86,6 @@ fetchInstitutionAdmissionsSettings(instId.split(",")[0]);
     var v= instId.replace(/[\[\]']+/g,'')
     v=v.replace(/\//g, '')
     var instRequest={"val":v}
-    debugger;
     return  HttpPost("getInstitutionAdmissionSetup",instRequest)
      .then(function (result) {
      fetchLookup(result);
@@ -70,9 +109,12 @@ fetchInstitutionAdmissionsSettings(instId.split(",")[0]);
   }
 
   function populateTable(data){
+  $("#admissionsTableBody").empty();
+
+  if(data!=null){
     var bar = new Promise((resolve, reject) => {
   data.applicationCategoryList.forEach((d,index, array) =>  {
-        var details="<tr id="+ d.id +"> <td>" + d.applicationFormType + " </td> <td> "+ d.applicationFormQNT +"</td> <td> "+ d.applicationFormAmount +"</td> <td> "+ d.paymentMedium +"</td> <td> "+ d.commencement.split("T")[0] + " \nTo " + d.closure.split("T")[0] +"</td> <td> "+ d.appointmentCommencement.replace("T"," ") + " \nTo  "+d.appointmentClosure.replace("T"," ") +"</td><td>"+ d.appointmentPerDay +"</td> </tr>"
+        var details="<tr id="+ d.id +"> <td>" + d.applicationFormType + " </td> <td> "+ d.applicationFormQNT +"</td> <td> "+ d.applicationFormAmount +"</td> <td> "+ d.paymentMedium +"</td> <td> "+ d.commencement.split("T")[0] + " \nTo\n " + d.closure.split("T")[0] +"</td> <td> "+ d.appointmentCommencement.replace("T"," ") + " \nTo\n  "+d.appointmentClosure.replace("T"," ") +"</td><td>"+ d.appointmentPerDay +"</td> </tr>"
         $("#admissionsTableBody").append(details);
         if (index === array.length -1) resolve();
         });
@@ -81,6 +123,7 @@ fetchInstitutionAdmissionsSettings(instId.split(",")[0]);
         console.log('All done!');
         dataTableInit();
     });
+    }
    }
 
   function dataTableInit(){
@@ -89,8 +132,8 @@ fetchInstitutionAdmissionsSettings(instId.split(",")[0]);
          "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
          buttons: [
              { extend: 'copy', className: 'btn-sm' },
-             { extend: 'csv', title: 'ExampleFile', className: 'btn-sm' },
-             { extend: 'pdf', title: 'ExampleFile', className: 'btn-sm' },
+             { extend: 'csv', title: 'Admissions Details', className: 'btn-sm' },
+             { extend: 'pdf', title: 'Admissions Details', className: 'btn-sm' },
              { extend: 'print', className: 'btn-sm' }
          ]
      });

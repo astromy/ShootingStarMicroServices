@@ -54,13 +54,22 @@ $(function () {
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-primary left test"><i class="fa fa-plus-square"><span style="margin-left:5px"/>Add More</i></button>
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-default dismissSubject" data-dismiss="modal">Close</button>
                             <button type="button" class="btn btn-primary saveSubjects">Save changes</button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
+          <!-- Footer-->
+            <footer class="footer">
+                <span class="pull-right">
+                    ORB
+                </span>
+                <span class="fa fa-copyright"></span>
+                Astromy LLC 2013-<span id="copyrightYear"></span>
+            </footer>
     `
 
 

@@ -2,6 +2,7 @@ package com.astromyllc.shootingstar.finance.service;
 
 import com.astromyllc.shootingstar.finance.dto.request.BillFetchRequest;
 import com.astromyllc.shootingstar.finance.dto.request.BillRequest;
+import com.astromyllc.shootingstar.finance.dto.request.SingleStringRequest;
 import com.astromyllc.shootingstar.finance.dto.response.BillResponse;
 import com.astromyllc.shootingstar.finance.model.Bill;
 import com.astromyllc.shootingstar.finance.repositoy.BillRepository;
@@ -25,13 +26,13 @@ public class BillService implements BillServiceInterface {
     private final BillRepository billRepository;
     private final BillUtil billUtil;
     @Override
-    public BillResponse createBill(BillRequest billRequest) {
-        Optional<Bill> bill=billUtil.billGlobalList.stream().filter(b->b.getInstitutionCode().equals(billRequest.getInstitutionCode())).findFirst();
+    public Optional<BillResponse> createBill(BillRequest billRequest) {
+        Optional<Bill> bill=billUtil.billGlobalList.stream().filter(b->b.getInstitutionCode().equalsIgnoreCase(billRequest.getInstitutionCode())).findFirst();
         if(bill.isEmpty()){
             Bill bill1=billUtil.mapBillRequest_ToBill(billRequest);
             billRepository.save(bill1);
             billUtil.billGlobalList.add(bill1);
-            return billUtil.mapBill_ToBillResponse(bill1);
+            return Optional.ofNullable(billUtil.mapBill_ToBillResponse(bill1));
         }else{
             billRepository.save(billUtil.mapBillRequest_ToBill(billRequest,bill.get()));
         }
@@ -39,32 +40,52 @@ public class BillService implements BillServiceInterface {
     }
 
     @Override
-    public List<BillResponse> createBills(List<BillRequest> billRequest) {
-      /*  Optional<List<BillRequest>> Bills = billUtil.billGlobalList.stream()
-                .map(br->billRequest.stream()
-                        .filter(b->!b.getInstitutionCode().equals(br.getInstitutionCode())).).collect(Collectors.toList());
-        */
+    public Optional<List<BillResponse>> createBills(List<BillRequest> billRequests) {
 
-        List<Bill> existingBills= (List<Bill>) billUtil.billGlobalList.stream()
-                .map(br->billRequest.stream()
-                        .filter(b->b.getInstitutionCode().equals(br.getInstitutionCode())).collect(Collectors.toList())
-                        .stream().map(bm->billUtil.mapBillRequest_ToBill(bm,br)).collect(Collectors.toList())); //.orElse(existingBills.add(br))
-     if(existingBills.size()>0) {
-         billRepository.saveAll(existingBills);
-         billUtil.billGlobalList.addAll(existingBills);
-         return existingBills.stream().map(eb-> billUtil.mapBill_ToBillResponse(eb)).collect(Collectors.toList());
-     }
+        List<Bill> updatedBills = billRequests.stream()
+                .map(billRequest -> {
+                    Optional<Bill> existingBillOpt = billUtil.billGlobalList.stream()
+                            .filter(bill -> bill.getBill_Name().equalsIgnoreCase(billRequest.getBill_Name())
+                                    && bill.getInstitutionCode().equalsIgnoreCase(billRequest.getInstitutionCode()))
+                            .findFirst();
 
-        return null;
+                    return existingBillOpt.map(existingBill -> {
+                        billUtil.mapBillRequest_ToBill(billRequest,existingBill);
+                        return existingBill; // Return the updated existing bill
+                    }).orElseGet(() ->{
+                        Bill nb= billUtil.mapBillRequest_ToBill(billRequest);
+                        billUtil.billGlobalList.add(nb);
+                        return nb;
+                    }); // Create new if not exists
+                })
+                .collect(Collectors.toList());
+
+        billRepository.saveAll(updatedBills);
+
+        // Map the updated bills to BillResponse
+        List<BillResponse> billResponses = billUtil.billGlobalList.stream()
+                .filter(b-> b.getInstitutionCode().equalsIgnoreCase(billRequests.get(0).getInstitutionCode()))
+                .map(billUtil::mapBill_ToBillResponse) // Assuming a method to map Bill to BillResponse
+                .collect(Collectors.toList());
+
+        // Return an Optional of the list of BillResponse
+        return Optional.ofNullable(billResponses.isEmpty() ? null : billResponses);
     }
 
     @Override
-    public List<BillResponse> fetchBillsByInstitution(BillFetchRequest billFetchRequest) {
-        return billUtil.billGlobalList.stream().filter(b->b.getInstitutionCode().equals(billFetchRequest.getInstitutionCode())).map(br->billUtil.mapBill_ToBillResponse(br)).collect(Collectors.toList());
+    public Optional<List<BillResponse>> fetchBillsByInstitution(SingleStringRequest singleStringRequest) {
+        return Optional.ofNullable(
+                billUtil.billGlobalList.stream()
+                        .filter(b->b.getInstitutionCode().toString().equalsIgnoreCase(singleStringRequest.getVal()))
+                        .map(br->billUtil.mapBill_ToBillResponse(br))
+                        .collect(Collectors.toList()));
     }
 
     @Override
-    public BillResponse fetchBillByInstitutionAndName(BillFetchRequest billFetchRequest) {
-        return billUtil.billGlobalList.stream().filter(b->b.getInstitutionCode().equals(billFetchRequest.getInstitutionCode()) && b.getBill_Name().equals(billFetchRequest.getName())).map(br->billUtil.mapBill_ToBillResponse(br)).findFirst().get();
+    public Optional<BillResponse> fetchBillByInstitutionAndName(BillFetchRequest billFetchRequest) {
+        return Optional.ofNullable(
+                billUtil.billGlobalList.stream()
+                        .filter(b->b.getInstitutionCode().equalsIgnoreCase(billFetchRequest.getInstitutionCode()) && b.getBill_Name().equalsIgnoreCase(billFetchRequest.getName()))
+                        .map(br->billUtil.mapBill_ToBillResponse(br)).findFirst().get());
     }
 }

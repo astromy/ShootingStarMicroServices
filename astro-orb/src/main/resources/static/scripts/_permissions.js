@@ -1,9 +1,11 @@
 
-var instId = $("meta[name='institutionId']").attr("content");
+id="";
 fetchInstitutionClasses(instId.split(",")[0]);
 
 
-    $('.saveClassGroup').click(async function() {
+    window.copyrights();
+
+    $('.savePermissions').click(async function() {
 
                 postdata();
                 var jso= buildJson();
@@ -80,8 +82,19 @@ var bar = new Promise((resolve, reject) => {
     });
    }
 
-  function dataTableInit(){
-    $('#classTable').dataTable();
 
-  }
 
+function dataTableInit(){
+
+    // Initialize Example 1
+    $('#permissionsTable').dataTable({
+        dom: "<'row'<'col-sm-4'l><'col-sm-4 text-center'B><'col-sm-4'f>>tp",
+        "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+        buttons: [
+            { extend: 'copy', className: 'btn-sm' },
+            { extend: 'csv', title: 'ExampleFile', className: 'btn-sm' },
+            { extend: 'pdf', title: 'ExampleFile', className: 'btn-sm' },
+            { extend: 'print', className: 'btn-sm' }
+        ]
+    });
+};

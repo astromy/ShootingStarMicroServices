@@ -1,19 +1,20 @@
-
+id="";
 fetchInstitutionClasses(instId.split(",")[0]);
 
 
+    window.copyrights();
+
     $('.saveClass').click(async function() {
 
-                postdata();
-                var jso= buildJson();
-                return HttpPost("addLookUps",jso)
+                var jso= postdata();
+                return HttpPost("addClasses",jso)
                 .then(function(result){
                 $('#classTable').DataTable().destroy();
                 $('.dismissClass').click();
                 populateTable(result)
                     swal({
                            title: "Thank you!",
-                           text: "Your application is being submitted",
+                           text: "Classes Saved Successfully",
                            type: "success"
                       });
                     })
@@ -21,24 +22,25 @@ fetchInstitutionClasses(instId.split(",")[0]);
 
 
     function postdata(){
-   var classGroup=[];
-    classGroup= document.getElementsByClassName('newClassGrouptxt');
+    let classGroup=[];
+        resultlist=[];
+        classGroup= document.getElementsByClassName('clonable');
+    //classGroup= document.getElementsByClassName('classesOptions');
     for(var i=0;i<classGroup.length; i++){
-    name[i]=classGroup[i].value;
+    var jsonObject={
+                "id":id,
+                "name":classGroup[i].getElementsByClassName('newclassestxt')[0].value,
+                "classGroup":classGroup[i].getElementsByClassName('classesOptions')[0].value
+            };
+            resultlist.push(jsonObject);
     }
-    }
-
-    function buildJson(){
-    var resultlist=[]
-    for(var i=0;i<name.length; i++){
-        var jsonObject={
-            "id":id,
-            "name":name[i],
-            "type":type
-        };
-        resultlist.push(jsonObject);
-      }
-        return resultlist
+    var v= instId.split(",")[0].replace(/[\[\]']+/g,'')
+        v=v.replace(/\//g, '')
+    var finalJsonObject={
+                    "institution":v,
+                    "classDetailList":resultlist
+                };
+    return finalJsonObject;
     }
 
 
@@ -70,10 +72,12 @@ fetchInstitutionClasses(instId.split(",")[0]);
   }
 
   function populateTable(data){
-var bar = new Promise((resolve, reject) => {
-  data.forEach((d,index, array) =>  {
+    $("#classesTableBody").empty();
+
+    var bar = new Promise((resolve, reject) => {
+        data.forEach((d,index, array) =>  {
         var details="<tr> <td hidden>" + d.id + " </td> <td> "+ d.name +"</td><td>"+ d.classGroup +"</td> </tr>"
-        document.getElementById("classesTableBody").insertAdjacentHTML('beforeend', details);
+        $("#classesTableBody").append(details);
         if (index === array.length -1) resolve();
         });
     });
@@ -89,8 +93,8 @@ var bar = new Promise((resolve, reject) => {
        "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
        buttons: [
            { extend: 'copy', className: 'btn-sm' },
-           { extend: 'csv', title: 'ExampleFile', className: 'btn-sm' },
-           { extend: 'pdf', title: 'ExampleFile', className: 'btn-sm' },
+           { extend: 'csv', title: 'Classes List', className: 'btn-sm' },
+           { extend: 'pdf', title: 'Classes List', className: 'btn-sm' },
            { extend: 'print', className: 'btn-sm' }
        ]
    });

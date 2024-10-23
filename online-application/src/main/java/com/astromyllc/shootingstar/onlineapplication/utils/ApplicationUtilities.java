@@ -244,10 +244,10 @@ public class ApplicationUtilities {
     }
 
     private String setAppointmentDate(String code, String type) {
-        String commencement = institutionRequest.getAdmissions().getApplicationCategoryList().stream().filter(x -> x.getApplicationFormType().equals(type)).findFirst().get().getAppointmentCommencement();
-        int appointmentsPerDay = institutionRequest.getAdmissions().getApplicationCategoryList().stream().filter(x -> x.getApplicationFormType().equals(type)).findFirst().get().getAppointmentPerDay();
-        int formsQNT = institutionRequest.getAdmissions().getApplicationCategoryList().stream().filter(x -> x.getApplicationFormType().equals(type)).findFirst().get().getApplicationFormQNT();
-        String closure = institutionRequest.getAdmissions().getApplicationCategoryList().stream().filter(x -> x.getApplicationFormType().equals(type)).findFirst().get().getAppointmentClosure();
+        String commencement = institutionRequest.getAdmissions().getApplicationCategoryList().stream().filter(x -> x.getApplicationFormType().equalsIgnoreCase(type)).findFirst().get().getAppointmentCommencement();
+        int appointmentsPerDay = institutionRequest.getAdmissions().getApplicationCategoryList().stream().filter(x -> x.getApplicationFormType().equalsIgnoreCase(type)).findFirst().get().getAppointmentPerDay();
+        int formsQNT = institutionRequest.getAdmissions().getApplicationCategoryList().stream().filter(x -> x.getApplicationFormType().equalsIgnoreCase(type)).findFirst().get().getApplicationFormQNT();
+        String closure = institutionRequest.getAdmissions().getApplicationCategoryList().stream().filter(x -> x.getApplicationFormType().equalsIgnoreCase(type)).findFirst().get().getAppointmentClosure();
         Map<LocalDateTime, List<Appointment>> map = appointmentsGlobal.stream()
                 .filter(x->x.getAppointmentDateTime().isAfter(LocalDateTime.parse(commencement.replace("T"," "),formatter))
                 && x.getAppointmentDateTime().isBefore(LocalDateTime.parse(closure.replace("T"," "),formatter)))
@@ -289,7 +289,7 @@ public class ApplicationUtilities {
     }
 
     public String saveFile(String file, String fileName, String fileDirectoryPath, String fileTye) throws IOException {
-        if (fileTye.equals("image")) {
+        if (fileTye.equalsIgnoreCase("image")) {
             fileName = fileName + ".png";
         } else {
             fileName = fileName + ".pdf";

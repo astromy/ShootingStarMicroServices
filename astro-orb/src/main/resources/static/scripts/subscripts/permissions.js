@@ -19,7 +19,7 @@ $(function () {
                 User Permissions
             </div>
             <div class="panel-body">
-                <table id="example1" class="table table-striped table-bordered table-hover" width="100%">
+                <table id="permissionsTable" class="table table-striped table-bordered table-hover" width="100%">
                     <thead>
                     <tr>
                         <th>Name</th>
@@ -48,12 +48,21 @@ $(function () {
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary">Save changes</button>
+                        <button type="button" class="btn btn-primary savePermissions">Save changes</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+      <!-- Footer-->
+        <footer class="footer">
+            <span class="pull-right">
+                ORB
+            </span>
+            <span class="fa fa-copyright"></span>
+            Astromy LLC 2013-<span id="copyrightYear"></span>
+        </footer>
     `
 
 
@@ -80,7 +89,7 @@ function staffpermissionsIndut() {
                     <li class=""><a data-toggle="tab" href="#hrtab">HR </a></li>
                     <li class=""><a data-toggle="tab" href="#financetab"> FINANCE </a></li>
                     <li class=""><a data-toggle="tab" href="#academicstab"> ACADEMICS </a></li>
-                    <li class=""><a data-toggle="tab" href="#admissionstab"> ADMINISTRATION </a></li>
+                    <li class=""><a data-toggle="tab" href="#administrationtab"> ADMINISTRATION </a></li>
                     <li class=""><a data-toggle="tab" href="#infairmarytab"> INFAIRMARY </a></li>
                     <li class=""><a data-toggle="tab" href="#storestab"> STORES </a></li>
                     <li class=""><a data-toggle="tab" href="#teachingtab"> TEACHING </a></li>
@@ -203,31 +212,136 @@ function staffpermissionsIndut() {
                 
                     <div id="academicstab" class="tab-pane">
                         <div class="panel-body">
-                            
+
+                            <div class="form-check form-switch col-md-3">
+                                <input class="form-check-input" id="approvalPermission" type="checkbox" />
+                                <label class="check-label" for="approvalPermission"> Questions Approval </label>
+                            </div>
+                            <div class="form-check form-switch col-md-3">
+                                <input class="form-check-input" id="transcriptPermission" type="checkbox" />
+                                <label class="check-label" for="transcriptPermission"> Transcript </label>
+                            </div>
+                            <div class="form-check form-switch col-md-3">
+                                <input class="form-check-input" id="broadsheetPermission" type="checkbox" />
+                                <label class="check-label" for="broadsheetPermission"> Broadsheet </label>
+                            </div>
+                            <div class="form-check form-switch col-md-3">
+                                <input class="form-check-input" id="graduationListPermission" type="checkbox" />
+                                <label class="check-label" for="graduationListPermission"> Graduation List </label>
+                            </div>
+                            <div class="form-check form-switch col-md-3">
+                                <input class="form-check-input" id="classTimetablePermission" type="checkbox" />
+                                <label class="check-label" for="classTimetablePermission"> Class Timetable </label>
+                            </div>
+                            <div class="form-check form-switch col-md-3">
+                                <input class="form-check-input" id="promotionPermission" type="checkbox" />
+                                <label class="check-label" for="promotionPermission"> Promotion </label>
+                            </div>
+                            <div class="form-check form-switch col-md-3">
+                                <input class="form-check-input" id="terminalReportPermission" type="checkbox" />
+                                <label class="check-label" for="terminalReportPermission"> Terminal Report </label>
+                            </div>
+
                         </div>
                     </div>
                 
-                    <div id="admissionstab" class="tab-pane">
+                    <div id="administrationtab" class="tab-pane">
                         <div class="panel-body">
-                           
+
+                            <div class="form-check form-switch col-md-3">
+                                <input class="form-check-input" id="enrolmentPermission" type="checkbox" />
+                                <label class="check-label" for="enrolmentPermission"> Student Enrollment </label>
+                            </div>
+                            <div class="form-check form-switch col-md-3">
+                                <input class="form-check-input" id="suspensionPermission" type="checkbox" />
+                                <label class="check-label" for="suspensionPermission"> Suspension </label>
+                            </div>
+                            <div class="form-check form-switch col-md-3">
+                                <input class="form-check-input" id="dismissalPermission" type="checkbox" />
+                                <label class="check-label" for="dismissalPermission"> Dismissal </label>
+                            </div>
+                            <div class="form-check form-switch col-md-3">
+                                <input class="form-check-input" id="studentListPermission" type="checkbox" />
+                                <label class="check-label" for="studentListPermission"> Student List </label>
+                            </div>
+                            <div class="form-check form-switch col-md-3">
+                                <input class="form-check-input" id="classListPermission" type="checkbox" />
+                                <label class="check-label" for="classListPermission"> Class List </label>
+                            </div>
+                            <div class="form-check form-switch col-md-3">
+                                <input class="form-check-input" id="academicTimetablePermission" type="checkbox" />
+                                <label class="check-label" for="academicTimetablePermission"> Academic Timetable </label>
+                            </div>
+                            <div class="form-check form-switch col-md-3">
+                                <input class="form-check-input" id="idCardPermission" type="checkbox" />
+                                <label class="check-label" for="idCardPermission"> ID Cards </label>
+                            </div>
+
                         </div>
                     </div>
                 
                     <div id="infairmarytab" class="tab-pane">
                         <div class="panel-body">
-                            
+
+                            <div class="form-check form-switch col-md-3">
+                                <input class="form-check-input" id="vitalsRecordPermission" type="checkbox" />
+                                <label class="check-label" for="vitalsRecordPermission"> Vitals Record </label>
+                            </div>
+                            <div class="form-check form-switch col-md-3">
+                                <input class="form-check-input" id="diagnosisPermission" type="checkbox" />
+                                <label class="check-label" for="diagnosisPermission"> Diagnosis </label>
+                            </div>
+                            <div class="form-check form-switch col-md-3">
+                                <input class="form-check-input" id="medicalHistoryPermission" type="checkbox" />
+                                <label class="check-label" for="medicalHistoryPermission"> Medical History </label>
+                            </div>
+
                         </div>
                     </div>
                 
                     <div id="storestab" class="tab-pane">
                         <div class="panel-body">
-                           
+
+                            <div class="form-check form-switch col-md-3">
+                                <input class="form-check-input" id="salesPermission" type="checkbox" />
+                                <label class="check-label" for="salesPermission"> Sales </label>
+                             </div>
+                            <div class="form-check form-switch col-md-3">
+                                <input class="form-check-input" id="inventoryPermission" type="checkbox" />
+                                <label class="check-label" for="inventoryPermission"> Inventory </label>
+                             </div>
+                            <div class="form-check form-switch col-md-3">
+                                <input class="form-check-input" id="insightPermission" type="checkbox" />
+                                <label class="check-label" for="insightPermission"> Insight Report </label>
+                             </div>
+
                         </div>
                     </div>
                 
                     <div id="teachingtab" class="tab-pane">
                         <div class="panel-body">
-                            
+
+                            <div class="form-check form-switch col-md-3">
+                                <input class="form-check-input" id="questionUploadPermission" type="checkbox" />
+                                <label class="check-label" for="questionUploadPermission"> Question Upload </label>
+                             </div>
+                            <div class="form-check form-switch col-md-3">
+                                <input class="form-check-input" id="examsPermission" type="checkbox" />
+                                <label class="check-label" for="examsPermission"> Exams </label>
+                             </div>
+                            <div class="form-check form-switch col-md-3">
+                                <input class="form-check-input" id="assignmentPermission" type="checkbox" />
+                                <label class="check-label" for="assignmentPermission"> Assignment </label>
+                             </div>
+                            <div class="form-check form-switch col-md-3">
+                                <input class="form-check-input" id="scoreUploadPermission" type="checkbox" />
+                                <label class="check-label" for="scoreUploadPermission"> Score Upload </label>
+                             </div>
+                            <div class="form-check form-switch col-md-3">
+                                <input class="form-check-input" id="assignmentReviewPermission" type="checkbox" />
+                                <label class="check-label" for="assignmentReviewPermission"> Assignment Review </label>
+                             </div>
+
                         </div>
                     </div>
                 </div>
@@ -240,19 +354,3 @@ function staffpermissionsIndut() {
     document.getElementsByClassName("modalbody")[0].insertAdjacentHTML('beforeend', div);
 }
 
-
-$(function () {
-
-    // Initialize Example 1
-    $('#example1').dataTable({
-        "ajax": 'api/datatables.json',
-        dom: "<'row'<'col-sm-4'l><'col-sm-4 text-center'B><'col-sm-4'f>>tp",
-        "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
-        buttons: [
-            { extend: 'copy', className: 'btn-sm' },
-            { extend: 'csv', title: 'ExampleFile', className: 'btn-sm' },
-            { extend: 'pdf', title: 'ExampleFile', className: 'btn-sm' },
-            { extend: 'print', className: 'btn-sm' }
-        ]
-    });
-});

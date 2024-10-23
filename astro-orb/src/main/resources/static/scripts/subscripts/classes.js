@@ -60,6 +60,15 @@ $(function () {
                     </div>
                 </div>
             </div>
+
+              <!-- Footer-->
+                <footer class="footer">
+                    <span class="pull-right">
+                        ORB
+                    </span>
+                    <span class="fa fa-copyright"></span>
+                    Astromy LLC 2013-<span id="copyrightYear"></span>
+                </footer>
         `
 
     document.getElementById("wrapper").innerHTML = header;
@@ -98,7 +107,7 @@ function classesIndut() {
 function createModalElements(){
 
 clonable=document.createElement("div");
-clonable.setAttribute("class", "row");
+clonable.setAttribute("class", "row clonable");
 
 var el1=document.createElement("div");
 el1.setAttribute("class", "col-sm-6");
@@ -110,7 +119,7 @@ var el3=document.createElement("div");
 el3.setAttribute("class", "col-md-12");
 
 var el4=document.createElement("select");
-el4.setAttribute("class", "form-control m-b");
+el4.setAttribute("class", "form-control m-b classesOptions");
 el4.setAttribute("name", "classes");
 el4.setAttribute("id", "classOptions");
 

@@ -1,18 +1,20 @@
-var type,id;
-var name=[];
-var resultlist=[]
+    id="";
+    name=[];
+    resultlist=[]
     type= $('[name="type"]').val();
-var instId = $("meta[name='institutionId']").attr("content");
 //fetchLookup();
 fetchInstitutionDepartment(instId.split(",")[0]);
 
 
-    $('.saveClassGroup').click(async function() {
+    window.copyrights();
 
-        postdata();
-        var jso= buildJson();
-        return HttpPost("addLookUps",jso)
+    $('.saveDepartment').click(async function() {
+
+        var jso= postdata();
+        return HttpPost("addDepartment",jso)
         .then(function(result){
+           $('#departmentTable').DataTable().destroy();
+           $('.dismissDepartment').click();
         swal({
                title: "Thank you!",
                text: "Your application is being submitted",
@@ -23,14 +25,28 @@ fetchInstitutionDepartment(instId.split(",")[0]);
 
 
     function postdata(){
-   var classGroup=[];
-    classGroup= document.getElementsByClassName('newClassGrouptxt');
-    for(var i=0;i<classGroup.length; i++){
-    name[i]=classGroup[i].value;
+    let departments=[];
+    let departmentDetailsList=[]
+    resultlist=[];
+    departments= document.getElementsByClassName('newDepartmenttxt');
+    for(var i=0;i<departments.length; i++){
+    var jsonObject={
+                "id":id,
+                "name":departments[i].value,
+                "designationList":departmentDetailsList
+            };
+            resultlist.push(jsonObject);
     }
+    var v= instId.split(",")[0].replace(/[\[\]']+/g,'')
+        v=v.replace(/\//g, '')
+    var finalJsonObject={
+                    "institution":v,
+                    "departmentDetailsList":resultlist
+                };
+    return finalJsonObject;
     }
 
-    function buildJson(){
+   /* function buildJson(){
     for(var i=0;i<name.length; i++){
         var jsonObject={
             "id":id,
@@ -40,7 +56,7 @@ fetchInstitutionDepartment(instId.split(",")[0]);
         resultlist.push(jsonObject);
       }
         return resultlist
-    }
+    }*/
 
 
   async function fetchInstitutionDepartment(instId){
@@ -69,8 +85,10 @@ fetchInstitutionDepartment(instId.split(",")[0]);
   }
 
   function populateTable(data){
-var bar = new Promise((resolve, reject) => {
-  data.forEach((d,index, array) =>  {
+  $("#departmentTableBody").empty();
+
+    var bar = new Promise((resolve, reject) => {
+        data.forEach((d,index, array) =>  {
         var details="<tr id="+ d.id +"> <td>" + d.name + " </td> <td> "+ d.designationList.length +"</td> </tr>"
         $("#departmentTableBody").append(details);
      if (index === array.length -1) resolve();
@@ -89,8 +107,8 @@ function dataTableInit(){
                 "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
                 buttons: [
                     { extend: 'copy', className: 'btn-sm' },
-                    { extend: 'csv', title: 'ExampleFile', className: 'btn-sm' },
-                    { extend: 'pdf', title: 'ExampleFile', className: 'btn-sm' },
+                    { extend: 'csv', title: 'Department List', className: 'btn-sm' },
+                    { extend: 'pdf', title: 'Department List', className: 'btn-sm' },
                     { extend: 'print', className: 'btn-sm' }
                 ]
             });

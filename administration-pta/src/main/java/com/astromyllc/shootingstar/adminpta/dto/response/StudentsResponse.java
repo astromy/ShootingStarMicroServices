@@ -13,32 +13,19 @@ import java.time.LocalDate;
 @Data
 public class StudentsResponse {
     private String id;
-    @NonNull
     private String studentId;
-    @NonNull
     private String firstName;
     private String otherName;
-    @NonNull
     private String lastName;
-    @NonNull
     private LocalDate dateOfBirth;
-    @NonNull
     private LocalDate dateOfAdmission;
-    @NonNull
     private String placeOfBirth;
-    @NonNull
     private String gender;
-    @NonNull
     private String countryOfBirth;
-    @NonNull
     private String nationality;
-    @NonNull
     private String picture;
-    @NonNull
     private String birthCert;
     private String denomination;
-    @NonNull
     private String institutionCode;
-    @NonNull
     private String status;
 }

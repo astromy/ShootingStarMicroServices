@@ -99,17 +99,17 @@ public class AssessmentUtil {
 
     private Double sumClassScore(String studId, String academicYear, String term, Long subject) {
         return ContinuousAssessmentUtil.continuousAssessmentGlobalList.stream()
-                .filter(cx -> cx.getStudentId().equals(studId)
-                        && cx.getAcademicYear().equals(academicYear)
-                        && cx.getTerm().equals(term)
+                .filter(cx -> cx.getStudentId().equalsIgnoreCase(studId)
+                        && cx.getAcademicYear().equalsIgnoreCase(academicYear)
+                        && cx.getTerm().equalsIgnoreCase(term)
                         && Objects.equals(cx.getSubject(), subject)).mapToDouble(ContinuousAssessment::getScore).sum();
     }
 
     private Double totalSumClassScore(String studId, String academicYear, String term, Long subject) {
         return ContinuousAssessmentUtil.continuousAssessmentGlobalList.stream()
-                .filter(cx -> cx.getStudentId().equals(studId)
-                        && cx.getAcademicYear().equals(academicYear)
-                        && cx.getTerm().equals(term)
+                .filter(cx -> cx.getStudentId().equalsIgnoreCase(studId)
+                        && cx.getAcademicYear().equalsIgnoreCase(academicYear)
+                        && cx.getTerm().equalsIgnoreCase(term)
                         && Objects.equals(cx.getSubject(), subject)).mapToDouble(ContinuousAssessment::getTotalScore).sum();
     }
 
@@ -119,10 +119,10 @@ public class AssessmentUtil {
             fetchStudents();
         }
         if (singleInstitutionGlobalRequest == null) {
-            singleInstitutionGlobalRequest = institutionGlobalRequest.stream().filter(i -> i.getBececode().equals(terminalReportRequest.getInstitutionCode())).findFirst().get();
+            singleInstitutionGlobalRequest = institutionGlobalRequest.stream().filter(i -> i.getBececode().equalsIgnoreCase(terminalReportRequest.getInstitutionCode())).findFirst().get();
         }
-        List<Students> localStudents = studentsGlobalRequest.stream().filter(s -> s.getInstitutionCode().equals(terminalReportRequest.getInstitutionCode())).collect(Collectors.toList());
-        List<SubjectRequest> localSubject = singleInstitutionGlobalRequest.getSubjectList().stream().filter(s -> s.getClassGroup().equals(terminalReportRequest.getClassGroup())).collect(Collectors.toList());
+        List<Students> localStudents = studentsGlobalRequest.stream().filter(s -> s.getInstitutionCode().equalsIgnoreCase(terminalReportRequest.getInstitutionCode())).collect(Collectors.toList());
+        List<SubjectRequest> localSubject = singleInstitutionGlobalRequest.getSubjectList().stream().filter(s -> s.getClassGroup().equalsIgnoreCase(terminalReportRequest.getClassGroup())).collect(Collectors.toList());
         List<ClassesRequest> localClasses = singleInstitutionGlobalRequest.getClassList();
         List<Assessment> builtAssessment = null;
         //localClasses.stream() .map(c->localSubject.stream().map(sub->localStudents.stream().map(stud->buildAssessment(terminalReportRequest,stud,sub)))).collect(Collectors.)

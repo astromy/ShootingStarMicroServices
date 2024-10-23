@@ -10,5 +10,5 @@ import java.util.List;
 public class GradingSettingRequest {
     @NonNull
     private String institution;
-    private List<GradingSettingDetails> gradingSettingDetails;
+    private GradingSettingDetails gradingSettingDetails;
 }

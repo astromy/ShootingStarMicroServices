@@ -46,7 +46,7 @@ public class ExamsAssessmentUtil {
     }
 
     public Optional<ExamsAssessmentResponse> mapExamsAssessment_ToExamsAssessmentResponse(ExamsAssessment car) {
-        String sub=institutionGlobalRequest.stream().filter(i -> i.getBececode().equals(car.getInstitutionCode())).findFirst().get().getSubjectList().stream().filter(s -> s.getId().equals(car.getSubject())).findFirst().get().getName();
+        String sub=institutionGlobalRequest.stream().filter(i -> i.getBececode().equalsIgnoreCase(car.getInstitutionCode())).findFirst().get().getSubjectList().stream().filter(s -> s.getId().equals(car.getSubject())).findFirst().get().getName();
         return Optional.of(ExamsAssessmentResponse
                 .builder()
                 .dateTime(car.getDateTime())

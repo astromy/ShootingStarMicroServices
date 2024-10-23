@@ -1,9 +1,11 @@
 package com.astromyllc.shootingstar.setup.service;
 
 import com.astromyllc.shootingstar.setup.dto.request.DesignationRequest;
+import com.astromyllc.shootingstar.setup.dto.request.SingleStringRequest;
 import com.astromyllc.shootingstar.setup.dto.response.DesignationResponse;
 import com.astromyllc.shootingstar.setup.model.Department;
 import com.astromyllc.shootingstar.setup.model.Designation;
+import com.astromyllc.shootingstar.setup.model.Institution;
 import com.astromyllc.shootingstar.setup.repository.DepartmentRepository;
 import com.astromyllc.shootingstar.setup.repository.DesignationRepository;
 import com.astromyllc.shootingstar.setup.repository.InstitutionRepository;
@@ -31,16 +33,41 @@ public class DesignationService implements DesignationServiceInterface {
     private final DepartmentRepository departmentRepository;
 
     @Override
-    public List<Optional<DesignationResponse>> createDesignation(DesignationRequest designationRequest) {
-        Department department = institutionUtils.institutionGlobalList.stream().filter(i -> i.getBececode().equals(designationRequest.getInstitutionBECECode())).findFirst().get().getDepartmentList().stream().filter(dep -> dep.getIdDepartment().equals(designationRequest.getDepartmentId())).findFirst().get();
-        department.setDesignationList(designationRequest.getDesignationRequestDetails().stream().map(d -> designationUtil.mapDesignationRequest_ToDesignation(d)).collect(Collectors.toList()));
+    public Optional<List<Optional<DesignationResponse>>> createDesignation(DesignationRequest designationRequest) {
+        Institution inst = institutionUtils.institutionGlobalList.stream()
+         .filter(i -> i.getBececode().equalsIgnoreCase(designationRequest.getInstitutionBECECode())).findFirst().get();
+        Department department=inst.getDepartmentList().stream()
+                .filter(dep -> dep.getIdDepartment().toString().equalsIgnoreCase(designationRequest.getDepartmentId())).findFirst().get();
+        List<Designation>des=department.getDesignationList();
+        des.addAll(designationRequest.getDesignationRequestDetails().stream()
+                .map(d -> designationUtil.mapDesignationRequest_ToDesignation(d)).collect(Collectors.toList()));
+        department.setDesignationList(des);
         departmentRepository.save(department);
-        return department.getDesignationList().stream().map(d -> designationUtil.mapDesignation_ToDesignationResponse(d)).collect(Collectors.toList());
+        return Optional.ofNullable(inst.getDepartmentList() .stream()
+                .flatMap(dep -> dep.getDesignationList().stream())
+                .map(d -> designationUtil.mapDesignation_ToDesignationResponse(d)).collect(Collectors.toList()));
     }
 
     @Override
-    public List<List<Optional<DesignationResponse>>> getAllDesignationByInstitution(DesignationRequest designationRequest) {
-        List<List<Optional<DesignationResponse>>> desList =  institutionUtils.institutionGlobalList.stream().filter(i->i.getBececode().equals(designationRequest.getInstitutionBECECode())).findFirst().get().getDepartmentList().stream().map(dl->dl.getDesignationList().stream().map(z->designationUtil.mapDesignation_ToDesignationResponse(z)).collect(Collectors.toList())).collect(Collectors.toList());
+    public Optional<List<List<Optional<DesignationResponse>>>> getAllDesignationByInstitution(SingleStringRequest designationRequest) {
+        Optional<List<List<Optional<DesignationResponse>>>> desList =
+                institutionUtils.institutionGlobalList.stream()
+                        .filter(i -> i.getBececode().equalsIgnoreCase(designationRequest.getVal()))
+                        .findFirst()
+                        .map(dept -> dept.getDepartmentList().stream()
+                                .map(dl -> dl.getDesignationList().stream()
+                                        .map(designation -> designationUtil.mapDesignation_ToDesignationResponse(designation))
+                                        .collect(Collectors.toList()))
+                                .collect(Collectors.toList()));
+        return desList;
+    }
+    @Override
+    public Optional<List<List<Optional<DesignationResponse>>>> getAllDesignationByInstitutionX(DesignationRequest designationRequest) {
+        Optional<List<List<Optional<DesignationResponse>>>> desList =  Optional.ofNullable(institutionUtils.institutionGlobalList.stream()
+                .filter(i->i.getBececode().equalsIgnoreCase(designationRequest.getInstitutionBECECode())).findFirst().get()
+                .getDepartmentList().stream().map(dl->dl.getDesignationList().stream()
+                        .map(z->designationUtil.mapDesignation_ToDesignationResponse(z)).collect(Collectors.toList()))
+                .collect(Collectors.toList()));
         return desList;
     }
 }

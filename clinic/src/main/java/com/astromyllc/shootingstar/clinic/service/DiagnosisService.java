@@ -40,8 +40,8 @@ public class DiagnosisService implements DiagnosisServiceInterface {
     @Override
     public Optional<List<DiagnosisResponse>> fetchDiagnosisByPatient(PatientRequest patientRequest) {
         Optional<List<DiagnosisResponse>>  diagnosis= Optional.of(diagnosisUtil.diagnosisGlobalList.stream()
-                .filter(diagnosis1 -> diagnosis1.getPatientId().equals(patientRequest.getPatientId())
-                        && diagnosis1.getInstitutionCode().equals(patientRequest.getInstitutionCode())).collect(Collectors.toList())
+                .filter(diagnosis1 -> diagnosis1.getPatientId().equalsIgnoreCase(patientRequest.getPatientId())
+                        && diagnosis1.getInstitutionCode().equalsIgnoreCase(patientRequest.getInstitutionCode())).collect(Collectors.toList())
                 .stream().map(diagnosis1 -> diagnosisUtil.mapDiagnosis_ToDiagnosisResponse(diagnosis1)).collect(Collectors.toList()));
         return diagnosis;
     }

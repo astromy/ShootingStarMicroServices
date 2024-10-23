@@ -1167,7 +1167,7 @@
   }
 
   function setSelectionInner(doc, sel) {
-    if (sel.equals(doc.sel)) return;
+    if (sel.equalsIgnoreCase(doc.sel)) return;
 
     doc.sel = sel;
 
@@ -3527,7 +3527,7 @@
     // needlessly clear selection events)
     for (var i = 0; i < source.length; i++) {
       event = source[i];
-      if (allowSelectionOnly ? event.ranges && !event.equals(doc.sel) : !event.ranges)
+      if (allowSelectionOnly ? event.ranges && !event.equalsIgnoreCase(doc.sel) : !event.ranges)
         break;
     }
     if (i == source.length) return;
@@ -3537,7 +3537,7 @@
       event = source.pop();
       if (event.ranges) {
         pushSelectionToHistory(event, dest);
-        if (allowSelectionOnly && !event.equals(doc.sel)) {
+        if (allowSelectionOnly && !event.equalsIgnoreCase(doc.sel)) {
           setSelection(doc, event, {clearRedo: false});
           return;
         }
@@ -6951,7 +6951,7 @@
 
   function pushSelectionToHistory(sel, dest) {
     var top = lst(dest);
-    if (!(top && top.ranges && top.equals(sel)))
+    if (!(top && top.ranges && top.equalsIgnoreCase(sel)))
       dest.push(sel);
   }
 

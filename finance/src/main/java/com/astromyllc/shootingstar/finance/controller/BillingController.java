@@ -1,6 +1,5 @@
 package com.astromyllc.shootingstar.finance.controller;
 
-import com.astromyllc.shootingstar.finance.dto.request.BillFetchRequest;
 import com.astromyllc.shootingstar.finance.dto.request.BillingFetchRequest;
 import com.astromyllc.shootingstar.finance.dto.request.BillingsRequest;
 import com.astromyllc.shootingstar.finance.dto.response.BillingsResponse;
@@ -11,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -24,13 +24,13 @@ public class BillingController {
     @ResponseStatus(HttpStatus.CREATED)
     public BillingsResponse createBilling(@RequestBody BillingsRequest billingsRequest) {
         log.info("Application  Received");
-        return billingsServiceInterface.createBilling(billingsRequest);
+        return billingsServiceInterface.updateBilling(billingsRequest);
     }
 
     @PostMapping
     @RequestMapping("/api/finance/create-billings")
     @ResponseStatus(HttpStatus.CREATED)
-    public List<BillingsResponse> createBillings(@RequestBody List<BillingsRequest> billingsRequest) {
+    public Optional<List<BillingsResponse>> createBillings(@RequestBody BillingsRequest billingsRequest) {
         log.info("Application  Received");
         return billingsServiceInterface.createBillings(billingsRequest);
     }
@@ -39,7 +39,7 @@ public class BillingController {
     @PostMapping
     @RequestMapping("/api/finance/get-billings-by-institution")
     @ResponseStatus(HttpStatus.OK)
-    public List<BillingsResponse> getBillingsByInstitution(@RequestBody BillFetchRequest billFetchRequest) {
+    public Optional<List<BillingsResponse>> getBillingsByInstitution(@RequestBody BillingFetchRequest billFetchRequest) {
         log.info("Application  Received");
         return billingsServiceInterface.fetchBillingsByInstitution(billFetchRequest);
     }
@@ -48,7 +48,7 @@ public class BillingController {
     @PostMapping
     @RequestMapping("/api/finance/get-billing-by-institution-and-student")
     @ResponseStatus(HttpStatus.OK)
-    public List<BillingsResponse> getBillingByInstitutionAndStudent(@RequestBody BillingFetchRequest billFetchRequest) {
+    public Optional<List<BillingsResponse>> getBillingByInstitutionAndStudent(@RequestBody BillingFetchRequest billFetchRequest) {
         return billingsServiceInterface.fetchBillingByInstitutionAndStudent(billFetchRequest);
     }
 
@@ -56,7 +56,7 @@ public class BillingController {
     @PostMapping
     @RequestMapping("/api/finance/getStudentBilling")
     @ResponseStatus(HttpStatus.OK)
-    public List<BillingsResponse> getStudentBilling(@RequestBody BillingFetchRequest billFetchRequest) {
+    public Optional<List<BillingsResponse>> getStudentBilling(@RequestBody BillingFetchRequest billFetchRequest) {
         return billingsServiceInterface.fetchBillingByInstitutionStudentClassTerm(billFetchRequest);
     }
 
@@ -64,7 +64,7 @@ public class BillingController {
     @PostMapping
     @RequestMapping("/api/finance/getClassBilling")
     @ResponseStatus(HttpStatus.OK)
-    public List<BillingsResponse> getClassBilling(@RequestBody BillingFetchRequest billFetchRequest) {
+    public Optional<List<BillingsResponse>> getClassBilling(@RequestBody BillingFetchRequest billFetchRequest) {
         return billingsServiceInterface.fetchClassBillingByInstitution(billFetchRequest);
     }
 
@@ -72,7 +72,7 @@ public class BillingController {
     @PostMapping
     @RequestMapping("/api/finance/getSchoolBilling")
     @ResponseStatus(HttpStatus.OK)
-    public List<BillingsResponse> getSchoolBilling(@RequestBody BillingFetchRequest billFetchRequest) {
+    public Optional<List<BillingsResponse>> getSchoolBilling(@RequestBody BillingFetchRequest billFetchRequest) {
         return billingsServiceInterface.fetchSchoolBillingByInstitution(billFetchRequest);
     }
 

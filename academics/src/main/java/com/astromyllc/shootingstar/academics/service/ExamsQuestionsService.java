@@ -43,52 +43,52 @@ public class ExamsQuestionsService implements ExamsQuestionsServiceInterface {
 
     @Override
     public List<Optional<ExamsQuestionsResponse>> fetchQuestionsByClassAndTerm(ExamsQuestionsRequest examsQuestionsRequest) {
-       return examsQuestionsUtil.examsQuestionsGlobalList.stream().filter(e->e.getClassId().equals(examsQuestionsRequest.getClassId())
-        && e.getTerm().equals(examsQuestionsRequest.getTerm())).map(eq->examsQuestionsUtil.mapExamsQuestions_ToExamsQuestionResponse(eq)).collect(Collectors.toList());
+       return examsQuestionsUtil.examsQuestionsGlobalList.stream().filter(e->e.getClassId().equalsIgnoreCase(examsQuestionsRequest.getClassId())
+        && e.getTerm().equalsIgnoreCase(examsQuestionsRequest.getTerm())).map(eq->examsQuestionsUtil.mapExamsQuestions_ToExamsQuestionResponse(eq)).collect(Collectors.toList());
     }
 
     @Override
     public List<Optional<ExamsQuestionsResponse>> fetchQuestionsByClass(ExamsQuestionsRequest examsQuestionsRequest) {
-        return examsQuestionsUtil.examsQuestionsGlobalList.stream().filter(e->e.getClassId().equals(examsQuestionsRequest.getClassId())).map(eq->examsQuestionsUtil.mapExamsQuestions_ToExamsQuestionResponse(eq)).collect(Collectors.toList());
+        return examsQuestionsUtil.examsQuestionsGlobalList.stream().filter(e->e.getClassId().equalsIgnoreCase(examsQuestionsRequest.getClassId())).map(eq->examsQuestionsUtil.mapExamsQuestions_ToExamsQuestionResponse(eq)).collect(Collectors.toList());
     }
 
     @Override
     public List<Optional<ExamsQuestionsResponse>> fetchQuestionsByInstAndClassAndTerm(ExamsQuestionsRequest examsQuestionsRequest) {
-        return examsQuestionsUtil.examsQuestionsGlobalList.stream().filter(e->e.getClassId().equals(examsQuestionsRequest.getClassId())
-                && e.getTerm().equals(examsQuestionsRequest.getTerm())
-                && e.getInstitutionCode().equals(examsQuestionsRequest.getInstitutionCode())
+        return examsQuestionsUtil.examsQuestionsGlobalList.stream().filter(e->e.getClassId().equalsIgnoreCase(examsQuestionsRequest.getClassId())
+                && e.getTerm().equalsIgnoreCase(examsQuestionsRequest.getTerm())
+                && e.getInstitutionCode().equalsIgnoreCase(examsQuestionsRequest.getInstitutionCode())
         ).map(eq->examsQuestionsUtil.mapExamsQuestions_ToExamsQuestionResponse(eq)).collect(Collectors.toList());
     }
 
     @Override
     public List<Optional<ExamsQuestionsResponse>> fetchQuestionsByInstAndClass(ExamsQuestionsRequest examsQuestionsRequest) {
-        return examsQuestionsUtil.examsQuestionsGlobalList.stream().filter(e->e.getClassId().equals(examsQuestionsRequest.getClassId())
-                && e.getInstitutionCode().equals(examsQuestionsRequest.getInstitutionCode())).map(eq->examsQuestionsUtil.mapExamsQuestions_ToExamsQuestionResponse(eq)).collect(Collectors.toList());
+        return examsQuestionsUtil.examsQuestionsGlobalList.stream().filter(e->e.getClassId().equalsIgnoreCase(examsQuestionsRequest.getClassId())
+                && e.getInstitutionCode().equalsIgnoreCase(examsQuestionsRequest.getInstitutionCode())).map(eq->examsQuestionsUtil.mapExamsQuestions_ToExamsQuestionResponse(eq)).collect(Collectors.toList());
     }
 
     @Override
     public List<Optional<ExamsQuestionsResponse>> fetchQuestionsByInstAndClassAndSubj(ExamsQuestionsRequest examsQuestionsRequest) {
-        return examsQuestionsUtil.examsQuestionsGlobalList.stream().filter(e->e.getClassId().equals(examsQuestionsRequest.getClassId())
-                && e.getInstitutionCode().equals(examsQuestionsRequest.getInstitutionCode())
-                && e.getSubjectId().equals(examsQuestionsRequest.getSubjectId())
+        return examsQuestionsUtil.examsQuestionsGlobalList.stream().filter(e->e.getClassId().equalsIgnoreCase(examsQuestionsRequest.getClassId())
+                && e.getInstitutionCode().equalsIgnoreCase(examsQuestionsRequest.getInstitutionCode())
+                && e.getSubjectId().equalsIgnoreCase(examsQuestionsRequest.getSubjectId())
         ).map(eq->examsQuestionsUtil.mapExamsQuestions_ToExamsQuestionResponse(eq)).collect(Collectors.toList());
 
     }
 
     @Override
     public List<Optional<ExamsQuestionsResponse>> fetchQuestionsByInstAndClassAndSubjAndTerm(ExamsQuestionsRequest examsQuestionsRequest) {
-        return examsQuestionsUtil.examsQuestionsGlobalList.stream().filter(e->e.getClassId().equals(examsQuestionsRequest.getClassId())
-                && e.getTerm().equals(examsQuestionsRequest.getTerm())
-                && e.getSubjectId().equals(examsQuestionsRequest.getSubjectId())
-                && e.getInstitutionCode().equals(examsQuestionsRequest.getInstitutionCode())
+        return examsQuestionsUtil.examsQuestionsGlobalList.stream().filter(e->e.getClassId().equalsIgnoreCase(examsQuestionsRequest.getClassId())
+                && e.getTerm().equalsIgnoreCase(examsQuestionsRequest.getTerm())
+                && e.getSubjectId().equalsIgnoreCase(examsQuestionsRequest.getSubjectId())
+                && e.getInstitutionCode().equalsIgnoreCase(examsQuestionsRequest.getInstitutionCode())
         ).map(eq->examsQuestionsUtil.mapExamsQuestions_ToExamsQuestionResponse(eq)).collect(Collectors.toList());
 
     }
 
     @Override
     public List<Optional<ExamsQuestionsResponse>> fetchQuestionsByClassAndSuj(ExamsQuestionsRequest examsQuestionsRequest) {
-        return examsQuestionsUtil.examsQuestionsGlobalList.stream().filter(e->e.getClassId().equals(examsQuestionsRequest.getClassId())
-                && e.getSubjectId().equals(examsQuestionsRequest.getSubjectId())).map(eq->examsQuestionsUtil.mapExamsQuestions_ToExamsQuestionResponse(eq)).collect(Collectors.toList());
+        return examsQuestionsUtil.examsQuestionsGlobalList.stream().filter(e->e.getClassId().equalsIgnoreCase(examsQuestionsRequest.getClassId())
+                && e.getSubjectId().equalsIgnoreCase(examsQuestionsRequest.getSubjectId())).map(eq->examsQuestionsUtil.mapExamsQuestions_ToExamsQuestionResponse(eq)).collect(Collectors.toList());
 
     }
 

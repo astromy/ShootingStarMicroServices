@@ -1,6 +1,7 @@
 package com.astromyllc.shootingstar.adminpta.controller;
 
 import com.astromyllc.shootingstar.adminpta.dto.request.AdmissionRequest;
+import com.astromyllc.shootingstar.adminpta.dto.request.StudentSkimRequest;
 import com.astromyllc.shootingstar.adminpta.dto.response.StudentsResponse;
 import com.astromyllc.shootingstar.adminpta.model.Students;
 import com.astromyllc.shootingstar.adminpta.serviceInterface.StudentServiceInterface;
@@ -33,5 +34,11 @@ public class StudentsController {
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<List<StudentsResponse>> getAllStudents() {
       return ResponseEntity.ok(studentServiceInterface.fetchAllStudents());
+    }
+
+    @PostMapping("/api/administration-pta/getStudentsByClass")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<List<StudentsResponse>> getStudentsByClass(@RequestBody StudentSkimRequest request) {
+        return ResponseEntity.ok(studentServiceInterface.fetchStudentsByClass(request));
     }
 }

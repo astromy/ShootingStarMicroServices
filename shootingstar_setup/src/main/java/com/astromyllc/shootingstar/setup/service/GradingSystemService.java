@@ -36,8 +36,8 @@ public class GradingSystemService implements GradingSettingsServiceInterface {
 
     @Override
     public Optional<GradingSettingResponse> createGradingSettingDetails(GradingSettingRequest gradingSettingRequestList) {
-      Institution ins= institutionUtils.institutionGlobalList.stream().filter(i->i.getBececode().equals(gradingSettingRequestList.getInstitution())).findFirst().get();
-      ins.setGradingSetting((GradingSetting) gradingSettingRequestList.getGradingSettingDetails().stream().map(gd->gradingSettingUtil.mapGradeSettingRequest_ToGradeSetting(gd)));
+      Institution ins= institutionUtils.institutionGlobalList.stream().filter(i->i.getBececode().equalsIgnoreCase(gradingSettingRequestList.getInstitution())).findFirst().get();
+      ins.setGradingSetting(gradingSettingUtil.mapGradeSettingRequest_ToGradeSetting(gradingSettingRequestList.getGradingSettingDetails()));
     institutionRepository.save(ins);
     return gradingSettingUtil.mapGradeSetting_ToGradeSettingResponse(ins.getGradingSetting());
     }
@@ -50,6 +50,6 @@ public class GradingSystemService implements GradingSettingsServiceInterface {
     @Override
     public Optional<GradingSettingResponse> getAllGradingSettingsByInstitution(SingleStringRequest institutionRequest1) {
         String institutionRequest= institutionRequest1.getVal();
-        return  gradingSettingUtil.mapGradeSetting_ToGradeSettingResponse(institutionUtils.institutionGlobalList.stream().filter(i->i.getBececode().equals(institutionRequest)).findFirst().get().getGradingSetting());
+        return  gradingSettingUtil.mapGradeSetting_ToGradeSettingResponse(institutionUtils.institutionGlobalList.stream().filter(i->i.getBececode().equalsIgnoreCase(institutionRequest)).findFirst().get().getGradingSetting());
     }
 }

@@ -43,12 +43,12 @@ public class ContinuousAssessmentService implements ContinuousAssessmentServiceI
     @Override
     public List<ContinuousAssessmentResponse> getContinuousAssessmentByStudent(ContinuousAssessmentRequest continuousAssessmentRequest) {
         List<ContinuousAssessment> ca = continuousAssessmentUtil.continuousAssessmentGlobalList.stream().filter(
-                car -> car.getStudentId().equals(continuousAssessmentRequest.getStudentId())
+                car -> car.getStudentId().equalsIgnoreCase(continuousAssessmentRequest.getStudentId())
                         && car.getSubject().equals(continuousAssessmentRequest.getSubject())
-                        && car.getTerm().equals(continuousAssessmentRequest.getTerm())
-                        && car.getStudentClass().equals(continuousAssessmentRequest.getStudentClass())
-                        && car.getAcademicYear().equals(continuousAssessmentRequest.getAcademicYear())
-                // && car.getDateTime().toLocalDate().equals(LocalDateTime.parse(continuousAssessmentRequest.getDateTime(),formatter).toLocalDate())
+                        && car.getTerm().equalsIgnoreCase(continuousAssessmentRequest.getTerm())
+                        && car.getStudentClass().equalsIgnoreCase(continuousAssessmentRequest.getStudentClass())
+                        && car.getAcademicYear().equalsIgnoreCase(continuousAssessmentRequest.getAcademicYear())
+                // && car.getDateTime().toLocalDate().equalsIgnoreCase(LocalDateTime.parse(continuousAssessmentRequest.getDateTime(),formatter).toLocalDate())
         ).collect(Collectors.toList());
         return ca.stream().map(car -> continuousAssessmentUtil.mapContinuousAssessment_ToContinuousAssessmentResponse(car)).collect(Collectors.toList());
 
@@ -58,10 +58,10 @@ public class ContinuousAssessmentService implements ContinuousAssessmentServiceI
     public List<ContinuousAssessmentResponse> getContinuousAssessmentByClass(ContinuousAssessmentRequest continuousAssessmentRequest) {
         List<ContinuousAssessment> ca = continuousAssessmentUtil.continuousAssessmentGlobalList.stream().filter(
                 car -> car.getSubject().equals(continuousAssessmentRequest.getSubject())
-                        && car.getTerm().equals(continuousAssessmentRequest.getTerm())
-                        && car.getStudentClass().equals(continuousAssessmentRequest.getStudentClass())
-                        && car.getAcademicYear().equals(continuousAssessmentRequest.getAcademicYear())
-                //&& car.getDateTime().toLocalDate().equals(LocalDateTime.parse(continuousAssessmentRequest.getDateTime(),formatter).toLocalDate())
+                        && car.getTerm().equalsIgnoreCase(continuousAssessmentRequest.getTerm())
+                        && car.getStudentClass().equalsIgnoreCase(continuousAssessmentRequest.getStudentClass())
+                        && car.getAcademicYear().equalsIgnoreCase(continuousAssessmentRequest.getAcademicYear())
+                //&& car.getDateTime().toLocalDate().equalsIgnoreCase(LocalDateTime.parse(continuousAssessmentRequest.getDateTime(),formatter).toLocalDate())
         ).collect(Collectors.toList());
         return ca.stream().map(car -> continuousAssessmentUtil.mapContinuousAssessment_ToContinuousAssessmentResponse(car)).collect(Collectors.toList());
 

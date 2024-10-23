@@ -58,15 +58,26 @@ public class AdmissionUtil {
     }
 
     public static Optional<AdmissionsResponse> mapAdmissionToAdmissionResponse(Admissions admissions) {
-        return Optional.of(Optional.ofNullable(AdmissionsResponse.builder()
-                .id(admissions.getIdAdmissions())
-                .admissionCriteriaList((List<AdmissionCriteriaResponse>) admissions.getAdmissionCriteriaList().stream().map(criteria -> {
-                    return mapCriteriaToCriteriaResponse(criteria);
-                }).toList())
-                .applicationCategoryList((List<ApplicationCategoryResponse>) admissions.getApplicationCategoryList().stream().map(category -> {
-                    return mapCategoryToCategoryResponse(category);
-                }).toList())
-                .build()).orElse(new AdmissionsResponse()));
+        return Optional.ofNullable(admissions)
+                .map(admission->AdmissionsResponse.builder()
+                    .id(admission.getIdAdmissions())
+                    .admissionCriteriaList(
+                            (List<AdmissionCriteriaResponse>) admission.getAdmissionCriteriaList()
+                                    .stream()
+                                    .map(criteria -> {
+                                        return   mapCriteriaToCriteriaResponse(criteria);
+                                             })
+                                    .toList()
+                            )
+                .applicationCategoryList(
+                        (List<ApplicationCategoryResponse>) admission.getApplicationCategoryList()
+                                .stream().map(category -> {
+                                                return mapCategoryToCategoryResponse(category);
+                                             })
+                                .toList()
+                        )
+                .build()
+                );
     }
 
 
@@ -78,10 +89,11 @@ public class AdmissionUtil {
                 .build();
     }
 
-    private static AdmissionCriteria mapCriteriaRequestToCriteria(AdmissionCriteriaRequest admissionCriteriaRequest) {
+    public static AdmissionCriteria mapCriteriaRequestToCriteria(AdmissionCriteriaRequest admissionCriteriaRequest) {
         return AdmissionCriteria.builder()
                 .criteria(admissionCriteriaRequest.getCriteria())
                 .value(admissionCriteriaRequest.getValue())
+                .operand(admissionCriteriaRequest.getOperand())
                 .build();
     }
 
@@ -90,16 +102,16 @@ public class AdmissionUtil {
                 a.setValue(admissionCriteriaRequest.getValue());
         return a;
     }
-    private static ApplicationCategory mapCategoryRequestToCategory(ApplicationCategoryRequest applicationCategoryRequest) {
+    public static ApplicationCategory mapCategoryRequestToCategory(ApplicationCategoryRequest applicationCategoryRequest) {
         return ApplicationCategory.builder()
                 .applicationFormType(applicationCategoryRequest.getApplicationFormType())
                 .applicationFormAmount(applicationCategoryRequest.getApplicationFormAmount())
                 .applicationFormQNT(applicationCategoryRequest.getApplicationFormQNT())
-                .appointmentClosure(LocalDateTime.parse(applicationCategoryRequest.getAppointmentClosure(),formatter))
-                .appointmentCommencement(LocalDateTime.parse(applicationCategoryRequest.getAppointmentCommencement(),formatter))
+                .appointmentClosure(LocalDateTime.parse(applicationCategoryRequest.getAppointmentClosure().replace("T", " "),formatter))
+                .appointmentCommencement(LocalDateTime.parse(applicationCategoryRequest.getAppointmentCommencement().replace("T", " "),formatter))
                 .paymentMedium(applicationCategoryRequest.getPaymentMedium())
-                .closure(LocalDateTime.parse(applicationCategoryRequest.getClosure(),formatter))
-                .commencement(LocalDateTime.parse(applicationCategoryRequest.getCommencement(),formatter))
+                .closure(LocalDateTime.parse(applicationCategoryRequest.getClosure().replace("T", " "),formatter))
+                .commencement(LocalDateTime.parse(applicationCategoryRequest.getCommencement().replace("T", " "),formatter))
                 .appointmentPerDay(applicationCategoryRequest.getAppointmentPerDay())
 
                 .build();

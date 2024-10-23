@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -16,19 +17,14 @@ import java.time.LocalDateTime;
 @Embeddable
 public class BillingsRequest {
     private Long billingId;
-    private String billingDate;
     @Nonnull
     private String term;
     @Nonnull
     private String studentClass;
     @Nonnull
-    private String studentId;
-    private String BillDisc;
+    private List<String> studentId;
     @Nonnull
-    private Double billamnt;
-    @Nonnull
-    private String billname;
-    private Double billamntbal;
+    private List<String> billname;
     @Nonnull
     private String institutionCode;
 }

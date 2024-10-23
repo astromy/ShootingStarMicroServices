@@ -16,14 +16,14 @@ management.endpoints.web.exposure.include=*
 management.endpoint.health.show-details=always
 
 ##RESILIENCE4J PROPERTIES
-resilience4j.circuitbreaker.instances.setup.registerHealthIndicator=true
-resilience4j.circuitbreaker.instances.setup.event-consumer-buffer-size=10
-resilience4j.circuitbreaker.instances.setup.slidingWindowType=COUNT_BASED
-resilience4j.circuitbreaker.instances.setup.slidingWindowSize=5
-resilience4j.circuitbreaker.instances.setup.failureRateThreshold=50
-resilience4j.circuitbreaker.instances.setup.waitDurationInOpenState=5s
-resilience4j.circuitbreaker.instances.setup.permittedNumberOfCallsInHalfOpenState=3
-resilience4j.circuitbreaker.instances.setup.authomaticTransitionFromOpenToHalfOpenEnabled=true
+resilience4j.circuitbreaker.instances.setup.registerHealthIndicator= true
+resilience4j.circuitbreaker.instances.setup.event-consumer-buffer-size= 10
+resilience4j.circuitbreaker.instances.setup.slidingWindowType= COUNT_BASED
+resilience4j.circuitbreaker.instances.setup.slidingWindowSize= 5
+resilience4j.circuitbreaker.instances.setup.failureRateThreshold= 50
+resilience4j.circuitbreaker.instances.setup.waitDurationInOpenState= 5s
+resilience4j.circuitbreaker.instances.setup.permittedNumberOfCallsInHalfOpenState= 3
+resilience4j.circuitbreaker.instances.setup.authomaticTransitionFromOpenToHalfOpenEnabled= true
 
 ##Resilience4J Timeout Properties
 resilience4j.timelimiter.instances.setup.timeout-duration=3s

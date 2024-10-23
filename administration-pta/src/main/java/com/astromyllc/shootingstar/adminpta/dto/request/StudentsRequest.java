@@ -31,7 +31,7 @@ public class StudentsRequest {
     @NonNull
     private String countryOfBirth;
     @NonNull
-    private String nationality;
+    private String residentialLocality;
     @NonNull
     private String picture;
     @NonNull
@@ -39,6 +39,7 @@ public class StudentsRequest {
     private String denomination;
     @NonNull
     private String institutionCode;
+    private String studentClass;
     @NonNull
     private String status;
 }

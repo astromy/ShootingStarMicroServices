@@ -57,7 +57,6 @@ public class BillUtil {
         bill.setBill_Cat(billRequest.getBill_Cat());
         bill.setBill_Description(billRequest.getBill_Description());
         bill.setBill_Name(billRequest.getBill_Name());
-        bill.setCreation_Date(LocalDateTime.parse(billRequest.getCreation_Date(),formatter));
         bill.setInstitutionCode(billRequest.getInstitutionCode());
         return bill;
     }

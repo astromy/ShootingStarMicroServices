@@ -2,7 +2,6 @@ package com.astromyllc.shootingstar.setup.service;
 
 import com.astromyllc.shootingstar.setup.dto.request.*;
 import com.astromyllc.shootingstar.setup.dto.response.SubjectResponse;
-import com.astromyllc.shootingstar.setup.model.Classes;
 import com.astromyllc.shootingstar.setup.model.Institution;
 import com.astromyllc.shootingstar.setup.model.Subject;
 import com.astromyllc.shootingstar.setup.repository.InstitutionRepository;
@@ -29,16 +28,15 @@ public class SubjectService implements SubjectServiceInterface {
     private final InstitutionUtils institutionUtils;
     private final InstitutionRepository institutionRepository;
     @Override
-    public void createSubject(SubjectRequest subjectRequest) {
-        Optional<Institution> inst= InstitutionUtils.institutionGlobalList.stream().filter(x->x.getBececode().equals(subjectRequest.getInstitution())).findFirst();
-        List<SubjectDetails> sl=subjectRequest.getSubjectDetails().stream().filter(ci->ci.getId()==null).collect(Collectors.toList());
-        if(sl.isEmpty()){
-            List<Subject> sl1= (List<Subject>) subjectRequest.getSubjectDetails().stream().map(c -> SubjectUtil.mapSubjectRequest_ToSubject(c, (Subject) SubjectUtil.subjectGlobalList.stream().filter(x->x.getIdSubject().equals(c.getId()))));
-            subjectRepository.saveAll(sl1);
-        }else {
-            inst.get().setSubjectList(sl.stream().map(SubjectUtil::mapSubjectRequest_ToSubject).collect(Collectors.toList()));
-            institutionRepository.save(inst.get());
-        }
+    public Optional<List<Optional<SubjectResponse>>> createSubject(SubjectRequest subjectRequest) {
+        Optional<Institution> inst= InstitutionUtils.institutionGlobalList.stream().filter(x->x.getBececode().equalsIgnoreCase(subjectRequest.getInstitution())).findFirst();
+        List<Subject> sj=inst.get().getSubjectList();
+        sj.addAll(subjectRequest.getSubjectDetails().stream().map(SubjectUtil::mapSubjectRequest_ToSubject).toList());
+        inst.get().setSubjectList(sj);
+        institutionRepository.save(inst.get());
+        Optional<List<Optional<SubjectResponse>>> sr= Optional.ofNullable(inst.get().getSubjectList().stream().map(s->subjectUtil.mapSubject_ToSubjectResponse(s)).collect(Collectors.toList()));
+        return sr;
+
     }
 
     @Override
@@ -61,7 +59,7 @@ public class SubjectService implements SubjectServiceInterface {
     public Optional<List<Optional<SubjectResponse>>> getAllSubjectsByInstitution(SingleStringRequest institutionRequest) {
         String finalBeceCode= institutionRequest.getVal();
         Optional<List<Optional<SubjectResponse>>> collect = Optional.of(InstitutionUtils.institutionGlobalList.stream()
-                .filter(i -> i.getBececode().equals(finalBeceCode))
+                .filter(i -> i.getBececode().equalsIgnoreCase(finalBeceCode))
                 .findFirst().get().getSubjectList().stream()
                 .map(s->subjectUtil.mapSubject_ToSubjectResponse(s)).collect(Collectors.toList()));
         return collect;
@@ -70,6 +68,6 @@ public class SubjectService implements SubjectServiceInterface {
     @Override
     public List<Optional<SubjectResponse>> getAllSubjectsByClassGroup(SingleStringRequest classGroup1) {
         String classGroup= classGroup1.getVal();
-       return SubjectUtil.subjectGlobalList.stream().filter(s->s.getClassGroup().equals(classGroup)).map(m->subjectUtil.mapSubject_ToSubjectResponse(m)).collect(Collectors.toList());
+       return SubjectUtil.subjectGlobalList.stream().filter(s->s.getClassGroup().equalsIgnoreCase(classGroup)).map(m->subjectUtil.mapSubject_ToSubjectResponse(m)).collect(Collectors.toList());
     }
 }

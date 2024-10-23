@@ -32,7 +32,7 @@ public class Student_BillService implements Student_BillServiceInterface {
 
     @Override
     public Student_BillResponse createStudentBill(Student_BillRequest studentBillRequest) {
-        Optional<Student_Bill> studentBill = studentBillUtil.studentBillsGlobalList.stream().filter(s -> s.getInstitutionCode().equals(studentBillRequest.getInstitutionCode()) && s.getStudentId().equals(studentBillRequest.getStudentId())).findFirst();
+        Optional<Student_Bill> studentBill = studentBillUtil.studentBillsGlobalList.stream().filter(s -> s.getInstitutionCode().equalsIgnoreCase(studentBillRequest.getInstitutionCode()) && s.getStudentId().equalsIgnoreCase(studentBillRequest.getStudentId())).findFirst();
         if (studentBill.isEmpty()) {
             Student_Bill studentBill1 = studentBillUtil.mapStudentBillRequest_ToStudentBill(studentBillRequest);
             studentBillRepository.save(studentBill1);
@@ -47,15 +47,15 @@ public class Student_BillService implements Student_BillServiceInterface {
     @Override
     public List<Student_BillResponse> fetchStudentBillsByInstitution(StudentBillFetchRequest studentBillFetchRequest) {
         return studentBillUtil.studentBillsGlobalList.stream().filter(
-                        s -> s.getInstitutionCode().equals(studentBillFetchRequest.getInstitutionCode()))
+                        s -> s.getInstitutionCode().equalsIgnoreCase(studentBillFetchRequest.getInstitutionCode()))
                 .map(sr -> studentBillUtil.mapStudentBill_ToStudentBillResponse(sr)).collect(Collectors.toList());
     }
 
     @Override
     public Student_BillResponse fetchStudentBillByIdAndInstitution(StudentBillFetchRequest studentBillFetchRequest) {
         return studentBillUtil.studentBillsGlobalList.stream().filter(
-                        s -> s.getInstitutionCode().equals(studentBillFetchRequest.getInstitutionCode())
-                                && s.getStudentId().equals(studentBillFetchRequest.getStudentId()))
+                        s -> s.getInstitutionCode().equalsIgnoreCase(studentBillFetchRequest.getInstitutionCode())
+                                && s.getStudentId().equalsIgnoreCase(studentBillFetchRequest.getStudentId()))
                 .map(sr -> studentBillUtil.mapStudentBill_ToStudentBillResponse(sr)).findFirst().get();
     }
 

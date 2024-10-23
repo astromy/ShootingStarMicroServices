@@ -90,14 +90,14 @@ public class InstitutionController {
 
     @PostMapping("/api/setup/addDepartment")
     @ResponseStatus(HttpStatus.CREATED)
-    public void SubmitPreOrderApplication(@RequestBody DepartmentRequest departmentRequest) {
+    public Optional<List<Optional<DepartmentResponse>>> AddDepartment(@RequestBody DepartmentRequest departmentRequest) {
         log.info("Application  Received");
-        departmentServiceInterface.createDepartments(departmentRequest);
+       return departmentServiceInterface.createDepartments(departmentRequest);
     }
 
     @PostMapping("/api/setup/getInstitutionDepartment")
     @ResponseStatus(HttpStatus.OK)
-    public List<Optional<DepartmentResponse>> getDepartmentByInstitution(@RequestBody SingleStringRequest beceCode) {
+    public Optional<List<Optional<DepartmentResponse>>> getDepartmentByInstitution(@RequestBody SingleStringRequest beceCode) {
         log.info("Application  Received");
       return  departmentServiceInterface.getDepartmentByInstitution(beceCode);
     }
@@ -131,9 +131,9 @@ public class InstitutionController {
 
     @PostMapping("/api/setup/addClasses")
     @ResponseStatus(HttpStatus.CREATED)
-    public void AddClasses(@RequestBody ClassesRequest classesRequest) {
+    public Optional<List<Optional<ClassesResponse>>> AddClasses(@RequestBody ClassesRequest classesRequest) {
         log.info("Class List  Received");
-        classesServiceInterface.createClasses(classesRequest);
+        return classesServiceInterface.createClasses(classesRequest);
     }
 
     @PostMapping("/api/setup/getInstitutionClasses")
@@ -149,9 +149,9 @@ public class InstitutionController {
 
     @PostMapping("/api/setup/addSubjects")
     @ResponseStatus(HttpStatus.CREATED)
-    public void AddSubjects(@RequestBody SubjectRequest subjectRequest) {
+    public Optional<List<Optional<SubjectResponse>>> AddSubjects(@RequestBody SubjectRequest subjectRequest) {
         log.info("Subject List  Received");
-        subjectServiceInterface.createSubject(subjectRequest);
+        return subjectServiceInterface.createSubject(subjectRequest);
     }
 
     @PostMapping("/api/setup/getInstitutionSubjects")
@@ -168,9 +168,9 @@ public class InstitutionController {
 
     @PostMapping("/api/setup/addGradingSetting")
     @ResponseStatus(HttpStatus.CREATED)
-    public void AddGradingSetting(@RequestBody GradingSettingRequest gradingSettingRequests) {
+    public Optional<GradingSettingResponse> AddGradingSetting(@RequestBody GradingSettingRequest gradingSettingRequests) {
         log.info("Grade Setting  Received");
-        gradingSettingsServiceInterface.createGradingSetting(gradingSettingRequests);
+      return  gradingSettingsServiceInterface.createGradingSettingDetails(gradingSettingRequests);
     }
 
     @PostMapping("/api/setup/getInstitutionGradingSetting")
@@ -186,14 +186,14 @@ public class InstitutionController {
 
     @PostMapping("/api/setup/addDesignations")
     @ResponseStatus(HttpStatus.CREATED)
-    public List<Optional<DesignationResponse>> AddDesignation(@RequestBody DesignationRequest designationRequest) {
+    public Optional<List<Optional<DesignationResponse>>> AddDesignation(@RequestBody DesignationRequest designationRequest) {
         log.info("Designation  Received");
       return  designationServiceInterface.createDesignation(designationRequest);
     }
 
     @PostMapping("/api/setup/getInstitutionDesignations")
     @ResponseStatus(HttpStatus.OK)
-    public  List<List<Optional<DesignationResponse>>> GetDesignationByInstitution(@RequestBody DesignationRequest designationRequest) {
+    public  Optional<List<List<Optional<DesignationResponse>>>> GetDesignationByInstitution(@RequestBody SingleStringRequest designationRequest) {
         log.info("Designation Request  Received");
         return designationServiceInterface.getAllDesignationByInstitution(designationRequest);
     }

@@ -53,7 +53,7 @@ public class UsersService implements UsersServiceInterface {
     }
 
     public void addUser(UsersRequest usersRequest) {
-        Optional<Users> users = usersRepository.findUserByUsername(usersRequest.getUserName());//.usersGlobalList.stream().filter(u -> u.getUsername().equals(usersRequest.getUserName())).findFirst();
+        Optional<Users> users = usersRepository.findUserByUsername(usersRequest.getUserName());//.usersGlobalList.stream().filter(u -> u.getUsername().equalsIgnoreCase(usersRequest.getUserName())).findFirst();
         if (users.isEmpty()) {
             Users nUser = usersUtil.mapUserRequest_ToUsers(usersRequest);
             usersRepository.save(nUser);
@@ -63,7 +63,7 @@ public class UsersService implements UsersServiceInterface {
 
     @Override
     public Optional<Users> getUserByName(String userName) {
-        Optional<Users> user = usersRepository.findUserByUsername(userName);//usersUtil.usersGlobalList.stream().filter(u -> u.getUsername().equals(userName)).findFirst().get();// findUserByUsername(Username);
+        Optional<Users> user = usersRepository.findUserByUsername(userName);//usersUtil.usersGlobalList.stream().filter(u -> u.getUsername().equalsIgnoreCase(userName)).findFirst().get();// findUserByUsername(Username);
         if (user == null) {
             user = usersRepository.findUserByEmail(userName);
         }
@@ -87,7 +87,7 @@ public class UsersService implements UsersServiceInterface {
 
     @Override
     public JwtAuthenticationResponse signup(UsersRequest request) {
-        Optional<Users> users = usersGlobalList.stream().filter(u -> u.getUsername().equals(request.getUserName())).findFirst(); //Optional.ofNullable(usersRepository.findUserByUsername(request.getUserName()));
+        Optional<Users> users = usersGlobalList.stream().filter(u -> u.getUsername().equalsIgnoreCase(request.getUserName())).findFirst(); //Optional.ofNullable(usersRepository.findUserByUsername(request.getUserName()));
         Users nUser = new Users();
         if (users.isEmpty()) {
             nUser = usersUtil.mapUserRequest_ToUsers(request);
@@ -103,9 +103,9 @@ public class UsersService implements UsersServiceInterface {
     public JwtAuthenticationResponse signin(UsersRequest request) {
        /* authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getUserName(), request.getPassword()));*/
-        Users users1 = usersGlobalList.stream().filter(u -> u.getUsername().equals(request.getUserName())).findFirst().get();
+        Users users1 = usersGlobalList.stream().filter(u -> u.getUsername().equalsIgnoreCase(request.getUserName())).findFirst().get();
         if (users1 == null) {
-            users1 = usersGlobalList.stream().filter(u -> u.getEmail().equals(request.getEmail())).findFirst()
+            users1 = usersGlobalList.stream().filter(u -> u.getEmail().equalsIgnoreCase(request.getEmail())).findFirst()
                     .orElseThrow(() -> new IllegalArgumentException("Invalid credentials"));
         }
         var jwt = jwtService.generateToken(users1);

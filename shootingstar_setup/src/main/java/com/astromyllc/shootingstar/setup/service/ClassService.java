@@ -1,9 +1,6 @@
 package com.astromyllc.shootingstar.setup.service;
 
-import com.astromyllc.shootingstar.setup.dto.request.ClassDetail;
-import com.astromyllc.shootingstar.setup.dto.request.ClassGroupRequest;
-import com.astromyllc.shootingstar.setup.dto.request.ClassesRequest;
-import com.astromyllc.shootingstar.setup.dto.request.SingleStringRequest;
+import com.astromyllc.shootingstar.setup.dto.request.*;
 import com.astromyllc.shootingstar.setup.dto.response.ClassesResponse;
 import com.astromyllc.shootingstar.setup.model.Classes;
 import com.astromyllc.shootingstar.setup.model.Institution;
@@ -36,16 +33,14 @@ public class ClassService implements ClassesServiceInterface {
     }
 
     @Override
-    public void createClasses(ClassesRequest classesRequestList) {
-        Optional<Institution> inst=institutionUtils.institutionGlobalList.stream().filter(x->x.getBececode().equals(classesRequestList.getInstitution())).findFirst();
-       List<ClassDetail> cl=classesRequestList.getClassDetailList().stream().filter(ci->ci.getId()==null).collect(Collectors.toList());
-       if(cl.isEmpty()){
-         List<Classes> cl1= (List<Classes>) classesRequestList.getClassDetailList().stream().map(c -> classesUtil.mapClassRequestToClass(c, (Classes) classesUtil.classesGlobalList.stream().filter(x->x.getIdClasses().equals(c.getId()))));
-       classesRepository.saveAll(cl1);
-       }else {
-           inst.get().setClassList((List<Classes>) cl.stream().map(c -> classesUtil.mapClassRequestToClass(c)));
-           institutionRepository.save(inst.get());
-       }
+    public Optional<List<Optional<ClassesResponse>>> createClasses(ClassesRequest classesRequestList) {
+        Optional<Institution> inst= InstitutionUtils.institutionGlobalList.stream().filter(x->x.getBececode().equalsIgnoreCase(classesRequestList.getInstitution())).findFirst();
+        List<Classes> cl=inst.get().getClassList();
+        cl.addAll(classesRequestList.getClassDetailList().stream().map(ClassesUtil::mapClassRequestToClass).toList());
+        inst.get().setClassList(cl);
+        institutionRepository.save(inst.get());
+        Optional<List<Optional<ClassesResponse>>> cr= Optional.ofNullable(inst.get().getClassList().stream().map(s->classesUtil.mapClassToClassResponse(s)).collect(Collectors.toList()));
+        return cr;
     }
 
     @Override
@@ -55,18 +50,18 @@ public class ClassService implements ClassesServiceInterface {
     }
 
     @Override
-    public List<Optional<ClassesResponse>> getAllClassesByClassGroup(ClassGroupRequest classGroupRequest) {
-      return  institutionUtils.institutionGlobalList.stream()
-              .filter(i->i.getBececode().equals(classGroupRequest.getInstitution()))
+    public Optional<List<Optional<ClassesResponse>>> getAllClassesByClassGroup(ClassGroupRequest classGroupRequest) {
+      return  Optional.ofNullable(institutionUtils.institutionGlobalList.stream()
+              .filter(i->i.getBececode().equalsIgnoreCase(classGroupRequest.getInstitution()))
               .findFirst().get().getClassList().stream()
-              .filter(f->f.getClassGroup().equals(classGroupRequest.getClassGroup()))
-              .map(c->classesUtil.mapClassToClassResponse(c)).collect(Collectors.toList());
+              .filter(f->f.getClassGroup().equalsIgnoreCase(classGroupRequest.getClassGroup()))
+              .map(c->classesUtil.mapClassToClassResponse(c)).collect(Collectors.toList()));
     }
 
     @Override
     public Optional<List<Optional<ClassesResponse>>> getAllClassesByInstitution(SingleStringRequest institutionRequest) {
         String finalBeceCode= institutionRequest.getVal();
-        Optional<Institution> inst=institutionUtils.institutionGlobalList.stream().filter(x->x.getBececode().equals(finalBeceCode)).findFirst();
+        Optional<Institution> inst=institutionUtils.institutionGlobalList.stream().filter(x->x.getBececode().equalsIgnoreCase(finalBeceCode)).findFirst();
         return Optional.ofNullable(inst.get().getClassList().stream().map(i->classesUtil.mapClassToClassResponse(i)).collect(Collectors.toList()));
     }
 }

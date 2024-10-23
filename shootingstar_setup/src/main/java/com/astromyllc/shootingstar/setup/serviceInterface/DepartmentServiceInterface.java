@@ -8,6 +8,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface DepartmentServiceInterface {
-    void createDepartments(DepartmentRequest departmentRequest);
-    List<Optional<DepartmentResponse>> getDepartmentByInstitution(SingleStringRequest beceCode);
+    Optional<List<Optional<DepartmentResponse>>> createDepartments(DepartmentRequest departmentRequest);
+    Optional<List<Optional<DepartmentResponse>>> getDepartmentByInstitution(SingleStringRequest beceCode);
 }

@@ -1,8 +1,8 @@
 package com.astromyllc.shootingstar.adminpta.service;
 
 import com.astromyllc.shootingstar.adminpta.dto.request.AdmissionRequest;
+import com.astromyllc.shootingstar.adminpta.dto.request.StudentSkimRequest;
 import com.astromyllc.shootingstar.adminpta.dto.response.StudentsResponse;
-import com.astromyllc.shootingstar.adminpta.model.Students;
 import com.astromyllc.shootingstar.adminpta.repository.StudentRepository;
 import com.astromyllc.shootingstar.adminpta.serviceInterface.StudentServiceInterface;
 import com.astromyllc.shootingstar.adminpta.util.StudentUtil;
@@ -30,6 +30,12 @@ public class StudentService implements StudentServiceInterface {
     @Override
     public List<StudentsResponse> fetchAllStudents() {
         return studentUtil.studentsGlobalList.stream()
+                .map(s->studentUtil.mapStudent_ToStudentResponse(s)).collect(Collectors.toList());
+    }
+    @Override
+    public List<StudentsResponse> fetchStudentsByClass(StudentSkimRequest request) {
+        return studentUtil.studentsGlobalList.stream()
+                //.filter(st->st.getStudentClass().equalsIgnoreCase(request.getStudentClass()))
                 .map(s->studentUtil.mapStudent_ToStudentResponse(s)).collect(Collectors.toList());
     }
 }

@@ -69,7 +69,7 @@ public class StaffUtil {
                 .block();
         staffIndex = staffGlobalList
                 .stream()
-                .filter(x -> x.getInstitutionCode().equals(institutionCode))
+                .filter(x -> x.getInstitutionCode().equalsIgnoreCase(institutionCode))
                 .count() + 1;
         return "S" + institutionCode + "-" + staffIndex;
 
@@ -134,10 +134,10 @@ public class StaffUtil {
     }
 
     public StaffResponse mapStaff_ToStaffResponse(Staff staff) throws URISyntaxException, IOException {
-        List<DependantsResponse> dr =  dependantsUtil.dependantsGlobalList.stream().filter(d -> d.getInstitutionCode().equals(staff.getInstitutionCode())).collect(Collectors.toList()).stream().map(d1->dependantsUtil.mapDependants_ToDependantResponse(d1)).collect(Collectors.toList());
-        List<StaffDocumentsResponse> sdr= staffDocumentsUtil.staffDocumentsGlobalList.stream().filter(sd -> sd.getInstitutionCode().equals(staff.getInstitutionCode())).collect(Collectors.toList()).stream().map(sd1->staffDocumentsUtil.mapStaffDocuments_ToStaffDocuentsResponse(sd1)).collect(Collectors.toList());
-        List<AcademicRecordsResponse> arr =academicRecordsUtil.academicRecordsGlobalList.stream().filter(d -> d.getInstitutionCode().equals(staff.getInstitutionCode())).collect(Collectors.toList()).stream().map(d1->academicRecordsUtil.mapAcademicRecord_ToAcademicRecordsResponse(d1)).collect(Collectors.toList());
-        List<ProfessionalRecordsResponse> prr =professionalRecordsUtil.professionalRecordsGlobalList.stream().filter(d -> d.getInstitutionCode().equals(staff.getInstitutionCode())).collect(Collectors.toList()).stream().map(d1-> professionalRecordsUtil.mapProfessionalRecord_ToProfessionalRecordsResponse(d1)).collect(Collectors.toList());
+        List<DependantsResponse> dr =  dependantsUtil.dependantsGlobalList.stream().filter(d -> d.getInstitutionCode().equalsIgnoreCase(staff.getInstitutionCode())).collect(Collectors.toList()).stream().map(d1->dependantsUtil.mapDependants_ToDependantResponse(d1)).collect(Collectors.toList());
+        List<StaffDocumentsResponse> sdr= staffDocumentsUtil.staffDocumentsGlobalList.stream().filter(sd -> sd.getInstitutionCode().equalsIgnoreCase(staff.getInstitutionCode())).collect(Collectors.toList()).stream().map(sd1->staffDocumentsUtil.mapStaffDocuments_ToStaffDocuentsResponse(sd1)).collect(Collectors.toList());
+        List<AcademicRecordsResponse> arr =academicRecordsUtil.academicRecordsGlobalList.stream().filter(d -> d.getInstitutionCode().equalsIgnoreCase(staff.getInstitutionCode())).collect(Collectors.toList()).stream().map(d1->academicRecordsUtil.mapAcademicRecord_ToAcademicRecordsResponse(d1)).collect(Collectors.toList());
+        List<ProfessionalRecordsResponse> prr =professionalRecordsUtil.professionalRecordsGlobalList.stream().filter(d -> d.getInstitutionCode().equalsIgnoreCase(staff.getInstitutionCode())).collect(Collectors.toList()).stream().map(d1-> professionalRecordsUtil.mapProfessionalRecord_ToProfessionalRecordsResponse(d1)).collect(Collectors.toList());
 
         return StaffResponse.builder()
                 .id(String.valueOf(staff.getId()))

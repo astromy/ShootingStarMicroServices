@@ -34,7 +34,7 @@ public class JobDescriptionService implements JobDescriptionServiceInterface {
     public List<List<List<Optional<JobDescriptionResponse>>>> getAllJobDescriptionsByInstitution(SingleStringRequest beceCode) {
         String finalBeceCode= beceCode.getVal();
         return institutionUtils.institutionGlobalList.stream()
-                .filter(i->i.getBececode().equals(finalBeceCode)).findFirst().get()
+                .filter(i->i.getBececode().equalsIgnoreCase(finalBeceCode)).findFirst().get()
                 .getDepartmentList().stream().map(dep->dep.getDesignationList().stream().map(des->des.getJobDescriptionList().stream().map(jb->jobDescriptionUtil.mapJobDescription_ToJobDescriptionResponse(jb)).collect(Collectors.toList())).collect(Collectors.toList())).collect(Collectors.toList());
     }
 }

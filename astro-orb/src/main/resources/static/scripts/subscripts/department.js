@@ -37,35 +37,47 @@ $(function () {
     
 
     
-    <div class="modal fade hmodal-info" id="departmentModal" tabindex="-1" role="dialog"
-    aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="color-line"></div>
-            <div class="modal-header">
-                <h4 class="modal-title">Add Department</h4>
-                <small class="font-bold">A class group is a collection of classes eg. Creche, Nursery, KG, Lower Primary, Upper Primary etc.</small>
-            </div>
-            <div class="panel-body modalbody">
-            <div class="form-group"><label class="col-sm-3 control-label">Group Name</label>
 
-            <div class="col-sm-9">
-                <div class="row">
-                    <div class="col-md-12"><input type="text" placeholder="Enter Class Group Name" class="form-control newClassGrouptxt"></div>
-                </div>
-            </div>
-        </div>
-            </div>
+    <div class="modal fade hmodal-info" id="departmentModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="color-line"></div>
+                    <div class="modal-header">
+                        <h4 class="modal-title">Add Department</h4>
+                        <small class="font-bold">A department is an area of special expertise or responsibility eg Finance, Academics etc.</small>
+                    </div>
+                    <div class="panel-body modalbody">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">Department Name</label>
+
+                            <div class="col-sm-9">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <input type="text" placeholder="Enter Department Name" class="form-control newDepartmenttxt"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary test"><i class="fa fa-plus-square"><span style="margin-left:5px"/>Add More</i></button>
-                <button type="button" class="btn btn-default"
-                    data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Save changes</button>
+                <button type="button" class="btn btn-primary test"><i class="fa fa-plus-square"><span style="margin-left:5px"/>Add More Departments</i></button>
+                <button type="button" class="btn btn-default dismissDepartment" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary saveDepartment">Save Departments</button>
             </div>
         </div>
     </div>
 </div>
 </div>
+
+
+  <!-- Footer-->
+    <footer class="footer">
+        <span class="pull-right">
+            ORB
+        </span>
+        <span class="fa fa-copyright"></span>
+        Astromy LLC 2013-<span id="copyrightYear"></span>
+    </footer>
     `
 
 
@@ -91,10 +103,12 @@ function modalopn(){
 
 function departmentInput() {
     let div = `
-    <div class="row"><label class="col-sm-3 control-label">Group Name</label>
+    <div class="row"><label class="col-sm-3 control-label">Department Name</label>
         <div class="col-sm-9">
             <div class="row">
-                <div class="col-md-12"><input type="text" placeholder="Enter Class Group Name" class="form-control newClassGrouptxt"></div>
+                <div class="col-md-12">
+                    <input type="text" placeholder="Enter Department Name" class="form-control newDepartmenttxt"/>
+                    </div>
             </div>
         </div>
     </div>
