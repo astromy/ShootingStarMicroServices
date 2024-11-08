@@ -35,7 +35,7 @@ public class StudentService implements StudentServiceInterface {
     @Override
     public List<StudentsResponse> fetchStudentsByClass(StudentSkimRequest request) {
         return studentUtil.studentsGlobalList.stream()
-                //.filter(st->st.getStudentClass().equalsIgnoreCase(request.getStudentClass()))
+                .filter(st->st.getStudentClass().equalsIgnoreCase(request.getStudentClass()))
                 .map(s->studentUtil.mapStudent_ToStudentResponse(s)).collect(Collectors.toList());
     }
 }

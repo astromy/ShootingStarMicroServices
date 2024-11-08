@@ -200,6 +200,7 @@ function createStudentList(data){
         // Create the checkbox cell (td)
         const checkboxCell = document.createElement('div');
         checkboxCell.classList.add('col-sm-2');
+        checkboxCell.style.paddingTop='13px;';
 
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';

@@ -569,16 +569,6 @@ function designationBuild() {
 
     const newScripts = [
         "scripts/moment.min.js",
-    /*    "scripts/daterangepicker.js",
-        "vendor/sparkline/index.js",
-        "vendor/datatables/media/js/jquery.dataTables.min.js",
-        "vendor/datatables.net-bs/js/dataTables.bootstrap.min.js",
-        "vendor/pdfmake/build/pdfmake.min.js",
-        "vendor/pdfmake/build/vfs_fonts.js",
-        "vendor/datatables.net-buttons/js/buttons.html5.min.js",
-        "vendor/datatables.net-buttons/js/buttons.print.min.js",
-        "vendor/datatables.net-buttons/js/dataTables.buttons.min.js",
-        "vendor/datatables.net-buttons-bs/js/buttons.bootstrap.min.js",*/
         "vendor/sweetalert/lib/sweet-alert.min.js",
         "vendor/jquery-validation/jquery.validate.min.js",
         "scripts/subscripts/hrDesignation.js"
@@ -614,9 +604,26 @@ function designationBuild() {
 //-------------------------------------------------------------------------------------------------------
 
 function onloadingBuild() {
+ const newScripts = [
+        "vendor/sparkline/index.js",
+        "vendor/ladda/dist/spin.min.js",
+        "vendor/ladda/dist/ladda.min.js",
+        "vendor/ladda/dist/ladda.jquery.min.js",
+        "vendor/sweetalert/lib/sweet-alert.min.js",
+        "vendor/jquery-validation/jquery.validate.min.js",
+        "scripts/subscripts/hrOnloading.js"
+    ];
 
-
-
+    const newLinks = [
+        "vendor/sweetalert/lib/sweet-alert.css",
+        "vendor/fontawesome/css/font-awesome.css",
+        "vendor/metisMenu/dist/metisMenu.css",
+        "vendor/animate.css/animate.css",
+        "vendor/bootstrap/dist/css/bootstrap.css",
+        "vendor/ladda/dist/ladda-themeless.min.css",
+       "styles/daterangepicker.css",
+       "vendor/datatables.net-bs/css/dataTables.bootstrap.min.css"
+    ];
 
         // Remove previous non-default scripts/links
         removeUnwantedResources("script", activeScripts);
