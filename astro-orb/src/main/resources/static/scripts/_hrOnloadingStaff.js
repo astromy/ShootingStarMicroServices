@@ -1,6 +1,6 @@
 var selectPlan,institution,slogan,country,region,city,email,contact1,contact2,bececode,postalAddress,streams,population,website;
 var instId = $("meta[name='institutionId']").attr("content");
-fetchInstitution(instId.split(",")[0]);
+fetchStaffList(instId.split(",")[0]);
     $(".selectPlan").on('click', function(event){
          event.preventDefault();
          $('.subscriptionOption').removeClass('active');
@@ -274,11 +274,11 @@ input.addEventListener("change", () => {
     displayImages()
   }
 
-  async function fetchInstitution(instId){
+  async function fetchStaffList(instId){
     var v= instId.replace(/[\[\]']+/g,'')
     v=v.replace(/\//g, '')
     var instRequest={"val":v}
-    return  HttpPost("getInstitutionByCode",instRequest)
+    return  HttpPost("get-staff-by-institution",instRequest)
      .then(function (result) {
     displayFetchInstitution(result);
     })

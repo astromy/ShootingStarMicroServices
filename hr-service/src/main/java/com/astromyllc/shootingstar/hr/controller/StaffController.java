@@ -1,5 +1,6 @@
 package com.astromyllc.shootingstar.hr.controller;
 
+import com.astromyllc.shootingstar.hr.dto.request.SingleStringRequest;
 import com.astromyllc.shootingstar.hr.dto.request.StaffRequest;
 import com.astromyllc.shootingstar.hr.dto.request.api.StaffCodeRequest;
 import com.astromyllc.shootingstar.hr.dto.response.StaffResponse;
@@ -11,6 +12,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -29,10 +32,18 @@ public class StaffController {
     }
 
     @PostMapping
-    @RequestMapping("/api/hr/getStaffByCode")
-    @ResponseStatus(HttpStatus.CREATED)
-    public StaffResponse getStaffByIntitutionAndStaffCode(@RequestBody StaffCodeRequest staffcodeRequest) throws IOException, URISyntaxException {
+    @RequestMapping("/api/hr/getStaffByInstitutionAndCode")
+    @ResponseStatus(HttpStatus.FOUND)
+    public Optional<StaffResponse> getStaffByIntitutionAndStaffCode(@RequestBody StaffCodeRequest staffcodeRequest) throws IOException, URISyntaxException {
         log.info("Application  Received");
         return staffServiceInterface.getStaffByCode(staffcodeRequest);
+    }
+
+    @PostMapping
+    @RequestMapping("/api/hr/getStaffByCode")
+    @ResponseStatus(HttpStatus.OK)
+    public Optional<List<StaffResponse>> getStaffByInstitution(@RequestBody SingleStringRequest staffcodeRequest) throws IOException, URISyntaxException {
+        log.info("Application  Received");
+        return staffServiceInterface.getStaffByInstitution(staffcodeRequest);
     }
 }

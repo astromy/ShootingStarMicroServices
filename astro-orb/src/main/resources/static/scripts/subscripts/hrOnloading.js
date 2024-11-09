@@ -150,7 +150,6 @@ let onboarding = `
                                  </form>-->
 
                                 <div class="text-right m-t-xs">
-                                    <a class="btn btn-default prev">Previous</a>
                                     <a class="btn btn-default next">Next</a>
                                 </div>
 
@@ -162,7 +161,23 @@ let onboarding = `
                                     <div class="col-lg-12">
                                         <div class="row">
 
+                                            <table id="staffTable_1" class="table table-striped table-bordered table-hover" width="100%">
+                                                <thead>
+                                                    <tr>
+                                                        <th hidden></th>
+                                                        <th >Staff ID</th>
+                                                        <th >Staff Name</th>
+                                                        <th >Staff Gender</th>
+                                                        <th >Staff Contact</th>
+                                                        <th >Date of Employment</th>
+                                                        <th >Designation</th>
+                                                        <th >Nationality</th>
+                                                        <th >Snnit</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="staffTableBody_1"></tbody>
 
+                                            </table>
                                         </div>
                                     </div>
                                 </div>
@@ -176,15 +191,92 @@ let onboarding = `
                             <div class="p-m tab-pane">
 
                                 <div class="row">
-                                    <div class="col-lg-12 text-center">
-                                        <i class="pe-7s-credit fa-5x text-muted"></i>
-                                        <p class="small m-t-md">
-                                            <strong>Review Information Provided</strong>Double check the information you
-                                            provided.
-                                        </p>
-                                    </div>
                                     <div class="col-lg-12">
                                         <div class="row">
+
+                                            <table id="staffTable_2" class="table table-striped table-bordered table-hover" width="100%">
+                                                <thead>
+                                                    <tr>
+                                                        <th hidden></th>
+                                                        <th >Staff ID</th>
+                                                        <th >Staff Name</th>
+                                                        <th >Staff Gender</th>
+                                                        <th >Staff Contact</th>
+                                                        <th >Date of Employment</th>
+                                                        <th >Designation</th>
+                                                        <th >Nationality</th>
+                                                        <th >Snnit</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="staffTableBody_2"></tbody>
+
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="text-right m-t-xs">
+                                    <a class="btn btn-default prev" href="#" title="dropdown">Previous</a>
+                                    <a class="btn btn-default next" href="#" title="dropdown">Next</a>
+                                </div>
+                            </div>
+
+                            <div class="p-m tab-pane">
+
+                                <div class="row">
+                                    <div class="col-lg-12 text-center">
+                                        <div class="row">
+
+                                            <table id="staffTable_3" class="table table-striped table-bordered table-hover" width="100%">
+                                                <thead>
+                                                    <tr>
+                                                        <th hidden></th>
+                                                        <th >Staff ID</th>
+                                                        <th >Staff Name</th>
+                                                        <th >Staff Gender</th>
+                                                        <th >Staff Contact</th>
+                                                        <th >Date of Employment</th>
+                                                        <th >Designation</th>
+                                                        <th >Nationality</th>
+                                                        <th >Snnit</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="staffTableBody_3"></tbody>
+
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="text-right m-t-xs">
+                                    <a class="btn btn-default prev" href="#" title="dropdown">Previous</a>
+                                    <a class="btn btn-default next" href="#" title="dropdown">Next</a>
+                                </div>
+                            </div>
+
+                            <div class="p-m tab-pane">
+
+                                <div class="row">
+                                    <div class="col-lg-12 text-center">
+                                        <div class="row">
+
+                                            <table id="staffTable_4" class="table table-striped table-bordered table-hover" width="100%">
+                                                <thead>
+                                                    <tr>
+                                                        <th hidden></th>
+                                                        <th >Staff ID</th>
+                                                        <th >Staff Name</th>
+                                                        <th >Staff Gender</th>
+                                                        <th >Staff Contact</th>
+                                                        <th >Date of Employment</th>
+                                                        <th >Designation</th>
+                                                        <th >Nationality</th>
+                                                        <th >Snnit</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="staffTableBody_4"></tbody>
+
+                                            </table>
                                         </div>
                                     </div>
                                 </div>
@@ -198,14 +290,26 @@ let onboarding = `
                             <div class="tab-pane">
                                 <div class="row text-center m-t-lg m-b-lg">
                                     <div class="col-lg-12">
-                                        <i class="pe-7s-check fa-5x text-muted"></i>
-                                        <p class="small m-t-md">
-                                            <strong>By submitting this form</strong> ,You are committing to an
-                                            agreement between your company <b><span id="clients"></span></b>
-                                            and Astromy LLC <br/>to treate you as a customer who has placed a
-                                            request for our product under the following terms
-                                            <br/><a href="#" title="dropdown">Read Terms</a>
-                                        </p>
+                                        <div class="row">
+
+                                            <table id="staffTable_1" class="table table-striped table-bordered table-hover" width="100%">
+                                                <thead>
+                                                    <tr>
+                                                        <th hidden></th>
+                                                        <th >Staff ID</th>
+                                                        <th >Staff Name</th>
+                                                        <th >Staff Gender</th>
+                                                        <th >Staff Contact</th>
+                                                        <th >Date of Employment</th>
+                                                        <th >Designation</th>
+                                                        <th >Nationality</th>
+                                                        <th >Snnit</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="staffTableBody_1"></tbody>
+
+                                            </table>
+                                        </div>
                                     </div>
                                     <div class="checkbox col-lg-12">
                                         <input type="checkbox" class="i-checks approveCheck" placeholder="approve"
@@ -215,7 +319,6 @@ let onboarding = `
                                 </div>
                                 <div class="text-right m-t-xs">
                                     <a class="btn btn-default prev" href="#" title="dropdown">Previous</a>
-                                    <a class="btn btn-default next" href="#" title="dropdown">Next</a>
                                     <button id="submitRequest" type="submit" class="ladda-button btn btn-success"
                                             data-style="expand-left"><span class="ladda-label">Submit</span><span
                                             class="ladda-spinner"></span>

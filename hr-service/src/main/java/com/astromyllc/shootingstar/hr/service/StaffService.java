@@ -1,5 +1,6 @@
 package com.astromyllc.shootingstar.hr.service;
 
+import com.astromyllc.shootingstar.hr.dto.request.SingleStringRequest;
 import com.astromyllc.shootingstar.hr.dto.request.StaffDocumentsRequest;
 import com.astromyllc.shootingstar.hr.dto.request.StaffRequest;
 import com.astromyllc.shootingstar.hr.dto.request.api.StaffCodeRequest;
@@ -59,26 +60,36 @@ public class StaffService implements StaffServiceInterface {
     }
 
     @Override
-    public List<StaffResponse> createStaffs(List<StaffRequest> staffRequestList) {
+    public Optional<List<StaffResponse>> createStaffs(List<StaffRequest> staffRequestList) {
         return null;
     }
 
     @Override
-    public StaffResponse getStaffByCode(StaffCodeRequest staffCode) throws URISyntaxException, IOException {
+    public Optional<StaffResponse> getStaffByCode(StaffCodeRequest staffCode) throws URISyntaxException, IOException {
         Optional<Staff> staff = staffUtil.staffGlobalList.stream().filter(s -> s.getInstitutionCode().equalsIgnoreCase(staffCode.getInstitutionCode()) && s.getStaffCode().equalsIgnoreCase(staffCode.getStaffCode())).findFirst();
        if(!staff.isEmpty()) {
-         return  staffUtil.mapStaff_ToStaffResponse(staff.get());
+         return  Optional.ofNullable(staffUtil.mapStaff_ToStaffResponse(staff.get()));
        }
         return null;
     }
 
     @Override
-    public List<StaffResponse> getStaffByInstitution(String beceCode) {
-        return null;
+    public Optional<List<StaffResponse>> getStaffByInstitution(SingleStringRequest beceCode) {
+        return Optional.ofNullable((StaffUtil.staffGlobalList.stream().filter(s->s.getInstitutionCode().equalsIgnoreCase(beceCode.getVal()))
+                .map(staff-> {
+                    try {
+                        return staffUtil.mapStaff_ToStaffResponse(staff);
+                    } catch (URISyntaxException e) {
+                        throw new RuntimeException(e);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .collect(Collectors.toList())));
     }
 
     @Override
-    public List<StaffResponse> getStaffByInstitutionAndDesignation(String beceCode, String designation) {
+    public Optional<List<StaffResponse>> getStaffByInstitutionAndDesignation(String beceCode, String designation) {
         return null;
     }
 }
