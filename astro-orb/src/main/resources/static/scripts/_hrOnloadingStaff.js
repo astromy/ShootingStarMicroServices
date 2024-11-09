@@ -34,7 +34,7 @@ fetchInstitution(instId.split(",")[0]);
        header.removeClass('btn-primary');
        header.addClass('btn-default');
        header1.next().removeClass('btn-default').addClass('btn-primary');
-       document.getElementById('clients').innerHTML=document.getElementsByName('clientName')[0].value;
+
     });
 
     $('#submitRequest').click(async function() {
