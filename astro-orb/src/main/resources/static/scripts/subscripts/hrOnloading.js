@@ -48,7 +48,12 @@ let onboarding = `
                                                 <div class="form-group col-lg-6">
                                                     <label for="nationality">Nationality</label>
                                                     <select id="nationality" class="form-control"
-                                                           name="nationality" placeholder="Select Nationality"></select>
+                                                           name="nationality" placeholder="Select Nationality">
+                                                           <option>Select Nationality</option>
+                                                           <option>Ghana</option>
+                                                           <option>Nigeria</option>
+                                                           <option>Cote DIvore'</option>
+                                                    </select>
                                                 </div>
                                                 <div class="form-group col-lg-6">
                                                     <label for="homeT">Home Town</label>
@@ -93,7 +98,12 @@ let onboarding = `
                                                 <div class="form-group col-lg-6">
                                                     <label for="idType">ID Type</label>
                                                     <select type="text" required id="idType" class="form-control"
-                                                           placeholder="Select ID Type" name="idType"></select>
+                                                           placeholder="Select ID Type" name="idType">
+                                                           <option>Select ID Type</option>
+                                                           <option>National ID Card</option>
+                                                           <option>Driver License</option>
+                                                           <option>Voter ID Card</option>
+                                                    </select>
                                                 </div>
                                                 <div class="form-group col-lg-6">
                                                     <label for="idNumber">National ID</label>
@@ -110,7 +120,12 @@ let onboarding = `
                                                     <label for="maritalStatus">Marital Status</label>
                                                     <select type="text" required id="maritalStatus"
                                                            class="form-control" name="maritalStatus"
-                                                           placeholder="Select Marital Status"></select>
+                                                           placeholder="Select Marital Status">
+                                                           <option>Select Marital Status</option>
+                                                           <option>Single</option>
+                                                           <option>Married</option>
+                                                           <option>Divorced</option>
+                                                    </select>
                                                 </div>
 
                                                 <div class="form-group col-lg-6">
@@ -129,7 +144,11 @@ let onboarding = `
                                                 <div class="form-group col-lg-6">
                                                     <label for="gender">Gender</label>
                                                     <select type="text" id="gender" class="form-control"
-                                                           name="gender" placeholder="Select Gender"></select>
+                                                           name="gender" placeholder="Select Gender">
+                                                           <option>Select Gender</option>
+                                                           <option>Male</option>
+                                                           <option>Female</option>
+                                                    </select>
                                                 </div>
 
                                                 <div class="form-group col-lg-6">
@@ -292,7 +311,7 @@ let onboarding = `
                                     <div class="col-lg-12">
                                         <div class="row">
 
-                                            <table id="staffTable_1" class="table table-striped table-bordered table-hover" width="100%">
+                                            <table id="staffTable_5" class="table table-striped table-bordered table-hover" width="100%">
                                                 <thead>
                                                     <tr>
                                                         <th hidden></th>
@@ -306,7 +325,7 @@ let onboarding = `
                                                         <th >Snnit</th>
                                                     </tr>
                                                 </thead>
-                                                <tbody id="staffTableBody_1"></tbody>
+                                                <tbody id="staffTableBody_5"></tbody>
 
                                             </table>
                                         </div>

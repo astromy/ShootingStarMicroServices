@@ -21,7 +21,7 @@ fetchStaffList(instId.split(",")[0]);
         header.addClass('btn-default');
         header1.prev().removeClass('btn-default').addClass('btn-primary');
     });
-
+var itra=1;
     $('.next').click(function () {
 
        var tabs= $('.tab-pane');
@@ -34,7 +34,8 @@ fetchStaffList(instId.split(",")[0]);
        header.removeClass('btn-primary');
        header.addClass('btn-default');
        header1.next().removeClass('btn-default').addClass('btn-primary');
-
+        addTableRow('staffTableBody_'+ itra)
+        itra+=1;
     });
 
     $('#submitRequest').click(async function() {
@@ -308,3 +309,52 @@ input.addEventListener("change", () => {
         })
   }
 
+function addTableRow(tableId) {
+    // Find the table by ID
+    const table = document.getElementById(tableId);
+
+    // Retrieve values from the specified input and select elements
+    const firstName = document.getElementById('staffFName').value;
+    const lastName = document.getElementById('staffLName').value;
+    const fullName = `${firstName} ${lastName}`;
+    const gender = document.getElementById('gender').value;
+    const contact = document.getElementById('contact').value;
+    const doe = document.getElementById('doe').value;
+    const nationality = document.getElementById('nationality').value;
+    const snnit = document.getElementById('snnit').value;
+
+    // Create a new row
+    const row = table.insertRow();
+
+    // Loop to create 8 cells and populate them with the appropriate values
+    for (let i = 0; i < 8; i++) {
+        const cell = row.insertCell();
+
+        // Populate each cell according to the specified requirements
+        switch (i) {
+            case 1:
+                cell.textContent = fullName;
+                break;
+            case 2:
+                cell.textContent = gender;
+                break;
+            case 3:
+                cell.textContent = contact;
+                break;
+            case 4:
+                cell.textContent = doe;
+                break;
+            case 6:
+                cell.textContent = nationality;
+                break;
+            case 7:
+                cell.textContent = snnit;
+                break;
+            default:
+                cell.textContent = `Cell ${i + 1}`; // Default content for unspecified cells
+        }
+    }
+}
+
+// Call the function by passing the ID of the table
+addTableRow('myTable'); // Replace 'myTable' with your actual table ID
