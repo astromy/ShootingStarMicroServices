@@ -357,6 +357,36 @@ let onboarding = `
         </div>
     </div>
 
+
+        <div class="modal fade hmodal-info" id="staffModal" tabindex="-1" role="dialog"aria-hidden="true">
+            <div class="modal-dialog modal-lg" style="margin: 100px auto">
+                <div class="modal-content">
+                    <div class="color-line"></div>
+                        <div class="modal-header">
+                            <h4 class="modal-title">Add Bill Item</h4>
+                            <small class="font-bold"> Create new Bill Item</small>
+                        </div>
+                        <div class="panel-body modalbody" style="border-bottom: 1px solid #a8bede;">
+
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary left test"><i class="fa fa-plus-square"><span style="margin-left:5px"/>Add More Dependants</i></button>
+                            <button type="button" class="btn btn-default dismissBill" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary saveBill">Save changes</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+      <!-- Footer-->
+        <footer class="footer">
+            <span class="pull-right">
+                ORB
+            </span>
+            <span class="fa fa-copyright"></span>
+            Astromy LLC 2013-<span id="copyrightYear"></span>
+        </footer>
 `
 
 
@@ -369,3 +399,97 @@ let onboarding = `
     script14.setAttribute("data-dynamic", "true");
     document.getElementsByTagName("body")[0].appendChild(script14);
 });
+
+
+
+function createDependant(){
+ const htmlContent = `
+        <div>
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="row">
+                    <div class="col-md-12">
+                        <input type="text" placeholder="Dependant Name" class="form-control newDependantName">
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-6">
+                <div class="row">
+                    <div class="col-md-12">
+                        <input type="date" placeholder="Date of Birth" class="form-control newDependantDOB">
+                    </div>
+                </div>
+            </div>
+        </div>
+.
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="row">
+                    <div class="col-md-12">
+                        <select class="form-control m-b newGenderSelect">
+                            <option value="0">Select Gender</option>
+                            <option value="1">Male</option>
+                            <option value="2">Female</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-6">
+                <div class="row">
+                    <div class="col-md-12">
+                        <select class="form-control m-b newRelationshipType">
+                            <option value="0">Select Relationship Type</option>
+                            <option value="2">Daughter</option>
+                            <option value="3">Son</option>
+                            <option value="4">Nephew</option>
+                            <option value="5">Niece</option>
+                            <option value="6">GrandChild</option>
+                            <option value="7">God-Child</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="row">
+                    <div class="col-md-12 datePicker1_div">
+                        <div>
+                                <label for="">Birth Certificate [PDF]</label>
+                            </div>
+                            <div class="fileOutput" name="crest"
+                                    style="height: 120px; width:220px; border-radius: 10px;display: inline-block;"></div>
+                            <input class="imageInput" type="file"
+                                   style="width: 200px;padding: 12px;display: inline;"
+                                   accept=".pdf" onchange="uploadPDF(this)">
+                            <p id="error" style="color: red; display: none;">Only PDF files are allowed!</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-6">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div>
+                            <label for="">Dependant Picture</label>
+                        </div>
+                        <output class="imageOutput dependantPic" name="crest"
+                                style="height: 120px; width:220px; border-radius: 10px;display: inline-block;"></output>
+                        <input class="imageInput" type="file"  onchange="imageChange(this)"
+                               style="width: 200px;padding: 12px;display: inline;"
+                               accept="image/jpeg, image/png, image/jpg"">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+      </div>
+        <div class="hr-line-dashed"></div>
+    `;
+   return htmlContent;
+   }

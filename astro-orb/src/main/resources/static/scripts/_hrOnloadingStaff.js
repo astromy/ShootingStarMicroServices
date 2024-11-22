@@ -1,13 +1,7 @@
 var selectPlan,institution,slogan,country,region,city,email,contact1,contact2,bececode,postalAddress,streams,population,website;
 var instId = $("meta[name='institutionId']").attr("content");
 fetchStaffList(instId.split(",")[0]);
-    $(".selectPlan").on('click', function(event){
-         event.preventDefault();
-         $('.subscriptionOption').removeClass('active');
-         $(this).closest(".subscriptionOption").addClass("active");
-         var x=$(this).closest('.subscriptionOption').find('.subscriptionPlan');
-         selectPlan=x.text();
-    });
+
 
     $('.prev').click(function () {
         var tabs= $('.tab-pane');
@@ -21,7 +15,8 @@ fetchStaffList(instId.split(",")[0]);
         header.addClass('btn-default');
         header1.prev().removeClass('btn-default').addClass('btn-primary');
     });
-var itra=1;
+
+    var itra=1;
     $('.next').click(function () {
 
        var tabs= $('.tab-pane');
@@ -243,14 +238,14 @@ var input = document.querySelector(".imageInput")
 var output = document.querySelector(".imageOutput")
 var imagesArray = []
 
-input.addEventListener("change", () => {
-    var file = input.files
+function imageChange(el){
+    var file = el.files
     imagesArray=[];
     imagesArray.push(file[0])
-    displayImages()
-  })
+    displayImages(el.parentElement)
+  }
 
-  function displayImages() {
+  function displayImages(el) {
     var images = ""
     imagesArray.forEach((image, index) => {
       images += `<div class="crest">
@@ -258,7 +253,7 @@ input.addEventListener("change", () => {
                   <span onclick="deleteImage(${index})">&times;</span>
                 </div>`
     })
-    output.innerHTML = images
+    el.getElementsByClassName('dependantPic')[0].innerHTML = images
   }
 
     function displayFetchImages(srcs) {
@@ -325,13 +320,49 @@ function addTableRow(tableId) {
 
     // Create a new row
     const row = table.insertRow();
+    row.setAttribute('data-toggle','modal');
+    row.setAttribute('data-target','#staffModal');
+    row.style.cursor = 'pointer';
+    row.addEventListener('click', function() {
+        switch (itra) {
+            case 1:
+                // Code for itra = 1
+                break;
+            case 2:
+               document.getElementsByClassName("modalbody")[0].innerHTML="";
+               document.getElementsByClassName('modal-title')[0].innerHTML="Add Dependants";
+               document.getElementsByClassName('modalbody')[0].insertAdjacentHTML('beforeend', createDependant());
+
+               document.getElementsByClassName('test')[0].addEventListener('click', function() {
+                document.getElementsByClassName('modalbody')[0].insertAdjacentHTML('beforeend', createDependant());
+               });
+                break;
+            case 3:
+                // Code for itra = 3
+                break;
+            case 4:
+                // Code for itra = 4
+                break;
+            default:
+                // Optional: Code for other values of itra
+                break;
+        }
+
+    });
 
     // Loop to create 8 cells and populate them with the appropriate values
     for (let i = 0; i < 8; i++) {
         const cell = row.insertCell();
 
+     var v= instId.split(",")[0].replace(/[\[\]']+/g,'')
+         v=v.replace(/\//g, '')
+
+
         // Populate each cell according to the specified requirements
         switch (i) {
+            case 0:
+                cell.textContent = "ST"+v+"";
+                break;
             case 1:
                 cell.textContent = fullName;
                 break;
@@ -358,3 +389,38 @@ function addTableRow(tableId) {
 
 // Call the function by passing the ID of the table
 addTableRow('myTable'); // Replace 'myTable' with your actual table ID
+
+
+ function uploadPDF (el) {
+                        const fileInput = el//document.getElementById('fileInput');
+                        const file = fileInput.files[0];
+                        const error = document.getElementById('error');
+                        const pdfPreview = el.parentElement.getElementsByClassName('fileOutput')[0]
+                        pdfPreview.innerHTML = ""; // Clear previous preview
+
+                        if (file) {
+                            const fileType = file.type;
+
+                            // Check if the file type is PDF
+                            if (fileType === 'application/pdf') {
+                                error.style.display = 'none';
+
+                                // Create an object URL for the file
+                                const fileURL = URL.createObjectURL(file);
+
+                                // Embed the PDF preview using <iframe>
+                                const iframe = document.createElement('iframe');
+                                iframe.src = fileURL;
+                                iframe.width = '100%';
+                               // iframe.height = '500px'; // Adjust as needed
+                                iframe.style.border = '1px solid #ccc';
+
+                                // Append the iframe to the preview container
+                                pdfPreview.appendChild(iframe);
+                            } else {
+                                error.style.display = 'block';
+                            }
+                        } else {
+                            alert('Please select a file to upload.');
+                        }
+                    };
