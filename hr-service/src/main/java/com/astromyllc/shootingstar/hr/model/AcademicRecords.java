@@ -27,6 +27,7 @@ public class AcademicRecords {
     private LocalDate dateOfGraduation;
     private String programOffered;
     private String certificateType;
+    private String supportingDocs;
     private String staffAcademicRecords;
     private String institutionCode;
 

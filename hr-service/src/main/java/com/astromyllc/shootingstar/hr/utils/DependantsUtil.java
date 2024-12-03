@@ -35,6 +35,7 @@ public class DependantsUtil {
                 .dateOfBirth(LocalDate.parse(d.getDateOfBirth(), formatter))
                 .gender(d.getGender())
                 .birthCertificate(d.getBirthCertificate())
+                .dependantPicture(d.getDependantPicture())
                 .relationType(d.getRelationType())
                 .staffDependant(staffCode)
                 .institutionCode(d.getInstitutionCode())
@@ -48,6 +49,7 @@ public class DependantsUtil {
                 .dateOfBirth(d.getDateOfBirth())
                 .gender(d.getGender())
                 .birthCertificate(d.getBirthCertificate())
+                .dependantPicture(d.getDependantPicture())
                 .relationType(d.getRelationType())
                 .build();
     }

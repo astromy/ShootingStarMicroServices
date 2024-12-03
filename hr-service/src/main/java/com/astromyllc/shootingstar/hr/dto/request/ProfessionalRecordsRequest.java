@@ -1,5 +1,6 @@
 package com.astromyllc.shootingstar.hr.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -25,5 +26,6 @@ public class ProfessionalRecordsRequest {
     private String dateOfDeparture;
     private String designationAtInstitution;
     private String employmentTypeAtInstitution;
+    private String supportingDocs;
     private String institutionCode;
 }

@@ -17,7 +17,7 @@ server:
   port: 0
 
 gateway:
-  host: ${APIGATEWAY:localhost}
+  host: ${APIGATEWAY:localhost:8083}
 
 eureka:
   client:
@@ -60,7 +60,7 @@ logging:
     org:
       springframework:
         security=ERROR:
-    root: ERROR
+    root: INFO
     org.springframework.web: ERROR
     org.springframework.security: ERROR
     org.springframework.boot.autoconfigure: ERROR

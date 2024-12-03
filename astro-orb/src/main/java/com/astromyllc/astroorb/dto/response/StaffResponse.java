@@ -1,24 +1,23 @@
-package com.astromyllc.astroorb.dto.request;
+package com.astromyllc.astroorb.dto.response;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.annotation.Nonnull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Data
-public class StaffRequest {
+public class StaffResponse {
     private String id;
     private String staffCode;
     private String firstNames;
     private String lastName;
-    private String dateOfBirth;
+    private LocalDate dateOfBirth;
     private String nationality;
     private String homeTown;
     private String residentialTown;
@@ -29,17 +28,18 @@ public class StaffRequest {
     private String snnitNumber;
     private String maritalStatus;
     private String nameOfSpouse;
-    private String dateOfEmployment;
+    private LocalDate dateOfEmployment;
     private String gender;
     private String level;
     private String designation;
     private String staffPicture;
     private String nextOfKing;
     private String institutionCode;
-    //private List<PortfolioRequest> portfolio;
-    private List<DependantsRequest> dependants;
-    private List<AcademicRecordsRequest> academicRecords;
-    private List<ProfessionalRecordsRequest> professionalRecords;
-    private List<StaffDocumentsRequest> staffDocuments;
+   // private List<PortfolioRequest> portfolio;
+    private List<DependantsResponse> dependants;
+    private List<AcademicRecordsResponse> academicRecords;
+    private List<ProfessionalRecordsResponse> professionalRecords;
+    private List<StaffDocumentsResponse> staffDocuments;
+
 
 }

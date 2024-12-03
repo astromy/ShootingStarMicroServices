@@ -36,9 +36,9 @@ public class HRController {
 
     @ResponseBody
     @RequestMapping(value = "/create-staff", method = RequestMethod.POST)
-    public ResponseEntity<String>addfinance (@RequestBody List<StaffRequest> jso) throws IOException {
+    public ResponseEntity<String>addfinance (@RequestBody StaffRequest jso) throws IOException {
 
-        ResponseEntity<String> response = BACKENDCOMMPOSTLIST(Collections.singletonList(jso), "http://" + backendserve + "/api/hr/create-bills");
+        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/hr/createStaff");
         return response;
     }
 

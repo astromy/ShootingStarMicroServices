@@ -35,6 +35,7 @@ public class ProfessionalRecordsUtil {
                 .nameOfInstitution(p.getNameOfInstitution())
                 .employmentTypeAtInstitution(p.getEmploymentTypeAtInstitution())
                 .staffProfessionalRecords(staffCode)
+                .supportingDocs(p.getSupportingDocs())
                 .institutionCode(p.getInstitutionCode())
                 .build();
     }
@@ -45,6 +46,7 @@ public class ProfessionalRecordsUtil {
                 .dateOfDeparture(p.getDateOfDeparture())
                 .designationAtInstitution(p.getDesignationAtInstitution())
                 .nameOfInstitution(p.getNameOfInstitution())
+                .supportingDocs(p.getSupportingDocs())
                 .employmentTypeAtInstitution(p.getEmploymentTypeAtInstitution())
                 .build();
     }

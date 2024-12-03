@@ -1,5 +1,6 @@
 package com.astromyllc.shootingstar.hr.utils;
 
+import com.astromyllc.shootingstar.hr.dto.request.SingleStringRequest;
 import com.astromyllc.shootingstar.hr.dto.request.StaffRequest;
 import com.astromyllc.shootingstar.hr.dto.request.alien.InstitutionRequest;
 import com.astromyllc.shootingstar.hr.dto.response.*;
@@ -12,8 +13,10 @@ import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
@@ -58,15 +61,37 @@ public class StaffUtil {
 
 
     private String generateApplicationCode(String institutionCode) {
-        JSONObject json = new JSONObject();
-        json.put("beceCode", institutionCode);
-        institutionRequest = webClientBuilder.build().post()
+        SingleStringRequest request = SingleStringRequest.builder()
+                .val(institutionCode)
+                .build();
+        institutionRequest =
+                /*webClientBuilder.build().post()
                 .uri("http://"+host+"/api/setup/getInstitutionByCode")
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(Mono.just(json), JSONObject.class)
+                //.contentType(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .bodyValue(request)//(Mono.just(json), JSONObject.class)
                 .retrieve()
                 .bodyToMono(InstitutionRequest.class)
-                .block();
+                .block();*/
+
+                WebClient.builder()
+                        .baseUrl("http://"+host)
+                        .filter(ExchangeFilterFunction.ofRequestProcessor(clientRequest -> {
+                            System.out.println("Request: " + clientRequest);
+                            return Mono.just(clientRequest);
+                        }))
+                        .filter(ExchangeFilterFunction.ofResponseProcessor(clientResponse -> {
+                            System.out.println("Response: " + clientResponse);
+                            return Mono.just(clientResponse);
+                        }))
+                        .build()
+                        .post()
+                        .uri("/api/setup/getInstitutionByCode")
+                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                        .bodyValue(request)
+                        .retrieve()
+                        .bodyToMono(InstitutionRequest.class)
+                        .block();
         staffIndex = staffGlobalList
                 .stream()
                 .filter(x -> x.getInstitutionCode().equalsIgnoreCase(institutionCode))

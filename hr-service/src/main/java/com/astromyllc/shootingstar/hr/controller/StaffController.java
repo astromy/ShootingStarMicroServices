@@ -26,7 +26,7 @@ public class StaffController {
     @PostMapping
     @RequestMapping("/api/hr/createStaff")
     @ResponseStatus(HttpStatus.CREATED)
-    public StaffResponse SubmitStaff(@RequestBody StaffRequest staffRequest) throws IOException, URISyntaxException {
+    public Optional<StaffResponse> SubmitStaff(@RequestBody StaffRequest staffRequest) throws IOException, URISyntaxException {
         log.info("hr Received");
         return staffServiceInterface.createStaff(staffRequest);
     }

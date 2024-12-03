@@ -1,5 +1,6 @@
 package com.astromyllc.shootingstar.hr.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -25,6 +26,7 @@ public class AcademicRecordsRequest {
     private String dateOfGraduation;
     private String programOffered;
     private String certificateType;
+    private String supportingDocs;
     private String institutionCode;
 
 }

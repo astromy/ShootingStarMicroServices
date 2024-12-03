@@ -39,6 +39,7 @@ public class AcademicRecordsUtil {
                 .programOffered(a.getProgramOffered())
                 .nameOfInstitution(a.getNameOfInstitution())
                 .staffAcademicRecords(staffCode)
+                .supportingDocs(a.getSupportingDocs())
                 .institutionCode(a.getInstitutionCode())
                 .build();
     }
@@ -50,6 +51,7 @@ public class AcademicRecordsUtil {
                 .dateOfGraduation(a.getDateOfGraduation())
                 .programOffered(a.getProgramOffered())
                 .nameOfInstitution(a.getNameOfInstitution())
+                .supportingDocs(a.getSupportingDocs())
                 .institutionCode(a.getInstitutionCode())
                 .build();
     }

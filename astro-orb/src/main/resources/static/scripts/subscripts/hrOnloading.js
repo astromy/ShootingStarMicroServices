@@ -30,6 +30,13 @@ let onboarding = `
                                         </div>
                                         <div class="col-lg-9">
                                             <div class="row">
+
+                                                <div class="form-group col-lg-6">
+                                                    <label for="code">Staff Code</label>
+                                                    <input type="text" id="code" class="form-control"
+                                                           name="code" placeholder="Staff Code">
+                                                </div>
+
                                                 <div class="form-group col-lg-6">
                                                     <label for="staffFName">First Names</label>
                                                     <input type="text" requ ired id="staffFName" class="form-control"
@@ -63,7 +70,7 @@ let onboarding = `
                                                 </div>
                                                 <div class="form-group col-lg-6">
                                                     <label for="region">Residential Area</label>
-                                                    <input type="text" autocomplete="off" required id="region"
+                                                    <input type="text" autocomplete="off" required id="residence"
                                                            class="form-control" placeholder="Residential Area" name="region"
                                                            minlength="3">
                                                 </div>
@@ -152,6 +159,21 @@ let onboarding = `
                                                 </div>
 
                                                 <div class="form-group col-lg-6">
+                                                    <label for="staffDesignation">Staff Designation</label>
+                                                    <select type="text" id="staffDesignation" class="form-control"
+                                                           name="staffDesignation" placeholder="Select Staff Designation">
+                                                           <option>Select Designation</option>
+                                                           <option>Teaching</option>
+                                                    </select>
+                                                </div>
+
+                                                <div class="form-group col-lg-6">
+                                                    <label for="staffLevel">Staff Level</label>
+                                                    <input type="text" id="level" class="form-control"
+                                                           name="nok" placeholder="Staff Level">
+                                                </div>
+
+                                                <div class="form-group col-lg-6">
                                                     <label for="nok">Next of King</label>
                                                     <input type="text" id="nok" class="form-control"
                                                            name="nok" placeholder="Next of King">
@@ -191,7 +213,7 @@ let onboarding = `
                                                         <th >Date of Employment</th>
                                                         <th >Designation</th>
                                                         <th >Nationality</th>
-                                                        <th >Snnit</th>
+                                                        <th >Dependants No</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody id="staffTableBody_1"></tbody>
@@ -224,7 +246,7 @@ let onboarding = `
                                                         <th >Date of Employment</th>
                                                         <th >Designation</th>
                                                         <th >Nationality</th>
-                                                        <th >Snnit</th>
+                                                        <th >Dependants No</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody id="staffTableBody_2"></tbody>
@@ -257,7 +279,7 @@ let onboarding = `
                                                         <th >Date of Employment</th>
                                                         <th >Designation</th>
                                                         <th >Nationality</th>
-                                                        <th >Snnit</th>
+                                                        <th >Dependants No</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody id="staffTableBody_3"></tbody>
@@ -290,7 +312,7 @@ let onboarding = `
                                                         <th >Date of Employment</th>
                                                         <th >Designation</th>
                                                         <th >Nationality</th>
-                                                        <th >Snnit</th>
+                                                        <th >Dependants No</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody id="staffTableBody_4"></tbody>
@@ -372,8 +394,8 @@ let onboarding = `
 
                         <div class="modal-footer">
                             <button type="button" class="btn btn-primary left test"><i class="fa fa-plus-square"><span style="margin-left:5px"/>Add More Dependants</i></button>
-                            <button type="button" class="btn btn-default dismissBill" data-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-primary saveBill">Save changes</button>
+                            <button type="button" class="btn btn-default dismissModal" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary saveStaffDetails">Save changes</button>
                         </div>
                     </div>
                 </div>
@@ -404,13 +426,14 @@ let onboarding = `
 
 function createDependant(){
  const htmlContent = `
-        <div>
+        <div class="dependants">
 
         <div class="row">
             <div class="col-sm-6">
                 <div class="row">
                     <div class="col-md-12">
-                        <input type="text" placeholder="Dependant Name" class="form-control newDependantName">
+                        <label for="dn">Dependant Name</label>
+                        <input id="dn" type="text" placeholder="Dependant Name" class="form-control newDependantName">
                     </div>
                 </div>
             </div>
@@ -418,7 +441,8 @@ function createDependant(){
             <div class="col-sm-6">
                 <div class="row">
                     <div class="col-md-12">
-                        <input type="date" placeholder="Date of Birth" class="form-control newDependantDOB">
+                        <label for="dob">Date of Birth</label>
+                        <input id="dob" type="date" placeholder="Date of Birth" class="form-control newDependantDOB">
                     </div>
                 </div>
             </div>
@@ -429,7 +453,8 @@ function createDependant(){
             <div class="col-sm-6">
                 <div class="row">
                     <div class="col-md-12">
-                        <select class="form-control m-b newGenderSelect">
+                        <label for="gender">Gender</label>
+                        <select id="gender" class="form-control m-b newGenderSelect">
                             <option value="0">Select Gender</option>
                             <option value="1">Male</option>
                             <option value="2">Female</option>
@@ -441,7 +466,8 @@ function createDependant(){
             <div class="col-sm-6">
                 <div class="row">
                     <div class="col-md-12">
-                        <select class="form-control m-b newRelationshipType">
+                        <label for="rt">Relationship Type</label>
+                        <select id="rt" class="form-control m-b newRelationshipType">
                             <option value="0">Select Relationship Type</option>
                             <option value="2">Daughter</option>
                             <option value="3">Son</option>
@@ -458,16 +484,16 @@ function createDependant(){
         <div class="row">
             <div class="col-sm-6">
                 <div class="row">
-                    <div class="col-md-12 datePicker1_div">
+                    <div class="col-md-12">
                         <div>
                                 <label for="">Birth Certificate [PDF]</label>
                             </div>
                             <div class="fileOutput" name="crest"
                                     style="height: 120px; width:220px; border-radius: 10px;display: inline-block;"></div>
-                            <input class="imageInput" type="file"
+                            <input class="pdfInput" type="file"
                                    style="width: 200px;padding: 12px;display: inline;"
                                    accept=".pdf" onchange="uploadPDF(this)">
-                            <p id="error" style="color: red; display: none;">Only PDF files are allowed!</p>
+                            <p id="error" class="fileError" style="color: red; display: none;">Only PDF files are allowed!</p>
                     </div>
                 </div>
             </div>
@@ -480,9 +506,175 @@ function createDependant(){
                         </div>
                         <output class="imageOutput dependantPic" name="crest"
                                 style="height: 120px; width:220px; border-radius: 10px;display: inline-block;"></output>
-                        <input class="imageInput" type="file"  onchange="imageChange(this)"
+                        <input class="imageInput dependantPicInput" type="file"  onchange="imageChange(this)"
                                style="width: 200px;padding: 12px;display: inline;"
                                accept="image/jpeg, image/png, image/jpg"">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+      </div>
+        <div class="hr-line-dashed"></div>
+    `;
+   return htmlContent;
+   }
+
+function createAcademicData(){
+ const htmlContent = `
+        <div class="academic">
+                 <div class="row">
+                    <div class="col-sm-6">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label for="in">Institution Name</label>
+                                <input id="in" type="text" placeholder="Institution Name" class="form-control nameOfInstitution">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label for="dn">Date of Admission</label>
+                                <input type="date" placeholder="Date of Admission" class="form-control dateOfAdmission">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        .
+
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label >Date of Graduation</label>
+                                <input type="date" placeholder="Date of Graduation" class="form-control dateOfGraduation">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label >Program Offered</label>
+                                <input class="form-control m-b programOffered" placeholder="Program Offered"> </input>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+          <div class="row">
+
+            <div class="col-sm-6">
+                <div class="row">
+                    <div class="col-md-12">
+                        <label >Type of Certificate</label>
+                        <select class="form-control m-b certificateType">
+                            <option value="0">Select Type of Certificate</option>
+                            <option value="2">BECE</option>
+                            <option value="3">SHS</option>
+                            <option value="4">Undergraduate</option>
+                            <option value="5">Masters</option>
+                            <option value="6">PHD</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+          </div>
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div>
+                                <label for="">Supporting Document [PDF]</label>
+                            </div>
+                            <div class="fileOutput" name="crest"
+                                    style="height: 120px; width:220px; border-radius: 10px;display: inline-block;"></div>
+                            <input class="pdfInput" type="file"
+                                   style="width: 200px;padding: 12px;display: inline;"
+                                   accept=".pdf" onchange="uploadPDF(this)">
+                            <p id="error" class="fileError" style="color: red; display: none;">Only PDF files are allowed!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+      </div>
+        <div class="hr-line-dashed"></div>
+    `;
+   return htmlContent;
+   }
+
+
+function createProfessionalData(){
+ const htmlContent = `
+        <div class="professional">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label >Institution Name</label>
+                                <input type="text" placeholder="Institution Name" class="form-control nameOfInstitution">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label >Date of Employment</label>
+                                <input type="date" placeholder="Date of Employment" class="form-control dateOfEmployment">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        .
+
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label >Date of Departure</label>
+                                <input type="date" placeholder="Date of Departure" class="form-control dateOfDeparture">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label >Designation</label>
+                                <input class="form-control m-b designationAtInstitution" placeholder="Designation"> </input>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label >Employment Type</label>
+                                <input class="form-control m-b employmentTypeAtInstitution" placeholder="Employment Type"></input>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div>
+                                <label for="">Supporting Document [PDF]</label>
+                            </div>
+                            <div class="fileOutput" name="crest"
+                                    style="height: 120px; width:220px; border-radius: 10px;display: inline-block;"></div>
+                            <input class="pdfInput" type="file"
+                                   style="width: 200px;padding: 12px;display: inline;"
+                                   accept=".pdf" onchange="uploadPDF(this)">
+                            <p id="error" class="fileError" style="color: red; display: none;">Only PDF files are allowed!</p>
                     </div>
                 </div>
             </div>

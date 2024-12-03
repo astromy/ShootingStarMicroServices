@@ -27,6 +27,7 @@ public class Dependants {
     private String relationType;
     private String gender;
     private String birthCertificate;
+    private String dependantPicture;
     private String staffDependant;
     private String institutionCode;
 }

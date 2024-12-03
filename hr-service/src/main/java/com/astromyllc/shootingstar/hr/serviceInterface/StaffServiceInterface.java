@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface StaffServiceInterface {
-    public StaffResponse createStaff(StaffRequest staffRequest) throws IOException, URISyntaxException;
+    public Optional<StaffResponse> createStaff(StaffRequest staffRequest) throws IOException, URISyntaxException;
     public Optional<List<StaffResponse>> createStaffs(List<StaffRequest> staffRequestList);
     public Optional<StaffResponse> getStaffByCode(StaffCodeRequest staffCode) throws URISyntaxException, IOException;
     public Optional<List<StaffResponse>> getStaffByInstitution(SingleStringRequest beceCode);

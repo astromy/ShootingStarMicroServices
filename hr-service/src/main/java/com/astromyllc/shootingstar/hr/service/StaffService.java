@@ -1,13 +1,10 @@
 package com.astromyllc.shootingstar.hr.service;
 
 import com.astromyllc.shootingstar.hr.dto.request.SingleStringRequest;
-import com.astromyllc.shootingstar.hr.dto.request.StaffDocumentsRequest;
 import com.astromyllc.shootingstar.hr.dto.request.StaffRequest;
 import com.astromyllc.shootingstar.hr.dto.request.api.StaffCodeRequest;
 import com.astromyllc.shootingstar.hr.dto.response.StaffResponse;
 import com.astromyllc.shootingstar.hr.model.*;
-import com.astromyllc.shootingstar.hr.repository.ProfessionalRecordsRepository;
-import com.astromyllc.shootingstar.hr.repository.StaffDocumentsRepository;
 import com.astromyllc.shootingstar.hr.repository.StaffRepository;
 import com.astromyllc.shootingstar.hr.serviceInterface.StaffServiceInterface;
 import com.astromyllc.shootingstar.hr.utils.*;
@@ -35,28 +32,69 @@ public class StaffService implements StaffServiceInterface {
     private final AcademicRecordsUtil academicRecordsUtil;
 
     @Override
-    public StaffResponse createStaff(StaffRequest staffRequest) throws IOException, URISyntaxException {
-        Optional<Staff> staff = staffUtil.staffGlobalList.stream().filter(s -> s.getInstitutionCode().equalsIgnoreCase(staffRequest.getInstitutionCode())).findFirst();
+    public Optional<StaffResponse> createStaff(StaffRequest staffRequest) throws IOException, URISyntaxException {
+        Optional<Staff> staff = staffUtil.staffGlobalList.stream().filter(s -> s.getInstitutionCode().equalsIgnoreCase(staffRequest.getInstitutionCode()) && s.getStaffCode().equalsIgnoreCase(staffRequest.getStaffCode())).findFirst();
         if (staff.isEmpty()) {
             Staff newStaff = staffUtil.mapStaffRequest_ToStaff(staffRequest);
-            staffRepository.save(newStaff);
+            //staffRepository.save(newStaff);
 
             List<ProfessionalRecords> pr = staffRequest.getProfessionalRecords().stream().map(p -> professionalRecordsUtil.mapProfessionalRecordRequest_ToProfessionalRecords(p, newStaff.getStaffCode())).collect(Collectors.toList());
-            professionalRecordsUtil.saveAll(pr);
+           // professionalRecordsUtil.saveAll(pr);
+            newStaff.setProfessionalRecords(pr);
 
             List<StaffDocuments> sds = staffRequest.getStaffDocuments().stream().map(sd -> staffDocumentsUtil.mapStaffDocumentsRequest_ToStaffDocuents(sd, newStaff.getStaffCode())).collect(Collectors.toList());
-            staffDocumentsUtil.saveAll(sds);
+            //staffDocumentsUtil.saveAll(sds);
+            newStaff.setStaffDocuments(sds);
+
             List<Dependants> dp = staffRequest.getDependants().stream().map(d -> DependantsUtil.mapDependantsRequest_ToDependants(d, newStaff.getStaffCode())).collect(Collectors.toList());
-            dependantsUtil.saveAll(dp);
+            //dependantsUtil.saveAll(dp);
+            newStaff.setDependants(dp);
+
             List<AcademicRecords> ac = staffRequest.getAcademicRecords().stream().map(a -> AcademicRecordsUtil.mapAcademicRecordRequest_ToAcademicRecords(a, newStaff.getStaffCode())).collect(Collectors.toList());
-            academicRecordsUtil.saveAll(ac);
+            //academicRecordsUtil.saveAll(ac);
+            newStaff.setAcademicRecords(ac);
+
+            staffRepository.save(newStaff);
 
             staffUtil.staffGlobalList.add(newStaff);
-            return staffUtil.mapStaff_ToStaffResponse(newStaff);
+            return Optional.of(staffUtil.mapStaff_ToStaffResponse(newStaff));
         } else {
-            staffRepository.save(staffUtil.mapStaffRequest_ToStaff(staffRequest, staff.get()));
+
+            Staff s =staffUtil.mapStaffRequest_ToStaff(staffRequest, staff.get());
+
+            List<ProfessionalRecords> newRecords = staffRequest.getProfessionalRecords().stream()
+                    .map(requestRecord -> professionalRecordsUtil.mapProfessionalRecordRequest_ToProfessionalRecords(requestRecord, staff.get().getStaffCode()))
+                    .collect(Collectors.toList());
+                s.setProfessionalRecords(newRecords);
+            //professionalRecordsUtil.saveAll(newRecords);
+
+
+
+            List<StaffDocuments> newDocs = staffRequest.getStaffDocuments().stream()
+                    .map(requestDoc -> staffDocumentsUtil.mapStaffDocumentsRequest_ToStaffDocuents(requestDoc, staff.get().getStaffCode()))
+                    .collect(Collectors.toList());
+
+            s.setStaffDocuments(newDocs);
+
+
+            List<Dependants> newDependants = staffRequest.getDependants().stream()
+                    .map(requestDependants -> dependantsUtil.mapDependantsRequest_ToDependants(requestDependants, staff.get().getStaffCode()))
+                    .collect(Collectors.toList());
+
+            // Save the new records
+            s.setDependants(newDependants);
+
+
+            List<AcademicRecords> existingAcademicRecords = staff.get().getAcademicRecords();
+            List<AcademicRecords> newAcademicRecords = staffRequest.getAcademicRecords().stream()
+                    .map(requestRecord -> academicRecordsUtil.mapAcademicRecordRequest_ToAcademicRecords(requestRecord, staff.get().getStaffCode()))
+                    .collect(Collectors.toList());
+
+                // Save the new records
+            s.setAcademicRecords(newAcademicRecords);
+            staffRepository.save(s);
+            return Optional.of(staffUtil.mapStaff_ToStaffResponse(s));
         }
-        return null;
     }
 
     @Override

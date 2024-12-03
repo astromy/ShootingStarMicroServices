@@ -26,4 +26,5 @@ public class AcademicRecordsResponse {
     private String programOffered;
     private String certificateType;
     private String institutionCode;
+    private String supportingDocs;
 }
