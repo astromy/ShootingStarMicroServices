@@ -8,14 +8,14 @@ eureka:
 
 logging:
   level:
-    root: ERROR
+    root: INFO
     org:
       springframework:
         security: ERROR
         cloud:
           gateway:
             route:
-              RouteDefinitionLocator: ERROR
+              RouteDefinitionLocator: INFO
 
 server:
   port: 8083

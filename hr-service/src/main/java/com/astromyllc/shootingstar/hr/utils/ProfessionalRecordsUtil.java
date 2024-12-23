@@ -55,4 +55,15 @@ public class ProfessionalRecordsUtil {
         professionalRecordsRepository.saveAll(pr);
         professionalRecordsGlobalList.addAll(pr);
     }
+
+    public void updateProfessionalRecord(ProfessionalRecords existing, ProfessionalRecordsRequest requestRecord,String staffCode) {
+        existing.setNameOfInstitution(requestRecord.getNameOfInstitution());
+        existing.setSupportingDocs(requestRecord.getSupportingDocs());
+        existing.setDateOfDeparture(LocalDate.parse(requestRecord.getDateOfDeparture()));
+        existing.setDateOfEmployment(LocalDate.parse(requestRecord.getDateOfEmployment()));
+        existing.setDesignationAtInstitution(requestRecord.getDesignationAtInstitution());
+        existing.setInstitutionCode(requestRecord.getInstitutionCode());
+        existing.setEmploymentTypeAtInstitution(requestRecord.getEmploymentTypeAtInstitution());
+        existing.setStaffProfessionalRecords(staffCode);
+    }
 }

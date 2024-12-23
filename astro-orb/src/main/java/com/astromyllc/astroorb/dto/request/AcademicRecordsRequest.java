@@ -17,6 +17,7 @@ public class AcademicRecordsRequest {
     private String dateOfGraduation;
     private String programOffered;
     private String certificateType;
+    private String supportingDocs;
     private String institutionCode;
 
 }

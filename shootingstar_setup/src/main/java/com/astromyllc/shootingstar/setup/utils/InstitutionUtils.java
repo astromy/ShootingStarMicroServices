@@ -18,6 +18,7 @@ import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.admin.client.resource.GroupResource;
 import org.keycloak.admin.client.resource.GroupsResource;
 import org.keycloak.admin.client.resource.RealmResource;
+import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -28,6 +29,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import static org.keycloak.admin.client.CreatedResponseUtil.getCreatedId;
@@ -230,6 +232,66 @@ public class InstitutionUtils {
 
 
     public void createKeycloakCredentials(PreOrderInstitution institution) {
+        List<String> permissions = new ArrayList<String>();
+        permissions.add("setup classes");
+        permissions.add("setup subject");
+        permissions.add("setup admission");
+        permissions.add("setup department");
+        permissions.add("setup grading");
+        permissions.add("setup permissions");
+        permissions.add("setup institution");
+        permissions.add("setup classgroup");
+
+        permissions.add("Human_Resource onboarding");
+        permissions.add("Human_Resource records");
+        permissions.add("Human_Resource leave");
+        permissions.add("Human_Resource appraisals");
+        permissions.add("Human_Resource designation");
+        permissions.add("Human_Resource offboarding");
+
+        permissions.add("Finance bill_creation");
+        permissions.add("Finance billing");
+        permissions.add("Finance fee_collection");
+        permissions.add("Finance payment_history");
+        permissions.add("Finance payment_checker");
+        permissions.add("Finance salary_setup");
+        permissions.add("Finance payslip");
+        permissions.add("Finance ledger_books");
+        permissions.add("Finance income_statement");
+        permissions.add("Finance cash_flow");
+        permissions.add("Finance trial_balance");
+
+        permissions.add("Academics question_upload_approval");
+        permissions.add("Academics score_upload");
+        permissions.add("Academics transcript");
+        permissions.add("Academics broadsheet");
+        permissions.add("Academics graduation_list");
+        permissions.add("Academics class_timetable");
+        permissions.add("Academics promotions_and_demotions");
+        permissions.add("Academics terminal_report");
+
+        permissions.add("Administration student_enrollment");
+        permissions.add("Administration student_record");
+        permissions.add("Administration suspended");
+        permissions.add("Administration dismissed");
+        permissions.add("Administration student_list");
+        permissions.add("Administration class_list");
+        permissions.add("Administration academic_timetable");
+        permissions.add("Administration id_card_generation");
+
+        permissions.add("Infirmary vitals_recording");
+        permissions.add("Infirmary diagnosis_recording");
+        permissions.add("Infirmary medical_history");
+
+        permissions.add("Stores sales");
+        permissions.add("Stores inventory");
+        permissions.add("Stores insight");
+
+        permissions.add("Teaching question_upload");
+        permissions.add("Teaching exams");
+        permissions.add("Teaching assignment");
+        permissions.add("Teaching score_upload");
+        permissions.add("Teaching assignment_review");
 
         String clientSecret = keycloakSecrete;
         /*Keycloak keycloak = KeycloakBuilder.builder()
@@ -292,6 +354,46 @@ public class InstitutionUtils {
 
         try {
             kc.realm("ShootingStar").users().create(userRepresentation);
+
+            // Get the realm resource
+            RealmResource realmResource = kc.realm("ShootingStar");
+
+
+            // Retrieve user by username
+            UserRepresentation user = new UserRepresentation();
+            UsersResource usersResource = realmResource.users();
+            AtomicBoolean isNewUser = new AtomicBoolean(false);
+
+            String userId = usersResource.search(client).stream()
+                    .findFirst()
+                    .map(UserRepresentation::getId) // If user exists, get their ID
+                    .orElseGet(() -> { // If user doesn't exist, create the user
+                        isNewUser.set(true); // Mark user as newly created
+                        UserRepresentation newUser = new UserRepresentation();
+                        newUser.setUsername(client);
+                        newUser.setEnabled(true);
+
+                        usersResource.create(newUser);
+
+                        // Retrieve the created user's ID
+                        return usersResource.search(client).stream()
+                                .findFirst()
+                                .orElseThrow(() -> new RuntimeException("User creation failed"))
+                                .getId();
+                    });
+
+            // Separate roles to add and remove based on the "state" field
+            List<RoleRepresentation> rolesToAdd = permissions.stream()
+                    .map(roleName -> realmResource.roles().get(roleName).toRepresentation())
+                    .collect(Collectors.toList());
+
+            // Step 5: Assign Roles to User (Add)
+            if (!rolesToAdd.isEmpty()) {
+                usersResource.get(userId).roles().realmLevel().add(rolesToAdd);
+                log.info("Roles added to user: " + rolesToAdd);
+            }
+
+
         } catch (Exception e) {
             System.out.println(e.toString());
         }
@@ -327,23 +429,59 @@ public class InstitutionUtils {
         permissions.add("setup department");
         permissions.add("setup grading");
         permissions.add("setup permissions");
-        permissions.add("Human_Resouce onloading");
-        permissions.add("Human_Resouce records");
-        permissions.add("Human_Resouce leave");
-        permissions.add("Human_Resouce appraisals");
-        permissions.add("Human_Resouce designation");
-        permissions.add("Human_Resouce offloading");
-        permissions.add("Finance billcreation");
+        permissions.add("setup institution");
+        permissions.add("setup classgroup");
+
+        permissions.add("Human_Resource onboarding");
+        permissions.add("Human_Resource records");
+        permissions.add("Human_Resource leave");
+        permissions.add("Human_Resource appraisals");
+        permissions.add("Human_Resource designation");
+        permissions.add("Human_Resource offboarding");
+
+        permissions.add("Finance bill_creation");
         permissions.add("Finance billing");
-        permissions.add("Finance feecollection");
-        permissions.add("Finance paymenthistory");
-        permissions.add("Finance paymentchecker");
-        permissions.add("Finance salarysetup");
-        permissions.add("Finance payslipgeneration");
-        permissions.add("Finance ledgerbooks");
-        permissions.add("Finance incomestatement");
-        permissions.add("Finance cashflow");
-        permissions.add("Finance trialbalanace");
+        permissions.add("Finance fee_collection");
+        permissions.add("Finance payment_history");
+        permissions.add("Finance payment_checker");
+        permissions.add("Finance salary_setup");
+        permissions.add("Finance payslip");
+        permissions.add("Finance ledger_books");
+        permissions.add("Finance income_statement");
+        permissions.add("Finance cash_flow");
+        permissions.add("Finance trial_balance");
+
+        permissions.add("Academics question_upload_approval");
+        permissions.add("Academics score_upload");
+        permissions.add("Academics transcript");
+        permissions.add("Academics broadsheet");
+        permissions.add("Academics graduation_list");
+        permissions.add("Academics class_timetable");
+        permissions.add("Academics promotions_and_demotions");
+        permissions.add("Academics terminal_report");
+
+        permissions.add("Administration student_enrollment");
+        permissions.add("Administration student_record");
+        permissions.add("Administration suspended");
+        permissions.add("Administration dismissed");
+        permissions.add("Administration student_list");
+        permissions.add("Administration class_list");
+        permissions.add("Administration academic_timetable");
+        permissions.add("Administration id_card_generation");
+
+        permissions.add("Infirmary vitals_recording");
+        permissions.add("Infirmary diagnosis_recording");
+        permissions.add("Infirmary medical_history");
+
+        permissions.add("Stores sales");
+        permissions.add("Stores inventory");
+        permissions.add("Stores insight");
+
+        permissions.add("Teaching question_upload");
+        permissions.add("Teaching exams");
+        permissions.add("Teaching assignment");
+        permissions.add("Teaching score_upload");
+        permissions.add("Teaching assignment_review");
 
 
         Keycloak kc = KeycloakBuilder.builder()
@@ -360,11 +498,22 @@ public class InstitutionUtils {
 
         for (String role : permissions) {
             try {
-                RoleRepresentation roleRepresentation = new RoleRepresentation();
-                roleRepresentation.setName(role);
-                kc.realm("ShootingStar").roles().create(roleRepresentation);
+                // Check if the role already exists
+                Optional<RoleRepresentation> existingRole = kc.realm("ShootingStar").roles().list().stream()
+                        .filter(r -> r.getName().equals(role))
+                        .findFirst();
+
+                if (existingRole.isPresent()) {
+                    System.out.println("Role already exists: " + role);
+                } else {
+                    // Create the role if it does not exist
+                    RoleRepresentation roleRepresentation = new RoleRepresentation();
+                    roleRepresentation.setName(role);
+                    kc.realm("ShootingStar").roles().create(roleRepresentation);
+                    System.out.println("Role created: " + role);
+                }
             } catch (Exception e) {
-                System.out.println(e);
+                System.out.println("Error processing role " + role + ": " + e.getMessage());
             }
         }
     }

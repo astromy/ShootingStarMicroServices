@@ -6,12 +6,58 @@ window.clonable2;
 window.name=[];
 window.resultlist=[];
 window.resultlist2=[];
+cd4=[];
 window.tabs;
 window.specificTab;
 window.specificStudentsTab;
 
 window.instId = $("meta[name='institutionId']").attr("content");
 window.type= $('[name="type"]').val();
+cd4=$("meta[name='cd4']").attr("content").replace("[", "").replace("]", "").split(",");
+
+var permissionGroups=[];
+var permissionList=[];
+
+const depGroups = document.querySelectorAll('.departmentGroup');
+for (const depGroup of depGroups) {
+    depGroup.style.display = 'none';
+}
+
+const links = document.querySelectorAll('.functionalGroup');
+for (const link of links) {
+    link.style.display = 'none';
+}
+
+cd4.forEach(function(p) {
+var t1=p.trim().split(" ");
+    if(!permissionGroups.includes(t1[0])){
+    permissionGroups.push(t1[0]);
+    }
+    permissionList.push(t1[1]);
+})
+
+    permissionList = permissionList.filter(item => item !== undefined);
+
+    permissionGroups = new Set(permissionGroups.map(item => item.replace(/_/g, ' ').toLowerCase()));
+    permissionList = new Set(permissionList.map(item => item.replace(/_/g, ' ').toLowerCase()));
+
+links.forEach(anchor => {
+   const plainText = anchor.textContent.trim().toLowerCase();
+           if ([...permissionList].some(permission => plainText.includes(permission))) {
+               anchor.style.removeProperty('display'); // Remove display style on match
+           } else {
+               anchor.style.display = 'none'; // Explicitly hide unmatched anchors
+           }
+});
+
+depGroups.forEach(anchor => {
+   const plainText = anchor.textContent.trim().toLowerCase();
+           if ([...permissionGroups].some(permission => plainText.includes(permission))) {
+               anchor.style.removeProperty('display'); // Remove display style on match
+           } else {
+               anchor.style.display = 'none'; // Explicitly hide unmatched anchors
+           }
+});
 
 var scriptsToRemove = [];
  const defaultScripts = [

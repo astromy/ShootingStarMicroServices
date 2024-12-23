@@ -509,6 +509,7 @@ function createDependant(){
                         <input class="imageInput dependantPicInput" type="file"  onchange="imageChange(this)"
                                style="width: 200px;padding: 12px;display: inline;"
                                accept="image/jpeg, image/png, image/jpg"">
+                        <p id="error" class="fileError" style="color: red; display: none;">Only Image files are allowed!</p>
                     </div>
                 </div>
             </div>
