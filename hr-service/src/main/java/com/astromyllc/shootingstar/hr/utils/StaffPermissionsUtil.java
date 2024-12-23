@@ -15,6 +15,7 @@ import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
@@ -22,12 +23,24 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
+import javax.annotation.PostConstruct;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
 @Transactional
 public class StaffPermissionsUtil {
+    @Value("${gateway.host}")
+    private String host;
+    @Value("${keycloak.address}")
+    private String staticKeycloakURL;
+    private static String keycloakURL;
+
+    @PostConstruct
+    private void initStaticKeycloakURL() {
+        keycloakURL=staticKeycloakURL;
+    }
+
     private final StaffPermissionsRepository staffPermissionsRepository;
     public static List<StaffPermissions> staffPermissionsGlobalList;
     static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -65,7 +78,7 @@ public class StaffPermissionsUtil {
 
         // Authenticate and connect to Keycloak
         Keycloak keycloak = KeycloakBuilder.builder()
-                .serverUrl("https://keycloak.astromyllc.com/")
+                .serverUrl(keycloakURL)
                 .realm("master")
                 .grantType(OAuth2Constants.PASSWORD)
                 .username("admin")

@@ -65,3 +65,7 @@ logging:
     org.springframework.security: ERROR
     org.springframework.boot.autoconfigure: ERROR
     org.springframework.web.client.RestTemplate: ERROR
+
+
+keycloak:
+  address: ${KeycloakURL:https://keycloak.astromyllc.com}
