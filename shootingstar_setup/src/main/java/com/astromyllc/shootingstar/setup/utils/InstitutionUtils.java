@@ -41,6 +41,8 @@ public class InstitutionUtils {
 
     @Value("${gateway.host}")
     private String keycloakSecrete;
+    @Value("${keycloak.address}")
+    private String keycloakURL;
 
     private final InstitutionRepository institutionRepository;
     private final PreOrderInstitutionRepository preOrderInstitutionRepository;
@@ -304,7 +306,7 @@ public class InstitutionUtils {
                 */
 
         Keycloak kc = KeycloakBuilder.builder()
-                .serverUrl("https://keycloak.astromyllc.com/")
+                .serverUrl(keycloakURL)
                 .realm("master")
                 .grantType(OAuth2Constants.PASSWORD)
                 .username("admin")
@@ -485,7 +487,7 @@ public class InstitutionUtils {
 
 
         Keycloak kc = KeycloakBuilder.builder()
-                .serverUrl("http://keycloak:8080/")
+                .serverUrl(keycloakURL)
                 .realm("master")
                 .grantType(OAuth2Constants.PASSWORD)
                 .username("admin")
