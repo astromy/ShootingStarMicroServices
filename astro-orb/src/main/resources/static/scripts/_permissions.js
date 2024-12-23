@@ -1,45 +1,32 @@
 
+var exisitingstaff=[];
+var staffPermissionList=[];
+var staffCode;
+
+var instId = $("meta[name='institutionId']").attr("content");
+var v= instId.split(",")[0].replace(/[\[\]']+/g,'')
+    instId=v.replace(/\//g, '')
+fetchStaffList(instId);
+
 id="";
-fetchInstitutionClasses(instId.split(",")[0]);
+//fetchInstitutionClasses(instId.split(",")[0]);
 
 
     window.copyrights();
 
     $('.savePermissions').click(async function() {
 
-                postdata();
-                var jso= buildJson();
-                return HttpPost("addLookUps",jso)
-                .then(function(result){
-                    swal({
-                           title: "Thank you!",
-                           text: "Your application is being submitted",
-                           type: "success"
-                      });
-                    })
-                });
-
-     
-    function postdata(){
-   var classGroup=[];
-    classGroup= document.getElementsByClassName('newClassGrouptxt');
-    for(var i=0;i<classGroup.length; i++){
-    name[i]=classGroup[i].value;
-    }
-    }
-
-    function buildJson(){
-    var resultlist=[]
-    for(var i=0;i<name.length; i++){
-        var jsonObject={
-            "id":id,
-            "name":name[i],
-            "type":type
-        };
-        resultlist.push(jsonObject);
-      }
-        return resultlist
-    }
+        return HttpPost("addStaffPermissions",staffPermissionList)
+        .then(function(result){
+            staffPermissionList=[];
+             $('.dismissPermissions').click();
+            swal({
+               title: "Thank you!",
+               text: "Your application is being submitted",
+               type: "success"
+            });
+        })
+     });
 
 
   async function fetchInstitutionClasses(instId){
@@ -84,6 +71,41 @@ var bar = new Promise((resolve, reject) => {
 
 
 
+// Add an onchange event listener
+document.querySelector('#StaffList').addEventListener('change', (event) => {
+    staffCode = event.target.value;
+});
+
+
+    async function fetchStaffList(instId){
+      var instRequest={"val":instId}
+      return  HttpPost("get-staff-by-institution",instRequest)
+       .then(function (result) {
+      exisitingstaff=result;
+
+                  var el= $("#StaffList")
+                          el.find('option:gt(0)').remove();
+
+                     if(result!=null){
+                       var bar = new Promise((resolve, reject) => {
+                               result.forEach((sl,index1, array1) =>  {
+                                   el.append($('<option>', {
+                                           value: sl.staffCode,
+                                           text: sl.staffCode + " " + "["+sl.firstNames+" "+sl.lastName+"]"+"  "
+                                       }));
+                                   if (index1 === array1.length -1) resolve();
+                               });
+                       });
+                       bar.then(() => {
+                           console.log('All done!');
+                       });
+                       }
+
+      })
+    }
+
+
+
 function dataTableInit(){
 
     // Initialize Example 1
@@ -98,3 +120,60 @@ function dataTableInit(){
         ]
     });
 };
+
+
+function permissionBuilder(){
+    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+
+    // Add an event listener to each checkbox
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', (event) => {
+        const label = document.querySelector(`label[for="${checkbox.id}"]`);
+            if (event.target.checked) {
+
+               if(staffPermissionList.some(obj => obj["staffCode"] === staffCode) && staffPermissionList.some(obj => obj["permission"]===label.innerHTML)){
+                    staffPermissionList.find(obj => obj["permission"] === label.innerHTML).state="add";
+               }else{
+               var staffPermission={
+               "id":"",
+               "staffCode":staffCode,
+               "permissionCode":event.target.value,
+               "permission":label.innerHTML,
+               "institutionCode":instId,
+               "state":"add",
+               }
+                    staffPermissionList.push(staffPermission);
+                }
+            } else {
+
+               if(staffPermissionList.some(obj => obj["staffCode"] === staffCode) && staffPermissionList.some(obj => obj["permission"]===label.innerHTML)){
+                    staffPermissionList.find(obj => obj["permission"] === label.innerHTML).state="delete";
+               }else{
+               var staffPermission={
+               "id":"",
+               "staffCode":staffCode,
+               "permissionCode":event.target.value,
+               "permission":label.innerHTML,
+               "institutionCode":instId,
+               "state":"delete",
+               }
+                   staffPermissionList.push(staffPermission);
+                }
+            }
+        });
+    });
+}
+
+
+    document.querySelector("#StaffList").addEventListener("change", function() {
+      var selectedValue = this.value;
+
+        const el=document.querySelector('.tabs');
+        if (selectedValue !== "Select Staff") {
+        el.style.pointerEvents = 'auto'; // Re-enable all clicks/interactions
+        el.style.opacity = '1';          // Restore original appearance (optional)
+        }else{
+        el.style.pointerEvents = 'none'; // Disable all clicks/interactions
+        el.style.opacity = '0.5';        // Make it appear disabled (optional)
+        }
+    });

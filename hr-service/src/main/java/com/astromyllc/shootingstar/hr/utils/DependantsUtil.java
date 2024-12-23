@@ -58,4 +58,15 @@ public class DependantsUtil {
         dependantRepository.saveAll(dp);
         dependantsGlobalList.addAll(dp);
     }
+
+    public static void updateDependants(Dependants ed, DependantsRequest rd, String staffCode) {
+        ed.setName(rd.getName());
+        ed.setDependantPicture(rd.getDependantPicture());
+        ed.setDateOfBirth(LocalDate.parse(rd.getDateOfBirth()));
+        ed.setGender(rd.getGender());
+        ed.setBirthCertificate(rd.getBirthCertificate());
+        ed.setRelationType(rd.getRelationType());
+        ed.setStaffDependant(staffCode);
+        ed.setInstitutionCode(rd.getInstitutionCode());
+    }
 }

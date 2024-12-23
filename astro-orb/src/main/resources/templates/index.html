@@ -12,6 +12,7 @@
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
     <meta name="scope" th:content="${access}" />
     <meta name="institutionId" th:content="${institutions}" />
+    <meta name="cd4" th:content="${cd4}" />
 
     <!-- Page title -->
     <title>ORB | Services</title>
@@ -129,99 +130,99 @@
                 <a href="analytics.html"> <span class="nav-label">Analytics</span><span class="label label-warning pull-right">NEW</span> </a>
             </li>
             <li>
-                <a href="#"><span class="nav-label">Setup</span><span class="fa arrow"></span> </a>
+                <a href="#" class=" departmentGroup"><span class="nav-label">Setup</span><span class="fa arrow"></span> </a>
                 <ul class="nav nav-second-level">
-                    <li><a id="institution">Institution</a></li>
-                    <li><a id="classgroup"><span class="fa fa-cubes"></span>  Class group</a></li>
-                    <li><a id="classes"><span class="fa fa-cube"></span>  Classes </a></li>
-                    <li><a id="subject"><span class="fa fa-book"></span>  Subject</a></li>
-                    <li><a id="admission"><span class="fa fa-plus-square"></span>  Admission</a></li>
-                    <li><a id="department"><img src="images/16px/015-apartment-building.png" class="flaticons"/>  Department</a></li>
-                    <li><a id="grading"><img src="images/16px/082-exam-results.png" class="flaticons"/> Grading</a></li>
-                    <li><a id="permissions"><span class="fa fa-shield"></span>  Permissions</a></li>
+                    <li><a id="institution" class="functionalGroup">Institution</a></li>
+                    <li><a id="classgroup" class="functionalGroup"><span class="fa fa-cubes"></span>  Class group</a></li>
+                    <li><a id="classes" class="functionalGroup"><span class="fa fa-cube"></span>  Classes </a></li>
+                    <li><a id="subject" class="functionalGroup"><span class="fa fa-book"></span>  Subject</a></li>
+                    <li><a id="admission" class="functionalGroup"><span class="fa fa-plus-square"></span>  Admission</a></li>
+                    <li><a id="department" class="functionalGroup"><img src="images/16px/015-apartment-building.png" class="flaticons"/>  Department</a></li>
+                    <li><a id="grading" class="functionalGroup"><img src="images/16px/082-exam-results.png" class="flaticons"/> Grading</a></li>
+                    <li><a id="permissions" class="functionalGroup"><span class="fa fa-shield"></span>  Permissions</a></li>
                 </ul>
             </li>
             <li>
-                <a><span class="nav-label">Human Resouce</span><span class="fa arrow"></span> </a>
+                <a class=" departmentGroup"><span class="nav-label">Human Resource</span><span class="fa arrow"></span> </a>
                 <ul class="nav nav-second-level">
-                    <li><a  id="onloading"><img src="images/16px/003-onboarding-2.png" class="flaticons"/>Onboarding </a></li>
-                    <li><a  id="records"><img src="images/16px/019-keeping-2.png" class="flaticons"/>Records</a></li>
-                    <li><a  id="leave"><img src="images/16px/006-leave.png" class="flaticons"/>Leave</a></li>
-                    <li><a  id="appraisals"><img src="images/16px/012-performance-appraisal.png" class="flaticons"/>Apraisals</a></li>
-                    <li><a  id="designation"><img src="images/16px/016-commercial.png" class="flaticons"/>Designation</a></li>
-                    <li><a  id="offloading"><img src="images/16px/005-exit-1.png" class="flaticons"/>Offboarding</a></li>
+                    <li><a  id="onloading" class="functionalGroup"><img src="images/16px/003-onboarding-2.png" class="flaticons"/>Onboarding </a></li>
+                    <li><a  id="records" class="functionalGroup"><img src="images/16px/019-keeping-2.png" class="flaticons"/>Records</a></li>
+                    <li><a  id="leave" class="functionalGroup"><img src="images/16px/006-leave.png" class="flaticons"/>Leave</a></li>
+                    <li><a  id="appraisals" class="functionalGroup"><img src="images/16px/012-performance-appraisal.png" class="flaticons"/>Appraisals</a></li>
+                    <li><a  id="designation" class="functionalGroup"><img src="images/16px/016-commercial.png" class="flaticons"/>Designation</a></li>
+                    <li><a  id="offloading" class="functionalGroup"><img src="images/16px/005-exit-1.png" class="flaticons"/>Offboarding</a></li>
                 </ul>
             </li>
             <li>
-                <a href="#"><span class="nav-label">Finance</span><span class="fa arrow"></span> </a>
+                <a href="#" class=" departmentGroup"><span class="nav-label">Finance</span><span class="fa arrow"></span> </a>
                 <ul class="nav nav-second-level">
-                    <li><a  id="billcreation"><img src="images/16px/025-fee-1.png" class="flaticons"/> Bill Creation</a></li>
-                    <li><a  id="billing"><img src="images/16px/024-fee.png" class="flaticons"/> Billing</a></li>
-                    <li><a  id="feecollection"><img src="images/16px/023-taxes.png" class="flaticons"/> Fee Collection</a></li>
-                    <li><a  id="paymenthistory"><img src="images/16px/026-transaction-history.png" class="flaticons"/> Payment History</a></li>
-                    <li><a  id="paymentchecker"><img src="images/16px/054-checker.png" class="flaticons"/> Payment Checker</a></li>
-                    <li><a  id="salarysetup"><img src="images/16px/033-payroll.png" class="flaticons"/> Salary Setup</a></li>
-                    <li><a  id="payslipgeneration"><img src="images/16px/036-security.png" class="flaticons"/> Payslip </a></li>
-                    <li><a  id="ledgerbooks"><img src="images/16px/038-ledgers.png" class="flaticons"/> Ledger Books</a></li>
-                    <li><a  id="incomestatement"><img src="images/16px/046-financial-statement.png" class="flaticons"/> Income Statement</a></li>
-                    <li><a  id="cashflow"><img src="images/16px/041-cashflow.png" class="flaticons"/> Cash Flow</a></li>
-                    <li><a  id="trialbalanace"><img src="images/16px/047-financial-statement-1.png" class="flaticons"/> Trial Balance</a></li>
+                    <li><a  id="billcreation" class="functionalGroup"><img src="images/16px/025-fee-1.png" class="flaticons"/> Bill Creation</a></li>
+                    <li><a  id="billing" class="functionalGroup"><img src="images/16px/024-fee.png" class="flaticons"/> Billing</a></li>
+                    <li><a  id="feecollection" class="functionalGroup"><img src="images/16px/023-taxes.png" class="flaticons"/> Fee Collection</a></li>
+                    <li><a  id="paymenthistory" class="functionalGroup"><img src="images/16px/026-transaction-history.png" class="flaticons"/> Payment History</a></li>
+                    <li><a  id="paymentchecker" class="functionalGroup"><img src="images/16px/054-checker.png" class="flaticons"/> Payment Checker</a></li>
+                    <li><a  id="salarysetup" class="functionalGroup"><img src="images/16px/033-payroll.png" class="flaticons"/> Salary Setup</a></li>
+                    <li><a  id="payslipgeneration" class="functionalGroup"><img src="images/16px/036-security.png" class="flaticons"/> Payslip </a></li>
+                    <li><a  id="ledgerbooks" class="functionalGroup"><img src="images/16px/038-ledgers.png" class="flaticons"/> Ledger Books</a></li>
+                    <li><a  id="incomestatement" class="functionalGroup"><img src="images/16px/046-financial-statement.png" class="flaticons"/> Income Statement</a></li>
+                    <li><a  id="cashflow" class="functionalGroup"><img src="images/16px/041-cashflow.png" class="flaticons"/> Cash Flow</a></li>
+                    <li><a  id="trialbalanace" class="functionalGroup"><img src="images/16px/047-financial-statement-1.png" class="flaticons"/> Trial Balance</a></li>
                 </ul>
             </li>
             <li>
-                <a href="#"><span class="nav-label">Administration</span><span class="fa arrow"></span> </a>
+                <a href="#" class=" departmentGroup"><span class="nav-label">Administration</span><span class="fa arrow"></span> </a>
                 <ul class="nav nav-second-level">
-                    <li><a id="studEnrollment"><img src="images/16px/057-add-friend.png" class="flaticons"/>Student Enrollment </a></li>
-                    <li><a id="studRecords"><img src="images/16px/018-keeping-1.png" class="flaticons"/> Student Record </a></li>
-                    <li><a id="studSuspension"><img src="images/16px/061-suspended-2.png" class="flaticons"/> Suspended </a></li>
-                    <li><a id="studDismissal"><img src="images/16px/064-dismiss-2.png" class="flaticons"/> Dismissed</a></li>
-                    <li><a id="studList"><span class="fa fa-file-text"></span> Student List</a></li>
-                    <li><a id="classList"><span class="fa fa-file-text-o"></span> Class List</a></li>
-                    <li><a id="academicTT"><span class="fa fa-calendar"></span> Academic Timetable</a></li>
-                    <li><a id="idGen"><span class="fa fa-id-card-o"></span> ID card Generation</a></li>
+                    <li><a id="studEnrollment" class="functionalGroup"><img src="images/16px/057-add-friend.png" class="flaticons"/>Student Enrollment </a></li>
+                    <li><a id="studRecords" class="functionalGroup"><img src="images/16px/018-keeping-1.png" class="flaticons"/> Student Record </a></li>
+                    <li><a id="studSuspension" class="functionalGroup"><img src="images/16px/061-suspended-2.png" class="flaticons"/> Suspended </a></li>
+                    <li><a id="studDismissal" class="functionalGroup"><img src="images/16px/064-dismiss-2.png" class="flaticons"/> Dismissed</a></li>
+                    <li><a id="studList" class="functionalGroup"><span class="fa fa-file-text"></span> Student List</a></li>
+                    <li><a id="classList" class="functionalGroup"><span class="fa fa-file-text-o"></span> Class List</a></li>
+                    <li><a id="academicTT" class="functionalGroup"><span class="fa fa-calendar"></span> Academic Timetable</a></li>
+                    <li><a id="idGen" class="functionalGroup"><span class="fa fa-id-card-o"></span> ID card Generation</a></li>
                 </ul>
             </li>
             <li>
-                <a href="#"><span class="nav-label">Academics</span><span class="fa arrow"></span> </a>
+                <a href="#" class=" departmentGroup"><span class="nav-label">Academics</span><span class="fa arrow"></span> </a>
                 <ul class="nav nav-second-level">
-                    <li><a ><span class="label label-success pull-right">Start</span> Overview </a>  </li>
-                    <li><a ><img src="images/16px/080-approved.png" class="flaticons"/>  Question Upload Approval</a></li>
-                    <li><a ><span class="fa fa-upload"></span>  Score Upload </a></li>
-                    <li><a ><span class="fa fa-file-pdf"></span> Terminal Report </a></li>
-                    <li><a ><span class="fa fa-file-excel"></span> Broad Sheet </a></li>
-                    <li><a ><span class="fa fa-file-text"></span> Transcript </a></li>
-                    <li><a ><span class="fa fa-calendar"></span> Class Timetable </a></li>
-                    <li><a ><img src="images/16px/067-promotional-material.png" class="flaticons"/>  Promotions And Demotions </a></li>
+                    <li><a  class="functionalGroup"><span class="label label-success pull-right">Start</span> Overview </a>  </li>
+                    <li><a  class="functionalGroup"><img src="images/16px/080-approved.png" class="flaticons"/>  Question Upload Approval</a></li>
+                    <li><a  class="functionalGroup"><span class="fa fa-upload"></span>  Score Upload </a></li>
+                    <li><a  class="functionalGroup"><span class="fa fa-file-pdf"></span> Terminal Report </a></li>
+                    <li><a  class="functionalGroup"><span class="fa fa-file-excel"></span> Broadsheet </a></li>
+                    <li><a  class="functionalGroup"><span class="fa fa-file-text"></span> Transcript </a></li>
+                    <li><a  class="functionalGroup"><span class="fa fa-calendar"></span> Class Timetable </a></li>
+                    <li><a  class="functionalGroup"><img src="images/16px/067-promotional-material.png" class="flaticons"/>  Promotions And Demotions </a></li>
                 </ul>
             </li>
             <li>
-                <a href="#"><span class="nav-label">Infairmary</span><span class="fa arrow"></span> </a>
+                <a href="#" class=" departmentGroup"><span class="nav-label">Infairmary</span><span class="fa arrow"></span> </a>
                 <ul class="nav nav-second-level">
-                    <li><a ><span class="fa fa-heartbeat"></span> Vitals Recording</a></li>
-                    <li><a ><span class="fa fa-medkit"></span>  Medical History</a></li>
-                    <li><a ><span class="fa fa-user-md"></span>  Diagnosis Recording</a></li>
+                    <li><a  class="functionalGroup"><span class="fa fa-heartbeat"></span> Vitals Recording</a></li>
+                    <li><a  class="functionalGroup"><span class="fa fa-medkit"></span>  Medical History</a></li>
+                    <li><a  class="functionalGroup"><span class="fa fa-user-md"></span>  Diagnosis Recording</a></li>
                 </ul>
             </li>
             <li>
-                <a href="#"><span class="nav-label">Stores</span><span class="fa arrow"></span> </a>
+                <a href="#" class=" departmentGroup"><span class="nav-label">Stores</span><span class="fa arrow"></span> </a>
                 <ul class="nav nav-second-level">
-                    <li><a ><span class="fa fa-line-chart"></span>  Insight</a></li>
-                    <li><a ><span class="fa fa-edit"></span> Inventory </a></li>
-                    <li><a ><span class="fa fa-money"></span>  Sales </a></li>
+                    <li><a  class="functionalGroup"><span class="fa fa-line-chart"></span>  Insight</a></li>
+                    <li><a  class="functionalGroup"><span class="fa fa-edit"></span> Inventory </a></li>
+                    <li><a  class="functionalGroup"><span class="fa fa-money"></span>  Sales </a></li>
 
                 </ul>
             </li>
             <li>
-                <a href="widgets.html"> <span class="nav-label">Question Upload</span> <span class="label label-success pull-right">Special</span></a>
+                <a href="widgets.html" class=" departmentGroup"> <span class="nav-label">Question Upload</span> <span class="label label-success pull-right">Special</span></a>
             </li>
            <li>
-                <a href="#"><span class="nav-label">Teaching Staff</span><span class="fa arrow"></span> </a>
+                <a href="#" class=" departmentGroup"><span class="nav-label">Teaching Staff</span><span class="fa arrow"></span> </a>
                 <ul class="nav nav-second-level">
-                    <li><a ><img src="images/16px/075-upload-file.png" class="flaticons"/>  Question Upload</a></li>
-                    <li><a ><img src="images/16px/083-assignment.png" class="flaticons"/> Assignment </a></li>
-                    <li><a ><img src="images/16px/081-exam-time.png" class="flaticons"/>  Exams </a></li>
-                    <li><a ><img src="images/16px/074-file-upload.png" class="flaticons"/>  Score Upload </a></li>
-                    <li><a ><img src="images/16px/084-reviewers.png" class="flaticons"/>  Assignment Review </a></li>
+                    <li><a  class="functionalGroup"><img src="images/16px/075-upload-file.png" class="flaticons"/>  Question Upload</a></li>
+                    <li><a  class="functionalGroup"><img src="images/16px/083-assignment.png" class="flaticons"/> Assignment </a></li>
+                    <li><a  class="functionalGroup"><img src="images/16px/081-exam-time.png" class="flaticons"/>  Exams </a></li>
+                    <li><a  class="functionalGroup"><img src="images/16px/074-file-upload.png" class="flaticons"/>  Score Upload </a></li>
+                    <li><a  class="functionalGroup"><img src="images/16px/084-reviewers.png" class="flaticons"/>  Assignment Review </a></li>
                 </ul>
             </li>
         </ul>

@@ -8,13 +8,14 @@ import lombok.NoArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
 import java.util.List;
 
 @Entity
-@Document(value = "staff")
+@Document(collection  = "staff")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -49,25 +50,34 @@ public class Staff {
     private String nextOfKing;
     private String institutionCode;
 
-
+    @DBRef
     @OneToMany(fetch = FetchType.EAGER,targetEntity =Portfolio.class, cascade = CascadeType.ALL)
     @JoinColumn(name = "staffPortfolio",referencedColumnName = "id")
     private List<Portfolio> portfolio;
 
+    @DBRef
     @OneToMany(fetch = FetchType.EAGER,targetEntity =Dependants.class, cascade = CascadeType.ALL)
     @JoinColumn(name = "staffDependant",referencedColumnName = "id")
     private List<Dependants> dependants;
 
+    @DBRef
     @OneToMany(fetch = FetchType.EAGER,targetEntity =AcademicRecords.class, cascade = CascadeType.ALL)
     @JoinColumn(name = "staffAcademicRecords",referencedColumnName = "id")
     private List<AcademicRecords> academicRecords;
 
+    @DBRef
     @OneToMany(fetch = FetchType.EAGER,targetEntity =ProfessionalRecords.class, cascade = CascadeType.ALL)
     @JoinColumn(name = "staffProfessionalRecords",referencedColumnName = "id")
     private List<ProfessionalRecords> professionalRecords;
 
+    @DBRef
     @OneToMany(fetch = FetchType.EAGER,targetEntity = StaffDocuments.class, cascade = CascadeType.ALL)
     @JoinColumn(name = "staffDocs",referencedColumnName = "id")
     private List<StaffDocuments> staffDocuments;
+
+    @DBRef
+    @OneToMany(fetch = FetchType.EAGER,targetEntity = StaffDocuments.class, cascade = CascadeType.ALL)
+    @JoinColumn(name = "staffDocs",referencedColumnName = "id")
+    private List<StaffPermissions> staffPermissions;
 
 }

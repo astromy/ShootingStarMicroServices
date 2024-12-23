@@ -17,5 +17,6 @@ public class ProfessionalRecordsRequest {
     private String dateOfDeparture;
     private String designationAtInstitution;
     private String employmentTypeAtInstitution;
+    private String supportingDocs;
     private String institutionCode;
 }

@@ -60,4 +60,15 @@ public class AcademicRecordsUtil {
         academicRecordsRepository.saveAll(ac);
         academicRecordsGlobalList.addAll(ac);
     }
+
+    public void updateAcademicRecord(AcademicRecords existing, AcademicRecordsRequest requestRecord,String staffCode) {
+        existing.setStaffAcademicRecords(staffCode);
+        existing.setCertificateType(requestRecord.getCertificateType());
+        existing.setDateOfAdmission(LocalDate.parse(requestRecord.getDateOfAdmission()));
+        existing.setInstitutionCode(requestRecord.getInstitutionCode());
+        existing.setDateOfGraduation(LocalDate.parse(requestRecord.getDateOfGraduation()));
+        existing.setProgramOffered(requestRecord.getProgramOffered());
+        existing.setSupportingDocs(requestRecord.getSupportingDocs());
+        existing.setNameOfInstitution(requestRecord.getNameOfInstitution());
+    }
 }

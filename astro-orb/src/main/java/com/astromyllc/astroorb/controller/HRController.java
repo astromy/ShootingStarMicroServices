@@ -1,12 +1,10 @@
 package com.astromyllc.astroorb.controller;
 
-import com.astromyllc.astroorb.dto.request.BillRequest;
-import com.astromyllc.astroorb.dto.request.BillingFetchRequest;
-import com.astromyllc.astroorb.dto.request.SingleStringRequest;
-import com.astromyllc.astroorb.dto.request.StaffRequest;
+import com.astromyllc.astroorb.dto.request.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +22,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Controller
+@Slf4j
 @ResponseBody
 @RequiredArgsConstructor
 public class HRController {
@@ -36,9 +35,16 @@ public class HRController {
 
     @ResponseBody
     @RequestMapping(value = "/create-staff", method = RequestMethod.POST)
-    public ResponseEntity<String>addfinance (@RequestBody StaffRequest jso) throws IOException {
-
-        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/hr/createStaff");
+    public ResponseEntity<String>addfinance (@RequestBody List<StaffRequest> jso) throws IOException {
+        String url="http://" + backendserve + "/api/hr/createStaff";
+        ResponseEntity<String> response = BACKENDCOMMPOSTLIST(Collections.singletonList(jso), url);
+        return response;
+    }
+    @ResponseBody
+    @RequestMapping(value = "/addStaffPermissions", method = RequestMethod.POST)
+    public ResponseEntity<String>addStaffPermissions (@RequestBody List<StaffPermissionsRequest> jso) throws IOException {
+        String url="http://" + backendserve + "/api/hr/addStaffPermissions";
+        ResponseEntity<String> response = BACKENDCOMMPOSTLIST(Collections.singletonList(jso), url);
         return response;
     }
 
@@ -56,7 +62,6 @@ public class HRController {
         ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/hr/get-billings-by-institution");
         return response;
     }
-
 
 
 
@@ -96,6 +101,7 @@ public class HRController {
                     new InputStreamReader(inputStream, "utf-8"))) {
                 String responseLine = null;
                 while ((responseLine = brIn.readLine()) != null) {
+                    log.info("Response: {}", responseLine);
                     response.append(responseLine.trim());
                 }
             }
