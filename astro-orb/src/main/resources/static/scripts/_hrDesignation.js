@@ -1,5 +1,6 @@
 
 id="";
+existingData=[];
 fetchDepartment(instId.split(",")[0]);
 
 
@@ -39,6 +40,8 @@ fetchDepartment(instId.split(",")[0]);
                             "idDesignation":Number(id),
                             "name":document.getElementsByClassName('newDesignationName')[0].value,
                             "code":document.getElementsByClassName('newDesignationCode')[0].value,
+                            "totalSlots":document.getElementsByClassName('newDesignationTotalSlots')[0].value,
+                            "availableSlots":document.getElementsByClassName('newDesignationAvailableSlots')[0].value,
                             "jobDescriptionList":resultlist
                              };
                         debugger;
@@ -92,14 +95,72 @@ fetchDepartment(instId.split(",")[0]);
 
   function populateTable(data){
   $("#designationTableBody").empty();
-
+existingData=data
   if(data!=null){
     var bar = new Promise((resolve, reject) => {
         data.forEach((d,index, array) =>  {
 
             d.designationList.forEach((dl,index1, array1) =>  {
-                var details="<tr id="+ dl.code +"> <td>" + dl.name + " </td> <td> "+ dl.code +"</td>  </tr>"
+                 var details = `<tr id="${dl.code}" data-index="${index1}">
+                                        <td>${dl.name}</td>
+                                        <td>${dl.code}</td>
+                                        <td>${dl.totalSlots}</td>
+                                        <td>${dl.availableSlots}</td>
+                                        <td><input type='checkbox'></td>
+                                    </tr>`;
                 $("#designationTableBody").append(details);
+
+                var existing=$("#"+dl.code);
+
+                    existing.attr({
+                                               'data-toggle': 'modal',
+                                               'data-target': '#mydesignationModal',
+                                               'style': 'cursor: pointer',
+                                           })
+                                           .on('click', function() {
+                                           var recordIndex = $(this).data('index');
+
+                                                modalopn();
+                                                $(".newDesignationName").val(dl.name);
+                                                $(".newDesignationCode").val(dl.code);
+                                                $(".newDesignationTotalSlots").val(dl.totalSlots);
+                                                $(".newDesignationAvailableSlots").val(dl.availableSlots);
+                                                $('.modalbody').eq(1).empty();
+
+                                                let parentObject = existingData.find(parent =>
+                                                    parent.designationList.some(innerItem => innerItem.code === dl.code));
+
+                                                    document.getElementsByClassName('newDesignationDepartment')[0].value=parentObject.idDepartment;
+
+                                                let result = existingData.flatMap(item => item.designationList)
+                                                                       .find(innerItem => innerItem.code === dl.code);
+
+                                            result.jobDescriptionList.forEach((ejd,index, array) =>  {
+
+                                                // Create the main clonable div with nested elements
+                                                var clonable = $(`
+                                                    <div class="row clonableJobDescription">
+                                                        <div class="col-sm-12">
+                                                            <div class="row">
+                                                                <div class="col-md-12">
+                                                                    <input type="text" placeholder="Enter Job Description" class="form-control newJobDescriptionTxt">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                `);
+
+                                                // Assign a value to the input field
+                                                clonable.find('.newJobDescriptionTxt').val(ejd.jobDescription);
+
+                                                // Create the hr-line-dashed div
+                                                var clonable2 = $('<div class="hr-line-dashed"></div>');
+
+                                                // Append both to a parent container (if needed)
+                                                $('.modalbody').eq(1).append(clonable, clonable2);
+                                                                            })
+                                               // Add your click handler code here
+                                           });
                 if (index1 === array1.length -1) resolve();
             });
         });
@@ -120,7 +181,13 @@ fetchDepartment(instId.split(",")[0]);
   if(data!=null){
     var bar = new Promise((resolve, reject) => {
         data.forEach((d,index, array) =>  {
-            var details="<tr id="+ d.code +"> <td>" + d.name + " </td> <td> "+ d.code +"</td>  </tr>"
+            var details = `<tr id="${d.code}" data-index="${index1}">
+                                                    <td>${d.name}</td>
+                                                    <td>${d.code}</td>
+                                                    <td>${d.totalSlots}</td>
+                                                    <td>${d.availableSlots}</td>
+                                                    <td><input type='checkbox'></td>
+                                                </tr>`;
             $("#designationTableBody").append(details);
             if (index === array.length -1) resolve();
         });

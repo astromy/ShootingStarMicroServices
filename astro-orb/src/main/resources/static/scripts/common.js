@@ -188,8 +188,8 @@ function addEventListeners() {
     document.getElementById("incomestatement").addEventListener("click", incomestatementBuild);
     document.getElementById("cashflow").addEventListener("click", cashflowBuild);
     document.getElementById("trialbalanace").addEventListener("click", trialbalanaceBuild);
+    document.getElementById("scoreUpload").addEventListener("click", scoreUploadBuild);
     /*
-    document.getElementById("institution").addEventListener("click", institutionBuild);
     document.getElementById("institution").addEventListener("click", institutionBuild);
     document.getElementById("institution").addEventListener("click", institutionBuild);
     document.getElementById("institution").addEventListener("click", institutionBuild);
@@ -272,7 +272,7 @@ function institutionBuild() {
         "vendor/ladda/dist/ladda.min.js",
         "vendor/ladda/dist/ladda.jquery.min.js",
         "vendor/sweetalert/lib/sweet-alert.min.js",
-        "vendor/jquery-validation/jquery.validate.min.js",
+        //"vendor/jquery-validation/jquery.validate.min.js",
         "scripts/subscripts/institution.js"
     ];
 
@@ -308,7 +308,7 @@ function classgroupnBuild() {
     // Define new resources specific to this view
         const newScripts = [
         "vendor/sweetalert/lib/sweet-alert.min.js",
-        "vendor/jquery-validation/jquery.validate.min.js",
+        //"vendor/jquery-validation/jquery.validate.min.js",
         "scripts/subscripts/classgroup.js"
         ];
         const newLinks = [
@@ -349,9 +349,9 @@ function classesBuild() {
                 "vendor/datatables.net-buttons/js/buttons.print.min.js",
                 "vendor/datatables.net-buttons/js/dataTables.buttons.min.js",
                 "vendor/datatables.net-buttons-bs/js/buttons.bootstrap.min.js",*/
-                "vendor/jquery-validation/jquery.validate.min.js",
+                //"vendor/jquery-validation/jquery.validate.min.js",
                 "vendor/sweetalert/lib/sweet-alert.min.js",
-                "vendor/jquery-validation/jquery.validate.min.js",
+                //"vendor/jquery-validation/jquery.validate.min.js",
                  "scripts/subscripts/classes.js"
         ];
         const newLinks = [
@@ -394,7 +394,7 @@ function subjectBuild() {
                 "vendor/datatables.net-buttons/js/dataTables.buttons.min.js",
                 "vendor/datatables.net-buttons-bs/js/buttons.bootstrap.min.js",*/
                 "vendor/sweetalert/lib/sweet-alert.min.js",
-                "vendor/jquery-validation/jquery.validate.min.js",
+                //"vendor/jquery-validation/jquery.validate.min.js",
                 "scripts/subscripts/subject.js"
         ];
         const newLinks = [
@@ -440,7 +440,7 @@ function admissionBuild() {
                 "vendor/datatables.net-buttons/js/dataTables.buttons.min.js",
                 "vendor/datatables.net-buttons-bs/js/buttons.bootstrap.min.js",*/
                 "vendor/sweetalert/lib/sweet-alert.min.js",
-                "vendor/jquery-validation/jquery.validate.min.js",
+                //"vendor/jquery-validation/jquery.validate.min.js",
                 "scripts/subscripts/admissions.js"
         ];
         const newLinks = [
@@ -486,7 +486,7 @@ function departmentBuild() {
                 "vendor/datatables.net-buttons/js/dataTables.buttons.min.js",
                 "vendor/datatables.net-buttons-bs/js/buttons.bootstrap.min.js",*/
                 "vendor/sweetalert/lib/sweet-alert.min.js",
-                "vendor/jquery-validation/jquery.validate.min.js",
+                //"vendor/jquery-validation/jquery.validate.min.js",
                 "scripts/subscripts/department.js"
         ];
         const newLinks = [
@@ -520,7 +520,7 @@ function departmentBuild() {
 function gradingBuild() {
 
 const newScripts = [
-    "vendor/jquery-validation/jquery.validate.min.js",
+    //"vendor/jquery-validation/jquery.validate.min.js",
    /* "vendor/sparkline/index.js",
     "vendor/datatables/media/js/jquery.dataTables.min.js",
     "vendor/datatables.net-bs/js/dataTables.bootstrap.min.js",
@@ -567,7 +567,7 @@ function permissionsBuild() {
 
 const newScripts = [
     "scripts/moment.min.js",
-    "vendor/jquery-validation/jquery.validate.min.js",
+    //"vendor/jquery-validation/jquery.validate.min.js",
    /* "vendor/sparkline/index.js",
     "vendor/datatables/media/js/jquery.dataTables.min.js",
     "vendor/datatables.net-bs/js/dataTables.bootstrap.min.js",
@@ -616,7 +616,7 @@ function designationBuild() {
     const newScripts = [
         "scripts/moment.min.js",
         "vendor/sweetalert/lib/sweet-alert.min.js",
-        "vendor/jquery-validation/jquery.validate.min.js",
+        //"vendor/jquery-validation/jquery.validate.min.js",
         "scripts/subscripts/hrDesignation.js"
     ];
 
@@ -656,7 +656,7 @@ function onloadingBuild() {
         "vendor/ladda/dist/ladda.min.js",
         "vendor/ladda/dist/ladda.jquery.min.js",
         "vendor/sweetalert/lib/sweet-alert.min.js",
-        "vendor/jquery-validation/jquery.validate.min.js",
+        //"vendor/jquery-validation/jquery.validate.min.js",
         "scripts/subscripts/hrOnloading.js"
     ];
 
@@ -825,7 +825,7 @@ function billcreationBuild() {
     const newScripts = [
         "scripts/moment.min.js",
         "vendor/sweetalert/lib/sweet-alert.min.js",
-        "vendor/jquery-validation/jquery.validate.min.js",
+        //"vendor/jquery-validation/jquery.validate.min.js",
         "scripts/subscripts/billCreation.js"
     ];
 
@@ -867,9 +867,9 @@ function billingBuild() {
 
     // Define new resources specific to this view
         const newScripts = [
-                "vendor/jquery-validation/jquery.validate.min.js",
+                //"vendor/jquery-validation/jquery.validate.min.js",
                 "vendor/sweetalert/lib/sweet-alert.min.js",
-                "vendor/jquery-validation/jquery.validate.min.js",
+                //"vendor/jquery-validation/jquery.validate.min.js",
                  "scripts/subscripts/financeBilling.js"
         ];
         const newLinks = [
@@ -1138,6 +1138,44 @@ function trialbalanaceBuild() {
 
 }
 
+function scoreUploadBuild() {
+
+    // Define new resources specific to this view
+        const newScripts = [
+                //"vendor/jquery-validation/jquery.validate.min.js",
+                "vendor/sweetalert/lib/sweet-alert.min.js",
+                //"vendor/jquery-validation/jquery.validate.min.js",
+                 "scripts/subscripts/academics.js"
+        ];
+        const newLinks = [
+                "vendor/sweetalert/lib/sweet-alert.css",
+                "vendor/metisMenu/dist/metisMenu.css",
+                "vendor/animate.css/animate.css",
+                "vendor/datatables.net-bs/css/dataTables.bootstrap.min.css",
+                "styles/switch.css"
+        ];
+
+        // Remove previous non-default scripts/links
+        removeUnwantedResources("script", activeScripts);
+        removeUnwantedResources("link", activeLinks);
+
+        // Add new resources
+        addNewResources("script", newScripts);
+        addNewResources("link", newLinks);
+
+        // Update the active state with new resources
+        newScripts.forEach((src) => activeScripts.add(src));
+
+    newLinks.forEach((href) => activeLinks.add(href));
+
+
+
+
+
+}
+
+//-------------------------------------------------------------------------------------------------------
+
 //-------------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------------
@@ -1176,3 +1214,410 @@ function HttpPost(url,data){
       })
 }
 
+
+//=========================================IMG UTIL =============================================
+
+
+
+async function uploadIMGAsJSON(dataFile, statuses) {
+            const input = dataFile//document.getElementById('pdfInput');
+            const status =statuses //document.getElementById('status');
+
+            // Check if a file is selected
+            if (!input.files || input.files.length === 0) {
+                status.textContent = "Please select an Image file!";
+                status.style.color = "red";
+                return;
+            }
+
+            const file = input.files[0];
+
+            // Check if the selected file is a PDF
+            if ((file.type).indexOf('image') ===-1 ) {
+                status.textContent = "Only Image files are allowed!";
+                status.style.color = "red";
+                return;
+            }
+
+            try {
+                // Convert the file to a Base64 string
+                const base64PDF =await convertFileToBase64(file);
+
+                // Create the JSON object
+                const jsonObject = {
+                    fileName: file.name,
+                    fileType: file.type,
+                    fileContent: base64PDF // Add the Base64 string here
+                };
+                return jsonObject
+
+            } catch (error) {
+                status.textContent = `Error sending file: ${error.message}`;
+                status.style.color = "red";
+                console.error('Error:', error);
+            }
+            return null
+    }
+
+
+
+//=========================================PDF UTIL================================================
+
+
+    async function uploadPDFAsJSON(dataFile, statuses) {
+            const input = dataFile//document.getElementById('pdfInput');
+            const status =statuses //document.getElementById('status');
+
+            // Check if a file is selected
+            if (!input.files || input.files.length === 0) {
+                status.textContent = "Please select a PDF file!";
+                status.style.color = "red";
+                return;
+            }
+
+            const file = input.files[0];
+
+            // Check if the selected file is a PDF
+            if (file.type !== "application/pdf") {
+                status.textContent = "Only PDF files are allowed!";
+                status.style.color = "red";
+                return;
+            }
+
+            try {
+                // Convert the file to a Base64 string
+                const base64PDF =await convertFileToBase64(file);
+
+                // Create the JSON object
+                const jsonObject = {
+                    fileName: file.name,
+                    fileType: file.type,
+                    fileContent: base64PDF // Add the Base64 string here
+                };
+                return jsonObject
+
+            } catch (error) {
+                status.textContent = `Error sending file: ${error.message}`;
+                status.style.color = "red";
+                console.error('Error:', error);
+            }
+            return null
+    }
+
+
+
+        // Helper function to convert a file to Base64
+        function convertFileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result.split(',')[1]); // Extract the Base64 part
+                reader.onerror = reject;
+                reader.readAsDataURL(file); // Read the file as a Data URL
+            });
+        }
+
+
+
+        async function setFileInputFromByteArray(base64String,el,extension,fileName) {
+
+            if (!base64String) {
+               console.error("Base64 string is empty or null.");
+               return;
+            }
+            if(base64String!=null){
+               try {
+
+                   if(extension.indexOf("pdf")!=-1){
+                   // Extract MIME type from Base64 string (e.g., "data:application/pdf;base64,...")
+                  const mimeType = base64String.match(/data:([^;]+);base64/)?.[1] || 'application/octet-stream';
+                      extension="application/pdf"
+
+                      // Remove the Base64 metadata (if present)
+                             const base64Content = base64String;
+
+
+                              var name=base64String.split(("pdf_"))[0]+"pdf";
+                                  const imgString=base64String.split(("_application/pdf_"))[1].split(',').pop();
+
+                                  const blob = await base64ToBlobStream(imgString,extension);
+                                  // Create a File object from the Blob
+                                const  file = new File([blob], name, { type: extension});
+
+
+                              // Create a DataTransfer object to hold the file
+                              const dataTransfer = new DataTransfer();
+                              dataTransfer.items.add(file);
+
+                              // Assign the files to the input element (this simulates selecting the file)
+                              el.files = dataTransfer.files;
+
+                              // Trigger the 'change' event on the file input
+                              const event = new Event('change', { bubbles: true });
+                              el.dispatchEvent(event);
+                             // uploadPDF(el);
+
+                      }else{
+                      const mimeType = base64String.match(/data:([^;]+);base64/)?.[1] || 'application/octet-stream';
+                      extension="image/png"
+
+                      // Remove the Base64 metadata (if present)
+                             const base64Content = base64String.split((/_image.*?_/))[1].split(',').pop();
+
+                                  const blob = await base64ToBlobStream(base64Content,extension);
+                                  // Create a File object from the Blob
+                                const  file = new File([blob], fileName, { type: "image/png"});
+
+                                   console.log(base64Content)
+
+                              // Create a DataTransfer object to hold the file
+                              const dataTransfer = new DataTransfer();
+                              dataTransfer.items.add(file);
+
+                              // Assign the files to the input element (this simulates selecting the file)
+                              el.files = dataTransfer.files;
+
+                              // Trigger the 'change' event on the file input
+                              const event = new Event('change', { bubbles: true });
+                              el.dispatchEvent(event);
+                             // uploadPDF(el);
+                      }
+
+                console.log('File successfully attached:', el.files[0]);
+               } catch (error) {
+                   console.error('Error attaching file:', error);
+               }
+              }
+        }
+
+        function base64ToBlobStream(base64String, mimeType = 'application/octet-stream', chunkSize = 1024 * 1024) {
+            return new Promise((resolve, reject) => {
+                try {
+                    const byteArrays = [];
+                    const totalChunks = Math.ceil(base64String.length / chunkSize);
+
+                    for (let i = 0; i < totalChunks; i++) {
+                        const chunk = base64String.slice(i * chunkSize, (i + 1) * chunkSize);
+                        const byteNumbers = Array.from(atob(chunk), (char) => char.charCodeAt(0));
+                        const byteArray = new Uint8Array(byteNumbers);
+                        byteArrays.push(byteArray);
+                    }
+
+                    const blob = new Blob(byteArrays, { type: 'application/octet-stream' });
+                    resolve(blob);
+                } catch (error) {
+                    reject(error);
+                }
+            });
+        }
+
+
+        function uploadPDF (el) {
+            const fileInput = el//document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            const error = document.getElementById('error');
+            const pdfPreview = el.parentElement.getElementsByClassName('fileOutput')[0]
+            pdfPreview.innerHTML = ""; // Clear previous preview
+
+            if (file) {
+                const fileType = file.type;
+
+                // Check if the file type is PDF
+                if (fileType === 'application/pdf') {
+                    error.style.display = 'none';
+
+                    // Create an object URL for the file
+                    const fileURL = URL.createObjectURL(file);
+
+                    // Embed the PDF preview using <iframe>
+                    const iframe = document.createElement('iframe');
+                    iframe.src = fileURL;
+                    iframe.width = '100%';
+                   // iframe.height = '500px'; // Adjust as needed
+                    iframe.style.border = '1px solid #ccc';
+
+                    // Append the iframe to the preview container
+                    pdfPreview.appendChild(iframe);
+                } else {
+                    error.style.display = 'block';
+                }
+            } else {
+                alert('Please select a file to upload.');
+            }
+        };
+
+
+//=========================================General File UTIL================================================
+
+
+    async function uploadFileAsJSON(dataFile, statuses) {
+            const input = dataFile//document.getElementById('pdfInput');
+            const status =statuses //document.getElementById('status');
+
+            // Check if a file is selected
+            if (!input.files || input.files.length === 0) {
+                status.textContent = "Please select a PDF file!";
+                status.style.color = "red";
+                return;
+            }
+
+            const file = input.files[0];
+
+            // Check if the selected file is a PDF
+           /* if (file.type !== "application/pdf") {
+                status.textContent = "Only PDF files are allowed!";
+                status.style.color = "red";
+                return;
+            }*/
+
+            try {
+                // Convert the file to a Base64 string
+                const base64File =await convertFileToBase64(file);
+
+                // Create the JSON object
+                const jsonObject = {
+                    fileName: file.name,
+                    fileType: file.type,
+                    fileContent: base64File // Add the Base64 string here
+                };
+                return jsonObject
+
+            } catch (error) {
+                status.textContent = `Error sending file: ${error.message}`;
+                status.style.color = "red";
+                console.error('Error:', error);
+            }
+            return null
+    }
+
+
+        async function setAllFileTypeInputFromByteArray(base64String, el, fileName) {
+            if (!base64String) {
+                console.error("Base64 string is empty or null.");
+                return;
+            }
+
+            try {
+                // Extract MIME type from Base64 string (e.g., "data:application/pdf;base64,...")
+                const mimeTypeMatch = base64String.match(/data:([^;]+);base64,/);
+                const mimeType = mimeTypeMatch ? mimeTypeMatch[1] : 'application/octet-stream'; // Default to octet-stream if not found
+
+                // Detect file extension from MIME type
+                let extension = mimeType.split('/')[1]; // Extract file extension from MIME type (e.g., 'pdf', 'png', 'jpeg', etc.)
+
+                // Remove the Base64 metadata (everything before and including the comma)
+                const base64Content = base64String.split(',').pop(); // Extract only the Base64 content
+
+                // Convert the base64 string to Blob
+                const blob = await base64ToBlobStream(base64Content, mimeType);
+
+                // Determine file name (use provided name or generate one based on MIME type)
+                let name = fileName || `file.${extension}`;
+
+                // Create a File object from the Blob
+                const file = new File([blob], name, { type: mimeType });
+
+                // Create a DataTransfer object to hold the file (required for simulating file input)
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+
+                // Assign the files to the input element (this simulates selecting the file)
+                el.files = dataTransfer.files;
+
+                // Trigger the 'change' event on the file input
+                const event = new Event('change', { bubbles: true });
+                el.dispatchEvent(event);
+
+                console.log('File successfully attached:', el.files[0]);
+            } catch (error) {
+                console.error('Error attaching file:', error);
+            }
+        }
+
+
+
+        function uploadGeneralFile(el) {
+            const fileInput = el; // The file input element
+            const file = fileInput.files[0]; // Get the selected file
+            const error = document.getElementById('error'); // Error display element
+            const filePreview = el.parentElement.getElementsByClassName('fileOutput')[0]; // Preview container
+            filePreview.innerHTML = ""; // Clear previous preview
+
+            if (file) {
+                const fileType = file.type; // Get the file's MIME type
+
+                // Hide any previous error message
+                error.style.display = 'none';
+
+                // Handle PDF files
+                if (fileType === 'application/pdf') {
+                    // Create an object URL for the PDF file
+                    const fileURL = URL.createObjectURL(file);
+
+                    // Embed the PDF preview using an <iframe>
+                    const iframe = document.createElement('iframe');
+                    iframe.src = fileURL;
+                    iframe.width = '100%';
+                    iframe.style.border = '1px solid #ccc';
+                    filePreview.appendChild(iframe);
+                }
+                // Handle image files (png, jpg, jpeg, gif, etc.)
+                else if (fileType.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        // Create an <img> element and set its source to the file content
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.style.maxWidth = '100%'; // Limit the image width to the container's width
+                        img.style.height = 'auto';
+                        filePreview.appendChild(img);
+                    };
+                    reader.readAsDataURL(file); // Read the image file as a data URL
+                }
+                // Handle video files (mp4, webm, ogg, etc.)
+                else if (fileType.startsWith('video/')) {
+                    const fileURL = URL.createObjectURL(file);
+
+                    // Create a <video> element to preview the video file
+                    const video = document.createElement('video');
+                    video.src = fileURL;
+                    video.controls = true; // Add controls to the video player (play, pause, etc.)
+                    video.width = '100%';
+                    filePreview.appendChild(video);
+                }
+                // Handle text files (txt, csv, etc.)
+                else if (fileType === 'text/plain') {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        // Display the file content inside a <pre> element
+                        const pre = document.createElement('pre');
+                        pre.textContent = e.target.result;
+                        filePreview.appendChild(pre);
+                    };
+                    reader.readAsText(file); // Read the text file as text
+                }
+                // Handle unsupported file types
+                else {
+                    error.style.display = 'block';
+                    error.textContent = 'Unsupported file type. Please upload a valid file.';
+                }
+            } else {
+                alert('Please select a file to upload.');
+            }
+        }
+
+async function base64ToJson(base64String) {
+    const binaryString = atob(base64String);
+        const bytes = new Uint8Array(binaryString.length);
+
+        for (let i = 0; i < binaryString.length; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+        }
+
+        const workbook = XLSX.read(bytes, { type: "array" });
+
+        // Get first sheet name
+        const sheetName = workbook.SheetNames[0];
+
+        // Convert the sheet to JSON
+        return XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+}

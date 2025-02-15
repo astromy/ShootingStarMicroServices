@@ -1,5 +1,6 @@
 server:
   port: 7013
+  max-http-header-size: 32KB
 
 gateway:
   host: ${APIGATEWAY:localhost:8083}

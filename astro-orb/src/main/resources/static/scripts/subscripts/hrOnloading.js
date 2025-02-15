@@ -485,7 +485,7 @@ function createDependant(){
             <div class="col-sm-6">
                 <div class="row">
                     <div class="col-md-12">
-                        <div>
+                            <div>
                                 <label for="">Birth Certificate [PDF]</label>
                             </div>
                             <div class="fileOutput" name="crest"

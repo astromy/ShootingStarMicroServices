@@ -17,5 +17,7 @@ public class DesignationResponse {
     private Long idDesignation;
     private String name;
     private String code;
+    private int totalSlots;
+    private int availableSlots;
     private List<Optional<JobDescriptionResponse>> jobDescriptionList;
 }

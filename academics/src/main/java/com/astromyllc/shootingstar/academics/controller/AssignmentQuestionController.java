@@ -26,7 +26,7 @@ public class AssignmentQuestionController {
       return ResponseEntity.ok(assignmentQuestionsServiceInterface.submitAssignmentQuestion(assignmentQuestionsRequest));
     }
 
-    @PostMapping("submitAssignmentQuestion")
+    @PostMapping("submitAssignmentQuestions")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<List<AssignmentQuestionsResponse>> submitAssignmentQuestions(@RequestBody List<AssignmentQuestionsRequest> assignmentQuestionsRequest){
         return ResponseEntity.ok(assignmentQuestionsServiceInterface.submitAssignmentQuestions(assignmentQuestionsRequest));

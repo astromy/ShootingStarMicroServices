@@ -32,6 +32,8 @@ public class DesignationUtil {
         return Designation.builder()
                 .code(des.getCode())
                 .name(des.getName())
+                .availableSlots(des.getAvailableSlots())
+                .totalSlots(des.getTotalSlots())
                 .jobDescriptionList(des.getJobDescriptionList().stream().map(jb-> JobDescriptionUtil.mapJobDescriptionRequest_ToJobDescription(jb)).toList())
                 .build();
     }
@@ -39,7 +41,11 @@ public class DesignationUtil {
     public static Designation mapDesignationRequest_ToDesignation(DesignationRequestDetails des,Designation d) {
                 d.setCode(des.getCode());
                 d.setName(des.getName());
-                d.setJobDescriptionList(des.getJobDescriptionList().stream().map(jb-> JobDescriptionUtil.mapJobDescriptionRequest_ToJobDescription(jb,d.getJobDescriptionList().stream().filter(jb1->jb.getIdJobDescription().equals(jb1.getIdJobDescription())).findFirst().get())).collect(Collectors.toList()));
+                d.setTotalSlots(des.getTotalSlots());
+                d.setAvailableSlots(des.getAvailableSlots());
+                d.setJobDescriptionList(des.getJobDescriptionList().stream()
+                        .map(JobDescriptionUtil::mapJobDescriptionRequest_ToJobDescription) // Map all to new ones
+                        .collect(Collectors.toList()));
                return d;
     }
 
@@ -48,6 +54,8 @@ public class DesignationUtil {
                 .idDesignation(des.getIdDesignation())
                 .code(des.getCode())
                 .name(des.getName())
+                .availableSlots(des.getAvailableSlots())
+                .totalSlots(des.getTotalSlots())
                 .jobDescriptionList(des.getJobDescriptionList().stream().map(jb-> JobDescriptionUtil.mapJobDescription_ToJobDescriptionResponse(jb)).collect(Collectors.toList()))
                 .build());
     }

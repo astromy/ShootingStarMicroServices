@@ -70,8 +70,23 @@ fetchInstitution(instId.split(",")[0]);
   function populateTable(data){
     $("#classGroupTable").empty();
   data.forEach(function(d) {
-        var details="<tr> <td hidden>" + d.id + " </td> <td> "+ d.name +"</td> </tr>"
+        var details="<tr id="+d.id+"> <td hidden>" + d.id + " </td> <td> "+ d.name +"</td> </tr>"
         $("#classGroupTable").append(details);
+
+        var existing=$("#"+d.id);
+
+        existing.attr({
+                'data-toggle': 'modal',
+                'data-target': '#myclassGroupModal',
+                'style': 'cursor: pointer',
+            })
+            .on('click', function() {
+            var recordIndex = $(this).data('index');
+
+                    modalopn();
+                    $(".newClassGrouptxt").val(d.name);
+                    $('.modalbody').eq(1).empty();
+            });
     });
 
 
