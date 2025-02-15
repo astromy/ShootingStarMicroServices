@@ -1,6 +1,7 @@
 package com.astromyllc.shootingstar.setup.service;
 
 import com.astromyllc.shootingstar.setup.dto.request.DesignationRequest;
+import com.astromyllc.shootingstar.setup.dto.request.DesignationRequestDetails;
 import com.astromyllc.shootingstar.setup.dto.request.SingleStringRequest;
 import com.astromyllc.shootingstar.setup.dto.response.DesignationResponse;
 import com.astromyllc.shootingstar.setup.model.Department;
@@ -39,10 +40,34 @@ public class DesignationService implements DesignationServiceInterface {
         Department department=inst.getDepartmentList().stream()
                 .filter(dep -> dep.getIdDepartment().toString().equalsIgnoreCase(designationRequest.getDepartmentId())).findFirst().get();
         List<Designation>des=department.getDesignationList();
-        des.addAll(designationRequest.getDesignationRequestDetails().stream()
-                .map(d -> designationUtil.mapDesignationRequest_ToDesignation(d)).collect(Collectors.toList()));
-        department.setDesignationList(des);
-        departmentRepository.save(department);
+
+        List<DesignationRequestDetails> requestDetails = designationRequest.getDesignationRequestDetails();
+
+        // Build a map of existing Designations for quick lookup by code
+        var designationMap = des.stream()
+                .collect(Collectors.toMap(
+                        Designation::getCode,
+                        designation -> designation,
+                        (existing, replacement) -> {
+                            return existing; // Keeps the first occurrence
+                        }
+                ));
+
+        // Iterate through the requestDetails and handle replacements
+        requestDetails.forEach(reqDetail -> {
+            var matchingDesignation = designationMap.get(reqDetail.getCode());
+            if (designationMap.containsKey(reqDetail.getCode())) {
+                // Update existing designation if a match is found
+                des.set(des.indexOf(matchingDesignation), designationUtil.mapDesignationRequest_ToDesignation(reqDetail, matchingDesignation));
+                department.setDesignationList(des);
+            } else {
+                des.addAll(designationRequest.getDesignationRequestDetails().stream()
+                        .map(d -> designationUtil.mapDesignationRequest_ToDesignation(d)).collect(Collectors.toList()));
+                department.setDesignationList(des);
+            }
+            departmentRepository.save(department);
+        });
+
         return Optional.ofNullable(inst.getDepartmentList() .stream()
                 .flatMap(dep -> dep.getDesignationList().stream())
                 .map(d -> designationUtil.mapDesignation_ToDesignationResponse(d)).collect(Collectors.toList()));

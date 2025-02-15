@@ -24,8 +24,11 @@ $(function () {
                 <table id="designationTable" class="table table-striped table-bordered table-hover" width="100%">
                     <thead>
                     <tr>
-                        <th class="col-sm-6">Name</th>
-                        <th class="col-sm-6">Code</th>
+                        <th class="col-sm-4">Name</th>
+                        <th class="col-sm-3">Code</th>
+                        <th class="col-sm-2">Total Slots</th>
+                        <th class="col-sm-2">Available Slots</th>
+                        <th class="col-sm-1">Open Advert</th>
                     </tr>
                     </thead>
                     <tbody id="designationTableBody"></tbody>
@@ -140,7 +143,7 @@ function designationSettingsJobDescription() {
 
         // Create div elements
         var ela1 = document.createElement("div");
-        ela1.classList.add("col-sm-4");
+        ela1.classList.add("col-sm-3");
 
         var ela2 = document.createElement("div");
         ela2.classList.add("row");
@@ -162,7 +165,7 @@ function designationSettingsJobDescription() {
 
         // Create second set of elements
         var el1a = document.createElement("div");
-        el1a.classList.add("col-sm-4");
+        el1a.classList.add("col-sm-3");
 
         var el2a = document.createElement("div");
         el2a.classList.add("row");
@@ -173,7 +176,7 @@ function designationSettingsJobDescription() {
         // Create input field
         var el4a = document.createElement("input");
         el4a.type = "text";
-        el4a.placeholder = "Enter Designation Code";
+        el4a.placeholder = "Designation Code";
         el4a.classList.add("form-control", "newDesignationCode");
 
         // Append input to structure
@@ -186,7 +189,7 @@ function designationSettingsJobDescription() {
 
         // Create third set of elements
         var el1c = document.createElement("div");
-        el1c.classList.add("col-sm-4");
+        el1c.classList.add("col-sm-2");
 
         var el2c = document.createElement("div");
         el2c.classList.add("row");
@@ -200,7 +203,7 @@ function designationSettingsJobDescription() {
 
         var el4ci = document.createElement("option");
         el4ci.value = 0;
-        el4ci.textContent = "Select Department";
+        el4ci.textContent = "Department";
 
         // Append options to select
         el4c.appendChild(el4ci);
@@ -210,6 +213,52 @@ function designationSettingsJobDescription() {
         el2c.appendChild(el3c);
         el1c.appendChild(el2c);
         clonable1b.appendChild(el1c);
+
+
+        // Create second set of elements
+        var tsd1 = document.createElement("div");
+        tsd1.classList.add("col-sm-2");
+
+        var tsd2 = document.createElement("div");
+        tsd2.classList.add("row");
+
+        var tsd3 = document.createElement("div");
+        tsd3.classList.add("col-md-12");
+
+        // Create input field
+        var tsi1 = document.createElement("input");
+        tsi1.type = "text";
+        tsi1.placeholder = "Total Slots";
+        tsi1.classList.add("form-control", "newDesignationTotalSlots");
+
+        // Append input to structure
+        tsd3.appendChild(tsi1);
+        tsd2.appendChild(tsd3);
+        tsd1.appendChild(tsd2);
+        clonable1b.appendChild(tsd1);
+
+
+        // Create second set of elements
+        var asd1 = document.createElement("div");
+        asd1.classList.add("col-sm-2");
+
+        var asd2 = document.createElement("div");
+        asd2.classList.add("row");
+
+        var asd3 = document.createElement("div");
+        asd3.classList.add("col-md-12");
+
+        // Create input field
+        var asi1 = document.createElement("input");
+        asi1.type = "text";
+        asi1.placeholder = "Available Slots";
+        asi1.classList.add("form-control", "newDesignationAvailableSlots");
+
+        // Append input to structure
+        asd3.appendChild(asi1);
+        asd2.appendChild(asd3);
+        asd1.appendChild(asd2);
+        clonable1b.appendChild(asd1);
 
 
 

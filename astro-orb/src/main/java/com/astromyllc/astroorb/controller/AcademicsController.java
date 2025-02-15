@@ -25,7 +25,7 @@ import java.util.List;
 @Slf4j
 @ResponseBody
 @RequiredArgsConstructor
-public class HRController {
+public class AcademicsController {
 
     @Value("${gateway.host}")
     private String backendserve;
@@ -34,32 +34,54 @@ public class HRController {
     private OAuth2AuthorizedClientService authorizedClientService;*/
 
     @ResponseBody
-    @RequestMapping(value = "/create-staff", method = RequestMethod.POST)
-    public ResponseEntity<String>addfinance (@RequestBody List<StaffRequest> jso) throws IOException {
-        String url="http://" + backendserve + "/api/hr/createStaff";
+    @RequestMapping(value = "/uploadAssignmentQuestions", method = RequestMethod.POST)
+    public ResponseEntity<String>uploadAssignmentQuestions (@RequestBody List<AssignmentQuestionsRequest> jso) throws IOException {
+        String url="http://" + backendserve + "/api/academics/submitAssignmentQuestions";
         ResponseEntity<String> response = BACKENDCOMMPOSTLIST(Collections.singletonList(jso), url);
         return response;
     }
     @ResponseBody
-    @RequestMapping(value = "/addStaffPermissions", method = RequestMethod.POST)
-    public ResponseEntity<String>addStaffPermissions (@RequestBody List<StaffPermissionsRequest> jso) throws IOException {
-        String url="http://" + backendserve + "/api/hr/addStaffPermissions";
+    @RequestMapping(value = "/uploadExamsQuestions", method = RequestMethod.POST)
+    public ResponseEntity<String>uploadExamsQuestions (@RequestBody List<AssignmentQuestionsRequest> jso) throws IOException {
+        String url="http://" + backendserve + "/api/academics/submitExamsQuestions";
+        ResponseEntity<String> response = BACKENDCOMMPOSTLIST(Collections.singletonList(jso), url);
+        return response;
+    }
+    @ResponseBody
+    @RequestMapping(value = "/uploadAssesmentScores", method = RequestMethod.POST)
+    public ResponseEntity<String>uploadAssesmentScores (@RequestBody List<ContinuousAssessmentRequest> jso) throws IOException {
+        String url="http://" + backendserve + "/api/academics/submitContinuousAssessmentLList";
         ResponseEntity<String> response = BACKENDCOMMPOSTLIST(Collections.singletonList(jso), url);
         return response;
     }
 
     @ResponseBody
-    @RequestMapping(value = "/get-staff-by-institution", method = RequestMethod.POST)
-    public ResponseEntity<String> getFinanceInstitutionByCode(@RequestBody SingleStringRequest jso) throws IOException {
-
-        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/hr/getStaffByCode");
+    @RequestMapping(value = "/uploadExamsScores", method = RequestMethod.POST)
+    public ResponseEntity<String>uploadExamsScores (@RequestBody List<ContinuousAssessmentRequest> jso) throws IOException {
+        String url="http://" + backendserve + "/api/academics/SubmitExamsAssessmentList";
+        ResponseEntity<String> response = BACKENDCOMMPOSTLIST(Collections.singletonList(jso), url);
         return response;
     }
 
     @ResponseBody
-    @RequestMapping(value = "/get-staff-by-institution-and-code", method = RequestMethod.POST)
-    public ResponseEntity<String> getClassBilling(@RequestBody BillingFetchRequest jso) {
-        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/hr/get-billings-by-institution");
+    @RequestMapping(value = "/generateStudentTerminalReport", method = RequestMethod.POST)
+    public ResponseEntity<String> generateStudentTerminalReport(@RequestBody SingleStringRequest jso) throws IOException {
+
+        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/academics/getStaffByCode");
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/generateStudentTranscript", method = RequestMethod.POST)
+    public ResponseEntity<String> generateStudentTranscript(@RequestBody BillingFetchRequest jso) {
+        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/academics/get-billings-by-institution");
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/generateClassTimetable", method = RequestMethod.POST)
+    public ResponseEntity<String> generateClassTimetable(@RequestBody BillingFetchRequest jso) {
+        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/academics/get-billings-by-institution");
         return response;
     }
 

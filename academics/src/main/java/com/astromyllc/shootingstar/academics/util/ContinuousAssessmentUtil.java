@@ -57,7 +57,7 @@ public class ContinuousAssessmentUtil {
                 .academicYear(car.getAcademicYear())
                 .subject(car.getSubject())
                 .studentClass(car.getStudentClass())
-                .dateTime(LocalDateTime.parse(car.getDateTime(),formatter))
+                .dateTime(LocalDateTime.parse((LocalDateTime.now()).format(formatter), formatter))
                 .institutionCode(car.getInstitutionCode())
                 .build();
     }

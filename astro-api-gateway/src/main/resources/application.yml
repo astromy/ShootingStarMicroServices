@@ -95,7 +95,7 @@ spring:
         #routes[6]:
         - id: academics
           uri: lb://shootingStar-academics
-          predicates[0]: Path=/api/academics/**
+          predicates[0]: Path=/eureka/**
 
         ## Administration Service Routes
         #routes[7]:

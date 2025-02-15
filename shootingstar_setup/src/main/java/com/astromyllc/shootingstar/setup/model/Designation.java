@@ -20,6 +20,8 @@ public class Designation {
     private String name;
     @NonNull
     private String code;
+    private int totalSlots;
+    private int availableSlots;
     @OneToMany(fetch = FetchType.EAGER,targetEntity =JobDescription.class, cascade = CascadeType.ALL)
     @JoinColumn(name = "designationJobDescription",referencedColumnName = "idDesignation")
     private List<JobDescription> jobDescriptionList;

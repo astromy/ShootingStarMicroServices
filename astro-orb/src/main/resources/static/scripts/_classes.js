@@ -76,8 +76,25 @@ fetchInstitutionClasses(instId.split(",")[0]);
 
     var bar = new Promise((resolve, reject) => {
         data.forEach((d,index, array) =>  {
-        var details="<tr> <td hidden>" + d.id + " </td> <td> "+ d.name +"</td><td>"+ d.classGroup +"</td> </tr>"
+        var details="<tr id="+ d.id +"> <td hidden>" + d.id + " </td> <td> "+ d.name +"</td><td>"+ d.classGroup +"</td> </tr>"
         $("#classesTableBody").append(details);
+
+        var existing=$("#"+d.id);
+
+        existing.attr({
+                'data-toggle': 'modal',
+                'data-target': '#myclassesModal',
+                'style': 'cursor: pointer',
+            })
+            .on('click', function() {
+            var recordIndex = $(this).data('index');
+
+                    modalopn();
+                    $(".newclassestxt").val(d.name);
+                    $(".classesOptions").val(d.classGroup);
+                    $('.modalbody').eq(1).empty();
+            });
+
         if (index === array.length -1) resolve();
         });
     });

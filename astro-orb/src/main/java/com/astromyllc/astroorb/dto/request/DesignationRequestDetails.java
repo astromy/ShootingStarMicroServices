@@ -14,5 +14,7 @@ public class DesignationRequestDetails {
     private String name;
     @NonNull
     private String code;
+    private int totalSlots;
+    private int availableSlots;
     private List<JobDescriptionRequestDetails> jobDescriptionList;
 }

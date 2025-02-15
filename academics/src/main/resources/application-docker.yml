@@ -15,7 +15,7 @@ spring:
       enabled: false
 
   application:
-    name=shootingStar-academics:
+    name: shootingStar-academics
 
   datasource:
     driver-class-name: org.postgresql.Driver
