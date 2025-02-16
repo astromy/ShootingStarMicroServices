@@ -1,9 +1,13 @@
 eureka:
+  instance:
+    preferIpAddress: true
+    leaseRenewalIntervalInSeconds: 10
+    leaseExpirationDurationInSeconds: 3
   client:
     serviceUrl:
       defaultZone: http://eureka:password@localhost:8761/eureka
-    register-with-eureka: true
-    fetch-registry: true
+    registerWithEureka: true
+    fetchRegistry: true
 
 
 logging:
@@ -95,7 +99,7 @@ spring:
         #routes[6]:
         - id: academics
           uri: lb://shootingStar-academics
-          predicates[0]: Path=/eureka/**
+          predicates[0]: Path=/api/academics/**
 
         ## Administration Service Routes
         #routes[7]:

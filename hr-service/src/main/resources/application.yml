@@ -20,9 +20,15 @@ gateway:
   host: ${APIGATEWAY:localhost:8083}
 
 eureka:
+  instance:
+    preferIpAddress: true
+    leaseRenewalIntervalInSeconds: 10
+    leaseExpirationDurationInSeconds: 3
   client:
     serviceUrl:
       defaultZone: http://eureka:password@localhost:8761/eureka
+    registerWithEureka: true
+    fetchRegistry: true
 
 management:
   health:

@@ -11,9 +11,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,17 +27,19 @@ public class ContinuousAssessmentService implements ContinuousAssessmentServiceI
     static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Override
-    public void submitContinuousAssessment(ContinuousAssessmentRequest continuousAssessmentRequest) {
+    public Optional<ContinuousAssessmentResponse> submitContinuousAssessment(ContinuousAssessmentRequest continuousAssessmentRequest) {
         ContinuousAssessment ca = continuousAssessmentUtil.mapContinuousAssessmentRequest_ToContinuousAssessment(continuousAssessmentRequest);
         continuousAssessmentRepository.save(ca);
         continuousAssessmentUtil.continuousAssessmentGlobalList.add(ca);
+        return Optional.empty();
     }
 
     @Override
-    public void submitContinuousAssessments(List<ContinuousAssessmentRequest> continuousAssessmentRequest) {
+    public Optional<ContinuousAssessmentResponse> submitContinuousAssessments(List<ContinuousAssessmentRequest> continuousAssessmentRequest) {
         List<ContinuousAssessment> ca = continuousAssessmentRequest.stream().map(car -> continuousAssessmentUtil.mapContinuousAssessmentRequest_ToContinuousAssessment(car)).collect(Collectors.toList());
         continuousAssessmentRepository.saveAll(ca);
         continuousAssessmentUtil.continuousAssessmentGlobalList.addAll(ca);
+        return Optional.empty();
     }
 
     @Override

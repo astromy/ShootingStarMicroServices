@@ -21,16 +21,16 @@ public class ExamsAssessmentController {
 private final ExamsAssessmentServiceInterface examsAssessmentServiceInterface;
     @PostMapping("/api/academics/SubmitExamsAssessment")
     @ResponseStatus(HttpStatus.CREATED)
-    public void SubmitExamsAssessment(@RequestBody ExamsAssessmentRequest examsAssessmentRequest) {
+    public Optional<ExamsAssessmentResponse> SubmitExamsAssessment(@RequestBody ExamsAssessmentRequest examsAssessmentRequest) {
         log.info("Application  Received");
-        examsAssessmentServiceInterface.submitExamsAssessment(examsAssessmentRequest);
+       return examsAssessmentServiceInterface.submitExamsAssessment(examsAssessmentRequest);
     }
 
     @PostMapping("/api/academics/SubmitExamsAssessmentList")
     @ResponseStatus(HttpStatus.CREATED)
-    public void SubmitExamsAssessmentList(@RequestBody List<ExamsAssessmentRequest> examsAssessmentRequest) {
+    public Optional<ExamsAssessmentResponse> SubmitExamsAssessmentList(@RequestBody List<ExamsAssessmentRequest> examsAssessmentRequest) {
         log.info("Application  Received");
-        examsAssessmentServiceInterface.submitExamsAssessments(examsAssessmentRequest);
+       return examsAssessmentServiceInterface.submitExamsAssessments(examsAssessmentRequest);
     }
 
     @PostMapping("/api/academics/fetchExamsAssessmentsForStudentPerAcademicYear")

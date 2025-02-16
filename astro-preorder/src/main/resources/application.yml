@@ -15,9 +15,15 @@ logging:
     org.springframework.web.client.RestTemplate: DEBUG
 
 eureka:
+  instance:
+    preferIpAddress: true
+    leaseRenewalIntervalInSeconds: 10
+    leaseExpirationDurationInSeconds: 3
   client:
     serviceUrl:
       defaultZone: http://eureka:password@localhost:8761/eureka
+    registerWithEureka: true
+    fetchRegistry: true
 
 spring:
   thymeleaf:

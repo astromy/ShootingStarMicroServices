@@ -28,19 +28,19 @@ public class ExamsAssessmentService implements ExamsAssessmentServiceInterface {
     static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Override
-    public void submitExamsAssessment(ExamsAssessmentRequest examsAssessmentRequest) {
+    public Optional<ExamsAssessmentResponse> submitExamsAssessment(ExamsAssessmentRequest examsAssessmentRequest) {
         ExamsAssessment ea= examsAssessmentUtil.mapExamsAssessmentRequest_ToExamsAssessment(examsAssessmentRequest);
         examsAssessmentRepository.save(ea);
         examsAssessmentUtil.examsAssessmentGlobalList.add(ea);
-
+        return Optional.empty();
     }
 
     @Override
-    public void submitExamsAssessments(List<ExamsAssessmentRequest> examsAssessmentRequests) {
-        List <ExamsAssessment> ea= examsAssessmentRequests.stream().map(ear->examsAssessmentUtil.mapExamsAssessmentRequest_ToExamsAssessment(ear)).collect(Collectors.toList());
+    public Optional<ExamsAssessmentResponse> submitExamsAssessments(List<ExamsAssessmentRequest> examsAssessmentRequests) {
+        List <ExamsAssessment> ea= examsAssessmentRequests.stream().map(examsAssessmentUtil::mapExamsAssessmentRequest_ToExamsAssessment).collect(Collectors.toList());
         examsAssessmentRepository.saveAll(ea);
         examsAssessmentUtil.examsAssessmentGlobalList.addAll(ea);
-
+        return Optional.empty();
     }
 
     @Override
