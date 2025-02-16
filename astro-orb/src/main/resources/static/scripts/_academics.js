@@ -46,15 +46,17 @@ document.querySelector("#scoreTypeControl").addEventListener("change", function(
 
         if (selectedValue == "Class Score") {
         this.parentElement.querySelector("label").innerHTML="Exams Score"
+        url="uploadExamsScores"
         }else{
         this.parentElement.querySelector("label").innerHTML="Class Score"
+        url="uploadAssesmentScores"
         }
     });
 
      if(selectedValue=="Class Score"){
      url="uploadAssesmentScores"
      }else{
-     url="SubmitExamsAssessment"
+     url="uploadExamsScores"
      }
 
 

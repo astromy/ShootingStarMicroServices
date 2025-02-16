@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ExamsAssessmentServiceInterface {
-    void submitExamsAssessment(ExamsAssessmentRequest examsAssessmentRequest);
-    void submitExamsAssessments(List<ExamsAssessmentRequest> examsAssessmentRequest);
+    Optional<ExamsAssessmentResponse> submitExamsAssessment(ExamsAssessmentRequest examsAssessmentRequest);
+    Optional<ExamsAssessmentResponse> submitExamsAssessments(List<ExamsAssessmentRequest> examsAssessmentRequest);
     List<Optional<ExamsAssessmentResponse>> getExamsAssessmentByClass(ExamsAssessmentRequest examsAssessmentRequest);
     List<Optional<ExamsAssessmentResponse>> getExamsAssessmentByStudent(ExamsAssessmentRequest examsAssessmentRequest);
     List<List<Optional<ExamsAssessmentResponse>>> fetchPerformance(List<ExamsAssessmentRequest> examsAssessmentRequest);

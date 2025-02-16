@@ -57,7 +57,7 @@ public class AcademicsController {
 
     @ResponseBody
     @RequestMapping(value = "/uploadExamsScores", method = RequestMethod.POST)
-    public ResponseEntity<String>uploadExamsScores (@RequestBody List<ContinuousAssessmentRequest> jso) throws IOException {
+    public ResponseEntity<String>uploadExamsScores (@RequestBody List<ExamsAssessmentRequest> jso) throws IOException {
         String url="http://" + backendserve + "/api/academics/SubmitExamsAssessmentList";
         ResponseEntity<String> response = BACKENDCOMMPOSTLIST(Collections.singletonList(jso), url);
         return response;

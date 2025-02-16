@@ -34,7 +34,7 @@ public class ExamsAssessmentUtil {
 
     public ExamsAssessment mapExamsAssessmentRequest_ToExamsAssessment(ExamsAssessmentRequest examsAssessmentRequest) {
         return ExamsAssessment.builder()
-                .dateTime(LocalDateTime.parse(examsAssessmentRequest.getDateTime(),formatter))
+                .dateTime(LocalDateTime.parse((LocalDateTime.now()).format(formatter), formatter))
                 .term(examsAssessmentRequest.getTerm())
                 .academicYear(examsAssessmentRequest.getAcademicYear())
                 .score(examsAssessmentRequest.getScore())
@@ -42,6 +42,7 @@ public class ExamsAssessmentUtil {
                 .subject(examsAssessmentRequest.getSubject())
                 .institutionCode(examsAssessmentRequest.getInstitutionCode())
                 .studentId(examsAssessmentRequest.getStudentId())
+                .totalScore(examsAssessmentRequest.getTotalScore())
                 .build();
     }
 
