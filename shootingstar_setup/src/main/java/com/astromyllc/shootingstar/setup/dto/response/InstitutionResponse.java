@@ -1,5 +1,7 @@
 package com.astromyllc.shootingstar.setup.dto.response;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Lob;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -31,7 +33,8 @@ public class InstitutionResponse {
     private String postalAddress;
     private Integer streams;
     private String subscription;
-    @Size(max = 1147483647)
+    @Lob // Marks this field as a Large Object (LOB)
+    @Column(columnDefinition = "LONGTEXT")
     private String crest;
 
     private Optional<GradingSettingResponse> gradingSetting;

@@ -2,6 +2,7 @@ package com.astromyllc.shootingstar.adminpta.serviceInterface;
 
 import com.astromyllc.shootingstar.adminpta.dto.request.AdmissionRequest;
 import com.astromyllc.shootingstar.adminpta.dto.request.StudentSkimRequest;
+import com.astromyllc.shootingstar.adminpta.dto.request.StudentsImportRequest;
 import com.astromyllc.shootingstar.adminpta.dto.response.StudentsResponse;
 import com.astromyllc.shootingstar.adminpta.model.Students;
 
@@ -15,4 +16,6 @@ public interface StudentServiceInterface {
     List<StudentsResponse> fetchAllStudents();
 
     List<StudentsResponse> fetchStudentsByClass(StudentSkimRequest request);
+
+    List<StudentsResponse> postBulkStudentList(List<StudentsImportRequest> request);
 }

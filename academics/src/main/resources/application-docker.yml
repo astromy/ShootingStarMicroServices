@@ -13,23 +13,82 @@ server:
   port: 1371
 
 gateway:
-  host: ${APIGATEWAY:astro-api-gateway}
+  host: ${APIGATEWAY:astro-api-gateway:8083}
 
 spring:
   cloud:
     compatibility-verifier:
       enabled: false
 
+  codec:
+    max-in-memory-size: 20971520
+
   application:
     name: shootingStar-academics
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdb:postgresql://postgres-shootingstar_academics:5432/shootingstar_academics
+    url: jdb:postgresql://postgres-shootingstar_academics:5432/shootingstar_academics?createDatabaseIfNotExist=true
     username: astromyllc
     password: IdowhatIlikeIlikewhatIdo!@3
   jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    show-sql: false
     hibernate:
       ddl-auto: update
 
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
+  zipkin:
+    base-url: http://localhost:9411
+  sleuth:
+    sampler:
+      probability: 1.0
+
+management:
+  health:
+    circuitbreakers:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+
+resilience4j:
+  circuit breaker:
+    instances:
+      setup:
+        registerHealthIndicator: true
+        event-consumer-buffer-size: 10
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 5s
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+  time limiter:
+    instances:
+      setup:
+        timeout-duration: 3s
+
+
+
+logging:
+  level:
+    org:
+      springframework:
+        security: ERROR
+        root: INFO
+        web: ERROR
+        orm:
+          jpa: ERROR
+        boot:
+          autoconfigure: ERROR
+          client:
+            RestTemplate: ERROR
+
+      hibernate:
+        SQL: ERROR
+        transaction: ERROR
+

@@ -56,9 +56,16 @@ spring:
   thymeleaf:
     cache: false
 
+  codec:
+    max-in-memory-size: 20MB
+
   application:
     name: orb_frontend
 
+
+  jackson:
+    serialization:
+      WRITE_DATES_AS_TIMESTAMPS: false
 
 
   servlet:

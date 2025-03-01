@@ -2,6 +2,7 @@ package com.astromyllc.shootingstar.adminpta.util;
 
 import com.astromyllc.shootingstar.adminpta.dto.request.AdmissionRequest;
 import com.astromyllc.shootingstar.adminpta.dto.request.ParentsRequest;
+import com.astromyllc.shootingstar.adminpta.dto.request.StudentsImportRequest;
 import com.astromyllc.shootingstar.adminpta.dto.request.StudentsRequest;
 import com.astromyllc.shootingstar.adminpta.dto.request.alien.ApplicationRequest;
 import com.astromyllc.shootingstar.adminpta.dto.response.StudentsResponse;
@@ -144,6 +145,43 @@ public class StudentUtil {
                 .picture(s.getPicture())
                 .placeOfBirth(s.getPlaceOfBirth())
                 .status(s.getStatus())
+                .build();
+    }
+
+    public Students mapBulkStudent_To_Students(StudentsImportRequest s){
+        String studentId = "";
+        List<Parents> parentsList=new ArrayList<>();
+        if(s.getStudentId().trim().isEmpty()) {
+            generateStudentId(s.getInstitutionCode());
+        }else {
+            studentId=s.getStudentId();
+        }
+
+        if(s.getFirstName()==null) {
+            generateStudentId(s.getInstitutionCode());
+        }
+
+
+        parentsList.add(mapStudentParent(s.getParentsRequests().get(0),studentId));
+        parentsList.add(mapStudentParent(s.getParentsRequests().get(1),studentId));
+        parentRepository.saveAll(parentsList);
+        return Students.builder()
+                .studentId(studentId)
+                .dateOfAdmission(s.getDateOfAdmission())
+                .dateOfBirth(s.getDateOfBirth())
+                .gender(s.getGender())
+                .firstName(s.getFirstName())
+                .denomination(s.getDenomination())
+                .otherName(s.getOtherName())
+                .lastName(s.getLastName())
+                .studentClass(s.getStudentClass())
+                .status(s.getStatus())
+                .placeOfBirth(s.getPlaceOfBirth())
+                .countryOfBirth(s.getCountryOfBirth())
+                .residentialLocality(s.getResidentialLocality())
+                .institutionCode(s.getInstitutionCode())
+                .picture(s.getPicture())
+                .birthCert(s.getBirthCert())
                 .build();
     }
 }

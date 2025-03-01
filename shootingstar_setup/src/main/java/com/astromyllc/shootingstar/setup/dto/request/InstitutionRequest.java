@@ -1,10 +1,7 @@
 package com.astromyllc.shootingstar.setup.dto.request;
 
 import com.astromyllc.shootingstar.setup.model.*;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
@@ -39,7 +36,8 @@ public class InstitutionRequest {
     @NonNull
     private Integer streams;
     private String subscription;
-    @Size(max = 1147483647)
+    @Lob // Marks this field as a Large Object (LOB)
+    @Column(columnDefinition = "LONGTEXT")
     private String crest;
 
     private GradingSettingDetails gradingSetting;

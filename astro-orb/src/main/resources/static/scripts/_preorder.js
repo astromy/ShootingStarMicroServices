@@ -40,8 +40,6 @@ fetchInstitution(instId.split(",")[0]);
     $('#submitRequest').click(async function() {
             var approve = $(".approveCheck").is(':checked');
             if(approve) {
-               var c= validateForm();
-               if(c===true){
                 // Got to step 1
               //  $('[href=#step1]').tab('show');
                 postdata();
@@ -63,7 +61,6 @@ fetchInstitution(instId.split(",")[0]);
     })
 
 
-            }
             } else {
                 // Show notification
                 swal({

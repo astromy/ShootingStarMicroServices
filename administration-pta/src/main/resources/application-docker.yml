@@ -1,0 +1,56 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/administration-pta
+  application:
+    name: administration-pta
+  mongod:
+    auto-index-creation: true  # Ensures indexes are created at runtime
+  cloud:
+    compatibility-verifier:
+      enabled: false
+  zipkin:
+    base-url: http://localhost:9411
+  sleuth:
+    sampler:
+      probability: 1.0
+
+server:
+  port: 0
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://eureka:password@localhost:8761/eureka
+
+gateway:
+  host: ${APIGATEWAY:astro-api-gateway:8083}
+
+management:
+  health:
+    circuitbreakers:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      setup:
+        registerHealthIndicator: true
+        event-consumer-buffer-size: 10
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 5s
+        permittedNumberOfCallsInHalfOpenState: 3
+        authomaticTransitionFromOpenToHalfOpenEnabled: true
+  timelimiter:
+    instances:
+      setup:
+        timeout-duration: 3s

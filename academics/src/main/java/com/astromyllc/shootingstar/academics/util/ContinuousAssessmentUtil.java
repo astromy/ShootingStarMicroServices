@@ -1,5 +1,6 @@
 package com.astromyllc.shootingstar.academics.util;
 
+import com.astromyllc.shootingstar.academics.dto.alien.StudentScores;
 import com.astromyllc.shootingstar.academics.dto.request.ContinuousAssessmentRequest;
 import com.astromyllc.shootingstar.academics.dto.response.ContinuousAssessmentResponse;
 import com.astromyllc.shootingstar.academics.model.ContinuousAssessment;
@@ -11,7 +12,11 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import static com.astromyllc.shootingstar.academics.util.AssessmentUtil.institutionGlobalRequest;
 
@@ -60,5 +65,20 @@ public class ContinuousAssessmentUtil {
                 .dateTime(LocalDateTime.parse((LocalDateTime.now()).format(formatter), formatter))
                 .institutionCode(car.getInstitutionCode())
                 .build();
+    }
+
+    public static Map<String, Map<Long, Map<String, StudentScores>>> CalculateScores(List<ContinuousAssessment> assessments) {
+        return assessments.stream()
+                .collect(Collectors.groupingBy(
+                        ContinuousAssessment::getStudentClass, // Group by studentClass
+                        Collectors.groupingBy(
+                                ContinuousAssessment::getSubject, // Group by subject
+                                Collectors.toMap(
+                                        ContinuousAssessment::getStudentId, // Group by studentId
+                                        req -> new StudentScores(req.getStudentId(), req.getScore(), req.getTotalScore()),
+                                        StudentScores::merge // Merge scores for the same student
+                                )
+                        )
+                ));
     }
 }

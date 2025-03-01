@@ -120,7 +120,7 @@ $(function () {
 
     var script14 = document.createElement("script");
     script14.setAttribute("type", "text/javascript");
-    script14.setAttribute("src", "scripts/_academics.js");
+    script14.setAttribute("src", "scripts/_scoreUpload.js");
 
     var script15 = document.createElement("script");
     script15.setAttribute("type", "text/javascript");

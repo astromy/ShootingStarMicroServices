@@ -39,7 +39,8 @@ public class Institution {
     @NonNull
     private Integer streams;
     private String subscription;
-    @Size(max = 1147483647)
+    @Lob // Marks this field as a Large Object (LOB)
+    @Column(columnDefinition = "LONGTEXT")
     private String crest;
 
     @OneToOne(targetEntity = GradingSetting.class,cascade = CascadeType.ALL)

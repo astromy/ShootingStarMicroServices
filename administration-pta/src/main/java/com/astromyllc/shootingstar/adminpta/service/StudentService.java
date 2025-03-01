@@ -2,7 +2,9 @@ package com.astromyllc.shootingstar.adminpta.service;
 
 import com.astromyllc.shootingstar.adminpta.dto.request.AdmissionRequest;
 import com.astromyllc.shootingstar.adminpta.dto.request.StudentSkimRequest;
+import com.astromyllc.shootingstar.adminpta.dto.request.StudentsImportRequest;
 import com.astromyllc.shootingstar.adminpta.dto.response.StudentsResponse;
+import com.astromyllc.shootingstar.adminpta.model.Students;
 import com.astromyllc.shootingstar.adminpta.repository.StudentRepository;
 import com.astromyllc.shootingstar.adminpta.serviceInterface.StudentServiceInterface;
 import com.astromyllc.shootingstar.adminpta.util.StudentUtil;
@@ -12,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,5 +40,12 @@ public class StudentService implements StudentServiceInterface {
         return studentUtil.studentsGlobalList.stream()
                 .filter(st->st.getStudentClass().equalsIgnoreCase(request.getStudentClass()))
                 .map(s->studentUtil.mapStudent_ToStudentResponse(s)).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<StudentsResponse> postBulkStudentList(List<StudentsImportRequest> request) {
+      List<Students> studentsList=  request.stream().map(si->studentUtil.mapBulkStudent_To_Students(si)).collect(Collectors.toList());
+        studentRepository.saveAll(studentsList);
+        return studentsList.stream().map(sr->studentUtil.mapStudent_ToStudentResponse(sr)).collect(Collectors.toList());
     }
 }

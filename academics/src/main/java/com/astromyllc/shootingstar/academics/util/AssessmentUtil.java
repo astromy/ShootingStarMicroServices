@@ -3,7 +3,7 @@ package com.astromyllc.shootingstar.academics.util;
 import com.astromyllc.shootingstar.academics.dto.alien.*;
 import com.astromyllc.shootingstar.academics.dto.request.AcademicReportRequest;
 import com.astromyllc.shootingstar.academics.dto.request.AssessmentRequest;
-import com.astromyllc.shootingstar.academics.dto.response.AssessmentResponse;
+import com.astromyllc.shootingstar.academics.dto.response.*;
 import com.astromyllc.shootingstar.academics.model.Assessment;
 import com.astromyllc.shootingstar.academics.model.ContinuousAssessment;
 import com.astromyllc.shootingstar.academics.model.ExamsAssessment;
@@ -17,12 +17,12 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Component
@@ -35,7 +35,7 @@ public class AssessmentUtil {
     private final ContinuousAssessmentUtil cau;
     private final ExamsAssessmentUtil eau;
     public static List<Assessment> assessmentsGlobalList;
-    private static List<Students> students;
+    private static List<LookupResponse> lookUpGlobalResponse=null;
     public static List<InstitutionRequest> institutionGlobalRequest = null;
     public static List<Students> studentsGlobalRequest = null;
     private InstitutionRequest singleInstitutionGlobalRequest = null;
@@ -43,6 +43,8 @@ public class AssessmentUtil {
     static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     @Value("${gateway.host}")
     private String host;
+    private String cg;
+    private List<Double> classAvrage=new ArrayList<>();
 
     @Bean
     private void fetAllAssessment() {
@@ -63,119 +65,133 @@ public class AssessmentUtil {
         //return result;
     }
 
-     //@Bean
+     @Bean
     private void fetchStudents() {
         studentsGlobalRequest = webClientBuilder.build().post()
-                .uri("http://"+host+":8083/api/administration-pta/getAllStudents")
+                .uri("http://"+host+"/api/administration-pta/getAllStudents")
                 .contentType(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<List<Students>>() {}).block();
          log.info("Global Students List populated with {} records", studentsGlobalRequest.size());
     }
-
-    private Double computeExamsScore(String studId, String academicYear, String term, Long subject) {
-        Double examsScore = ExamsAssessmentUtil.examsAssessmentGlobalList.stream()
-                .filter(ex -> false).mapToDouble(ExamsAssessment::getScore).sum();
-        Double totalExamsScore = ExamsAssessmentUtil.examsAssessmentGlobalList.stream()
-                .filter(ex -> false).mapToDouble(ExamsAssessment::getTotalScore).sum();
-        return ((examsScore / totalExamsScore) * 100) * singleInstitutionGlobalRequest.getGradingSetting().getExamsPercentage();
+    @Bean
+    private void fetchClassGroups() {
+        lookUpGlobalResponse = webClientBuilder.build().post()
+                .uri("http://"+host+"/api/setup/getAllLookUp")
+                .contentType(MediaType.APPLICATION_JSON)
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<List<LookupResponse>>() {}).block();
+        log.info("Global Lookup List populated with {} records", lookUpGlobalResponse.size());
     }
 
-    private Double computeClassScore(String studId, String academicYear, String term, Long subject) {
-        return ((sumClassScore(studId, academicYear, term, subject) / totalSumClassScore(studId, academicYear, term, subject)) * 100) * singleInstitutionGlobalRequest.getGradingSetting().getClassPercentage();
+    private Double computeExamsScore(Double total, Double actual) {
+        return (Math.round(((actual / total) * singleInstitutionGlobalRequest.getGradingSetting().getExamsPercentage())* 100.0) / 100.0);
     }
 
-    private Integer computePosition() {
-        ArrayList<Students> sortedStudents = new ArrayList<>();
-        return null;
+    private Double computeClassScore(Double total, Double actual) {
+        return (Math.round(((actual / total) * singleInstitutionGlobalRequest.getGradingSetting().getClassPercentage())* 100.0) / 100.0);
     }
 
-    private GradingRequest computeGrade(Double as) {
+    private GradingRequest computeGrade(Double studentScore) {
         return singleInstitutionGlobalRequest.getGradingSetting().getGradingList()
-                .stream().filter(gr -> gr.getLowerLimit() >= as)
-                .toList().stream().filter(gr1 -> gr1.getLowerLimit() <= as).findFirst().get();
+                .stream()
+                .filter(gr -> gr.getLowerLimit() <= studentScore) // Keep grades that apply
+                .max(Comparator.comparing(gr -> gr.getLowerLimit())) // Get the one with the highest lower limit
+                .orElse(null); // Handle cases where no grade is found
     }
 
-    private Double sumClassScore(String studId, String academicYear, String term, Long subject) {
-        return ContinuousAssessmentUtil.continuousAssessmentGlobalList.stream()
-                .filter(cx -> cx.getStudentId().equalsIgnoreCase(studId)
-                        && cx.getAcademicYear().equalsIgnoreCase(academicYear)
-                        && cx.getTerm().equalsIgnoreCase(term)
-                        && Objects.equals(cx.getSubject(), subject)).mapToDouble(ContinuousAssessment::getScore).sum();
-    }
+    public List<Assessment> insertPositions(List<Assessment> assessmentsWithoutPositions) {
+        // Group assessments by subject
+        Map<String, List<Assessment>> groupedBySubject = assessmentsWithoutPositions.stream()
+                .collect(Collectors.groupingBy(Assessment::getSubject));
 
-    private Double totalSumClassScore(String studId, String academicYear, String term, Long subject) {
-        return ContinuousAssessmentUtil.continuousAssessmentGlobalList.stream()
-                .filter(cx -> cx.getStudentId().equalsIgnoreCase(studId)
-                        && cx.getAcademicYear().equalsIgnoreCase(academicYear)
-                        && cx.getTerm().equalsIgnoreCase(term)
-                        && Objects.equals(cx.getSubject(), subject)).mapToDouble(ContinuousAssessment::getTotalScore).sum();
-    }
+        // Process each subject separately
+        groupedBySubject.forEach((subject, assessments) -> {
+            AtomicInteger positionCounter = new AtomicInteger(1);
 
-    public List<Assessment> insertAssessment(AcademicReportRequest terminalReportRequest) {
-        if (institutionGlobalRequest == null) {
-            // fetchSetupdata();
-            fetchStudents();
-        }
-        if (singleInstitutionGlobalRequest == null) {
-            singleInstitutionGlobalRequest = institutionGlobalRequest.stream().filter(i -> i.getBececode().equalsIgnoreCase(terminalReportRequest.getInstitutionCode())).findFirst().get();
-        }
-        List<Students> localStudents = studentsGlobalRequest.stream().filter(s -> s.getInstitutionCode().equalsIgnoreCase(terminalReportRequest.getInstitutionCode())).collect(Collectors.toList());
-        List<SubjectRequest> localSubject = singleInstitutionGlobalRequest.getSubjectList().stream().filter(s -> s.getClassGroup().equalsIgnoreCase(terminalReportRequest.getClassGroup())).collect(Collectors.toList());
-        List<ClassesRequest> localClasses = singleInstitutionGlobalRequest.getClassList();
-        List<Assessment> builtAssessment = null;
-        //localClasses.stream() .map(c->localSubject.stream().map(sub->localStudents.stream().map(stud->buildAssessment(terminalReportRequest,stud,sub)))).collect(Collectors.)
-        for (ClassesRequest c : localClasses) {
-            for (SubjectRequest s : localSubject) {
-                for (Students stud : localStudents) {
-                    builtAssessment.add(buildAssessment(terminalReportRequest, stud, s));
-                }
-            }
-        }
-        assert builtAssessment != null;
-        List<Assessment> assessmentsWithoutPositions= builtAssessment.stream().sorted(createPersonLambdaComparator()).collect(Collectors.toList());
-        for(int i=0;i<assessmentsWithoutPositions.size();i++){
-            assessmentsWithoutPositions.get(i).setPosition(i+1);
-        }
-        return assessmentsWithoutPositions;
+            // Sort each group by total score in descending order
+            assessments.sort(Comparator.comparingDouble(Assessment::getTotalScore).reversed());
+
+            // Assign positions within the group
+            assessments.forEach(a -> a.setPosition(positionCounter.getAndIncrement()));
+        });
+
+        // Flatten the grouped values back into a single list
+        return groupedBySubject.values().stream()
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
     }
 
     public static Comparator<Assessment> createPersonLambdaComparator() {
         return Comparator.comparing(Assessment::getTotalScore);
     }
 
-    public Assessment buildAssessment(AcademicReportRequest terminalReportRequest, Students stud, SubjectRequest sub) {
-        Double classPercentage = computeClassScore(stud.getStudentId(), terminalReportRequest.getAcademicYear(), terminalReportRequest.getTerm(), sub.getId());
-        Double examsPercentage = computeExamsScore(stud.getStudentId(), terminalReportRequest.getAcademicYear(), terminalReportRequest.getTerm(), sub.getId());
-        return Assessment.builder()
-                .academicYear(terminalReportRequest.getAcademicYear())
-                .dateTime(LocalDateTime.now())
-                .studentClass(terminalReportRequest.getTargetClass())
-                .term(terminalReportRequest.getTerm())
-                .studentId(stud.getStudentId())
-                .subject(sub.getName())
-                .classScore(classPercentage)
-                .examsScore(examsPercentage)
-                .totalScore(classPercentage + examsPercentage)
-                .institutionCode(terminalReportRequest.getInstitutionCode())
-                .grade(computeGrade(classPercentage + examsPercentage).getGrade())
+    public Assessment buildAssessment(Assessment assessments) {
+        GradingRequest g=computeGrade(assessments.getClassScore()+ assessments.getExamsScore());
+        assessments.setDateTime(LocalDateTime.now());
+        assessments.setTotalScore(BigDecimal.valueOf(assessments.getClassScore()+ assessments.getExamsScore())
+                .setScale(2, RoundingMode.HALF_UP) // Round to 2 decimal places
+                .doubleValue()
+        );
+        assessments.setGrade(g.getGrade());
+        assessments.setGradeRemarks(g.getComment());
+        return assessments;
+    }
+
+    public TerminalReportResponse buildTerminalReportResponse(List<AssessmentResponse> assessmentResponses, List<Students> studentsGlobalRequest) {
+        // Step 1: Group assessmentResponses by studentId
+        Map<String, List<AssessmentResponse>> groupedAssessments = (assessmentResponses != null)
+                ? assessmentResponses.stream().collect(Collectors.groupingBy(AssessmentResponse::getStudentId))
+                : new HashMap<>();
+
+        // Step 2: Map students to StudentReportResponse with their assessments
+        List<StudentReportResponse> studentReports = (studentsGlobalRequest != null)
+                ? studentsGlobalRequest.stream()
+                .filter(student -> {
+                    String studentId = student.getStudentId();
+                    return studentId != null && groupedAssessments.containsKey(studentId) && !groupedAssessments.get(studentId).isEmpty();
+                })
+                .map(student -> mapAssessmentResponse_ToStudentReportResponse(student, groupedAssessments.get(student.getStudentId())))
+                .collect(Collectors.toList())
+                : new ArrayList<>();
+
+        // Step 3: Build TerminalReportResponse
+        return TerminalReportResponse.builder()
+                .institutionDetail(buildReportInstitutionResponse()) // Assuming this method is implemented
+                .studentReportResponseList(studentReports)
                 .build();
     }
 
-    public AssessmentRequest buildAssessmentRequest(AcademicReportRequest terminalReportRequest) {
-        return AssessmentRequest.builder()
-                .academicYear(terminalReportRequest.getAcademicYear())
-                .institutionCode(terminalReportRequest.getInstitutionCode())
-                .term(terminalReportRequest.getTerm())
-                .studentClass(terminalReportRequest.getTargetClass())
-                .build();
 
+    public ReportInstitutionResponse buildReportInstitutionResponse() {
+        return ReportInstitutionResponse.builder()
+                .id(singleInstitutionGlobalRequest.getId())
+                .city(singleInstitutionGlobalRequest.getCity())
+                .email(singleInstitutionGlobalRequest.getEmail())
+                .name(singleInstitutionGlobalRequest.getName())
+                .contact2(singleInstitutionGlobalRequest.getContact2())
+                .country(singleInstitutionGlobalRequest.getCountry())
+                .postalAddress(singleInstitutionGlobalRequest.getPostalAddress())
+                .region(singleInstitutionGlobalRequest.getRegion())
+                .slogan(singleInstitutionGlobalRequest.getSlogan())
+                .website(singleInstitutionGlobalRequest.getWebsite())
+                .bececode(singleInstitutionGlobalRequest.getBececode())
+                .contact1(singleInstitutionGlobalRequest.getContact1())
+                .crest(singleInstitutionGlobalRequest.getCrest())
+                .classGroup(lookUpGlobalResponse.stream().filter(lr -> lr.getId().equals( Long.valueOf(cg))).map(LookupResponse::getName).findFirst().orElse(null))
+                .classAverage(String.valueOf( BigDecimal.valueOf(
+                        (classAvrage.stream().mapToDouble(Double::doubleValue).sum())/classAvrage.size())
+                        .setScale(2, RoundingMode.HALF_UP) // Round to 2 decimal places
+                        .doubleValue()
+                ))
+                .build();
     }
 
-    public AssessmentResponse mapAssessment_ToAssessmentResponse(Assessment a) {
+    public AssessmentResponse mapAssessment_ToAssessmentResponse(Assessment a,String classGroup) {
+        cg=classGroup;
         return AssessmentResponse.builder()
                 .academicYear(a.getAcademicYear())
-                .dateTime(LocalDateTime.now())
+                .dateTime(a.getDateTime())
                 .studentClass(a.getStudentClass())
                 .term(a.getTerm())
                 .studentId(a.getStudentId())
@@ -185,7 +201,110 @@ public class AssessmentUtil {
                 .totalScore(a.getTotalScore().toString())
                 .institutionCode(a.getInstitutionCode())
                 .grade(a.getGrade())
+                .gradeRemarks(a.getGradeRemarks())
                 .position(a.getPosition().toString())
                 .build();
     }
+
+
+    public StudentReportResponse mapAssessmentResponse_ToStudentReportResponse(Students student, List<AssessmentResponse> assessments) {
+       double as=calculateTotalAverage(assessments);
+        GradingRequest g=computeGrade(as);
+        return StudentReportResponse.builder()
+                .id(UUID.randomUUID().toString()) // Assuming an ID is required
+                .studentId(student.getStudentId())
+                .firstName(student.getFirstName())
+                .otherName(student.getOtherName())
+                .lastName(student.getLastName())
+                .gender(student.getGender())
+                .averageScore(String.valueOf(BigDecimal.valueOf(as).setScale(2, RoundingMode.HALF_UP).doubleValue()))
+                .averageGrade(g.getGrade())
+                .averageRemark(g.getComment())
+                .studentAssessment(assessments)
+                .build();
+    }
+
+    public double calculateTotalAverage(List<AssessmentResponse> assessments) {
+        if (assessments == null || assessments.isEmpty()) {
+            return 0.0; // Return 0 if there are no assessments
+        }
+
+        double totalSum = assessments.stream()
+                .mapToDouble(a -> parseDouble(a.getTotalScore()))
+                .sum();
+
+        int subjectCount = assessments.size(); // Each assessment represents a subject
+        double ta=((totalSum / (subjectCount * 100))*100); // Assuming each subject is out of 100
+        classAvrage.add(ta);
+        return ta;
+    }
+
+    private double parseDouble(String value) {
+        try {
+            return value != null ? Double.parseDouble(value) : 0.0;
+        } catch (NumberFormatException e) {
+            return 0.0; // Handle invalid numbers gracefully
+        }
+    }
+
+    public List<Assessment> passExamsAssessment(Map.Entry<String, Map<Long, Map<String, StudentScores>>> sr,AcademicReportRequest terminalReportRequest) {
+        String studentClass = sr.getKey(); // Example: "ClassA"
+        singleInstitutionGlobalRequest=institutionGlobalRequest.stream().filter(i->i.getBececode().equalsIgnoreCase(terminalReportRequest.getInstitutionCode())).findFirst().get();
+        return sr.getValue().entrySet().stream() // Iterate over subjects
+                .flatMap(subjectEntry -> {
+                    Long subjectId = subjectEntry.getKey(); // Example: 101
+
+                    return subjectEntry.getValue().entrySet().stream() // Iterate over students
+                            .map(studentEntry -> {
+                                String studentId = studentEntry.getKey(); // Example: "S001"
+                                StudentScores scores = studentEntry.getValue(); // Example: (Sum Score: 80.0, Sum Total Score: 200.0)
+
+                                // Build the assessment object
+                                return Assessment.builder()
+                                        .academicYear(terminalReportRequest.getAcademicYear())
+                                        .dateTime(LocalDateTime.now())
+                                        .studentClass(studentClass) // "ClassA"
+                                        .term(terminalReportRequest.getTerm())
+                                        .studentId(studentId) // "S001"
+                                        .subject(singleInstitutionGlobalRequest.getSubjectList().stream().filter(sb-> Objects.equals(sb.getId(), subjectId)).findFirst().get().getName()) // "Mathematics" (Example)
+                                        .examsScore( Math.round(computeExamsScore(scores.getTotalScorePossible(),scores.getTotalScoreObtained())* 100.0) / 100.0 )   // 200.0
+                                        //.totalScore(Math.round(scores.getTotalScorePossible()* 100.0) / 100.0) // 280.0
+                                        .institutionCode(terminalReportRequest.getInstitutionCode())
+                                        //.grade(computeGrade(scores.getTotalScoreObtained()).getGrade())
+                                        .build();
+                            });
+                })
+                .collect(Collectors.toList()); // Collect all assessments
+    }
+    public List<Assessment> passContinuousAssessment(Map.Entry<String, Map<Long, Map<String, StudentScores>>> sr, AcademicReportRequest terminalReportRequest, StudentScores studentScores) {
+        String studentClass = sr.getKey(); // Example: "ClassA"
+        singleInstitutionGlobalRequest=institutionGlobalRequest.stream().filter(i->i.getBececode().equalsIgnoreCase(terminalReportRequest.getInstitutionCode())).findFirst().get();
+
+        return sr.getValue().entrySet().stream() // Iterate over subjects
+                .flatMap(subjectEntry -> {
+                    Long subjectId = subjectEntry.getKey(); // Example: 101
+
+                    return subjectEntry.getValue().entrySet().stream() // Iterate over students
+                            .map(studentEntry -> {
+                                String studentId = studentEntry.getKey(); // Example: "S001"
+                                StudentScores scores = studentEntry.getValue(); // Example: (Sum Score: 80.0, Sum Total Score: 200.0)
+
+                                // Build the assessment object
+                                return Assessment.builder()
+                                        .academicYear(terminalReportRequest.getAcademicYear())
+                                        .dateTime(LocalDateTime.now())
+                                        .studentClass(studentClass) // "ClassA"
+                                        .term(terminalReportRequest.getTerm())
+                                        .studentId(studentId) // "S001"
+                                        .subject(singleInstitutionGlobalRequest.getSubjectList().stream().filter(sb-> Objects.equals(sb.getId(), subjectId)).findFirst().get().getName()) // "Mathematics" (Example)
+                                        .classScore(Math.round(computeClassScore(studentScores.getTotalScorePossible(),scores.getTotalScoreObtained())* 100.0) / 100.0) // 200.0
+                                        .institutionCode(terminalReportRequest.getInstitutionCode())
+                                        //.grade(computeGrade(scores.getTotalScoreObtained() + scores.getTotalScorePossible()).getGrade())
+                                        .build();
+                            });
+                })
+                .collect(Collectors.toList()); // Collect all assessments
+    }
+
+
 }

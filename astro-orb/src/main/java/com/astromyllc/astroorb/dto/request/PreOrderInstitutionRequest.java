@@ -1,5 +1,7 @@
 package com.astromyllc.astroorb.dto.request;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Lob;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -33,6 +35,8 @@ public class PreOrderInstitutionRequest {
     private String subscription;
     @NonNull
     private String population;
+    @Lob // Marks this field as a Large Object (LOB)
+    @Column(columnDefinition = "LONGTEXT")
     private String crest;
 
 }

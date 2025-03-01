@@ -44,7 +44,6 @@ fetchDepartment(instId.split(",")[0]);
                             "availableSlots":document.getElementsByClassName('newDesignationAvailableSlots')[0].value,
                             "jobDescriptionList":resultlist
                              };
-                        debugger;
                     resultlist2.push(jsonObject2);
         //}
             var v= instId.split(",")[0].replace(/[\[\]']+/g,'')
@@ -55,7 +54,6 @@ fetchDepartment(instId.split(",")[0]);
                     "departmentId":document.getElementsByClassName('newDesignationDepartment')[0].value,
                     "designationRequestDetails":resultlist2
                 };
-                debugger;
             return finalJsonObject;
     }
 

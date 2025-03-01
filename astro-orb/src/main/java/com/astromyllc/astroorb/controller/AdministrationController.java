@@ -1,9 +1,6 @@
 package com.astromyllc.astroorb.controller;
 
-import com.astromyllc.astroorb.dto.request.BillRequest;
-import com.astromyllc.astroorb.dto.request.BillingFetchRequest;
-import com.astromyllc.astroorb.dto.request.SingleStringRequest;
-import com.astromyllc.astroorb.dto.request.StudentSkimRequest;
+import com.astromyllc.astroorb.dto.request.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import lombok.RequiredArgsConstructor;
@@ -54,6 +51,13 @@ public class AdministrationController {
     @RequestMapping(value = "/getStudentsByClass", method = RequestMethod.POST)
     public ResponseEntity<String> getStudentsByClass(@RequestBody StudentSkimRequest jso) {
         ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/administration-pta/getStudentsByClass");
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/postBulkStudentList", method = RequestMethod.POST)
+    public ResponseEntity<String> submitBulkStudentList(@RequestBody List<StudentsImportRequest> jso) {
+        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/administration-pta/postBulkStudentList");
         return response;
     }
 

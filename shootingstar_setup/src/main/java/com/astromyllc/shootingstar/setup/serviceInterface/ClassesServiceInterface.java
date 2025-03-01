@@ -1,5 +1,6 @@
 package com.astromyllc.shootingstar.setup.serviceInterface;
 
+import com.astromyllc.shootingstar.setup.dto.request.ClassDetail;
 import com.astromyllc.shootingstar.setup.dto.request.ClassGroupRequest;
 import com.astromyllc.shootingstar.setup.dto.request.ClassesRequest;
 import com.astromyllc.shootingstar.setup.dto.request.SingleStringRequest;

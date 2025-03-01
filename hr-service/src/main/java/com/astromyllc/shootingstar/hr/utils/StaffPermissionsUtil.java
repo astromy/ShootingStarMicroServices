@@ -20,6 +20,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
@@ -93,6 +94,13 @@ public class StaffPermissionsUtil {
             // Get the realm resource
             RealmResource realmResource = keycloak.realm("ShootingStar");
 
+            /*String staffCode=staffPermissionsRequests.get(0).getStaffCode();
+            List<UserRepresentation> users = realmResource.users().search(staffPermissionsRequests.get(0).getStaffCode());
+            if (users.isEmpty()) {
+                System.out.println("User not found!");
+                return;
+            }*/
+
 
             // Retrieve user by username
             UserRepresentation user = new UserRepresentation();
@@ -149,12 +157,20 @@ public class StaffPermissionsUtil {
             // Step 5: Assign Roles to User (Add)
             if (!rolesToAdd.isEmpty()) {
                 usersResource.get(userId).roles().realmLevel().add(rolesToAdd);
+
+                for (RoleRepresentation rolesToAddItem:rolesToAdd) {
+                    realmResource.users().get(userId).roles().realmLevel().add(Collections.singletonList(rolesToAddItem));
+                }
                 log.info("Roles added to user: " + rolesToAdd);
             }
 
             // Step 6: Remove Roles from User
             if (!rolesToRemove.isEmpty()) {
                 usersResource.get(userId).roles().realmLevel().remove(rolesToRemove);
+
+                for (RoleRepresentation rolesToRemoveItem:rolesToRemove) {
+                    realmResource.users().get(userId).roles().realmLevel().remove(Collections.singletonList(rolesToRemoveItem));
+                }
                 log.info("Roles removed from user: " + rolesToRemove);
             }
 

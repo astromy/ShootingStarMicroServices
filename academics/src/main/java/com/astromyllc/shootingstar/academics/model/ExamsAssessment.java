@@ -17,7 +17,9 @@ public class ExamsAssessment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(columnDefinition = "DECIMAL(10,2)")
     private Double score;
+    @Column(columnDefinition = "DECIMAL(10,2)")
     private Double totalScore;
     private Long subject;
     private String term;

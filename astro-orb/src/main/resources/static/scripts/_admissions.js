@@ -51,7 +51,6 @@ fetchInstitutionAdmissionsSettings(instId.split(",")[0]);
                             "appointmentCommencement":convertToISO(categoryList[i].getElementsByClassName('interviewPeriodDatePicker')[0].value.split(" - ")[0]),
                             "appointmentClosure":convertToISO(categoryList[i].getElementsByClassName('interviewPeriodDatePicker')[0].value.split(" - ")[1])
                         };
-                        debugger;
                     resultlist2.push(jsonObject2);
         }
             var v= instId.split(",")[0].replace(/[\[\]']+/g,'')

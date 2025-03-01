@@ -1,5 +1,7 @@
 package com.astromyllc.astroorb.dto.request;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Lob;
 import lombok.*;
 
 import java.util.List;
@@ -32,6 +34,9 @@ public class InstitutionRequest {
     @NonNull
     private Integer streams;
     private String subscription;
+    @Lob // Marks this field as a Large Object (LOB)
+    @Column(columnDefinition = "LONGTEXT")
+    private String crest;
 
     private GradingSettingDetails gradingSetting;
     private List<SubjectDetails> subjectList;

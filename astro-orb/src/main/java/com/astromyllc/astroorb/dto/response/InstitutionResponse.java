@@ -1,5 +1,7 @@
 package com.astromyllc.astroorb.dto.response;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Lob;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -30,6 +32,9 @@ public class InstitutionResponse {
     private String postalAddress;
     private Integer streams;
     private String subscription;
+    @Lob // Marks this field as a Large Object (LOB)
+    @Column(columnDefinition = "LONGTEXT")
+    private String crest;
 
     private Optional<GradingSettingResponse> gradingSetting;
     private List<Optional<SubjectResponse>> subjectList;

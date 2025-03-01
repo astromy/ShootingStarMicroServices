@@ -19,16 +19,20 @@ spring:
   cloud:
     compatibility-verifier:
       enabled: false
+  codec:
+    max-in-memory-size: 20971520 #20MB
 
   application:
     name: shootingStar-academics
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/shootingstar_academics
+    url: jdbc:mysql://localhost:3306/shootingstar_academics?createDatabaseIfNotExist=true
     username: root
     password: IdowhatIlikeIlikewhatIdo!@3
   jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    show-sql: false
     hibernate:
       ddl-auto: update
 
@@ -73,10 +77,17 @@ logging:
   level:
     org:
       springframework:
-        security=ERROR:
-    root: INFO
-    org.springframework.web: ERROR
-    org.springframework.security: ERROR
-    org.springframework.boot.autoconfigure: ERROR
-    org.springframework.web.client.RestTemplate: ERROR
+        security: ERROR
+        root: INFO
+        web: ERROR
+        orm:
+          jpa: ERROR
+        boot:
+          autoconfigure: ERROR
+          client:
+            RestTemplate: ERROR
+
+      hibernate:
+        SQL: ERROR
+        transaction: ERROR
 
