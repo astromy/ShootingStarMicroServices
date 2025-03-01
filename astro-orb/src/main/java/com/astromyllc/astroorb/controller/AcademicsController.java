@@ -65,9 +65,9 @@ public class AcademicsController {
 
     @ResponseBody
     @RequestMapping(value = "/generateStudentTerminalReport", method = RequestMethod.POST)
-    public ResponseEntity<String> generateStudentTerminalReport(@RequestBody SingleStringRequest jso) throws IOException {
+    public ResponseEntity<String> generateStudentTerminalReport(@RequestBody AcademicReportRequest jso) throws IOException {
 
-        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/academics/getStaffByCode");
+        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/academics/generateTerminalReports");
         return response;
     }
 

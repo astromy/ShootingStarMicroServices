@@ -2,8 +2,8 @@ package com.astromyllc.shootingstar.adminpta.controller;
 
 import com.astromyllc.shootingstar.adminpta.dto.request.AdmissionRequest;
 import com.astromyllc.shootingstar.adminpta.dto.request.StudentSkimRequest;
+import com.astromyllc.shootingstar.adminpta.dto.request.StudentsImportRequest;
 import com.astromyllc.shootingstar.adminpta.dto.response.StudentsResponse;
-import com.astromyllc.shootingstar.adminpta.model.Students;
 import com.astromyllc.shootingstar.adminpta.serviceInterface.StudentServiceInterface;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,5 +39,11 @@ public class StudentsController {
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<List<StudentsResponse>> getStudentsByClass(@RequestBody StudentSkimRequest request) {
         return ResponseEntity.ok(studentServiceInterface.fetchStudentsByClass(request));
+    }
+
+    @PostMapping("/api/administration-pta/postBulkStudentList")
+    @ResponseStatus(HttpStatus.OK)
+    public Optional<ResponseEntity<List<StudentsResponse>>> postBulkStudentList(@RequestBody List<StudentsImportRequest> request) {
+        return Optional.ofNullable(ResponseEntity.ok(studentServiceInterface.postBulkStudentList(request)));
     }
 }

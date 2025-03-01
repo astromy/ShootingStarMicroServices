@@ -127,6 +127,13 @@ public class InstitutionController {
        return lookupServiceInterface.getAllLookupsByType(lookupType);
     }
 
+    @PostMapping("/api/setup/getAllLookUp")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Optional<LookupResponse>> getAllLookUps() {
+        log.info("Request  Received");
+        return lookupServiceInterface.getAllLookups();
+    }
+
 //================================== CLASSES ===========================================================================
 
     @PostMapping("/api/setup/addClasses")
@@ -141,6 +148,13 @@ public class InstitutionController {
     public Optional<List<Optional<ClassesResponse>>> getClasses(@RequestBody SingleStringRequest beceCode) {
         log.info("Class List  Received");
        return classesServiceInterface.getAllClassesByInstitution(beceCode);
+    }
+
+    @PostMapping("/api/setup/getInstitutionClassesByClassGroup")
+    @ResponseStatus(HttpStatus.OK)
+    public Optional<List<Optional<ClassesResponse>>> getClassesAndClassGroup(@RequestBody ClassGroupRequest beceCode) {
+        log.info("Class List  Received");
+        return classesServiceInterface.getAllClassesByClassGroup(beceCode);
     }
 
 
@@ -159,6 +173,13 @@ public class InstitutionController {
     public Optional<List<Optional<SubjectResponse>>> GetSubjects(@RequestBody SingleStringRequest beceCode) {
         log.info("Subject List  Received");
        return subjectServiceInterface.getAllSubjectsByInstitution(beceCode);
+    }
+
+    @PostMapping("/api/setup/getInstitutionSubjectsAndClassGroup")
+    @ResponseStatus(HttpStatus.OK)
+    public Optional<List<Optional<SubjectResponse>>> GetSubjects(@RequestBody SubjectDetails json) {
+        log.info("Subject List  Received");
+        return subjectServiceInterface.getAllSubjectsByInstitutionAndClassGroup(json);
     }
 
 

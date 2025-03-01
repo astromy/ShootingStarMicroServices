@@ -11,7 +11,8 @@ public class WebClientConfig {
     @Bean
     //@LoadBalanced
     public WebClient.Builder webClientBuilder() {
-        return WebClient.builder();
+        return WebClient.builder()
+                .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(20 * 1024 * 1024));
 
     }
 }

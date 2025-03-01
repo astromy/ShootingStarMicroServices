@@ -2,6 +2,7 @@ package com.astromyllc.shootingstar.academics.controller;
 
 import com.astromyllc.shootingstar.academics.dto.request.AcademicReportRequest;
 import com.astromyllc.shootingstar.academics.dto.response.AssessmentResponse;
+import com.astromyllc.shootingstar.academics.dto.response.TerminalReportResponse;
 import com.astromyllc.shootingstar.academics.serviceInterface.AssessmentServiceInterface;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -23,9 +25,9 @@ public class AcademicsController {
         return ResponseEntity.ok( assessmentServiceInterface.generateTerminalReport(terminalReportRequest));
 
     }*/
-    @PostMapping("/api/academics/submitAssessment")
+    @PostMapping("/api/academics/generateTerminalReports")
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<List<AssessmentResponse>> SubmitAssessments(@RequestBody AcademicReportRequest terminalReportRequest) {
+    public ResponseEntity<Optional<TerminalReportResponse>> generateTerminalReports(@RequestBody AcademicReportRequest terminalReportRequest) {
         log.info("Assessment  Received");
         return ResponseEntity.ok( assessmentServiceInterface.generateTerminalReports(terminalReportRequest));
 

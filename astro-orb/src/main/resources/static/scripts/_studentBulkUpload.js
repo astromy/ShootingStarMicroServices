@@ -1,28 +1,32 @@
  window.copyrights();
  id="";
-fetchInstitutionSubject(instId.split(",")[0])
-var keys,scoreJson,url;
-
- var elm=document.querySelector(".scoreUploadBtn");
+var keys,studentsJson,url;
+var studentsSheet;
+var v;
+//fetchLookup(instId.split(",")[0])
+ var elm=document.querySelector(".studentsUploadBtn");
  elm.addEventListener('click', function() {
-                                    document.querySelector('#scoreInput').click();
+                                    document.querySelector('#studentsInput').click();
                                    });
 
 
-document.querySelector('#scoreInput').addEventListener('change', async function () {
+document.querySelector('#studentsInput').addEventListener('change', async function () {
     try {
-        var doc = await uploadFileAsJSON(document.querySelector('#scoreInput'), document.querySelectorAll(".fileError")[0]);
-        scoreJson=await base64ToJson(doc.fileContent);
+        var doc = await uploadFileAsJSON(document.querySelector('#studentsInput'), document.querySelectorAll(".fileError")[0]);
+        studentsJson = await processStudentFile(doc.fileContent);
+        debugger;
+        var scoreJson=await base64ToJson(doc.fileContent);
+       //studentsJson= formatStudentData(studentsSheet)
         keys = Object.keys(scoreJson[0]);
 
 
-         $("#scoreTableHead").empty();
+         $("#studentsTableHead").empty();
 
             // Loop through the list and create <th> elements
             keys.forEach(header => {
-                $("#scoreTableHead").append(`<th>${header}</th>`);
+                $("#studentsTableHead").append(`<th>${header}</th>`);
             });
-            let tbody = $("#scoreTableBody");
+            let tbody = $("#studentsTableBody");
             tbody.empty(); // Clear existing rows
 
                     // Loop through the JSON data and create table rows
@@ -37,7 +41,7 @@ document.querySelector('#scoreInput').addEventListener('change', async function 
         console.error("Error uploading file:", error);
     }
 });
-document.querySelector('#subjectScoreTable_wrapper').setAttribute("style", "overflow: auto;");
+document.querySelector('#studentsListTable_wrapper').setAttribute("style", "overflow: auto;");
 
 var selectedValue = document.querySelector("#scoreTypeControl").parentElement.querySelector("label").innerHTML;
 
@@ -53,18 +57,14 @@ document.querySelector("#scoreTypeControl").addEventListener("change", function(
         }
     });
 
-     if(selectedValue=="Class Score"){
-     url="uploadAssesmentScores"
-     }else{
-     url="uploadExamsScores"
-     }
 
 
-    $('#scoreSubmitExport').click(async function() {
-                var jso= postdata();
+    $('#studentsSubmitBtn').click(async function() {
+                url="postBulkStudentList"
+                var jso= studentsJson;
                 return HttpPost(url,jso)
                 .then(function(result){
-                    $('#subjectScoreTable').DataTable().destroy();
+                    $('#studentsListTable').DataTable().destroy();
                     //populateTable(result)
                     swal({
                            title: "Thank you!",
@@ -78,9 +78,6 @@ document.querySelector("#scoreTypeControl").addEventListener("change", function(
      
     function postdata(){
         resultlist=[]
-
-        var v= instId.split(",")[0].replace(/[\[\]']+/g,'')
-                        v=v.replace(/\//g, '')
 
         for(var i=0;i<scoreJson.length; i++){
             var jsonObject={
@@ -125,21 +122,22 @@ document.querySelector("#scoreTypeControl").addEventListener("change", function(
     })
     }
 
+document.querySelector('.classGroupSelect').addEventListener('change', async function () {
 
-    async function fetchInstitutionSubject(instId){
-      var v= instId.replace(/[\[\]']+/g,'')
-      v=v.replace(/\//g, '')
-      var instRequest={"val":v}
+      var vg=document.getElementsByClassName('classGroupSelect')[0].value;
+
+      var instRequest={"id":0,"name":v,"classGroup":document.getElementsByClassName('classGroupSelect')[0].value,"preference":0}
+      var instRequest2={"institution":v,"classGroup":document.getElementsByClassName('classGroupSelect')[0].value}
        try {
               // Await the result of the HTTP request
-              const result = await HttpPost("getInstitutionSubjects", instRequest);
-              await fetchInstitutionClasses(v);
-              // Pass the result to fetchLookup and await it
-              return await fetchLookup(result);
+              const result = await HttpPost("getInstitutionSubjectsAndClassGroup", instRequest);
+              const result2 = await HttpPost("getInstitutionClassesByClassGroup", instRequest2);
+              populateSubjectsOptions(result);
+              populateClasses(result2);
           } catch (error) {
               console.error("Error in fetchInstitutionSubject:", error);
           }
-    }
+    });
 
 
   function populateClasses(data){
@@ -151,19 +149,20 @@ document.querySelector("#scoreTypeControl").addEventListener("change", function(
         });
   }
 
-    async function fetchLookup(result1){
+    async function fetchLookup(instId){
+     v= instId.replace(/[\[\]']+/g,'')
+          v=v.replace(/\//g, '')
       var instRequest={"val":"ClassGroup"}
       return  HttpPost("getLookUpByType",instRequest)
        .then(function (result) {
          populateClassGroup(result);
-         populateSubjectsOptions(result1);
          generateAcademicYears();
     })
     }
 
   function populateClassGroup(data){
   data.forEach(function(d) {
-         var details = $("<option>").val(d.name).text(d.name);
+         var details = $("<option>").val(d.id).text(d.name);
          $(".classGroupSelect").append(details);
     });
   }
@@ -192,17 +191,86 @@ document.querySelector("#scoreTypeControl").addEventListener("change", function(
   }
 
 
-/*  function dataTableInit(){
-    $('#subjectScoreTable').dataTable({
-         dom: "<'row'<'col-sm-4'l><'col-sm-4 text-center'B><'col-sm-4'f>>tp",
-         "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
-         buttons: [
-             { extend: 'copy', className: 'btn-sm' },
-             { extend: 'csv', title: 'Admissions Details', className: 'btn-sm' },
-             { extend: 'pdf', title: 'Admissions Details', className: 'btn-sm' },
-             { extend: 'print', className: 'btn-sm' }
-         ]
-     });
+  async function processStudentFile(base64String) {
+      const binaryString = atob(base64String);
+      const bytes = new Uint8Array(binaryString.length);
 
-  }*/
+      for (let i = 0; i < binaryString.length; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+      }
 
+      const workbook = XLSX.read(bytes, { type: "array" });
+
+      // Ensure the workbook contains at least two sheets
+      if (workbook.SheetNames.length < 2) {
+          throw new Error("The Excel file must contain at least two sheets.");
+      }
+
+      // Read the two sheets
+      studentsSheet = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+      const parentsSheet = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[1]]);
+
+      return formatStudentImportRequest(studentsSheet, parentsSheet);
+  }
+
+
+
+
+function formatStudentImportRequest(studentsSheet, parentsSheet) {
+    let studentsMap = {};
+
+    // Process Students Sheet
+    studentsSheet.forEach(row => {
+        let studentId = row.studentId;
+
+        if (!studentsMap[studentId]) {
+        var dob=excelDateToJSDate(row.dateOfBirth);
+        var doa=excelDateToJSDate(row.dateOfAdmission);
+            studentsMap[studentId] = {
+                id: null, // Set this if needed
+                studentId: row.studentId,
+                firstName: row.firstName,
+                otherName: row.otherName || "",
+                lastName: row.lastName,
+                dateOfBirth: dob,
+                dateOfAdmission: doa,
+                placeOfBirth: row.placeOfBirth,
+                gender: row.gender,
+                countryOfBirth: row.countryOfBirth,
+                residentialLocality: row.residentialLocality,
+                picture: row.picture || "",
+                birthCert: row.birthCert || "",
+                denomination: row.denomination || "",
+                institutionCode: row.institutionCode,
+                studentClass: row.studentClass || "",
+                status: row.status,
+                parentsRequests: [] // Initialize parent list
+            };
+        }
+    });
+
+    // Process Parents Sheet
+    parentsSheet.forEach(row => {
+        let studentId = row.studentId;
+
+        if (studentsMap[studentId]) {
+            let parent = {
+                id: null, // Set this if needed
+                firstNames: row.firstNames || "",
+                lastName: row.lastName || "",
+                email: row.email || "",
+                contact1: row.contact1 || "",
+                contact2: row.contact2 || "",
+                occupation: row.occupation || "",
+                placeOfWork: row.placeOfWork || "",
+                parentType: row.parentType,
+                studentId: row.studentId,
+                institutionCode: row.institutionCode
+            };
+
+            studentsMap[studentId].parentsRequests.push(parent);
+        }
+    });
+
+    return Object.values(studentsMap);
+}

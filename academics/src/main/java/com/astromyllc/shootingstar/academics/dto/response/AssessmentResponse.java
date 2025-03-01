@@ -26,6 +26,7 @@ public class AssessmentResponse {
     private String academicYear;
     private String studentId;
     private String grade;
+    private String gradeRemarks;
     private String institutionCode;
     private LocalDateTime dateTime;
 }

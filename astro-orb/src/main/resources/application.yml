@@ -37,6 +37,9 @@ spring:
   thymeleaf:
     cache: false
 
+  codec:
+    max-in-memory-size: 20MB
+
   application:
     name: orb_frontend
 
@@ -58,6 +61,9 @@ spring:
           ShootingStar:
             issuer-uri: "https://keycloak.astromyllc.com/realms/ShootingStar"
 
+  jackson:
+    serialization:
+      WRITE_DATES_AS_TIMESTAMPS: false
 
   servlet:
     multipart:

@@ -148,10 +148,26 @@ public class SetupController {
     }
 
     @ResponseBody
+    @RequestMapping(value = "/getInstitutionClassesByClassGroup", method = RequestMethod.POST)
+    public ResponseEntity<String> getInstitutionClassesByClassGroup(@RequestBody ClassGroupRequest jso) throws IOException {
+
+        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/getInstitutionClassesByClassGroup");
+        return response;
+    }
+
+    @ResponseBody
     @RequestMapping(value = "/getInstitutionSubjects", method = RequestMethod.POST)
     public ResponseEntity<String> getInstitutionSubjects(@RequestBody SingleStringRequest jso) throws IOException {
 
         ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/getInstitutionSubjects");
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/getInstitutionSubjectsAndClassGroup", method = RequestMethod.POST)
+    public ResponseEntity<String> getInstitutionSubjects(@RequestBody SubjectDetails jso) throws IOException {
+
+        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/getInstitutionSubjectsAndClassGroup");
         return response;
     }
 

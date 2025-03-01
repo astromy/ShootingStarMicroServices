@@ -38,12 +38,12 @@ var t1=p.trim().split(" ");
 
     permissionList = permissionList.filter(item => item !== undefined);
 
-    permissionGroups = new Set(permissionGroups.map(item => item.replace(/_/g, ' ').toLowerCase()));
-    permissionList = new Set(permissionList.map(item => item.replace(/_/g, ' ').toLowerCase()));
+    permissionGroups = new Set(permissionGroups.map(item => item.replace(/_/g, ' ').replace("_", "").replace("-", "").trim().toLowerCase()));
+    permissionList = new Set(permissionList.map(item => item.replace(/_/g, ' ').replace("_", "").replace("-", "").trim().toLowerCase()));
 
 links.forEach(anchor => {
-   const plainText = anchor.textContent.trim().toLowerCase();
-           if ([...permissionList].some(permission => plainText.includes(permission))) {
+   const plainText = anchor.textContent.replace(/\s+/g, "").replace("_", "").replace("-", "").trim().toLowerCase();
+           if ([...permissionList].some(permission => plainText.includes(permission.replace(/\s+/g, "").replace("_", "").replace("-", "").trim().toLowerCase()))) {
                anchor.style.removeProperty('display'); // Remove display style on match
            } else {
                anchor.style.display = 'none'; // Explicitly hide unmatched anchors
@@ -70,16 +70,6 @@ var scriptsToRemove = [];
  "vendor/peity/jquery.peity.min.js",
  "scripts/homer.js",
  "scripts/common.js",
-
-/* "vendor/datatables/media/js/jquery.dataTables.min.js",
- "vendor/datatables.net-bs/js/dataTables.bootstrap.min.js",
- "vendor/pdfmake/build/pdfmake.min.js",
- "vendor/pdfmake/build/vfs_fonts.js",
- "vendor/datatables.net-buttons/js/buttons.html5.min.js",
- "vendor/datatables.net-buttons/js/buttons.print.min.js",
- "vendor/datatables.net-buttons/js/dataTables.buttons.min.js",
- "vendor/datatables.net-buttons-bs/js/buttons.bootstrap.min.js",*/
-
 
  "vendor/jquery-flot/jquery.flot.js",
  "vendor/jquery-flot/jquery.flot.resize.js",
@@ -153,14 +143,6 @@ function trackExistingResources(tagName, defaultArray, activeSet) {
 
 
 
-/*    $('script').each(function () {
-
-        if (absoultePath.indexOf(this.src) == -1) {
-
-
-           scriptsToRemove.push(this);
-        }
-    });*/
 function addEventListeners() {
     document.getElementById("institution").addEventListener("click", institutionBuild);
     document.getElementById("classgroup").addEventListener("click", classgroupnBuild);
@@ -189,10 +171,10 @@ function addEventListeners() {
     document.getElementById("cashflow").addEventListener("click", cashflowBuild);
     document.getElementById("trialbalanace").addEventListener("click", trialbalanaceBuild);
     document.getElementById("scoreUpload").addEventListener("click", scoreUploadBuild);
-    /*
-    document.getElementById("institution").addEventListener("click", institutionBuild);
-    document.getElementById("institution").addEventListener("click", institutionBuild);
-    document.getElementById("institution").addEventListener("click", institutionBuild);
+    document.getElementById("terminalReport").addEventListener("click", terminalReportBuild);
+
+    document.getElementById("studEnrollment").addEventListener("click", studentBulkUploadBuild);
+    /*document.getElementById("institution").addEventListener("click", institutionBuild);
     document.getElementById("institution").addEventListener("click", institutionBuild);
     document.getElementById("institution").addEventListener("click", institutionBuild);
     document.getElementById("institution").addEventListener("click", institutionBuild);
@@ -205,28 +187,6 @@ function addEventListeners() {
     document.getElementById("institution").addEventListener("click", institutionBuild);
     document.getElementById("institution").addEventListener("click", institutionBuild);
     document.getElementById("institution").addEventListener("click", institutionBuild);*/
-
-
-/*
-    $('link').each(function () {
-        defaultlink.forEach((item, ind) => {
-
-            if (this.href.indexOf(item) != -1) {
-                absoultelinkPath[ind] = this.href
-            }
-        });
-    });
-
-    $('link').each(function () {
-
-        if (absoultelinkPath.indexOf(this.href) == -1) {
-
-
-           scriptsToRemove.push(this);
-        }
-    });
-*/
-
 
 }
 
@@ -272,7 +232,6 @@ function institutionBuild() {
         "vendor/ladda/dist/ladda.min.js",
         "vendor/ladda/dist/ladda.jquery.min.js",
         "vendor/sweetalert/lib/sweet-alert.min.js",
-        //"vendor/jquery-validation/jquery.validate.min.js",
         "scripts/subscripts/institution.js"
     ];
 
@@ -308,7 +267,6 @@ function classgroupnBuild() {
     // Define new resources specific to this view
         const newScripts = [
         "vendor/sweetalert/lib/sweet-alert.min.js",
-        //"vendor/jquery-validation/jquery.validate.min.js",
         "scripts/subscripts/classgroup.js"
         ];
         const newLinks = [
@@ -341,17 +299,7 @@ function classesBuild() {
 
     // Define new resources specific to this view
         const newScripts = [
-                /*"vendor/datatables/media/js/jquery.dataTables.min.js",
-                "vendor/datatables.net-bs/js/dataTables.bootstrap.min.js",
-                "vendor/pdfmake/build/pdfmake.min.js",
-                "vendor/pdfmake/build/vfs_fonts.js",
-                "vendor/datatables.net-buttons/js/buttons.html5.min.js",
-                "vendor/datatables.net-buttons/js/buttons.print.min.js",
-                "vendor/datatables.net-buttons/js/dataTables.buttons.min.js",
-                "vendor/datatables.net-buttons-bs/js/buttons.bootstrap.min.js",*/
-                //"vendor/jquery-validation/jquery.validate.min.js",
                 "vendor/sweetalert/lib/sweet-alert.min.js",
-                //"vendor/jquery-validation/jquery.validate.min.js",
                  "scripts/subscripts/classes.js"
         ];
         const newLinks = [
@@ -385,16 +333,7 @@ function subjectBuild() {
 
     // Define new resources specific to this view
         const newScripts = [
-                /*"vendor/datatables/media/js/jquery.dataTables.min.js",
-                "vendor/datatables.net-bs/js/dataTables.bootstrap.min.js",
-                "vendor/pdfmake/build/pdfmake.min.js",
-                "vendor/pdfmake/build/vfs_fonts.js",
-                "vendor/datatables.net-buttons/js/buttons.html5.min.js",
-                "vendor/datatables.net-buttons/js/buttons.print.min.js",
-                "vendor/datatables.net-buttons/js/dataTables.buttons.min.js",
-                "vendor/datatables.net-buttons-bs/js/buttons.bootstrap.min.js",*/
                 "vendor/sweetalert/lib/sweet-alert.min.js",
-                //"vendor/jquery-validation/jquery.validate.min.js",
                 "scripts/subscripts/subject.js"
         ];
         const newLinks = [
@@ -430,17 +369,7 @@ function admissionBuild() {
         const newScripts = [
                 "scripts/moment.min.js",
                 "scripts/daterangepicker.js",
-               /* "vendor/sparkline/index.js",
-                "vendor/datatables/media/js/jquery.dataTables.min.js",
-                "vendor/datatables.net-bs/js/dataTables.bootstrap.min.js",
-                "vendor/pdfmake/build/pdfmake.min.js",
-                "vendor/pdfmake/build/vfs_fonts.js",
-                "vendor/datatables.net-buttons/js/buttons.html5.min.js",
-                "vendor/datatables.net-buttons/js/buttons.print.min.js",
-                "vendor/datatables.net-buttons/js/dataTables.buttons.min.js",
-                "vendor/datatables.net-buttons-bs/js/buttons.bootstrap.min.js",*/
                 "vendor/sweetalert/lib/sweet-alert.min.js",
-                //"vendor/jquery-validation/jquery.validate.min.js",
                 "scripts/subscripts/admissions.js"
         ];
         const newLinks = [
@@ -475,16 +404,6 @@ function departmentBuild() {
     // Define new resources specific to this view
         const newScripts = [
                 "scripts/moment.min.js",
-                /*"scripts/daterangepicker.js",
-                "vendor/sparkline/index.js",
-                "vendor/datatables/media/js/jquery.dataTables.min.js",
-                "vendor/datatables.net-bs/js/dataTables.bootstrap.min.js",
-                "vendor/pdfmake/build/pdfmake.min.js",
-                "vendor/pdfmake/build/vfs_fonts.js",
-                "vendor/datatables.net-buttons/js/buttons.html5.min.js",
-                "vendor/datatables.net-buttons/js/buttons.print.min.js",
-                "vendor/datatables.net-buttons/js/dataTables.buttons.min.js",
-                "vendor/datatables.net-buttons-bs/js/buttons.bootstrap.min.js",*/
                 "vendor/sweetalert/lib/sweet-alert.min.js",
                 //"vendor/jquery-validation/jquery.validate.min.js",
                 "scripts/subscripts/department.js"
@@ -520,16 +439,6 @@ function departmentBuild() {
 function gradingBuild() {
 
 const newScripts = [
-    //"vendor/jquery-validation/jquery.validate.min.js",
-   /* "vendor/sparkline/index.js",
-    "vendor/datatables/media/js/jquery.dataTables.min.js",
-    "vendor/datatables.net-bs/js/dataTables.bootstrap.min.js",
-    "vendor/pdfmake/build/pdfmake.min.js",
-    "vendor/pdfmake/build/vfs_fonts.js",
-    "vendor/datatables.net-buttons/js/buttons.html5.min.js",
-    "vendor/datatables.net-buttons/js/buttons.print.min.js",
-    "vendor/datatables.net-buttons/js/dataTables.buttons.min.js",
-    "vendor/datatables.net-buttons-bs/js/buttons.bootstrap.min.js",*/
     "vendor/sweetalert/lib/sweet-alert.min.js",
     "scripts/subscripts/grading.js"
      ];
@@ -567,16 +476,6 @@ function permissionsBuild() {
 
 const newScripts = [
     "scripts/moment.min.js",
-    //"vendor/jquery-validation/jquery.validate.min.js",
-   /* "vendor/sparkline/index.js",
-    "vendor/datatables/media/js/jquery.dataTables.min.js",
-    "vendor/datatables.net-bs/js/dataTables.bootstrap.min.js",
-    "vendor/pdfmake/build/pdfmake.min.js",
-    "vendor/pdfmake/build/vfs_fonts.js",
-    "vendor/datatables.net-buttons/js/buttons.html5.min.js",
-    "vendor/datatables.net-buttons/js/buttons.print.min.js",
-    "vendor/datatables.net-buttons/js/dataTables.buttons.min.js",
-    "vendor/datatables.net-buttons-bs/js/buttons.bootstrap.min.js",*/
     "vendor/sweetalert/lib/sweet-alert.min.js",
     "scripts/subscripts/permissions.js"
 ];
@@ -616,7 +515,6 @@ function designationBuild() {
     const newScripts = [
         "scripts/moment.min.js",
         "vendor/sweetalert/lib/sweet-alert.min.js",
-        //"vendor/jquery-validation/jquery.validate.min.js",
         "scripts/subscripts/hrDesignation.js"
     ];
 
@@ -642,9 +540,6 @@ function designationBuild() {
 
     newLinks.forEach((href) => activeLinks.add(href));
 
-
-
-
 }
 
 //-------------------------------------------------------------------------------------------------------
@@ -656,7 +551,6 @@ function onloadingBuild() {
         "vendor/ladda/dist/ladda.min.js",
         "vendor/ladda/dist/ladda.jquery.min.js",
         "vendor/sweetalert/lib/sweet-alert.min.js",
-        //"vendor/jquery-validation/jquery.validate.min.js",
         "scripts/subscripts/hrOnloading.js"
     ];
 
@@ -683,17 +577,12 @@ function onloadingBuild() {
         newScripts.forEach((src) => activeScripts.add(src));
         
     newLinks.forEach((href) => activeLinks.add(href));
-    
-    
-    
 
 }
 
 //-------------------------------------------------------------------------------------------------------
 
 function recordsBuild() {
-
-
 
         // Remove previous non-default scripts/links
         removeUnwantedResources("script", activeScripts);
@@ -707,9 +596,6 @@ function recordsBuild() {
         newScripts.forEach((src) => activeScripts.add(src));
         
     newLinks.forEach((href) => activeLinks.add(href));
-    
-    
-    
 
 
 }
@@ -718,9 +604,6 @@ function recordsBuild() {
 
 function leaveBuild() {
 
-
-
-
         // Remove previous non-default scripts/links
         removeUnwantedResources("script", activeScripts);
         removeUnwantedResources("link", activeLinks);
@@ -733,9 +616,6 @@ function leaveBuild() {
         newScripts.forEach((src) => activeScripts.add(src));
         
     newLinks.forEach((href) => activeLinks.add(href));
-    
-    
-    
 
 
 }
@@ -744,10 +624,6 @@ function leaveBuild() {
 
 function appraisalsBuild() {
 
-
-
-
-
         // Remove previous non-default scripts/links
         removeUnwantedResources("script", activeScripts);
         removeUnwantedResources("link", activeLinks);
@@ -760,9 +636,6 @@ function appraisalsBuild() {
         newScripts.forEach((src) => activeScripts.add(src));
         
     newLinks.forEach((href) => activeLinks.add(href));
-    
-    
-    
 
 
 }
@@ -772,9 +645,6 @@ function appraisalsBuild() {
 function designationBuild_X() {
 
 
-
-
-
         // Remove previous non-default scripts/links
         removeUnwantedResources("script", activeScripts);
         removeUnwantedResources("link", activeLinks);
@@ -787,9 +657,6 @@ function designationBuild_X() {
         newScripts.forEach((src) => activeScripts.add(src));
         
     newLinks.forEach((href) => activeLinks.add(href));
-    
-    
-    
 
 }
 
@@ -797,9 +664,6 @@ function designationBuild_X() {
 
 function offloadingBuild() {
 
-
-
-
         // Remove previous non-default scripts/links
         removeUnwantedResources("script", activeScripts);
         removeUnwantedResources("link", activeLinks);
@@ -812,8 +676,6 @@ function offloadingBuild() {
         newScripts.forEach((src) => activeScripts.add(src));
         
     newLinks.forEach((href) => activeLinks.add(href));
-    
-    
     
 
 }
@@ -825,7 +687,6 @@ function billcreationBuild() {
     const newScripts = [
         "scripts/moment.min.js",
         "vendor/sweetalert/lib/sweet-alert.min.js",
-        //"vendor/jquery-validation/jquery.validate.min.js",
         "scripts/subscripts/billCreation.js"
     ];
 
@@ -837,10 +698,6 @@ function billcreationBuild() {
        "fonts/pe-icon-7-stroke/css/pe-icon-7-stroke.css",
        "fonts/pe-icon-7-stroke/css/helper.css"
     ];
-
-
-
-
 
         // Remove previous non-default scripts/links
         removeUnwantedResources("script", activeScripts);
@@ -867,9 +724,7 @@ function billingBuild() {
 
     // Define new resources specific to this view
         const newScripts = [
-                //"vendor/jquery-validation/jquery.validate.min.js",
                 "vendor/sweetalert/lib/sweet-alert.min.js",
-                //"vendor/jquery-validation/jquery.validate.min.js",
                  "scripts/subscripts/financeBilling.js"
         ];
         const newLinks = [
@@ -891,10 +746,6 @@ function billingBuild() {
         newScripts.forEach((src) => activeScripts.add(src));
         
     newLinks.forEach((href) => activeLinks.add(href));
-    
-    
-    
-
 
 }
 
@@ -902,10 +753,6 @@ function billingBuild() {
 
 function feecollectionBuild() {
 
-
-
-
-
         // Remove previous non-default scripts/links
         removeUnwantedResources("script", activeScripts);
         removeUnwantedResources("link", activeLinks);
@@ -918,9 +765,6 @@ function feecollectionBuild() {
         newScripts.forEach((src) => activeScripts.add(src));
         
     newLinks.forEach((href) => activeLinks.add(href));
-    
-    
-    
 
 }
 
@@ -928,10 +772,6 @@ function feecollectionBuild() {
 
 function paymenthistoryBuild() {
 
-
-
-
-
         // Remove previous non-default scripts/links
         removeUnwantedResources("script", activeScripts);
         removeUnwantedResources("link", activeLinks);
@@ -944,10 +784,6 @@ function paymenthistoryBuild() {
         newScripts.forEach((src) => activeScripts.add(src));
         
     newLinks.forEach((href) => activeLinks.add(href));
-    
-    
-    
-
 
 }
 
@@ -955,10 +791,6 @@ function paymenthistoryBuild() {
 
 function paymentcheckerBuild() {
 
-
-
-
-
         // Remove previous non-default scripts/links
         removeUnwantedResources("script", activeScripts);
         removeUnwantedResources("link", activeLinks);
@@ -971,9 +803,6 @@ function paymentcheckerBuild() {
         newScripts.forEach((src) => activeScripts.add(src));
         
     newLinks.forEach((href) => activeLinks.add(href));
-    
-    
-    
 
 }
 
@@ -981,10 +810,6 @@ function paymentcheckerBuild() {
 
 function salarysetupBuild() {
 
-
-
-
-
         // Remove previous non-default scripts/links
         removeUnwantedResources("script", activeScripts);
         removeUnwantedResources("link", activeLinks);
@@ -997,21 +822,12 @@ function salarysetupBuild() {
         newScripts.forEach((src) => activeScripts.add(src));
         
     newLinks.forEach((href) => activeLinks.add(href));
-    
-    
-    
-
-
 }
 
 //-------------------------------------------------------------------------------------------------------
 
 function payslipgenerationBuild() {
 
-
-
-
-
         // Remove previous non-default scripts/links
         removeUnwantedResources("script", activeScripts);
         removeUnwantedResources("link", activeLinks);
@@ -1024,9 +840,6 @@ function payslipgenerationBuild() {
         newScripts.forEach((src) => activeScripts.add(src));
         
     newLinks.forEach((href) => activeLinks.add(href));
-    
-    
-    
 
 
 }
@@ -1034,10 +847,6 @@ function payslipgenerationBuild() {
 //-------------------------------------------------------------------------------------------------------
 
 function ledgerbooksBuild() {
-
-
-
-
 
         // Remove previous non-default scripts/links
         removeUnwantedResources("script", activeScripts);
@@ -1061,10 +870,6 @@ function ledgerbooksBuild() {
 
 function incomestatementBuild() {
 
-
-
-
-
         // Remove previous non-default scripts/links
         removeUnwantedResources("script", activeScripts);
         removeUnwantedResources("link", activeLinks);
@@ -1077,12 +882,9 @@ function incomestatementBuild() {
         newScripts.forEach((src) => activeScripts.add(src));
         
     newLinks.forEach((href) => activeLinks.add(href));
-    
-    
-    
-
 
 }
+
 
 //-------------------------------------------------------------------------------------------------------
 
@@ -1142,10 +944,8 @@ function scoreUploadBuild() {
 
     // Define new resources specific to this view
         const newScripts = [
-                //"vendor/jquery-validation/jquery.validate.min.js",
                 "vendor/sweetalert/lib/sweet-alert.min.js",
-                //"vendor/jquery-validation/jquery.validate.min.js",
-                 "scripts/subscripts/academics.js"
+                 "scripts/subscripts/scoreUpload.js"
         ];
         const newLinks = [
                 "vendor/sweetalert/lib/sweet-alert.css",
@@ -1169,12 +969,74 @@ function scoreUploadBuild() {
     newLinks.forEach((href) => activeLinks.add(href));
 
 
+}
 
+function terminalReportBuild() {
 
+    // Define new resources specific to this view
+        const newScripts = [
+                "vendor/sweetalert/lib/sweet-alert.min.js",
+                 "scripts/subscripts/terminalReport.js"
+        ];
+        const newLinks = [
+                "vendor/sweetalert/lib/sweet-alert.css",
+                "vendor/metisMenu/dist/metisMenu.css",
+                "vendor/animate.css/animate.css",
+                "vendor/datatables.net-bs/css/dataTables.bootstrap.min.css",
+                "styles/switch.css"
+        ];
+
+        // Remove previous non-default scripts/links
+        removeUnwantedResources("script", activeScripts);
+        removeUnwantedResources("link", activeLinks);
+
+        // Add new resources
+        addNewResources("script", newScripts);
+        addNewResources("link", newLinks);
+
+        // Update the active state with new resources
+        newScripts.forEach((src) => activeScripts.add(src));
+
+    newLinks.forEach((href) => activeLinks.add(href));
 
 }
 
 //-------------------------------------------------------------------------------------------------------
+
+
+
+function studentBulkUploadBuild() {
+
+    // Define new resources specific to this view
+        const newScripts = [
+                "vendor/sweetalert/lib/sweet-alert.min.js",
+                 "scripts/subscripts/studentBulkUpload.js"
+        ];
+        const newLinks = [
+                "vendor/sweetalert/lib/sweet-alert.css",
+                "vendor/metisMenu/dist/metisMenu.css",
+                "vendor/animate.css/animate.css",
+                "vendor/datatables.net-bs/css/dataTables.bootstrap.min.css",
+                "styles/switch.css"
+        ];
+
+        // Remove previous non-default scripts/links
+        removeUnwantedResources("script", activeScripts);
+        removeUnwantedResources("link", activeLinks);
+
+        // Add new resources
+        addNewResources("script", newScripts);
+        addNewResources("link", newLinks);
+
+        // Update the active state with new resources
+        newScripts.forEach((src) => activeScripts.add(src));
+
+    newLinks.forEach((href) => activeLinks.add(href));
+
+
+}
+
+
 
 //-------------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------------
@@ -1620,4 +1482,13 @@ async function base64ToJson(base64String) {
 
         // Convert the sheet to JSON
         return XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+}
+
+function excelDateToJSDate(serial) {
+    if (!serial || isNaN(serial)) return serial; // Return as-is if it's not a number
+
+    const excelEpoch = new Date(1899, 11, 30); // Excel counts from Dec 30, 1899
+    const jsDate = new Date(excelEpoch.getTime() + serial * 86400000); // Convert to JS date
+
+    return jsDate.toISOString().split("T")[0]; // Format as "YYYY-MM-DD"
 }
