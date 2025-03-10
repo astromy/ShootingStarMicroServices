@@ -381,6 +381,8 @@ services:
         condition: service_healthy
       shootingstar_setup:
         condition: service_healthy
+      administration-pta:
+        condition: service_healthy
     networks:
       - astro_network
 

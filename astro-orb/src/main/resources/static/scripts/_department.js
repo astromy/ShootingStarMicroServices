@@ -1,4 +1,4 @@
-    id="";
+    id=null;
     name=[];
     resultlist=[]
     type= $('[name="type"]').val();

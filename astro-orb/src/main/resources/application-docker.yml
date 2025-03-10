@@ -24,7 +24,7 @@ eureka:
     leaseExpirationDurationInSeconds: 3
   client:
     serviceUrl:
-      defaultZone: http://eureka:password@localhost:8761/eureka
+      defaultZone: http://eureka:password@discovery-server:8761/eureka
     registerWithEureka: true
     fetchRegistry: true
 
@@ -44,6 +44,7 @@ spring:
             client-secret: ywUvVeSUVbbwgsfABUNWyKPJimFXkcwJ
             authorization-grant-type: authorization_code
             redirect-uri: "{baseUrl}/login/oauth2/code/astroauthauth"
+            logout-success-url: "https://keycloak.astromyllc.com/auth/realms/ShootingStar/protocol/openid-connect/auth"
             scope:
               - openid
               - profile
@@ -73,3 +74,9 @@ spring:
       max-file-size: 7024MB
       max-request-size: 7024MB
       enabled: true
+
+
+
+keycloak:
+  base-url: https://orb.astromyllc.com  # Change this in production
+  realm: ShootingStar

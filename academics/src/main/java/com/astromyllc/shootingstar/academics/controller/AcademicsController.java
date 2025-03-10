@@ -1,6 +1,7 @@
 package com.astromyllc.shootingstar.academics.controller;
 
 import com.astromyllc.shootingstar.academics.dto.request.AcademicReportRequest;
+import com.astromyllc.shootingstar.academics.dto.request.SingleStringRequest;
 import com.astromyllc.shootingstar.academics.dto.response.AssessmentResponse;
 import com.astromyllc.shootingstar.academics.dto.response.TerminalReportResponse;
 import com.astromyllc.shootingstar.academics.serviceInterface.AssessmentServiceInterface;
@@ -30,6 +31,28 @@ public class AcademicsController {
     public ResponseEntity<Optional<TerminalReportResponse>> generateTerminalReports(@RequestBody AcademicReportRequest terminalReportRequest) {
         log.info("Assessment  Received");
         return ResponseEntity.ok( assessmentServiceInterface.generateTerminalReports(terminalReportRequest));
+
+    }
+    @PostMapping("/api/academics/fetchStudentTerminalReport")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<Optional<TerminalReportResponse>> fetchStudentTerminalReport(@RequestBody AcademicReportRequest terminalReportRequest) {
+        log.info("Assessment  Received");
+        return ResponseEntity.ok( assessmentServiceInterface.fetchStudentTerminalReport(terminalReportRequest));
+
+    }
+
+    @PostMapping("/api/academics/generateStudentTranscript")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<Optional<TerminalReportResponse>> generateStudentTranscript(@RequestBody AcademicReportRequest terminalReportRequest) {
+        log.info("Assessment  Received");
+        return ResponseEntity.ok( assessmentServiceInterface.generateTerminalReports(terminalReportRequest));
+
+    }
+    @PostMapping("/api/academics/fetchStudentTranscript")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<Optional<TerminalReportResponse>> fetchStudentTranscript(@RequestBody SingleStringRequest terminalReportRequest) {
+        log.info("Transcript Request  Received");
+        return ResponseEntity.ok( assessmentServiceInterface.fetchStudentTranscript(terminalReportRequest));
 
     }
 }

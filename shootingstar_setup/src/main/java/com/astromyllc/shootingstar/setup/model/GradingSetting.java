@@ -13,6 +13,7 @@ import java.util.List;
 @Builder
 @Data
 @Embeddable
+@EqualsAndHashCode(of = "idGradingSetting")
 public class GradingSetting {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

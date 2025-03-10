@@ -4,10 +4,7 @@ import jakarta.persistence.Embeddable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -21,6 +18,7 @@ import java.time.LocalDate;
 @Builder
 @Data
 @Embeddable
+@EqualsAndHashCode(of = "id")
 public class StaffPermissions {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

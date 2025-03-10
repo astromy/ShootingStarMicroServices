@@ -1,18 +1,22 @@
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/shootingstarsetup
+    ##driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:postgresql://postgres-shootingstarsetup:5432/shootingstarsetup
     username: astromyllc
     password: IdowhatIlikeIlikewhatIdo!@3
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
-    show-sql: false
+    show-sql: true
     hibernate:
       ddl-auto: update
       default_schema: public
 
+  codec:
+    max-in-memory-size: 20971520
+
   zipkin:
-    base-url: http://localhost:9411
+    base-url: http://zipkin:9411
   sleuth:
     sampler:
       probability: 1.0
@@ -26,7 +30,7 @@ server:
   port: 0
 
 gateway:
-  host: ${APIGATEWAY:localhost}
+  host: ${APIGATEWAY:localhost:8083}
   # host: ${APIGATEWAY:astro-api-gateway}  # Commented
 
 eureka:
@@ -36,7 +40,7 @@ eureka:
     leaseExpirationDurationInSeconds: 3
   client:
     serviceUrl:
-      defaultZone: http://eureka:password@localhost:8761/eureka
+      defaultZone: http://eureka:password@discovery-server:8761/eureka
     registerWithEureka: true
     fetchRegistry: true
 
@@ -75,20 +79,18 @@ logging:
   level:
     org:
       springframework:
-        security: ERROR
-        web: ERROR
-        client:
-          RestTemplate: ERROR
-        boot:
-          autoconfigure: ERROR
+        security=ERROR:
+
       hibernate:
         SQL: ERROR
-        type:
-          descriptor:
-            sql:
-              BasicBinder: ERROR
+        transaction: ERROR
+
     root: ERROR
+    org.springframework.web: ERROR
+    org.springframework.security: ERROR
+    org.springframework.boot.autoconfigure: ERROR
+    org.springframework.web.client.RestTemplate: ERROR
 
 
 keycloak:
-  address: ${KeycloakURL:https://keycloak.astromyllc.com}
+  address: ${KeycloakURL:keycloak:8080}

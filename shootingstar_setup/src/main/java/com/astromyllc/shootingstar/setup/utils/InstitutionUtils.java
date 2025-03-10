@@ -182,7 +182,7 @@ public class InstitutionUtils {
                 .website(preOrderInstitution.getWebsite())
                 .subscription(preOrderInstitution.getSubscription())
                 .creationDate(preOrderInstitution.getCreationDate())
-                .crest(Arrays.toString(preOrderInstitution.getCrest()))
+                .crest(preOrderInstitution.getCrest())
                 .build();
     }
 
@@ -296,14 +296,6 @@ public class InstitutionUtils {
         permissions.add("Teaching assignment_review");
 
         String clientSecret = keycloakSecrete;
-        /*Keycloak keycloak = KeycloakBuilder.builder()
-                .serverUrl("http://keycloak:8080/auth")
-                .realm("ShootingStar")
-                .clientId("admin-cli")
-                .username("admin")
-                .password("IdowhatIlikeIlikewhatIdo!@3")
-                .build();
-                */
 
         Keycloak kc = KeycloakBuilder.builder()
                 .serverUrl(keycloakURL)

@@ -1,10 +1,7 @@
 package com.astromyllc.shootingstar.hr.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -18,6 +15,7 @@ import java.time.LocalDate;
 @Builder
 @Data
 @Embeddable
+@EqualsAndHashCode(of = "id")
 public class Dependants {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

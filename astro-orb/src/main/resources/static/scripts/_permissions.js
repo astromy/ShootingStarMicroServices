@@ -8,7 +8,7 @@ var v= instId.split(",")[0].replace(/[\[\]']+/g,'')
     instId=v.replace(/\//g, '')
 fetchStaffList(instId);
 
-id="";
+id=null;
 //fetchInstitutionClasses(instId.split(",")[0]);
 
 

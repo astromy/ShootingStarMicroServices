@@ -11,6 +11,6 @@ public class GradingRequest {
     @NonNull
     private Double lowerLimit;
     @NonNull
-    private int grade;
+    private String grade;
     private String comment;
 }

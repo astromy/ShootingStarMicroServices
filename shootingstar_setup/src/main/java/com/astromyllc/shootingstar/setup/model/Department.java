@@ -12,6 +12,7 @@ import java.util.List;
 @Builder
 @Data
 @Embeddable
+@EqualsAndHashCode(of = "idDepartment")
 public class Department {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

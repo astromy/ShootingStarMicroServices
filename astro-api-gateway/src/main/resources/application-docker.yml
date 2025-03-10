@@ -7,7 +7,7 @@ eureka:
     leaseExpirationDurationInSeconds: 3
   client:
     serviceUrl:
-      defaultZone: http://eureka:password@localhost:8761/eureka
+      defaultZone: http://eureka:password@discovery-server:8761/eureka
     registerWithEureka: true
     fetchRegistry: true
 

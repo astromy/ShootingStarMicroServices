@@ -198,7 +198,8 @@ public class InstitutionController {
     @ResponseStatus(HttpStatus.OK)
     public Optional<GradingSettingResponse> GetGradingSettingByCode(@RequestBody SingleStringRequest beceCode) {
         log.info("Grade Setting  Received");
-       return gradingSettingsServiceInterface.getAllGradingSettingsByInstitution(beceCode);
+        Optional<GradingSettingResponse> GetGradingSettingByCode = gradingSettingsServiceInterface.getAllGradingSettingsByInstitution(beceCode);
+        return GetGradingSettingByCode;
     }
 
 

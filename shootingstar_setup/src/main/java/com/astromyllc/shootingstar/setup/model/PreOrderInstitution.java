@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Entity
-@Table(name = "institution")
+@Table(name = "preorder_institution")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -19,32 +19,32 @@ public class PreOrderInstitution {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
  
     private Long idInstitution;
-    @NonNull
+    @Column(nullable = false)
     private String name;
     private String slogan;
-    @NonNull
+    @Column(nullable = false)
     private String country;
     private String region;
-    @NonNull
+    @Column(nullable = false)
     private String city;
-    @NonNull
+    @Column(nullable = false)
     private String email;
     private String website;
-    @NonNull
+    @Column(nullable = false)
     private String contact1;
     private String contact2;
     private String status;
-    @Column(unique=true)
-    @NonNull
+    @Column(nullable = false, unique=true)
     private String bececode;
     private LocalDate creationDate;
     private String postalAddress;
     private Integer streams;
-    @NonNull
+    @Column(nullable = false)
     private String subscription;
-    @NonNull
+    @Column(nullable = false)
     private String population;
-    @Lob
-    private byte[] crest;
+    @Lob // Marks this field as a Large Object (LOB)
+    @Column(columnDefinition = "TEXT")
+    private String crest;
 
 }

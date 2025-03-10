@@ -1,7 +1,7 @@
 type= $('[name="type"]').val();
 name=[];
 resultlist=[];
-id="";
+id=null;
 fetchInstitution(instId.split(",")[0]);
 //fetchInstitution(instId);
 

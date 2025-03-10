@@ -78,6 +78,7 @@ public class InstitutionService implements InstitutionServiceInterface {
         List<Institution> ii= InstitutionUtils.institutionGlobalList.stream().filter(x -> x.getBececode().equalsIgnoreCase(finalBeceCode)).toList();
         if(ii.size()==0){
             migratePreOrder(finalBeceCode);
+            return Optional.ofNullable(institutionUtils.mapInstitutionToInstitutionResponse(InstitutionUtils.institutionGlobalList.stream().filter(x -> x.getBececode().equalsIgnoreCase(finalBeceCode)).findFirst().get()));
         }
          return Optional.ofNullable(institutionUtils.mapInstitutionToInstitutionResponse(ii.get(0)));
     }

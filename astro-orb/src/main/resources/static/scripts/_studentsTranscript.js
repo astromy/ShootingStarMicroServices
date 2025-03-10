@@ -2,15 +2,8 @@
 id=null;
 var keys,scoreJson,url;
 var v,reportDataJSON;
-fetchLookup(instId.split(",")[0])
 
 var keys,scoreJson,url;
-
- var elm=document.querySelector(".reportPublishBtn");
- elm.addEventListener('click', function() {
-
-
-           });
 
 
 async function displayReport(data) {
@@ -82,25 +75,11 @@ async function displayReport(data) {
 
 document.querySelector('#reportTable_wrapper').setAttribute("style", "overflow: auto;");
 
-var selectedValue = document.querySelector("#scoreTypeControl").parentElement.querySelector("label").innerHTML;
-
-document.querySelector("#scoreTypeControl").addEventListener("change", function() {
-      var selectedValue = this.parentElement.querySelector("label").innerHTML;
-
-        if (selectedValue == "Class Score") {
-        this.parentElement.querySelector("label").innerHTML="Exams Score"
-        url="uploadExamsScores"
-        }else{
-        this.parentElement.querySelector("label").innerHTML="Class Score"
-        url="uploadAssesmentScores"
-        }
-    });
-
-     url="generateStudentTerminalReport"
+     url="generateStudentTranscript"
 
     $('#reportGenerateBtn').click(async function() {
-                var jso= postdata();
-                return HttpPost(url,jso)
+                var instRequest={"val":$('#studentID').val()}
+                return HttpPost(url,instRequest)
                 .then(function(result){
                     $('#reportTable').DataTable().destroy();
                     reportDataJSON=result;
@@ -142,15 +121,6 @@ document.querySelector("#scoreTypeControl").addEventListener("change", function(
     }
 
 
-
-    async function fetchInstitutionClasses(v){
-      var instRequest={"val":v}
-      return  HttpPost("getInstitutionClasses",instRequest)
-       .then(function (result) {
-         populateClasses(result)
-    })
-    }
-
     document.querySelector('#reportExportBtn').addEventListener('click', function(){
     if(reportDataJSON){
         generatePDF(reportDataJSON);
@@ -174,84 +144,6 @@ document.querySelector("#scoreTypeControl").addEventListener("change", function(
     })
 
 
-document.querySelector('.classGroupSelect').addEventListener('change', async function () {
-
-      var vg=document.getElementsByClassName('classGroupSelect')[0].value;
-      
-      var instRequest={"id":0,"name":v,"classGroup":document.getElementsByClassName('classGroupSelect')[0].value,"preference":0}
-      var instRequest2={"institution":v,"classGroup":document.getElementsByClassName('classGroupSelect')[0].value}
-       try {
-              // Await the result of the HTTP request
-              const result = await HttpPost("getInstitutionSubjectsAndClassGroup", instRequest);
-              const result2 = await HttpPost("getInstitutionClassesByClassGroup", instRequest2);
-              populateClasses(result2);
-          } catch (error) {
-              console.error("Error in fetchInstitutionSubject:", error);
-          }
-    });
-
-
-    /*async function fetchInstitutionSubject(instId){
-      var v= instId.replace(/[\[\]']+/g,'')
-      v=v.replace(/\//g, '')
-      var instRequest={"val":v}
-       try {
-              // Await the result of the HTTP request
-              const result = await HttpPost("getInstitutionSubjects", instRequest);
-              await fetchInstitutionClasses(v);
-              // Pass the result to fetchLookup and await it
-              return await fetchLookup(result);
-          } catch (error) {
-              console.error("Error in fetchInstitutionSubject:", error);
-          }
-    }*/
-
-
-  function populateClasses(data){
-
-  data.forEach(function(d) {
-      var classOptions = document.querySelector(".classSelect")[0];
-         var details = $("<option>").val(d.name).text(d.name);
-         $(".classSelect").append(details);
-        });
-  }
-
-    async function fetchLookup(instId){
-     v= instId.replace(/[\[\]']+/g,'')
-          v=v.replace(/\//g, '')
-      var instRequest={"val":"ClassGroup"}
-      return  HttpPost("getLookUpByType",instRequest)
-       .then(function (result) {
-         populateClassGroup(result);
-         generateAcademicYears();
-    })
-    }
-
-  function populateClassGroup(data){
-  data.forEach(function(d) {
-         var details = $("<option>").val(d.id).text(d.name);
-         $(".classGroupSelect").append(details);
-    });
-  }
-
-  function generateAcademicYears() {
-      const select = document.querySelector(".academicYearSelect");
-      select.innerHTML = ""; // Clear existing options
-
-      const currentYear = new Date().getFullYear();
-
-      for (let i = 4; i >= 0; i--) {
-          const startYear = currentYear - i;
-          const endYear = startYear + 1;
-          const option = document.createElement("option");
-          option.value = `${startYear}/${endYear}`;
-          option.textContent = `${startYear}/${endYear}`;
-          select.appendChild(option);
-      }
-  }
-
-
-
 
 function generatePDF(assessments) {
 
@@ -270,11 +162,10 @@ function generatePDF(assessments) {
     var xcord,ycord;
 
 
+
     // Institution Details
     const institution = assessments.institutionDetail;
     const studentReports = assessments.studentReportResponseList;
-
-
 
 
 
@@ -294,6 +185,11 @@ function generatePDF(assessments) {
 
         xcord=10;
         ycord=53;
+
+    terminalReport.setLineWidth(1);
+    terminalReport.rect(offset, offset, WIDTH - 2 * offset, HEIGHT - 2 * offset);
+    terminalReport.setLineWidth(0.5);
+    terminalReport.rect(offset+2, offset+2, WIDTH - 2.8 * offset, HEIGHT - 2.8 * offset);
 
         // ** Add Crest (Logo) if available **
         if (institution.crest) {

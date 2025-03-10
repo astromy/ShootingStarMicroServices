@@ -50,6 +50,10 @@ public class GradingSystemService implements GradingSettingsServiceInterface {
     @Override
     public Optional<GradingSettingResponse> getAllGradingSettingsByInstitution(SingleStringRequest institutionRequest1) {
         String institutionRequest= institutionRequest1.getVal();
-        return  gradingSettingUtil.mapGradeSetting_ToGradeSettingResponse(institutionUtils.institutionGlobalList.stream().filter(i->i.getBececode().equalsIgnoreCase(institutionRequest)).findFirst().get().getGradingSetting());
+        return institutionUtils.institutionGlobalList.stream()
+                .filter(i -> i.getBececode().equalsIgnoreCase(institutionRequest))
+                .findFirst()
+                .flatMap(institution -> GradingSettingUtil.mapGradeSetting_ToGradeSettingResponse(institution.getGradingSetting()));
+
     }
 }

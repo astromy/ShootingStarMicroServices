@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 @Builder
 @Data
 @Embeddable
+@EqualsAndHashCode(of = "idApplicationCategory")
 public class ApplicationCategory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

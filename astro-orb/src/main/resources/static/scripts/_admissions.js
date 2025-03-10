@@ -1,5 +1,5 @@
 
-id="";
+id=null;
 fetchInstitutionAdmissionsSettings(instId.split(",")[0]);
 
 

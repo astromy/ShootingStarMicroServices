@@ -10,6 +10,7 @@ import lombok.*;
 @Builder
 @Data
 @Embeddable
+@EqualsAndHashCode(of = "idSubject")
 public class Subject {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -1,10 +1,7 @@
 package com.astromyllc.shootingstar.academics.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -14,6 +11,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @Data
+@EqualsAndHashCode(of = "id")
 public class Assessment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,5 +31,6 @@ public class Assessment {
     private String grade;
     private String gradeRemarks;
     private String institutionCode;
+    @Column(name = "dateTime")
     private LocalDateTime dateTime;
 }

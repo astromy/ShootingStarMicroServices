@@ -12,6 +12,6 @@ import lombok.NoArgsConstructor;
 public class GradingResponse {
     private Long id;
     private Double lowerLimit;
-    private int grade;
+    private String grade;
     private String comment;
 }

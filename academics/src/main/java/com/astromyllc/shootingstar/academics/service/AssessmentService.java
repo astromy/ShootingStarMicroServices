@@ -3,6 +3,7 @@ package com.astromyllc.shootingstar.academics.service;
 import com.astromyllc.shootingstar.academics.dto.alien.StudentScores;
 import com.astromyllc.shootingstar.academics.dto.alien.Students;
 import com.astromyllc.shootingstar.academics.dto.request.AcademicReportRequest;
+import com.astromyllc.shootingstar.academics.dto.request.SingleStringRequest;
 import com.astromyllc.shootingstar.academics.dto.response.AssessmentResponse;
 import com.astromyllc.shootingstar.academics.dto.response.TerminalReportResponse;
 import com.astromyllc.shootingstar.academics.model.Assessment;
@@ -29,12 +30,33 @@ public class AssessmentService implements AssessmentServiceInterface {
     private final ExamsAssessmentUtil examsAssessmentUtil;
     private final AssessmentRepository assessmentRepository;
 
- /*   @Override
-    public AssessmentResponse generateTerminalReport(AcademicReportRequest terminalReportRequest) {
-        assessmentUtil.buildAssessmentRequest(terminalReportRequest);
-       Assessment assessment= assessmentUtil.insertAssessment(terminalReportRequest);
-        return  assessment.stream().map(a-> assessmentUtil.mapAssessment_ToAssessmentResponse(a)));
-    }*/
+   @Override
+    public Optional<TerminalReportResponse> fetchStudentTerminalReport(AcademicReportRequest terminalReportRequest) {
+       assessmentUtil.fetchSetupdata(terminalReportRequest.getInstitutionCode());
+      List<Assessment>assessmentList=  assessmentUtil.assessmentsGlobalList.stream()
+                .filter(ar -> ar.getStudentClass().equalsIgnoreCase(terminalReportRequest.getTargetClass())
+                        && ar.getAcademicYear().equalsIgnoreCase(terminalReportRequest.getAcademicYear())
+                        && ar.getTerm().equalsIgnoreCase(terminalReportRequest.getTerm())
+                        && ar.getInstitutionCode().equalsIgnoreCase(terminalReportRequest.getInstitutionCode()))
+                .collect(Collectors.toList());
+       TerminalReportResponse result=assessmentUtil.getTerminalReportResponse(
+               assessmentList.stream()
+                       .map(awp->assessmentUtil.mapAssessment_ToAssessmentResponse(awp,terminalReportRequest.getClassGroup()))
+                       .collect(Collectors.toList()), assessmentUtil.studentsGlobalRequest,terminalReportRequest);
+        return  Optional.ofNullable(result);
+    }
+
+    @Override
+    public Optional<TerminalReportResponse> fetchStudentTranscript(SingleStringRequest terminalReportRequest) {
+        List<Assessment>assessmentList=  assessmentUtil.assessmentsGlobalList.stream()
+                .filter(ar -> ar.getStudentId().equalsIgnoreCase(terminalReportRequest.getVal()))
+                .collect(Collectors.toList());
+        TerminalReportResponse result=assessmentUtil.getTerminalReportResponse(
+                assessmentList.stream()
+                        .map(awp->assessmentUtil.mapAssessment_ToAssessmentResponse(awp))
+                        .collect(Collectors.toList()),terminalReportRequest );
+        return  Optional.ofNullable(result);
+    }
 
     @Override
     public Optional<TerminalReportResponse> generateTerminalReports(AcademicReportRequest terminalReportRequest) {
