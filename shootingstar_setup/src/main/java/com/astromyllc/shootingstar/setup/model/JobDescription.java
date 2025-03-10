@@ -1,10 +1,7 @@
 package com.astromyllc.shootingstar.setup.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Table(name = "jobdescription")
@@ -13,6 +10,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @Data
 @Embeddable
+@EqualsAndHashCode(of = "idJobDescription")
 public class JobDescription {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -12,6 +12,7 @@ import lombok.*;
 @Builder
 @Data
 @Embeddable
+@EqualsAndHashCode(of = "idGrading")
 public class Grading {
    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,7 +20,7 @@ public class Grading {
  @NonNull
     private Double lowerLimit;
  @NonNull
-    private int grade;
+    private String grade;
     private String comment;
     //@ManyToOne(optional = false)
    // private GradingSetting gradingSetting;

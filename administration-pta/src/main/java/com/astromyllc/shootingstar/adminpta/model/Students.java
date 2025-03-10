@@ -13,6 +13,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder
 @Data
+@EqualsAndHashCode(of = "id")
 public class Students {
     @Id
     private ObjectId id;

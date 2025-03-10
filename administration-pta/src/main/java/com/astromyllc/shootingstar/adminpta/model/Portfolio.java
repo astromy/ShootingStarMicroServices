@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @AllArgsConstructor
 @Builder
 @Data
+@EqualsAndHashCode(of = "id")
 public class Portfolio {
     @Id
     private ObjectId id;

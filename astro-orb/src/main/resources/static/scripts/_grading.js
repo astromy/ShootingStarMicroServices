@@ -1,6 +1,6 @@
-id="";
+id=null;
 var instId = $("meta[name='institutionId']").attr("content");
-fetchInstitutionClasses(instId.split(",")[0]);
+fetchInstitutionGrading(instId.split(",")[0]);
 
 
     window.copyrights();
@@ -59,13 +59,13 @@ fetchInstitutionClasses(instId.split(",")[0]);
 
 
 
-  async function fetchInstitutionClasses(instId){
+  async function fetchInstitutionGrading(instId){
     var v= instId.replace(/[\[\]']+/g,'')
     v=v.replace(/\//g, '')
     var instRequest={"val":v}
     return  HttpPost("getInstitutionGradingSetting",instRequest)
      .then(function (result) {
-         populateTable(result)
+       result && populateTable(result)
   })
   }
 

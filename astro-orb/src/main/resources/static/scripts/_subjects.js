@@ -2,7 +2,7 @@
 name=[];
 resultlist=[];
     type= $('[name="type"]').val();
-    id="";
+    id=null;
 /*fetchLookup();*/
 fetchInstitutionSubject(instId.split(",")[0]);
 

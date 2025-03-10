@@ -1,5 +1,5 @@
  window.copyrights();
- id="";
+id=null;
 var keys,scoreJson,url;
 var v;
 fetchLookup(instId.split(",")[0])

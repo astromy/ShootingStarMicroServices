@@ -1,4 +1,4 @@
-id="";
+id=null;
 fetchInstitutionBills(instId.split(",")[0]);
 
     window.copyrights();

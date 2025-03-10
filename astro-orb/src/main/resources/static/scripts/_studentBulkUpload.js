@@ -1,5 +1,5 @@
  window.copyrights();
- id="";
+id=null;
 var keys,studentsJson,url;
 var studentsSheet;
 var v;
@@ -19,29 +19,92 @@ document.querySelector('#studentsInput').addEventListener('change', async functi
        //studentsJson= formatStudentData(studentsSheet)
         keys = Object.keys(scoreJson[0]);
 
+        $("#studentsTableHead").empty();
 
-         $("#studentsTableHead").empty();
+        // Create table headers
+        keys.forEach(header => {
+            $("#studentsTableHead").append(`<th>${header}</th>`);
+        });
 
-            // Loop through the list and create <th> elements
-            keys.forEach(header => {
-                $("#studentsTableHead").append(`<th>${header}</th>`);
+        let tbody = $("#studentsTableBody");
+        tbody.empty(); // Clear existing rows
+
+        // Create a hidden file input for capturing images from the camera
+        let imageInput = $('<input type="file" accept="image/*" capture="environment" style="display: none;">');
+        let pdfInput = $('<input type="file" accept="application/pdf" style="display: none;">');
+
+        $("body").append(imageInput, pdfInput); // Append inputs to the body
+
+        // Handle image input changes (Camera capture)
+        imageInput.on("change", function(event) {
+            let file = event.target.files[0];
+            if (file) {
+                let reader = new FileReader();
+                reader.onload = function(e) {
+                    $(imageInput.currentCell).html(`<img src="${e.target.result}" alt="Captured Image" style="width: 50px; height: 50px;">`);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Handle PDF upload
+        pdfInput.on("change", function(event) {
+            let file = event.target.files[0];
+            if (file) {
+                $(pdfInput.currentCell).html(`<a href="#" onclick="window.open('${URL.createObjectURL(file)}')">View PDF</a>`);
+            }
+        });
+
+        // Modify table generation to allow click-based image capture
+        scoreJson.forEach(row => {
+            let tr = $("<tr></tr>");
+            keys.forEach((key, index) => {
+                let td = $("<td></td>").text(row[key] || "");
+
+                // Column 10 (Image Capture)
+                if (index === 10) {
+                    td.text("Tap to capture image").css("cursor", "pointer").on("click", function() {
+                        imageInput.currentCell = this;
+                        imageInput.click();
+                    });
+                }
+                // Column 11 (PDF Upload)
+                else if (index === 11) {
+                    td.text("Tap to upload PDF").css("cursor", "pointer").on("click", function() {
+                        pdfInput.currentCell = this;
+                        pdfInput.click();
+                    });
+                }
+
+                tr.append(td);
             });
-            let tbody = $("#studentsTableBody");
-            tbody.empty(); // Clear existing rows
-
-                    // Loop through the JSON data and create table rows
-                     scoreJson.forEach(row => {
-                                let tr = $("<tr></tr>");
-                                keys.forEach(key => {
-                                    tr.append(`<td>${row[key] || ""}</td>`); // Insert corresponding data
-                                });
-                                tbody.append(tr);
-                            });
+            tbody.append(tr);
+        });
+        intTable();
     } catch (error) {
         console.error("Error uploading file:", error);
     }
 });
+
+
+function intTable() {
+
+    // Initialize Example 1
+    $('#studentsListTable').dataTable({
+        dom: "<'row'<'col-sm-4'l><'col-sm-4 text-center'B><'col-sm-4'f>>tp",
+        "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+        buttons: [
+            { extend: 'copy', className: 'btn-sm' },
+            { extend: 'csv', title: 'ExampleFile', className: 'btn-sm' },
+            { extend: 'pdf', title: 'ExampleFile', className: 'btn-sm' },
+            { extend: 'print', className: 'btn-sm' }
+        ]
+    });
+
 document.querySelector('#studentsListTable_wrapper').setAttribute("style", "overflow: auto;");
+};
+
+
 
 var selectedValue = document.querySelector("#scoreTypeControl").parentElement.querySelector("label").innerHTML;
 

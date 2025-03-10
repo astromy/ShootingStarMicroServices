@@ -36,7 +36,8 @@ public class PreOrderInstitutionRequest {
     private String subscription;
     @NonNull
     private String population;
-    @Lob
-    private byte[] crest;
+    @Lob // Marks this field as a Large Object (LOB)
+    @Column(columnDefinition = "LONGTEXT")
+    private String crest;
 
 }

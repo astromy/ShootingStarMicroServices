@@ -1,10 +1,7 @@
 package com.astromyllc.shootingstar.setup.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
@@ -15,6 +12,7 @@ import java.util.List;
 @Builder
 @Data
 @Embeddable
+@EqualsAndHashCode(of = "idAdmissions")
 public class Admissions {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

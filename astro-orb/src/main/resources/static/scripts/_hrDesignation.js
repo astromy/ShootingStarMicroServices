@@ -1,5 +1,5 @@
 
-id="";
+id=null;
 existingData=[];
 fetchDepartment(instId.split(",")[0]);
 

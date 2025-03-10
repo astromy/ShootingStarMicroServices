@@ -1,10 +1,7 @@
 package com.astromyllc.shootingstar.academics.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 @Entity
@@ -13,6 +10,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @Data
+@EqualsAndHashCode(of = "id")
 public class AssignmentQuestions {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

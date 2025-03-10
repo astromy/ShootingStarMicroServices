@@ -11,6 +11,7 @@ import lombok.*;
 @Builder
 @Data
 @Embeddable
+@EqualsAndHashCode(of = "idAdmissionCriteria")
 public class AdmissionCriteria {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

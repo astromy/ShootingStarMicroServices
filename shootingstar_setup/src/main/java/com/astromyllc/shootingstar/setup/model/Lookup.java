@@ -11,6 +11,7 @@ import org.checkerframework.common.aliasing.qual.Unique;
 @Builder
 @Data
 @Embeddable
+@EqualsAndHashCode(of = "idLookup")
 public class Lookup {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

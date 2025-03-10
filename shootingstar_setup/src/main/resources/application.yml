@@ -1,12 +1,16 @@
 spring:
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/shootingstarsetup?sessionVariables=sql_mode='NO_ENGINE_SUBSTITUTION'&jdbcCompliantTruncation=false
-    username: root
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/shootingstarsetup
+    username: astromyllc
     password: ${DB_PASSWORD}
   jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: false
     hibernate:
       ddl-auto: update
+      default_schema: public
+
   zipkin:
     base-url: http://localhost:9411
   sleuth:
@@ -71,12 +75,19 @@ logging:
   level:
     org:
       springframework:
-        security=ERROR:
+        security: ERROR
+        web: ERROR
+        client:
+          RestTemplate: ERROR
+        boot:
+          autoconfigure: ERROR
+      hibernate:
+        SQL: ERROR
+        type:
+          descriptor:
+            sql:
+              BasicBinder: ERROR
     root: ERROR
-    org.springframework.web: ERROR
-    org.springframework.security: ERROR
-    org.springframework.boot.autoconfigure: ERROR
-    org.springframework.web.client.RestTemplate: ERROR
 
 
 keycloak:

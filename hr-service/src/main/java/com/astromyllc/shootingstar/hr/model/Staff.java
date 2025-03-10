@@ -1,10 +1,7 @@
 package com.astromyllc.shootingstar.hr.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -21,6 +18,7 @@ import java.util.List;
 @Builder
 @Data
 @Embeddable
+@EqualsAndHashCode(of = "id")
 public class Staff {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

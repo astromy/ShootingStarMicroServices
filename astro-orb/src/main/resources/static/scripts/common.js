@@ -172,6 +172,7 @@ function addEventListeners() {
     document.getElementById("trialbalanace").addEventListener("click", trialbalanaceBuild);
     document.getElementById("scoreUpload").addEventListener("click", scoreUploadBuild);
     document.getElementById("terminalReport").addEventListener("click", terminalReportBuild);
+    document.getElementById("transcript").addEventListener("click", studentsTranscriptBuild);
 
     document.getElementById("studEnrollment").addEventListener("click", studentBulkUploadBuild);
     /*document.getElementById("institution").addEventListener("click", institutionBuild);
@@ -977,6 +978,36 @@ function terminalReportBuild() {
         const newScripts = [
                 "vendor/sweetalert/lib/sweet-alert.min.js",
                  "scripts/subscripts/terminalReport.js"
+        ];
+        const newLinks = [
+                "vendor/sweetalert/lib/sweet-alert.css",
+                "vendor/metisMenu/dist/metisMenu.css",
+                "vendor/animate.css/animate.css",
+                "vendor/datatables.net-bs/css/dataTables.bootstrap.min.css",
+                "styles/switch.css"
+        ];
+
+        // Remove previous non-default scripts/links
+        removeUnwantedResources("script", activeScripts);
+        removeUnwantedResources("link", activeLinks);
+
+        // Add new resources
+        addNewResources("script", newScripts);
+        addNewResources("link", newLinks);
+
+        // Update the active state with new resources
+        newScripts.forEach((src) => activeScripts.add(src));
+
+    newLinks.forEach((href) => activeLinks.add(href));
+
+}
+
+function studentsTranscriptBuild() {
+
+    // Define new resources specific to this view
+        const newScripts = [
+                "vendor/sweetalert/lib/sweet-alert.min.js",
+                 "scripts/subscripts/studentsTranscript.js"
         ];
         const newLinks = [
                 "vendor/sweetalert/lib/sweet-alert.css",

@@ -1,5 +1,5 @@
 
-id="";
+id=null;
 fetchBillings(instId.split(",")[0]);
 
     window.copyrights();

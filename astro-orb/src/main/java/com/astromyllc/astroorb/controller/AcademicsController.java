@@ -72,9 +72,17 @@ public class AcademicsController {
     }
 
     @ResponseBody
+    @RequestMapping(value = "/fetchStudentTerminalReport", method = RequestMethod.POST)
+    public ResponseEntity<String> fetchStudentTerminalReport(@RequestBody AcademicReportRequest jso) throws IOException {
+
+        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/academics/fetchStudentTerminalReport");
+        return response;
+    }
+
+    @ResponseBody
     @RequestMapping(value = "/generateStudentTranscript", method = RequestMethod.POST)
-    public ResponseEntity<String> generateStudentTranscript(@RequestBody BillingFetchRequest jso) {
-        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/academics/get-billings-by-institution");
+    public ResponseEntity<String> generateStudentTranscript(@RequestBody SingleStringRequest jso) {
+        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/academics/fetchStudentTranscript");
         return response;
     }
 

@@ -3,6 +3,7 @@ package com.astromyllc.shootingstar.academics.util;
 import com.astromyllc.shootingstar.academics.dto.alien.*;
 import com.astromyllc.shootingstar.academics.dto.request.AcademicReportRequest;
 import com.astromyllc.shootingstar.academics.dto.request.AssessmentRequest;
+import com.astromyllc.shootingstar.academics.dto.request.SingleStringRequest;
 import com.astromyllc.shootingstar.academics.dto.response.*;
 import com.astromyllc.shootingstar.academics.model.Assessment;
 import com.astromyllc.shootingstar.academics.model.ContinuousAssessment;
@@ -13,9 +14,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -52,17 +56,30 @@ public class AssessmentUtil {
         log.info("Global Assessment List populated with {} records", assessmentsGlobalList.size());
     }
 
-    @Bean
-    private void fetchSetupdata() {
-        institutionGlobalRequest=
-                webClientBuilder.build().post()
-                         .uri("http://"+host+"/api/setup/getAllinstitution")
-                         .contentType(MediaType.APPLICATION_JSON)
-                         .accept(MediaType.APPLICATION_JSON)
-                         .retrieve()
-                         .bodyToMono(new ParameterizedTypeReference<List<InstitutionRequest>>() {}).block();
-        log.info("Global Setup List populated with {} records", institutionGlobalRequest.size());
-        //return result;
+
+    public void fetchSetupdata(String institutionCode) {
+        if(singleInstitutionGlobalRequest!=null){
+            SingleStringRequest request = SingleStringRequest.builder()
+                    .val(institutionCode)
+                    .build();
+            singleInstitutionGlobalRequest =
+                    WebClient.builder().build().post()
+                            .uri("http://" + host + "/api/setup/getInstitutionByCode")
+                            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                            .bodyValue(request)
+                            .retrieve()
+                            .bodyToMono(InstitutionRequest.class)
+                            .block();
+ /*           institutionGlobalRequest=
+                    webClientBuilder.build().post()
+                             .uri("http://"+host+"/api/setup/getInstitutionByCode")
+                             .contentType(MediaType.APPLICATION_JSON)
+                             .accept(MediaType.APPLICATION_JSON)
+                             .retrieve()
+                             .bodyToMono(new ParameterizedTypeReference<List<InstitutionRequest>>() {}).block();*/
+            log.info("Global Setup List populated with {} records", institutionGlobalRequest.size());
+            //return result;
+        }
     }
 
      @Bean
@@ -138,7 +155,23 @@ public class AssessmentUtil {
         return assessments;
     }
 
+    public TerminalReportResponse getTerminalReportResponse(List<AssessmentResponse> assessmentResponses, List<Students> studentsGlobalRequest,AcademicReportRequest terminalReportRequest) {
+        if (singleInstitutionGlobalRequest==null) {
+            singleInstitutionGlobalRequest = institutionGlobalRequest.stream().filter(i -> i.getBececode().equalsIgnoreCase(terminalReportRequest.getInstitutionCode())).findFirst().get();
+        }
+      return  buildTerminalReportResponse(assessmentResponses,studentsGlobalRequest);
+    }
+
+    public TerminalReportResponse getTerminalReportResponse(List<AssessmentResponse> assessmentResponses, SingleStringRequest studId) {
+        Students stud=studentsGlobalRequest.stream().filter(s->s.getStudentId().equalsIgnoreCase(studId.getVal())).findFirst().get();
+        if (singleInstitutionGlobalRequest==null) {
+            fetchSetupdata(stud.getInstitutionCode());
+        }
+        return  buildTerminalReportResponse(assessmentResponses,stud);
+    }
+
     public TerminalReportResponse buildTerminalReportResponse(List<AssessmentResponse> assessmentResponses, List<Students> studentsGlobalRequest) {
+
         // Step 1: Group assessmentResponses by studentId
         Map<String, List<AssessmentResponse>> groupedAssessments = (assessmentResponses != null)
                 ? assessmentResponses.stream().collect(Collectors.groupingBy(AssessmentResponse::getStudentId))
@@ -154,6 +187,34 @@ public class AssessmentUtil {
                 .map(student -> mapAssessmentResponse_ToStudentReportResponse(student, groupedAssessments.get(student.getStudentId())))
                 .collect(Collectors.toList())
                 : new ArrayList<>();
+
+        // Step 3: Build TerminalReportResponse
+        return TerminalReportResponse.builder()
+                .institutionDetail(buildReportInstitutionResponse()) // Assuming this method is implemented
+                .studentReportResponseList(studentReports)
+                .build();
+    }
+
+    /**
+     * FOr Transcript Instance
+     * */
+    public TerminalReportResponse buildTerminalReportResponse(List<AssessmentResponse> assessmentResponses, Students student) {
+
+
+        // Step 1: Group assessmentResponses by studentId
+        Map<String, List<AssessmentResponse>> groupedAssessments =
+                (assessmentResponses != null)
+                        ? assessmentResponses.stream().collect(Collectors.groupingBy(AssessmentResponse::getStudentId))
+                        : new HashMap<>();
+
+        List<StudentReportResponse> studentReports = new ArrayList<>();
+
+        if (student != null) {
+            String studentId = student.getStudentId();
+            if (studentId != null && groupedAssessments.containsKey(studentId) && !groupedAssessments.getOrDefault(studentId, Collections.emptyList()).isEmpty()) {
+                studentReports.add(mapAssessmentResponse_ToStudentReportResponse(student, groupedAssessments.get(studentId)));
+            }
+        }
 
         // Step 3: Build TerminalReportResponse
         return TerminalReportResponse.builder()
@@ -178,7 +239,16 @@ public class AssessmentUtil {
                 .bececode(singleInstitutionGlobalRequest.getBececode())
                 .contact1(singleInstitutionGlobalRequest.getContact1())
                 .crest(singleInstitutionGlobalRequest.getCrest())
-                .classGroup(lookUpGlobalResponse.stream().filter(lr -> lr.getId().equals( Long.valueOf(cg))).map(LookupResponse::getName).findFirst().orElse(null))
+                .classGroup(
+                        Optional.ofNullable(cg)
+                                .map(cgValue -> lookUpGlobalResponse.stream()
+                                        .filter(lr -> lr.getId().equals(Long.valueOf(cgValue)))
+                                        .map(LookupResponse::getName)
+                                        .findFirst()
+                                        .orElse(null)
+                                )
+                                .orElse(null)
+                )
                 .classAverage(String.valueOf( BigDecimal.valueOf(
                         (classAvrage.stream().mapToDouble(Double::doubleValue).sum())/classAvrage.size())
                         .setScale(2, RoundingMode.HALF_UP) // Round to 2 decimal places
@@ -189,6 +259,24 @@ public class AssessmentUtil {
 
     public AssessmentResponse mapAssessment_ToAssessmentResponse(Assessment a,String classGroup) {
         cg=classGroup;
+        return AssessmentResponse.builder()
+                .academicYear(a.getAcademicYear())
+                .dateTime(a.getDateTime())
+                .studentClass(a.getStudentClass())
+                .term(a.getTerm())
+                .studentId(a.getStudentId())
+                .subject(a.getSubject())
+                .classScore(a.getClassScore().toString())
+                .examsScore(a.getExamsScore().toString())
+                .totalScore(a.getTotalScore().toString())
+                .institutionCode(a.getInstitutionCode())
+                .grade(a.getGrade())
+                .gradeRemarks(a.getGradeRemarks())
+                .position(a.getPosition().toString())
+                .build();
+    }
+
+    public AssessmentResponse mapAssessment_ToAssessmentResponse(Assessment a) {
         return AssessmentResponse.builder()
                 .academicYear(a.getAcademicYear())
                 .dateTime(a.getDateTime())

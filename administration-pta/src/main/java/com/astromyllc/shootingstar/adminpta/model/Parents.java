@@ -11,6 +11,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @AllArgsConstructor
 @Builder
 @Data
+@EqualsAndHashCode(of = "id")
 public class Parents {
     @Id
     private ObjectId id;
