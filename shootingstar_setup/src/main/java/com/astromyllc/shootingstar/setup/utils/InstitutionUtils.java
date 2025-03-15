@@ -12,25 +12,23 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.keycloak.OAuth2Constants;
-import org.keycloak.adapters.springboot.KeycloakSpringBootProperties;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
-import org.keycloak.admin.client.resource.GroupResource;
-import org.keycloak.admin.client.resource.GroupsResource;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.admin.client.resource.UsersResource;
-import org.keycloak.representations.idm.*;
+import org.keycloak.representations.idm.CredentialRepresentation;
+import org.keycloak.representations.idm.GroupRepresentation;
+import org.keycloak.representations.idm.RoleRepresentation;
+import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 import javax.ws.rs.core.Response;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 
 import static org.keycloak.admin.client.CreatedResponseUtil.getCreatedId;
 
@@ -57,8 +55,8 @@ public class InstitutionUtils {
     public void fetAllInstitutions() {
         institutionGlobalList = institutionRepository.findAll();
         preOrderInstitutionGlobalList = preOrderInstitutionRepository.findAll();
-        log.info("Global Institution List populated with {} records", institutionGlobalList.stream().count());
-        log.info("Global Pre-Ordered Institution List populated with {} records", preOrderInstitutionGlobalList.stream().count());
+        log.info("Global Institution List populated with {} records", (long) institutionGlobalList.size());
+        log.info("Global Pre-Ordered Institution List populated with {} records", (long) preOrderInstitutionGlobalList.size());
     }
 
     public Institution mapInstitutionRequest_ToInstitution(InstitutionRequest institutionRequest) {
@@ -79,6 +77,7 @@ public class InstitutionUtils {
                 .streams(institutionRequest.getStreams())
                 .subscription(institutionRequest.getSubscription())
                 .crest(institutionRequest.getCrest())
+                .headSignature(institutionRequest.getHeadSignature())
                 .admissions(AdmissionUtil.mapAdmissionRequestToAdmission(institutionRequest.getAdmissions()))
                 .classList(institutionRequest.getClassList().stream().map(ClassesUtil::mapClassRequestToClass).toList())
                 .gradingSetting(GradingSettingUtil.mapGradeSettingRequest_ToGradeSetting(institutionRequest.getGradingSetting()))
@@ -106,6 +105,7 @@ public class InstitutionUtils {
                 .streams(institution.getStreams())
                 .subscription(institution.getSubscription())
                 .crest(institution.getCrest())
+                .headSignature(institution.getHeadSignature())
                 .admissions(institution.getAdmissions() != null
                         ? AdmissionUtil.mapAdmissionToAdmissionResponse(institution.getAdmissions())
                         : null)
@@ -113,7 +113,7 @@ public class InstitutionUtils {
                         ?institution.getClassList().stream()
                         .filter(Objects::nonNull)
                         .map(ClassesUtil::mapClassToClassResponse)
-                        .collect(Collectors.toList())
+                        .toList()
                 : Collections.emptyList())
                 .gradingSetting(institution.getGradingSetting()!=null
                         ?GradingSettingUtil.mapGradeSetting_ToGradeSettingResponse(institution.getGradingSetting())
@@ -121,20 +121,20 @@ public class InstitutionUtils {
                 .subjectList(institution.getSubjectList()!=null
                         ?institution.getSubjectList().stream()
                         .filter(Objects::nonNull)
-                        .map(s->subjectUtil.mapSubject_ToSubjectResponse(s))
-                        .collect(Collectors.toList())
+                        .map(subjectUtil::mapSubject_ToSubjectResponse)
+                        .toList()
                         : Collections.emptyList())
                 .classList(institution.getClassList()!=null
                         ?institution.getClassList().stream()
                         .filter(Objects::nonNull)
                         .map(ClassesUtil::mapClassToClassResponse)
-                        .collect(Collectors.toList())
+                        .toList()
                         : Collections.emptyList())
                 .departmentList(institution.getDepartmentList()!=null
                         ?institution.getDepartmentList().stream()
                         .filter(Objects::nonNull)
                         .map(DepartmentUtil::mapDepartment_ToDepartmentResponse)
-                        .collect(Collectors.toList())
+                        .toList()
                         : Collections.emptyList())
                 .build();
     }
@@ -155,13 +155,14 @@ public class InstitutionUtils {
         institution.setWebsite(institutionRequest.getWebsite());
         institution.setSubscription(institutionRequest.getSubscription());
         institution.setCrest(institutionRequest.getCrest());
+        institution.setHeadSignature(institutionRequest.getHeadSignature());
         //institution.setCreationDate(LocalDate.parse(institutionRequest.getCreationDate().replace("T", " "), formatter));
         //institution.setAdmissions(AdmissionUtil.mapAdmissionRequestToAdmission(institutionRequest.getAdmissions(), institution.getAdmissions()));
-        //institution.setClassList(institutionRequest.getClassList().stream().map((cr) -> ClassesUtil.mapClassRequestToClass(cr, institution.getClassList().stream().filter(c -> cr.getId().equalsIgnoreCase(c.getIdClasses())).findFirst().get())).collect(Collectors.toList()));
-        //institution.setDepartmentList(institutionRequest.getDepartmentList().stream().map((dr) -> DepartmentUtil.mapDepartmentRequest_ToDepartment(dr, institution.getDepartmentList().stream().filter(d -> dr.getIdDepartment().equalsIgnoreCase(d.getIdDepartment())).findFirst().get())).collect(Collectors.toList()));
+        //institution.setClassList(institutionRequest.getClassList().stream().map((cr) -> ClassesUtil.mapClassRequestToClass(cr, institution.getClassList().stream().filter(c -> cr.getId().equalsIgnoreCase(c.getIdClasses())).findFirst().get())).toList());
+        //institution.setDepartmentList(institutionRequest.getDepartmentList().stream().map((dr) -> DepartmentUtil.mapDepartmentRequest_ToDepartment(dr, institution.getDepartmentList().stream().filter(d -> dr.getIdDepartment().equalsIgnoreCase(d.getIdDepartment())).findFirst().get())).toList());
         //institution.setGradingSetting(GradingSettingUtil.mapGradeSettingRequest_ToGradeSetting(institutionRequest.getGradingSetting(), institution.getGradingSetting()));
         //institution.setSubjectList(institutionRequest.getSubjectList().stream()
-        // .map((sr) -> SubjectUtil.mapSubjectRequest_ToSubject(sr, institution.getSubjectList().stream().filter(s -> sr.getId().equalsIgnoreCase(s.getIdSubject())).findFirst().get())).collect(Collectors.toList()));
+        // .map((sr) -> SubjectUtil.mapSubjectRequest_ToSubject(sr, institution.getSubjectList().stream().filter(s -> sr.getId().equalsIgnoreCase(s.getIdSubject())).findFirst().get())).toList());
         return institution;
     }
 
@@ -315,7 +316,7 @@ public class InstitutionUtils {
         RealmResource realm = kc.realm("ShootingStar");
         GroupRepresentation topGroup = new GroupRepresentation();
         topGroup.setName(institution.getBececode());
-        topGroup = createGroup(realm, topGroup);
+        createGroup(realm, topGroup);
 
         createSubGroup(realm, topGroup.getId(), "Admin");
         createSubGroup(realm, topGroup.getId(), "User");
@@ -379,7 +380,7 @@ public class InstitutionUtils {
             // Separate roles to add and remove based on the "state" field
             List<RoleRepresentation> rolesToAdd = permissions.stream()
                     .map(roleName -> realmResource.roles().get(roleName).toRepresentation())
-                    .collect(Collectors.toList());
+                    .toList();
 
             // Step 5: Assign Roles to User (Add)
             if (!rolesToAdd.isEmpty()) {

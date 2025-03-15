@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
 
@@ -56,13 +55,13 @@ public class ApplicationUtilities {
     @Bean
     public void appointmentList() {
         log.info("Appointment List Fetched");
-        appointmentsGlobal = appointmentRepository.findAll().stream().filter(x -> x.getAppointmentDateTime().getYear() == LocalDate.now().getYear()).collect(Collectors.toList());
+        appointmentsGlobal = appointmentRepository.findAll().stream().filter(x -> x.getAppointmentDateTime().getYear() == LocalDate.now().getYear()).toList();
     }
 
     @Bean
     public void applicationsList() {
         log.info("Application List Fetched");
-        apl = applicationsRepository.findAll().stream().filter(x -> x.getApplicationDate().getYear() == LocalDate.now().getYear()).collect(Collectors.toList());
+        apl = applicationsRepository.findAll().stream().filter(x -> x.getApplicationDate().getYear() == LocalDate.now().getYear()).toList();
     }
 
     @Bean

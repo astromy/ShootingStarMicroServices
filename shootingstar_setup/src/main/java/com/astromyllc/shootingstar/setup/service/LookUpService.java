@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -35,31 +34,31 @@ public class LookUpService implements LookupServiceInterface {
                 .filter(c -> LookupUtil.lookupGlobalList.stream()
                         .noneMatch(d -> c.getName().equalsIgnoreCase(d.getName()) && c.getType().equalsIgnoreCase(d.getType()))) // Filter out matching Lookup
                 .map(lookupUtil::mapLookupRequest_ToLookup) // Directly map remaining Lookups
-                .collect(Collectors.toList());
+                .toList();
 
         if (lu.size() > 0) {
             lookUpRepository.saveAll(lu);
             LookupUtil.lookupGlobalList.addAll(lu);
         }
-            return lu.stream().map(lookupUtil::mapLookUp_ToLookUpResponse).collect(Collectors.toList());
+            return lu.stream().map(lookupUtil::mapLookUp_ToLookUpResponse).toList();
 
     }
 
     @Override
     public List<Optional<LookupResponse>> getAllLookups() {
-        return LookupUtil.lookupGlobalList.stream().map(lookupUtil::mapLookUp_ToLookUpResponse).collect(Collectors.toList());
+        return LookupUtil.lookupGlobalList.stream().map(lookupUtil::mapLookUp_ToLookUpResponse).toList();
     }
 
     @Override
     public List<Optional<LookupResponse>> getAllLookupsByType(SingleStringRequest lookupType1) {
         String lookupType= lookupType1.getVal();
-        return LookupUtil.lookupGlobalList.stream().filter(x->x.getType().equalsIgnoreCase(lookupType)).map(lookupUtil::mapLookUp_ToLookUpResponse).collect(Collectors.toList());
+        return LookupUtil.lookupGlobalList.stream().filter(x->x.getType().equalsIgnoreCase(lookupType)).map(lookupUtil::mapLookUp_ToLookUpResponse).toList();
     }
 
     @Override
     public Optional<Optional<LookupResponse>> getLookUpById(String id) {
 
-        return Optional.ofNullable(LookupUtil.lookupGlobalList.stream()
+        return Optional.of(LookupUtil.lookupGlobalList.stream()
                 .filter(x->x.getIdLookup().toString().equalsIgnoreCase(id))
                 .findFirst().get())
                 .map(lookupUtil::mapLookUp_ToLookUpResponse);

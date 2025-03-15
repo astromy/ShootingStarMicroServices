@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @Data
-@EqualsAndHashCode(of = "id")
+@EqualsAndHashCode(of = {"studentId", "institutionCode","term","subject","academicYear"})
 public class ExamsAssessment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

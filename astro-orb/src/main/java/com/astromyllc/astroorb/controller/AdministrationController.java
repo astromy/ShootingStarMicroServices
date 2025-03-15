@@ -28,37 +28,44 @@ public class AdministrationController {
     @Value("${gateway.host}")
     private String backendserve;
 
-    /*@Autowired
-    private OAuth2AuthorizedClientService authorizedClientService;*/
-
     @ResponseBody
     @RequestMapping(value = "/conduct-admissions", method = RequestMethod.POST)
     public ResponseEntity<String>conductAdmissions (@RequestBody List<BillRequest> jso) throws IOException {
 
-        ResponseEntity<String> response = BACKENDCOMMPOSTLIST(Collections.singletonList(jso), "http://" + backendserve + "/api/administration-pta/conduct-admissions");
-        return response;
+        return BACKENDCOMMPOSTLIST(Collections.singletonList(jso), "http://" + backendserve + "/api/administration-pta/conduct-admissions");
     }
 
     @ResponseBody
     @RequestMapping(value = "/getAllStudents", method = RequestMethod.POST)
+    public ResponseEntity<String> getAllStudents(@RequestBody SingleStringRequest jso) throws IOException {
+
+        return BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/administration-pta/getAllStudents");
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/getStudentsByInstitution", method = RequestMethod.POST)
     public ResponseEntity<String> getAllStudentsByInstitutionCode(@RequestBody SingleStringRequest jso) throws IOException {
 
-        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/administration-pta/getAllStudents");
-        return response;
+        return BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/administration-pta/getStudentsByInstitution");
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/getAssessmentList", method = RequestMethod.POST)
+    public ResponseEntity<String> getAssessmentList(@RequestBody ClassListRequest jso) throws IOException {
+
+        return BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/administration-pta/getAssessmentList");
     }
 
     @ResponseBody
     @RequestMapping(value = "/getStudentsByClass", method = RequestMethod.POST)
     public ResponseEntity<String> getStudentsByClass(@RequestBody StudentSkimRequest jso) {
-        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/administration-pta/getStudentsByClass");
-        return response;
+        return BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/administration-pta/getStudentsByClass");
     }
 
     @ResponseBody
     @RequestMapping(value = "/postBulkStudentList", method = RequestMethod.POST)
     public ResponseEntity<String> submitBulkStudentList(@RequestBody List<StudentsImportRequest> jso) {
-        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/administration-pta/postBulkStudentList");
-        return response;
+        return BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/administration-pta/postBulkStudentList");
     }
 
 

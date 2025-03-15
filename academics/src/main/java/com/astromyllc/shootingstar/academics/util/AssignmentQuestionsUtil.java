@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -36,7 +35,7 @@ public class AssignmentQuestionsUtil {
               .term(aqr.getTerm())
               .subjectId(aqr.getSubjectId())
               .institutionCode(aqr.getInstitutionCode())
-              .assignmentAnswers(aqr.getAssignmentAnswersRequests().stream().map(aqa->AssignmentAnswersUtil.mapAnswerRequestToAssignmentAnswers(aqa)).collect(Collectors.toList()))
+              .assignmentAnswers(aqr.getAssignmentAnswersRequests().stream().map(AssignmentAnswersUtil::mapAnswerRequestToAssignmentAnswers).toList())
               .build();
     }
 
@@ -47,7 +46,7 @@ public class AssignmentQuestionsUtil {
                 .term(aqr.getTerm())
                 .subjectId(aqr.getSubjectId())
                 .institutionCode(aqr.getInstitutionCode())
-                .assignmentAnswersResponses(aqr.getAssignmentAnswers().stream().map(aqa->AssignmentAnswersUtil.mapAnswerRequestToAssignmentAnswersResponse(aqa)).collect(Collectors.toList()))
+                .assignmentAnswersResponses(aqr.getAssignmentAnswers().stream().map(AssignmentAnswersUtil::mapAnswerRequestToAssignmentAnswersResponse).toList())
                 .build();
     }
 }

@@ -1,7 +1,6 @@
 package com.astromyllc.shootingstar.setup.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -42,6 +41,9 @@ public class Institution {
     @Lob // Marks this field as a Large Object (LOB)
     @Column(columnDefinition = "TEXT")
     private String crest;
+    @Lob // Marks this field as a Large Object (LOB)
+    @Column(columnDefinition = "TEXT")
+    private String headSignature;
 
     @ToString.Exclude
     @OneToOne(targetEntity = GradingSetting.class,cascade = CascadeType.ALL)

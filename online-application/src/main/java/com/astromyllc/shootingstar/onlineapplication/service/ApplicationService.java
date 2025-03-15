@@ -61,7 +61,7 @@ public class ApplicationService implements ApplicationServiceInterface {
                         throw new RuntimeException(e);
                     }
                 })
-                .collect(Collectors.toList());
+                .toList();
         /* Adds to The Bean List with the current new records*/
         applicationsRepository.saveAll(applicationList);
         util.apl.addAll(applicationList);
@@ -118,7 +118,7 @@ public class ApplicationService implements ApplicationServiceInterface {
     @Override
     public Optional<List<ApplicationsResponse>> getApplicationsByCountry(String Country) {
         String finalCountry = Country.split("\"")[3];
-        return Optional.ofNullable(Optional.ofNullable(util.apl.stream().filter(x -> x.getIdapplication().equalsIgnoreCase(finalCountry)).collect(Collectors.toList()).stream().map(x->util.mapApplications_ToApplicationResponse(x)).collect(Collectors.toList()))
+        return Optional.ofNullable(Optional.ofNullable(util.apl.stream().filter(x -> x.getIdapplication().equalsIgnoreCase(finalCountry)).toList().stream().map(x->util.mapApplications_ToApplicationResponse(x)).toList())
                 .orElseThrow(() -> new RuntimeException(String.format("No Record of Application with Application Code %s", finalCountry))));
 
     }
@@ -126,14 +126,14 @@ public class ApplicationService implements ApplicationServiceInterface {
     @Override
     public Optional<List<ApplicationsResponse>> getApplicationsByCity(String City) {
         String finalCity = City.split("\"")[3];
-        return Optional.ofNullable(Optional.ofNullable(util.apl.stream().filter(x -> x.getIdapplication().equalsIgnoreCase(finalCity)).collect(Collectors.toList()).stream().map(x->util.mapApplications_ToApplicationResponse(x)).collect(Collectors.toList()))
+        return Optional.ofNullable(Optional.ofNullable(util.apl.stream().filter(x -> x.getIdapplication().equalsIgnoreCase(finalCity)).toList().stream().map(x->util.mapApplications_ToApplicationResponse(x)).toList())
                 .orElseThrow(() -> new RuntimeException(String.format("No Record of Application with Application Code %s", finalCity))));
     }
 
     @Override
     public Optional<List<ApplicationsResponse>> getApplicationsByRegion(String Region) {
         String finalRegion = Region.split("\"")[3];
-        return Optional.ofNullable(Optional.ofNullable(util.apl.stream().filter(x -> x.getIdapplication().equalsIgnoreCase(finalRegion)).collect(Collectors.toList()).stream().map(x->util.mapApplications_ToApplicationResponse(x)).collect(Collectors.toList()))
+        return Optional.ofNullable(Optional.ofNullable(util.apl.stream().filter(x -> x.getIdapplication().equalsIgnoreCase(finalRegion)).toList().stream().map(x->util.mapApplications_ToApplicationResponse(x)).toList())
                 .orElseThrow(() -> new RuntimeException(String.format("No Record of Application with Application Region %s", finalRegion))));
     }
 
@@ -141,8 +141,8 @@ public class ApplicationService implements ApplicationServiceInterface {
     public Optional<List<ProcessedApplicationResponse>> getProcessedApplicationsBySchool(AdmissionRequest admissionRequest) {
         return Optional.ofNullable(Optional.of(util.apl.stream().filter(x -> x.getApplicationInstitution().equalsIgnoreCase(admissionRequest.getInstitutionCode())
                                 && x.getApplicationStatus().equalsIgnoreCase(admissionRequest.getApplicationStatus())
-                                && x.getApplicationDate().getYear()== LocalDateTime.parse(admissionRequest.getApplicationDate(),formatter).getYear()).collect(Collectors.toList())
-                        .stream().map(x->util.mapApplications_ToProcessedApplicationResponse(x)).collect(Collectors.toList()))
+                                && x.getApplicationDate().getYear()== LocalDateTime.parse(admissionRequest.getApplicationDate(),formatter).getYear()).toList()
+                        .stream().map(x->util.mapApplications_ToProcessedApplicationResponse(x)).toList())
                 .orElseThrow(() -> new RuntimeException(String.format("No Record of Application with Application School %s", admissionRequest.getInstitutionCode()))));
 
     }

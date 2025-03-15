@@ -35,7 +35,7 @@ public class DesignationService implements DesignationServiceInterface {
 
     @Override
     public Optional<List<Optional<DesignationResponse>>> createDesignation(DesignationRequest designationRequest) {
-        Institution inst = institutionUtils.institutionGlobalList.stream()
+        Institution inst = InstitutionUtils.institutionGlobalList.stream()
          .filter(i -> i.getBececode().equalsIgnoreCase(designationRequest.getInstitutionBECECode())).findFirst().get();
         Department department=inst.getDepartmentList().stream()
                 .filter(dep -> dep.getIdDepartment().toString().equalsIgnoreCase(designationRequest.getDepartmentId())).findFirst().get();
@@ -58,41 +58,41 @@ public class DesignationService implements DesignationServiceInterface {
             var matchingDesignation = designationMap.get(reqDetail.getCode());
             if (designationMap.containsKey(reqDetail.getCode())) {
                 // Update existing designation if a match is found
-                des.set(des.indexOf(matchingDesignation), designationUtil.mapDesignationRequest_ToDesignation(reqDetail, matchingDesignation));
+                des.set(des.indexOf(matchingDesignation), DesignationUtil.mapDesignationRequest_ToDesignation(reqDetail, matchingDesignation));
                 department.setDesignationList(des);
             } else {
                 des.addAll(designationRequest.getDesignationRequestDetails().stream()
-                        .map(d -> designationUtil.mapDesignationRequest_ToDesignation(d)).collect(Collectors.toList()));
+                        .map(DesignationUtil::mapDesignationRequest_ToDesignation).toList());
                 department.setDesignationList(des);
             }
             departmentRepository.save(department);
         });
 
-        return Optional.ofNullable(inst.getDepartmentList() .stream()
+        return Optional.of(inst.getDepartmentList() .stream()
                 .flatMap(dep -> dep.getDesignationList().stream())
-                .map(d -> designationUtil.mapDesignation_ToDesignationResponse(d)).collect(Collectors.toList()));
+                .map(DesignationUtil::mapDesignation_ToDesignationResponse).toList());
     }
 
     @Override
     public Optional<List<List<Optional<DesignationResponse>>>> getAllDesignationByInstitution(SingleStringRequest designationRequest) {
         Optional<List<List<Optional<DesignationResponse>>>> desList =
-                institutionUtils.institutionGlobalList.stream()
+                InstitutionUtils.institutionGlobalList.stream()
                         .filter(i -> i.getBececode().equalsIgnoreCase(designationRequest.getVal()))
                         .findFirst()
                         .map(dept -> dept.getDepartmentList().stream()
                                 .map(dl -> dl.getDesignationList().stream()
-                                        .map(designation -> designationUtil.mapDesignation_ToDesignationResponse(designation))
-                                        .collect(Collectors.toList()))
-                                .collect(Collectors.toList()));
+                                        .map(DesignationUtil::mapDesignation_ToDesignationResponse)
+                                        .toList())
+                                .toList());
         return desList;
     }
     @Override
     public Optional<List<List<Optional<DesignationResponse>>>> getAllDesignationByInstitutionX(DesignationRequest designationRequest) {
-        Optional<List<List<Optional<DesignationResponse>>>> desList =  Optional.ofNullable(institutionUtils.institutionGlobalList.stream()
+        Optional<List<List<Optional<DesignationResponse>>>> desList =  Optional.of(InstitutionUtils.institutionGlobalList.stream()
                 .filter(i->i.getBececode().equalsIgnoreCase(designationRequest.getInstitutionBECECode())).findFirst().get()
                 .getDepartmentList().stream().map(dl->dl.getDesignationList().stream()
-                        .map(z->designationUtil.mapDesignation_ToDesignationResponse(z)).collect(Collectors.toList()))
-                .collect(Collectors.toList()));
+                        .map(DesignationUtil::mapDesignation_ToDesignationResponse).toList())
+                .toList());
         return desList;
     }
 }

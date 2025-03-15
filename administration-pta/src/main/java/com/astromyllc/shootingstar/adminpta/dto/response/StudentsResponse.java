@@ -6,6 +6,7 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -28,4 +29,6 @@ public class StudentsResponse {
     private String denomination;
     private String institutionCode;
     private String status;
+    private String studentClass;
+    private List<ParentsResponse> studentParents;
 }

@@ -9,49 +9,67 @@ fetchLookup(instId.split(",")[0])
                                    });
 
 
-document.querySelector('#scoreInput').addEventListener('change', async function () {
-    try {
-        var doc = await uploadFileAsJSON(document.querySelector('#scoreInput'), document.querySelectorAll(".fileError")[0]);
-        scoreJson=await base64ToJson(doc.fileContent);
-        keys = Object.keys(scoreJson[0]);
+        document.querySelector('#classListExport')
+            .addEventListener('click', async function () {
+
+                var jso={"institutionCode":v, "studentClass":document.querySelector(".classSelect").value};
+                return HttpPost("getAssessmentList",jso)
+                .then(function(result){
+                    $('#subjectScoreTable').DataTable().destroy();
+                    result && generateExcel(result)
+                    })
+            })
 
 
-         $("#scoreTableHead").empty();
 
-            // Loop through the list and create <th> elements
-            keys.forEach(header => {
-                $("#scoreTableHead").append(`<th>${header}</th>`);
+        document.querySelector('#scoreInput')
+            .addEventListener('change', async function () {
+                try {
+                    var doc = await uploadFileAsJSON(document.querySelector('#scoreInput'), document.querySelectorAll(".fileError")[0]);
+                    scoreJson=await base64ToJson(doc.fileContent);
+                    keys = Object.keys(scoreJson[0]);
+
+
+                     $("#scoreTableHead").empty();
+
+                        // Loop through the list and create <th> elements
+                        keys.forEach(header => {
+                            $("#scoreTableHead").append(`<th>${header}</th>`);
+                        });
+                        let tbody = $("#scoreTableBody");
+                        tbody.empty(); // Clear existing rows
+
+                                // Loop through the JSON data and create table rows
+                                 scoreJson.forEach(row => {
+                                            let tr = $("<tr></tr>");
+                                            keys.forEach(key => {
+                                                tr.append(`<td>${row[key] || ""}</td>`); // Insert corresponding data
+                                            });
+                                            tbody.append(tr);
+                                        });
+                } catch (error) {
+                    console.error("Error uploading file:", error);
+                }
+        });
+
+        document.querySelector('#subjectScoreTable_wrapper')
+            .setAttribute("style", "overflow: auto;");
+
+        var selectedValue = document.querySelector("#scoreTypeControl")
+                                    .parentElement.querySelector("label").innerHTML;
+
+        document.querySelector("#scoreTypeControl")
+            .addEventListener("change", function() {
+              var selectedValue = this.parentElement.querySelector("label").innerHTML;
+
+                if (selectedValue == "Class Score") {
+                this.parentElement.querySelector("label").innerHTML="Exams Score"
+                url="uploadExamsScores"
+                }else{
+                this.parentElement.querySelector("label").innerHTML="Class Score"
+                url="uploadAssesmentScores"
+                }
             });
-            let tbody = $("#scoreTableBody");
-            tbody.empty(); // Clear existing rows
-
-                    // Loop through the JSON data and create table rows
-                     scoreJson.forEach(row => {
-                                let tr = $("<tr></tr>");
-                                keys.forEach(key => {
-                                    tr.append(`<td>${row[key] || ""}</td>`); // Insert corresponding data
-                                });
-                                tbody.append(tr);
-                            });
-    } catch (error) {
-        console.error("Error uploading file:", error);
-    }
-});
-document.querySelector('#subjectScoreTable_wrapper').setAttribute("style", "overflow: auto;");
-
-var selectedValue = document.querySelector("#scoreTypeControl").parentElement.querySelector("label").innerHTML;
-
-document.querySelector("#scoreTypeControl").addEventListener("change", function() {
-      var selectedValue = this.parentElement.querySelector("label").innerHTML;
-
-        if (selectedValue == "Class Score") {
-        this.parentElement.querySelector("label").innerHTML="Exams Score"
-        url="uploadExamsScores"
-        }else{
-        this.parentElement.querySelector("label").innerHTML="Class Score"
-        url="uploadAssesmentScores"
-        }
-    });
 
      if(selectedValue=="Class Score"){
      url="uploadAssesmentScores"
@@ -75,6 +93,7 @@ document.querySelector("#scoreTypeControl").addEventListener("change", function(
                 });
 
 
+
      
     function postdata(){
         resultlist=[]
@@ -82,13 +101,13 @@ document.querySelector("#scoreTypeControl").addEventListener("change", function(
         for(var i=0;i<scoreJson.length; i++){
             var jsonObject={
                             "id":Number(id),
-                            "score":Number(scoreJson[i].Score),
-                            "totalScore":Number(scoreJson[i].TotalScore),
+                            "score":Number(scoreJson[i].score),
+                            "totalScore":Number(scoreJson[i].totalScore),
                             "subject":Number(document.getElementsByClassName(' subjectSelect')[0].value),
                             "term":document.getElementsByClassName('termSelect')[0].value,
                             "studentClass":document.getElementsByClassName('classSelect')[0].value,
                             "academicYear":document.getElementsByClassName('academicYearSelect')[0].value,
-                            "studentId":scoreJson[i].StudentId,
+                            "studentId":scoreJson[i].studentID,
                             "dateTime":new Date().toString(),
                             "institutionCode":v
                         };
@@ -141,6 +160,7 @@ document.querySelector('.classGroupSelect').addEventListener('change', async fun
 
 
   function populateClasses(data){
+         $(".classSelect option:not(:eq(0))").remove();
 
   data.forEach(function(d) {
       var classOptions = document.querySelector(".classSelect")[0];
@@ -161,6 +181,7 @@ document.querySelector('.classGroupSelect').addEventListener('change', async fun
     }
 
   function populateClassGroup(data){
+         $(".classGroupSelect option:not(:eq(0))").remove();
   data.forEach(function(d) {
          var details = $("<option>").val(d.id).text(d.name);
          $(".classGroupSelect").append(details);
@@ -168,6 +189,7 @@ document.querySelector('.classGroupSelect').addEventListener('change', async fun
   }
 
   function populateSubjectsOptions(data){
+         $(".subjectSelect option:not(:eq(0))").remove();
   data.forEach(function(d) {
          var details = $("<option>").val(d.id).text(d.name);
          $(".subjectSelect").append(details);
@@ -191,17 +213,54 @@ document.querySelector('.classGroupSelect').addEventListener('change', async fun
   }
 
 
-/*  function dataTableInit(){
-    $('#subjectScoreTable').dataTable({
-         dom: "<'row'<'col-sm-4'l><'col-sm-4 text-center'B><'col-sm-4'f>>tp",
-         "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
-         buttons: [
-             { extend: 'copy', className: 'btn-sm' },
-             { extend: 'csv', title: 'Admissions Details', className: 'btn-sm' },
-             { extend: 'pdf', title: 'Admissions Details', className: 'btn-sm' },
-             { extend: 'print', className: 'btn-sm' }
-         ]
-     });
+function generateExcel(jsonData) {
 
-  }*/
+        const selectElement = document.querySelector(".subjectSelect");
+        var subject=selectedText = selectElement.selectedIndex >= 0 ? selectElement.options[selectElement.selectedIndex].text : "";
+        // Define the desired order of fields
+            const desiredOrder = ['studentID', 'name', 'studentClass', 'subject', 'score', 'totalScore'];
+
+            // Rearrange the data to match the desired order
+            const orderedData = jsonData.map(item => {
+                const orderedItem = {};
+                desiredOrder.forEach(field => {
+                    if (field === 'subject') {
+                            orderedItem[field] = subject;
+                        } else {
+                            orderedItem[field] = item[field];
+                        }
+                });
+                return orderedItem;
+            });
+
+            // Create a worksheet from the ordered data
+            const ws = XLSX.utils.json_to_sheet(orderedData);
+
+            // Create a workbook
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, jsonData[0].studentClass);
+
+            // Write the workbook to a binary string
+            const wbout = XLSX.write(wb, { bookType: "xlsx", type: "binary" });
+
+            // Create a Blob object with the binary string data
+            const blob = new Blob([s2ab(wbout)], { type: "application/octet-stream" });
+
+            // Create a link element and trigger a download
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = jsonData[0].studentClass+"_"+ subject + ".xlsx";
+            link.click();
+    }
+
+    // Convert string to array buffer
+    function s2ab(s) {
+        const buf = new ArrayBuffer(s.length);
+        const view = new Uint8Array(buf);
+        for (let i = 0; i < s.length; i++) {
+            view[i] = s.charCodeAt(i) & 0xFF;
+        }
+        return buf;
+    }
+
 

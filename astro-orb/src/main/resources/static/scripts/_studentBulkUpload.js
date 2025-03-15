@@ -1,5 +1,5 @@
  window.copyrights();
-id=null;
+id="";
 var keys,studentsJson,url;
 var studentsSheet;
 var v;
@@ -290,8 +290,8 @@ function formatStudentImportRequest(studentsSheet, parentsSheet) {
         var dob=excelDateToJSDate(row.dateOfBirth);
         var doa=excelDateToJSDate(row.dateOfAdmission);
             studentsMap[studentId] = {
-                id: null, // Set this if needed
-                studentId: row.studentId,
+                id: id, // Set this if needed
+                studentId: id,
                 firstName: row.firstName,
                 otherName: row.otherName || "",
                 lastName: row.lastName,
@@ -318,7 +318,7 @@ function formatStudentImportRequest(studentsSheet, parentsSheet) {
 
         if (studentsMap[studentId]) {
             let parent = {
-                id: null, // Set this if needed
+                id: id, // Set this if needed
                 firstNames: row.firstNames || "",
                 lastName: row.lastName || "",
                 email: row.email || "",

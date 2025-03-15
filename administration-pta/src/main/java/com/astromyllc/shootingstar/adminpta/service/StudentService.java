@@ -1,8 +1,7 @@
 package com.astromyllc.shootingstar.adminpta.service;
 
-import com.astromyllc.shootingstar.adminpta.dto.request.AdmissionRequest;
-import com.astromyllc.shootingstar.adminpta.dto.request.StudentSkimRequest;
-import com.astromyllc.shootingstar.adminpta.dto.request.StudentsImportRequest;
+import com.astromyllc.shootingstar.adminpta.dto.request.*;
+import com.astromyllc.shootingstar.adminpta.dto.response.ClassListResponse;
 import com.astromyllc.shootingstar.adminpta.dto.response.StudentsResponse;
 import com.astromyllc.shootingstar.adminpta.model.Students;
 import com.astromyllc.shootingstar.adminpta.repository.StudentRepository;
@@ -31,21 +30,44 @@ public class StudentService implements StudentServiceInterface {
     }
 
     @Override
-    public List<StudentsResponse> fetchAllStudents() {
-        return studentUtil.studentsGlobalList.stream()
-                .map(s->studentUtil.mapStudent_ToStudentResponse(s)).collect(Collectors.toList());
+    public Optional<List<StudentsResponse>> fetchAllStudents() {
+        return Optional.of(StudentUtil.studentsGlobalList.stream()
+                .map(studentUtil::mapStudent_ToStudentResponse).toList());
     }
     @Override
-    public List<StudentsResponse> fetchStudentsByClass(StudentSkimRequest request) {
-        return studentUtil.studentsGlobalList.stream()
+    public Optional<List<StudentsResponse>> fetchStudentsByClass(ClassListRequest request) {
+        return Optional.of(StudentUtil.studentsGlobalList.stream()
                 .filter(st->st.getStudentClass().equalsIgnoreCase(request.getStudentClass()))
-                .map(s->studentUtil.mapStudent_ToStudentResponse(s)).collect(Collectors.toList());
+                .map(studentUtil::mapStudent_ToStudentResponse).toList());
     }
 
     @Override
-    public List<StudentsResponse> postBulkStudentList(List<StudentsImportRequest> request) {
-      List<Students> studentsList=  request.stream().map(si->studentUtil.mapBulkStudent_To_Students(si)).collect(Collectors.toList());
+    public Optional<List<StudentsResponse>> postBulkStudentList(List<StudentsImportRequest> request) {
+      List<Students> studentsList=  request.stream().map(studentUtil::mapBulkStudent_To_Students).toList();
         studentRepository.saveAll(studentsList);
-        return studentsList.stream().map(sr->studentUtil.mapStudent_ToStudentResponse(sr)).collect(Collectors.toList());
+        StudentUtil.studentsGlobalList.addAll(studentsList);
+        log.info("{} New records have been persited into the Database",studentsList.size());
+        return Optional.of(studentsList.stream().map(studentUtil::mapStudent_ToStudentResponse).toList());
+    }
+
+    @Override
+    public Optional<List<ClassListResponse>> fetchAssessmentList(ClassListRequest request) {
+        return Optional.of(StudentUtil.studentsGlobalList.stream().filter(x->x.getStudentClass().equalsIgnoreCase(request.getStudentClass()) &&
+                        x.getInstitutionCode().equalsIgnoreCase(request.getInstitutionCode()))
+                .map(studentUtil::mapStudent_ToClassListResponse).toList());
+    }
+
+    @Override
+    public Optional<List<StudentsResponse>> fetchStudentsByStatus(SingleStringRequest status) {
+        return Optional.of(StudentUtil.studentsGlobalList.stream().filter(x->x.getStatus().equalsIgnoreCase(status.getVal()))
+                .map(studentUtil::mapStudent_ToStudentResponse).toList()
+        );
+    }
+
+    @Override
+    public Optional<List<StudentsResponse>> fetchStudentsByInstitution(SingleStringRequest institution) {
+        return Optional.of(StudentUtil.studentsGlobalList.stream().filter(x->x.getInstitutionCode().equalsIgnoreCase(institution.getVal()))
+                .map(studentUtil::mapStudent_ToStudentResponse).toList()
+        );
     }
 }

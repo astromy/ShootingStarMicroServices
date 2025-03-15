@@ -2,7 +2,6 @@ package com.astromyllc.shootingstar.setup.service;
 
 import com.astromyllc.shootingstar.setup.dto.request.JobDescriptionRequest;
 import com.astromyllc.shootingstar.setup.dto.request.SingleStringRequest;
-import com.astromyllc.shootingstar.setup.dto.response.ClassesResponse;
 import com.astromyllc.shootingstar.setup.dto.response.JobDescriptionResponse;
 import com.astromyllc.shootingstar.setup.repository.InstitutionRepository;
 import com.astromyllc.shootingstar.setup.serviceInterface.JobDescriptionServiceInterface;
@@ -14,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -33,8 +31,8 @@ public class JobDescriptionService implements JobDescriptionServiceInterface {
     @Override
     public List<List<List<Optional<JobDescriptionResponse>>>> getAllJobDescriptionsByInstitution(SingleStringRequest beceCode) {
         String finalBeceCode= beceCode.getVal();
-        return institutionUtils.institutionGlobalList.stream()
+        return InstitutionUtils.institutionGlobalList.stream()
                 .filter(i->i.getBececode().equalsIgnoreCase(finalBeceCode)).findFirst().get()
-                .getDepartmentList().stream().map(dep->dep.getDesignationList().stream().map(des->des.getJobDescriptionList().stream().map(jb->jobDescriptionUtil.mapJobDescription_ToJobDescriptionResponse(jb)).collect(Collectors.toList())).collect(Collectors.toList())).collect(Collectors.toList());
+                .getDepartmentList().stream().map(dep->dep.getDesignationList().stream().map(des->des.getJobDescriptionList().stream().map(JobDescriptionUtil::mapJobDescription_ToJobDescriptionResponse).toList()).toList()).toList();
     }
 }

@@ -40,6 +40,14 @@ public class AcademicsController {
         return ResponseEntity.ok( assessmentServiceInterface.fetchStudentTerminalReport(terminalReportRequest));
 
     }
+    @PostMapping("/api/academics/postStudentTerminalReport")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity  PostStudentReports(@RequestBody AcademicReportRequest terminalReportRequest) {
+        log.info("Assessment  Received");
+        assessmentServiceInterface.PostStudentReports(terminalReportRequest);
+        return ResponseEntity.ok("Student reports processed successfully.");
+
+    }
 
     @PostMapping("/api/academics/generateStudentTranscript")
     @ResponseStatus(HttpStatus.CREATED)

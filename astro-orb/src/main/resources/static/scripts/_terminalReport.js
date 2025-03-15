@@ -151,24 +151,31 @@ document.querySelector("#scoreTypeControl").addEventListener("change", function(
     })
     }
 
+
+    document.querySelector('#reportPublishBtn').addEventListener('click', function(){
+    url="postStudentReports"
+
+                            var jso= postdata();
+                            return HttpPost(url,jso)
+                            .then(function(result){
+                                $('#reportTable').DataTable().destroy();
+                                reportDataJSON=result;
+                                generatePDF(reportDataJSON);
+                                swal({
+                                       title: "Thank you!",
+                                       text: "Operation Successful",
+                                       type: "success"
+                                  });
+                                })
+
+
+    });
+
+
     document.querySelector('#reportExportBtn').addEventListener('click', function(){
     if(reportDataJSON){
         generatePDF(reportDataJSON);
         }else{
-         url="fetchStudentTerminalReport"
-
-                        var jso= postdata();
-                        return HttpPost(url,jso)
-                        .then(function(result){
-                            $('#reportTable').DataTable().destroy();
-                            reportDataJSON=result;
-                            generatePDF(reportDataJSON);
-                           /* swal({
-                                   title: "Thank you!",
-                                   text: "Operation Successful",
-                                   type: "success"
-                              });*/
-                            })
 
         }
     })
@@ -208,7 +215,7 @@ document.querySelector('.classGroupSelect').addEventListener('change', async fun
 
 
   function populateClasses(data){
-
+    $(".classSelect option:not(:eq(0))").remove();
   data.forEach(function(d) {
       var classOptions = document.querySelector(".classSelect")[0];
          var details = $("<option>").val(d.name).text(d.name);
@@ -228,6 +235,7 @@ document.querySelector('.classGroupSelect').addEventListener('change', async fun
     }
 
   function populateClassGroup(data){
+ $(".classGroupSelect option:not(:eq(0))").remove();
   data.forEach(function(d) {
          var details = $("<option>").val(d.id).text(d.name);
          $(".classGroupSelect").append(details);
@@ -299,6 +307,12 @@ function generatePDF(assessments) {
         if (institution.crest) {
             let img = "data:image/jpeg;base64," + institution.crest;
             terminalReport.addImage(img, "jpeg", offset + 10, offset + 15, logoWidth, logoHeight);
+        }
+
+        // ** Add Head Signature if available **
+        if (institution.headSignature) {
+            let img = "data:image/jpeg;base64," + institution.headSignature;
+            terminalReport.addImage(img, "jpeg", xcord + 133, ycord+162+20, logoWidth, logoHeight/2);
         }
 
         // ** Add Institution Name & Slogan **
@@ -382,7 +396,7 @@ function generatePDF(assessments) {
             body: tableData,
             startY: 90, // Position below header
             styles: { fontSize: 10 },
-            headStyles: { fillColor: ["#043bf4"] },
+            headStyles: { fillColor: ["#7eb2f5"] },
         });
 
 

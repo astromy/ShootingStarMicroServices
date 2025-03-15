@@ -1,6 +1,5 @@
 package com.astromyllc.shootingstar.setup.service;
 
-import com.astromyllc.shootingstar.setup.dto.request.DepartmentDetails;
 import com.astromyllc.shootingstar.setup.dto.request.DepartmentRequest;
 import com.astromyllc.shootingstar.setup.dto.request.SingleStringRequest;
 import com.astromyllc.shootingstar.setup.dto.response.DepartmentResponse;
@@ -18,7 +17,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,12 +29,12 @@ public class DepartmentService implements DepartmentServiceInterface {
     private final DepartmentUtil departmentUtil;
     @Override
     public Optional<List<Optional<DepartmentResponse>>> createDepartments(DepartmentRequest departmentRequest) {
-        Optional<Institution> inst=institutionUtils.institutionGlobalList.stream().filter(x->x.getBececode().equalsIgnoreCase(departmentRequest.getInstitution())).findFirst();
+        Optional<Institution> inst= InstitutionUtils.institutionGlobalList.stream().filter(x->x.getBececode().equalsIgnoreCase(departmentRequest.getInstitution())).findFirst();
         List<Department> dl=inst.get().getDepartmentList();
         dl.addAll(departmentRequest.getDepartmentDetailsList().stream().map(DepartmentUtil::mapDepartmentRequest_ToDepartment).toList());
         inst.get().setDepartmentList(dl);
         institutionRepository.save(inst.get());
-        Optional<List<Optional<DepartmentResponse>>> dr= Optional.ofNullable(inst.get().getDepartmentList().stream().map(s->departmentUtil.mapDepartment_ToDepartmentResponse(s)).collect(Collectors.toList()));
+        Optional<List<Optional<DepartmentResponse>>> dr= Optional.of(inst.get().getDepartmentList().stream().map(DepartmentUtil::mapDepartment_ToDepartmentResponse).toList());
         return dr;
 
     }
@@ -44,10 +42,10 @@ public class DepartmentService implements DepartmentServiceInterface {
     @Override
     public Optional<List<Optional<DepartmentResponse>>> getDepartmentByInstitution(SingleStringRequest beceCode) {
         String finalBeceCode= beceCode.getVal();
-        return Optional.ofNullable(institutionUtils.institutionGlobalList.stream()
+        return Optional.of(InstitutionUtils.institutionGlobalList.stream()
                 .filter(i->i.getBececode().equalsIgnoreCase(finalBeceCode))
                 .findFirst().get()
                 .getDepartmentList().stream()
-                .map(x->departmentUtil.mapDepartment_ToDepartmentResponse(x)).collect(Collectors.toList()));
+                .map(DepartmentUtil::mapDepartment_ToDepartmentResponse).toList());
     }
 }
