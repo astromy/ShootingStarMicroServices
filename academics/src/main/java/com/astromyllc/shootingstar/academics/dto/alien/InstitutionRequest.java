@@ -33,6 +33,9 @@ public class InstitutionRequest {
     @Lob // Marks this field as a Large Object (LOB)
     @Column(columnDefinition = "LONGTEXT")
     private String crest;
+    @Lob // Marks this field as a Large Object (LOB)
+    @Column(columnDefinition = "LONGTEXT")
+    private String headSignature;
 
     private GradingSettingRequest gradingSetting;
     private List<SubjectRequest> subjectList;

@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -27,23 +26,22 @@ public class DiagnosisService implements DiagnosisServiceInterface {
     public void recordDiagnosis(DiagnosisRequest diagnosisRequest) {
         Diagnosis diagnosis=diagnosisUtil.mapDiagnososRequest_ToDiagnosis(diagnosisRequest);
         diagnosisRepository.save(diagnosis);
-        diagnosisUtil.diagnosisGlobalList.add(diagnosis);
+        DiagnosisUtil.diagnosisGlobalList.add(diagnosis);
     }
 
     @Override
     public void recordDiagnosisList(List<DiagnosisRequest> diagnosisRequests) {
-        List<Diagnosis> diagnosis=diagnosisRequests.stream().map(d->diagnosisUtil.mapDiagnososRequest_ToDiagnosis(d)).collect(Collectors.toList());
+        List<Diagnosis> diagnosis=diagnosisRequests.stream().map(diagnosisUtil::mapDiagnososRequest_ToDiagnosis).toList();
         diagnosisRepository.saveAll(diagnosis);
-        diagnosisUtil.diagnosisGlobalList.addAll(diagnosis);
+        DiagnosisUtil.diagnosisGlobalList.addAll(diagnosis);
     }
 
     @Override
     public Optional<List<DiagnosisResponse>> fetchDiagnosisByPatient(PatientRequest patientRequest) {
-        Optional<List<DiagnosisResponse>>  diagnosis= Optional.of(diagnosisUtil.diagnosisGlobalList.stream()
+        return Optional.of(DiagnosisUtil.diagnosisGlobalList.stream()
                 .filter(diagnosis1 -> diagnosis1.getPatientId().equalsIgnoreCase(patientRequest.getPatientId())
-                        && diagnosis1.getInstitutionCode().equalsIgnoreCase(patientRequest.getInstitutionCode())).collect(Collectors.toList())
-                .stream().map(diagnosis1 -> diagnosisUtil.mapDiagnosis_ToDiagnosisResponse(diagnosis1)).collect(Collectors.toList()));
-        return diagnosis;
+                        && diagnosis1.getInstitutionCode().equalsIgnoreCase(patientRequest.getInstitutionCode())).toList()
+                .stream().map(diagnosisUtil::mapDiagnosis_ToDiagnosisResponse).toList());
     }
 
     @Override

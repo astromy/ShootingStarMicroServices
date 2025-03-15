@@ -38,5 +38,8 @@ public class PreOrderInstitutionRequest {
     @Lob // Marks this field as a Large Object (LOB)
     @Column(columnDefinition = "LONGTEXT")
     private String crest;
+    @Lob // Marks this field as a Large Object (LOB)
+    @Column(columnDefinition = "TEXT")
+    private String headSignature;
 
 }

@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -32,11 +31,11 @@ public class Student_BillService implements Student_BillServiceInterface {
 
     @Override
     public Student_BillResponse createStudentBill(Student_BillRequest studentBillRequest) {
-        Optional<Student_Bill> studentBill = studentBillUtil.studentBillsGlobalList.stream().filter(s -> s.getInstitutionCode().equalsIgnoreCase(studentBillRequest.getInstitutionCode()) && s.getStudentId().equalsIgnoreCase(studentBillRequest.getStudentId())).findFirst();
+        Optional<Student_Bill> studentBill = Student_BillUtil.studentBillsGlobalList.stream().filter(s -> s.getInstitutionCode().equalsIgnoreCase(studentBillRequest.getInstitutionCode()) && s.getStudentId().equalsIgnoreCase(studentBillRequest.getStudentId())).findFirst();
         if (studentBill.isEmpty()) {
             Student_Bill studentBill1 = studentBillUtil.mapStudentBillRequest_ToStudentBill(studentBillRequest);
             studentBillRepository.save(studentBill1);
-            studentBillUtil.studentBillsGlobalList.add(studentBill1);
+            Student_BillUtil.studentBillsGlobalList.add(studentBill1);
             return studentBillUtil.mapStudentBill_ToStudentBillResponse(studentBill1);
         } else {
             studentBillRepository.save(studentBillUtil.mapStudentBillRequest_ToStudentBill(studentBillRequest, studentBill.get()));
@@ -46,17 +45,17 @@ public class Student_BillService implements Student_BillServiceInterface {
 
     @Override
     public List<Student_BillResponse> fetchStudentBillsByInstitution(StudentBillFetchRequest studentBillFetchRequest) {
-        return studentBillUtil.studentBillsGlobalList.stream().filter(
+        return Student_BillUtil.studentBillsGlobalList.stream().filter(
                         s -> s.getInstitutionCode().equalsIgnoreCase(studentBillFetchRequest.getInstitutionCode()))
-                .map(sr -> studentBillUtil.mapStudentBill_ToStudentBillResponse(sr)).collect(Collectors.toList());
+                .map(studentBillUtil::mapStudentBill_ToStudentBillResponse).toList();
     }
 
     @Override
     public Student_BillResponse fetchStudentBillByIdAndInstitution(StudentBillFetchRequest studentBillFetchRequest) {
-        return studentBillUtil.studentBillsGlobalList.stream().filter(
+        return Student_BillUtil.studentBillsGlobalList.stream().filter(
                         s -> s.getInstitutionCode().equalsIgnoreCase(studentBillFetchRequest.getInstitutionCode())
                                 && s.getStudentId().equalsIgnoreCase(studentBillFetchRequest.getStudentId()))
-                .map(sr -> studentBillUtil.mapStudentBill_ToStudentBillResponse(sr)).findFirst().get();
+                .map(studentBillUtil::mapStudentBill_ToStudentBillResponse).findFirst().get();
     }
 
     @Override

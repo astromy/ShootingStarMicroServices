@@ -27,16 +27,16 @@ public class BillService implements BillServiceInterface {
     private final BillUtil billUtil;
     @Override
     public Optional<BillResponse> createBill(BillRequest billRequest) {
-        Optional<Bill> bill=billUtil.billGlobalList.stream().filter(b->b.getInstitutionCode().equalsIgnoreCase(billRequest.getInstitutionCode())).findFirst();
+        Optional<Bill> bill= BillUtil.billGlobalList.stream().filter(b->b.getInstitutionCode().equalsIgnoreCase(billRequest.getInstitutionCode())).findFirst();
         if(bill.isEmpty()){
             Bill bill1=billUtil.mapBillRequest_ToBill(billRequest);
             billRepository.save(bill1);
-            billUtil.billGlobalList.add(bill1);
+            BillUtil.billGlobalList.add(bill1);
             return Optional.ofNullable(billUtil.mapBill_ToBillResponse(bill1));
         }else{
             billRepository.save(billUtil.mapBillRequest_ToBill(billRequest,bill.get()));
         }
-        return null;
+        return Optional.empty();
     }
 
     @Override
@@ -44,7 +44,7 @@ public class BillService implements BillServiceInterface {
 
         List<Bill> updatedBills = billRequests.stream()
                 .map(billRequest -> {
-                    Optional<Bill> existingBillOpt = billUtil.billGlobalList.stream()
+                    Optional<Bill> existingBillOpt = BillUtil.billGlobalList.stream()
                             .filter(bill -> bill.getBill_Name().equalsIgnoreCase(billRequest.getBill_Name())
                                     && bill.getInstitutionCode().equalsIgnoreCase(billRequest.getInstitutionCode()))
                             .findFirst();
@@ -54,19 +54,19 @@ public class BillService implements BillServiceInterface {
                         return existingBill; // Return the updated existing bill
                     }).orElseGet(() ->{
                         Bill nb= billUtil.mapBillRequest_ToBill(billRequest);
-                        billUtil.billGlobalList.add(nb);
+                        BillUtil.billGlobalList.add(nb);
                         return nb;
                     }); // Create new if not exists
                 })
-                .collect(Collectors.toList());
+                .toList();
 
         billRepository.saveAll(updatedBills);
 
         // Map the updated bills to BillResponse
-        List<BillResponse> billResponses = billUtil.billGlobalList.stream()
+        List<BillResponse> billResponses = BillUtil.billGlobalList.stream()
                 .filter(b-> b.getInstitutionCode().equalsIgnoreCase(billRequests.get(0).getInstitutionCode()))
                 .map(billUtil::mapBill_ToBillResponse) // Assuming a method to map Bill to BillResponse
-                .collect(Collectors.toList());
+                .toList();
 
         // Return an Optional of the list of BillResponse
         return Optional.ofNullable(billResponses.isEmpty() ? null : billResponses);
@@ -74,18 +74,18 @@ public class BillService implements BillServiceInterface {
 
     @Override
     public Optional<List<BillResponse>> fetchBillsByInstitution(SingleStringRequest singleStringRequest) {
-        return Optional.ofNullable(
-                billUtil.billGlobalList.stream()
-                        .filter(b->b.getInstitutionCode().toString().equalsIgnoreCase(singleStringRequest.getVal()))
-                        .map(br->billUtil.mapBill_ToBillResponse(br))
-                        .collect(Collectors.toList()));
+        return Optional.of(
+                BillUtil.billGlobalList.stream()
+                        .filter(b-> b.getInstitutionCode().equalsIgnoreCase(singleStringRequest.getVal()))
+                        .map(billUtil::mapBill_ToBillResponse)
+                        .toList());
     }
 
     @Override
     public Optional<BillResponse> fetchBillByInstitutionAndName(BillFetchRequest billFetchRequest) {
-        return Optional.ofNullable(
-                billUtil.billGlobalList.stream()
+        return Optional.of(
+                BillUtil.billGlobalList.stream()
                         .filter(b->b.getInstitutionCode().equalsIgnoreCase(billFetchRequest.getInstitutionCode()) && b.getBill_Name().equalsIgnoreCase(billFetchRequest.getName()))
-                        .map(br->billUtil.mapBill_ToBillResponse(br)).findFirst().get());
+                        .map(billUtil::mapBill_ToBillResponse).findFirst().get());
     }
 }

@@ -278,7 +278,7 @@ function generatePDF(assessments) {
             body: tableData,
             startY: 90, // Position below header
             styles: { fontSize: 10 },
-            headStyles: { fillColor: ["#043bf4"] },
+            headStyles: { fillColor: ["#7eb2f5"] },
         });
 
 

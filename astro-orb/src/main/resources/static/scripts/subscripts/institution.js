@@ -119,11 +119,22 @@ $(function () {
                                                                   placeholder="Student Population">
                                                        </div>
    
-                                                       <div class="form-group col-lg-12">
+                                                       <div class="form-group col-lg-6">
                                                            <label for="website">Website</label>
                                                            <input type="text" id="website" class="form-control"
                                                                   name="website" placeholder="School website">
                                                        </div>
+
+                                               <div class="col-lg-3 text-center">
+                                                   <div>
+                                                       <label for="headSignature">Head Signature</label>
+                                                   </div>
+                                                   <output class="headSignature" name="headSignature" id="headSignature"
+                                                           style="height: 60px; border-radius: 10px;display: inline-block;"></output>
+                                                   <input class="imageInput1" type="file"
+                                                          style="width: 200px;padding: 12px;display: inline;"
+                                                          accept="image/jpeg, image/png, image/jpg">
+                                               </div>
                                                        <div>
                                                            <button id="instSubmit" class="btn btn-sm btn-primary m-t-n-xs"
                                                                    style="visibility: hidden;" type="submit">

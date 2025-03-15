@@ -2,7 +2,6 @@ package com.astromyllc.shootingstar.setup.utils;
 
 import com.astromyllc.shootingstar.setup.dto.request.GradingRequest;
 import com.astromyllc.shootingstar.setup.dto.request.GradingSettingDetails;
-import com.astromyllc.shootingstar.setup.dto.request.GradingSettingRequest;
 import com.astromyllc.shootingstar.setup.dto.response.GradingResponse;
 import com.astromyllc.shootingstar.setup.dto.response.GradingSettingResponse;
 import com.astromyllc.shootingstar.setup.model.Grading;
@@ -16,7 +15,6 @@ import org.springframework.stereotype.Component;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -29,7 +27,7 @@ public class GradingSettingUtil {
     @Bean
     private void getAllGradingSettings() {
         gradingSettingsGlobalList = gradingSettingRepository.findAll();
-        log.info("Global Grading Setting List Populated with {} records", gradingSettingsGlobalList.stream().count());
+        log.info("Global Grading Setting List Populated with {} records", (long) gradingSettingsGlobalList.size());
     }
 
     public static GradingSetting mapGradeSettingRequest_ToGradeSetting(GradingSettingDetails gradingSetting) {
@@ -38,9 +36,7 @@ public class GradingSettingUtil {
                 .allowedTrails(gradingSetting.getAllowedTrails())
                 .classPercentage(gradingSetting.getClassPercentage())
                 .trailingMark(gradingSetting.getTrailingMark())
-                .gradingList((List<Grading>) gradingSetting.getGradingList().stream().map(gL -> {
-                    return mapGradeListRequest_ToGradeList(gL);
-                }).toList())
+                .gradingList((List<Grading>) gradingSetting.getGradingList().stream().map(GradingSettingUtil::mapGradeListRequest_ToGradeList).toList())
                 .build();
     }
 
@@ -51,7 +47,7 @@ public class GradingSettingUtil {
         gs.setTrailingMark(gradingSetting.getTrailingMark());
         gs.setGradingList((List<Grading>) gradingSetting.getGradingList().stream().map(gL -> {
             return mapGradeListRequest_ToGradeList(gL,gs.getGradingList().stream().filter(g-> gL.getId().equals(g.getIdGrading())).findFirst().get());
-        }).collect(Collectors.toList()));
+        }).toList());
         return gs;
     }
 
@@ -65,8 +61,8 @@ public class GradingSettingUtil {
                         .trailingMark(gs.getTrailingMark())
                         .gradingList(Optional.ofNullable(gs.getGradingList()) // Handle null gradingList
                                 .map(list -> list.stream()
-                                        .map(gL -> mapGradeList_ToGradeListResponse(gL)) // Map each item in gradingList
-                                        .collect(Collectors.toList()))
+                                        .map(GradingSettingUtil::mapGradeList_ToGradeListResponse) // Map each item in gradingList
+                                        .toList())
                                 .orElse(Collections.emptyList())) // Empty list if gradingList is null
                         .build());
     }

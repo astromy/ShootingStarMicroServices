@@ -1,8 +1,7 @@
 package com.astromyllc.shootingstar.adminpta.controller;
 
-import com.astromyllc.shootingstar.adminpta.dto.request.AdmissionRequest;
-import com.astromyllc.shootingstar.adminpta.dto.request.StudentSkimRequest;
-import com.astromyllc.shootingstar.adminpta.dto.request.StudentsImportRequest;
+import com.astromyllc.shootingstar.adminpta.dto.request.*;
+import com.astromyllc.shootingstar.adminpta.dto.response.ClassListResponse;
 import com.astromyllc.shootingstar.adminpta.dto.response.StudentsResponse;
 import com.astromyllc.shootingstar.adminpta.serviceInterface.StudentServiceInterface;
 import lombok.RequiredArgsConstructor;
@@ -31,19 +30,37 @@ public class StudentsController {
 
     @PostMapping("/api/administration-pta/getAllStudents")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<List<StudentsResponse>> getAllStudents() {
+    public ResponseEntity<Optional<List<StudentsResponse>>> getAllStudents() {
       return ResponseEntity.ok(studentServiceInterface.fetchAllStudents());
+    }
+
+    @PostMapping("/api/administration-pta/getStudentsByInstitution")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<Optional<List<StudentsResponse>>> getStudentsByInstitution(@RequestBody SingleStringRequest institution) {
+        return ResponseEntity.ok(studentServiceInterface.fetchStudentsByInstitution(institution));
+    }
+
+    @PostMapping("/api/administration-pta/getStudentsByStatus")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<Optional<List<StudentsResponse>>> getStudentsByStatus(@RequestBody SingleStringRequest status) {
+        return ResponseEntity.ok(studentServiceInterface.fetchStudentsByStatus(status));
+    }
+
+    @PostMapping("/api/administration-pta/getAssessmentList")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<Optional<List<ClassListResponse>>> getAssessmentList(@RequestBody ClassListRequest request) {
+        return ResponseEntity.ok(studentServiceInterface.fetchAssessmentList(request));
     }
 
     @PostMapping("/api/administration-pta/getStudentsByClass")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<List<StudentsResponse>> getStudentsByClass(@RequestBody StudentSkimRequest request) {
+    public ResponseEntity<Optional<List<StudentsResponse>>> getStudentsByClass(@RequestBody ClassListRequest request) {
         return ResponseEntity.ok(studentServiceInterface.fetchStudentsByClass(request));
     }
 
     @PostMapping("/api/administration-pta/postBulkStudentList")
     @ResponseStatus(HttpStatus.OK)
-    public Optional<ResponseEntity<List<StudentsResponse>>> postBulkStudentList(@RequestBody List<StudentsImportRequest> request) {
-        return Optional.ofNullable(ResponseEntity.ok(studentServiceInterface.postBulkStudentList(request)));
+    public ResponseEntity<Optional<List<StudentsResponse>>> postBulkStudentList(@RequestBody List<StudentsImportRequest> request) {
+        return ResponseEntity.ok(studentServiceInterface.postBulkStudentList(request));
     }
 }

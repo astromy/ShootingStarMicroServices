@@ -3692,7 +3692,12 @@ ul.h-list li:hover a {
     margin-left: 10px;
   }
 }
-.crest{
+
+.crest {
+  height: 100%;
+}
+
+.headSignature{
   height: 100%;
 }
 .left{

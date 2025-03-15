@@ -39,13 +39,13 @@ public class ClassService implements ClassesServiceInterface {
         cl.addAll(classesRequestList.getClassDetailList().stream().map(ClassesUtil::mapClassRequestToClass).toList());
         inst.get().setClassList(cl);
         institutionRepository.save(inst.get());
-        Optional<List<Optional<ClassesResponse>>> cr= Optional.ofNullable(inst.get().getClassList().stream().map(s->classesUtil.mapClassToClassResponse(s)).collect(Collectors.toList()));
+        Optional<List<Optional<ClassesResponse>>> cr= Optional.ofNullable(inst.get().getClassList().stream().map(s->classesUtil.mapClassToClassResponse(s)).toList());
         return cr;
     }
 
     @Override
     public List<Optional<ClassesResponse>> getAllClasses() {
-        List<Optional<ClassesResponse>> classList= classesUtil.classesGlobalList.stream().map(c->classesUtil.mapClassToClassResponse(c)).collect(Collectors.toList());
+        List<Optional<ClassesResponse>> classList= classesUtil.classesGlobalList.stream().map(c->classesUtil.mapClassToClassResponse(c)).toList();
         return classList;
     }
 
@@ -55,13 +55,13 @@ public class ClassService implements ClassesServiceInterface {
               .filter(i->i.getBececode().equalsIgnoreCase(classGroupRequest.getInstitution()))
               .findFirst().get().getClassList().stream()
               .filter(f->f.getClassGroup().equalsIgnoreCase(classGroupRequest.getClassGroup()))
-              .map(c->classesUtil.mapClassToClassResponse(c)).collect(Collectors.toList()));
+              .map(c->classesUtil.mapClassToClassResponse(c)).toList());
     }
 
     @Override
     public Optional<List<Optional<ClassesResponse>>> getAllClassesByInstitution(SingleStringRequest institutionRequest) {
         String finalBeceCode= institutionRequest.getVal();
         Optional<Institution> inst=institutionUtils.institutionGlobalList.stream().filter(x->x.getBececode().equalsIgnoreCase(finalBeceCode)).findFirst();
-        return Optional.ofNullable(inst.get().getClassList().stream().map(i->classesUtil.mapClassToClassResponse(i)).collect(Collectors.toList()));
+        return Optional.ofNullable(inst.get().getClassList().stream().map(i->classesUtil.mapClassToClassResponse(i)).toList());
     }
 }

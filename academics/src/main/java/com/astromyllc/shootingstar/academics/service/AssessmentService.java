@@ -1,10 +1,8 @@
 package com.astromyllc.shootingstar.academics.service;
 
 import com.astromyllc.shootingstar.academics.dto.alien.StudentScores;
-import com.astromyllc.shootingstar.academics.dto.alien.Students;
 import com.astromyllc.shootingstar.academics.dto.request.AcademicReportRequest;
 import com.astromyllc.shootingstar.academics.dto.request.SingleStringRequest;
-import com.astromyllc.shootingstar.academics.dto.response.AssessmentResponse;
 import com.astromyllc.shootingstar.academics.dto.response.TerminalReportResponse;
 import com.astromyllc.shootingstar.academics.model.Assessment;
 import com.astromyllc.shootingstar.academics.repository.AssessmentRepository;
@@ -33,28 +31,51 @@ public class AssessmentService implements AssessmentServiceInterface {
    @Override
     public Optional<TerminalReportResponse> fetchStudentTerminalReport(AcademicReportRequest terminalReportRequest) {
        assessmentUtil.fetchSetupdata(terminalReportRequest.getInstitutionCode());
-      List<Assessment>assessmentList=  assessmentUtil.assessmentsGlobalList.stream()
+       assessmentUtil.fetchStudents(terminalReportRequest.getInstitutionCode());
+       assessmentUtil.fetchClassGroups(terminalReportRequest.getInstitutionCode());
+
+      List<Assessment>assessmentList=  AssessmentUtil.assessmentsGlobalList.stream()
                 .filter(ar -> ar.getStudentClass().equalsIgnoreCase(terminalReportRequest.getTargetClass())
                         && ar.getAcademicYear().equalsIgnoreCase(terminalReportRequest.getAcademicYear())
                         && ar.getTerm().equalsIgnoreCase(terminalReportRequest.getTerm())
                         && ar.getInstitutionCode().equalsIgnoreCase(terminalReportRequest.getInstitutionCode()))
-                .collect(Collectors.toList());
+              .toList();
        TerminalReportResponse result=assessmentUtil.getTerminalReportResponse(
                assessmentList.stream()
                        .map(awp->assessmentUtil.mapAssessment_ToAssessmentResponse(awp,terminalReportRequest.getClassGroup()))
-                       .collect(Collectors.toList()), assessmentUtil.studentsGlobalRequest,terminalReportRequest);
-        return  Optional.ofNullable(result);
+                       .toList(), terminalReportRequest);
+       return  Optional.ofNullable(result);
+    }
+
+    @Override
+    public void PostStudentReports(AcademicReportRequest terminalReportRequest) {
+        assessmentUtil.fetchSetupdata(terminalReportRequest.getInstitutionCode());
+        assessmentUtil.fetchStudents(terminalReportRequest.getInstitutionCode());
+        assessmentUtil.fetchClassGroups(terminalReportRequest.getInstitutionCode());
+
+        List<Assessment>assessmentList=  AssessmentUtil.assessmentsGlobalList.stream()
+                .filter(ar -> ar.getStudentClass().equalsIgnoreCase(terminalReportRequest.getTargetClass())
+                        && ar.getAcademicYear().equalsIgnoreCase(terminalReportRequest.getAcademicYear())
+                        && ar.getTerm().equalsIgnoreCase(terminalReportRequest.getTerm())
+                        && ar.getInstitutionCode().equalsIgnoreCase(terminalReportRequest.getInstitutionCode()))
+                .toList();
+        TerminalReportResponse result=assessmentUtil.getTerminalReportResponseWithParent(
+                assessmentList.stream()
+                        .map(awp->assessmentUtil.mapAssessment_ToAssessmentResponse(awp,terminalReportRequest.getClassGroup()))
+                        .toList(), terminalReportRequest);
+        assessmentUtil.sendSMS(result.getStudentReportResponseList(),result.getInstitutionDetail().getName());
+        //return  Optional.ofNullable(result);
     }
 
     @Override
     public Optional<TerminalReportResponse> fetchStudentTranscript(SingleStringRequest terminalReportRequest) {
-        List<Assessment>assessmentList=  assessmentUtil.assessmentsGlobalList.stream()
+        List<Assessment>assessmentList=  AssessmentUtil.assessmentsGlobalList.stream()
                 .filter(ar -> ar.getStudentId().equalsIgnoreCase(terminalReportRequest.getVal()))
-                .collect(Collectors.toList());
+                .toList();
         TerminalReportResponse result=assessmentUtil.getTerminalReportResponse(
                 assessmentList.stream()
-                        .map(awp->assessmentUtil.mapAssessment_ToAssessmentResponse(awp))
-                        .collect(Collectors.toList()),terminalReportRequest );
+                        .map(assessmentUtil::mapAssessment_ToAssessmentResponse)
+                        .toList(),terminalReportRequest );
         return  Optional.ofNullable(result);
     }
 
@@ -67,7 +88,7 @@ public class AssessmentService implements AssessmentServiceInterface {
                                 && ca.getAcademicYear().equalsIgnoreCase(terminalReportRequest.getAcademicYear())
                                 && ca.getTerm().equalsIgnoreCase(terminalReportRequest.getTerm())
                                 && ca.getInstitutionCode().equalsIgnoreCase(terminalReportRequest.getInstitutionCode()))
-                        .collect(Collectors.toList()));
+                        .toList());
 
 
         Map<String, Map<Long, Map<String, StudentScores>>> examsResult = ExamsAssessmentUtil.CalculateExamsScores(
@@ -76,7 +97,7 @@ public class AssessmentService implements AssessmentServiceInterface {
                                 && ca.getAcademicYear().equalsIgnoreCase(terminalReportRequest.getAcademicYear())
                                 && ca.getTerm().equalsIgnoreCase(terminalReportRequest.getTerm())
                                 && ca.getInstitutionCode().equalsIgnoreCase(terminalReportRequest.getInstitutionCode()))
-                        .collect(Collectors.toList()));
+                        .toList());
 
 
         List<Assessment> resultingAssessment=new ArrayList<>();
@@ -127,13 +148,13 @@ public class AssessmentService implements AssessmentServiceInterface {
                     log.info("Merged Student: =>", continuousAssessment);
                     return continuousAssessment;
                 })
-                .collect(Collectors.toList());
+                .toList();
 
 
 
 
 
-       List<Assessment> assessmentsListWithoutPosition= mergedAssessments.stream().map(assessmentUtil::buildAssessment).collect(Collectors.toList());
+       List<Assessment> assessmentsListWithoutPosition= mergedAssessments.stream().map(assessmentUtil::buildAssessment).toList();
         List<Assessment> assessmentsListWithPosition=assessmentUtil.insertPositions(assessmentsListWithoutPosition);
 
 
@@ -168,7 +189,8 @@ public class AssessmentService implements AssessmentServiceInterface {
 
         // Save all updates to the database
         assessmentRepository.saveAll(assessmentsToSave);
-        TerminalReportResponse result=assessmentUtil.buildTerminalReportResponse(assessmentsListWithPosition.stream().map(awp->assessmentUtil.mapAssessment_ToAssessmentResponse(awp,terminalReportRequest.getClassGroup())).collect(Collectors.toList()), assessmentUtil.studentsGlobalRequest);
+        TerminalReportResponse result=assessmentUtil.buildTerminalReportResponse(assessmentsListWithPosition.stream().map(awp->assessmentUtil.mapAssessment_ToAssessmentResponse(awp,terminalReportRequest.getClassGroup())).toList(), assessmentUtil.studentsGlobalRequest);
+
         return Optional.ofNullable(result);
     }
 

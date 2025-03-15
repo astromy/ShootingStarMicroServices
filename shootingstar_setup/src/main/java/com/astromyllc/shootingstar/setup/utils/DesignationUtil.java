@@ -1,6 +1,5 @@
 package com.astromyllc.shootingstar.setup.utils;
 
-import com.astromyllc.shootingstar.setup.dto.request.DesignationRequest;
 import com.astromyllc.shootingstar.setup.dto.request.DesignationRequestDetails;
 import com.astromyllc.shootingstar.setup.dto.response.DesignationResponse;
 import com.astromyllc.shootingstar.setup.model.Designation;
@@ -12,7 +11,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -25,7 +23,7 @@ public class DesignationUtil {
     @Bean
     private void fetAllDesignation(){
         designationGlobalList=designationRepository.findAll();
-        log.info("Global Designation List populated with {} records",designationGlobalList.stream().count());
+        log.info("Global Designation List populated with {} records", (long) designationGlobalList.size());
     }
 
     public static Designation mapDesignationRequest_ToDesignation(DesignationRequestDetails des) {
@@ -34,7 +32,7 @@ public class DesignationUtil {
                 .name(des.getName())
                 .availableSlots(des.getAvailableSlots())
                 .totalSlots(des.getTotalSlots())
-                .jobDescriptionList(des.getJobDescriptionList().stream().map(jb-> JobDescriptionUtil.mapJobDescriptionRequest_ToJobDescription(jb)).toList())
+                .jobDescriptionList(des.getJobDescriptionList().stream().map(JobDescriptionUtil::mapJobDescriptionRequest_ToJobDescription).toList())
                 .build();
     }
 
@@ -45,7 +43,7 @@ public class DesignationUtil {
                 d.setAvailableSlots(des.getAvailableSlots());
                 d.setJobDescriptionList(des.getJobDescriptionList().stream()
                         .map(JobDescriptionUtil::mapJobDescriptionRequest_ToJobDescription) // Map all to new ones
-                        .collect(Collectors.toList()));
+                        .toList());
                return d;
     }
 
@@ -56,7 +54,7 @@ public class DesignationUtil {
                 .name(des.getName())
                 .availableSlots(des.getAvailableSlots())
                 .totalSlots(des.getTotalSlots())
-                .jobDescriptionList(des.getJobDescriptionList().stream().map(jb-> JobDescriptionUtil.mapJobDescription_ToJobDescriptionResponse(jb)).collect(Collectors.toList()))
+                .jobDescriptionList(des.getJobDescriptionList().stream().map(JobDescriptionUtil::mapJobDescription_ToJobDescriptionResponse).toList())
                 .build());
     }
 

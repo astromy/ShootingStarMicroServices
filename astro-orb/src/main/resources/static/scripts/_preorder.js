@@ -88,6 +88,7 @@ fetchInstitution(instId.split(",")[0]);
     population=$('[name="population"]').val();
     website=$('[name="website"]').val();
     crest=getBase64Image(document.getElementById("crestImage"));
+    headSignature=getBase64Image(document.getElementById("headSignatureImage"));
     }
 
     function buildJson(){
@@ -108,7 +109,8 @@ fetchInstitution(instId.split(",")[0]);
             "subscription":selectPlan,
             "status":"Pre-Order",
             "creationDate":"",
-            "crest":crest
+            "crest":crest,
+            "headSignature":headSignature
         };
 
         return jsonObject
@@ -236,8 +238,13 @@ return true;
 
 
 var input = document.querySelector(".imageInput")
+var input1 = document.querySelector(".imageInput1")
+
 var output = document.querySelector(".imageOutput")
+var output1 = document.querySelector(".headSignature")
+
 var imagesArray = []
+var imagesArray1 = []
 
 input.addEventListener("change", () => {
     var file = input.files
@@ -263,6 +270,32 @@ input.addEventListener("change", () => {
                     <img src=`+ srcs + ` alt="image" id="crestImage" class="crest">
                   </div>`
       output.innerHTML = images
+    }
+
+input1.addEventListener("change", () => {
+    var file = input1.files
+    imagesArray1=[];
+    imagesArray1.push(file[0])
+    displayHeadSignatureImages()
+  })
+
+  function displayHeadSignatureImages() {
+    var images = ""
+    imagesArray1.forEach((image1, index) => {
+      images += `<div class="headSignature">
+                  <img src="${URL.createObjectURL(image1)}" alt="image" id="headSignatureImage" class="headSignature">
+                  <span onclick="deleteImage(${index})">&times;</span>
+                </div>`
+    })
+    output1.innerHTML = images
+  }
+
+    function displayHeadSignatureFetchImages(srcs) {
+      var images = ""
+        images += `<div class="headSignature">
+                    <img src=`+ srcs + ` alt="image" id="headSignatureImage" class="headSignature">
+                  </div>`
+      output1.innerHTML = images
     }
 
   function deleteImage(index) {
@@ -296,6 +329,7 @@ input.addEventListener("change", () => {
     //$('[name="population"]').val()=result.;
     $('[name="website"]').val(result.website);
     displayFetchImages('data:image/png;base64,' + result.crest);
+    displayHeadSignatureFetchImages('data:image/png;base64,' + result.headSignature);
 
     Array.from(document.getElementsByClassName("subscriptionPlan")).forEach(function(s) {
             if(s.innerHTML==result.subscription){

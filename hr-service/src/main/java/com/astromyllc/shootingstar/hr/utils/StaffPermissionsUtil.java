@@ -147,12 +147,12 @@ public class StaffPermissionsUtil {
             List<RoleRepresentation> rolesToAdd = staffPermissionsRequests.stream()
                     .filter(request -> "add".equalsIgnoreCase(request.getState())) // Filter roles with state "add"
                     .map(roleName -> realmResource.roles().get(roleName.getPermissionCode()).toRepresentation())
-                    .collect(Collectors.toList());
+                    .toList();
 
             List<RoleRepresentation> rolesToRemove = staffPermissionsRequests.stream()
                     .filter(request -> "delete".equalsIgnoreCase(request.getState())) // Filter roles with state "delete"
                     .map(roleName -> realmResource.roles().get(roleName.getPermissionCode()).toRepresentation())
-                    .collect(Collectors.toList());
+                    .toList();
 
             // Step 5: Assign Roles to User (Add)
             if (!rolesToAdd.isEmpty()) {

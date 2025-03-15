@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -37,7 +36,7 @@ public class SelectedExamQuestionsUtil {
                     .classId(s.getClassId())
                     .questionDetail(s.getQuestionDetail())
                     .term(s.getTerm())
-                    .selectedExamQuestionAnswersResponses(s.getSelectedExamQuestionAnswers().stream().map(sea->SelectedExamQuestionAnswersUtil.mapSelectedExamsQuestionAns_ToExamsQuestionAnsResponse(sea)).collect(Collectors.toList()))
+                    .selectedExamQuestionAnswersResponses(s.getSelectedExamQuestionAnswers().stream().map(SelectedExamQuestionAnswersUtil::mapSelectedExamsQuestionAns_ToExamsQuestionAnsResponse).toList())
             .build());
     }
 }

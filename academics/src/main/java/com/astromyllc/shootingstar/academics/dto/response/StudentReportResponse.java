@@ -1,5 +1,6 @@
 package com.astromyllc.shootingstar.academics.dto.response;
 
+import com.astromyllc.shootingstar.academics.dto.alien.Parents;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,4 +26,5 @@ public class StudentReportResponse {
     private String averageRemark;
     private String averagePosition;
     private List<AssessmentResponse> studentAssessment;
+    private List<Parents> studentParents;
 }

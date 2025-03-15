@@ -5,6 +5,8 @@ import com.astromyllc.shootingstar.adminpta.dto.request.ParentsRequest;
 import com.astromyllc.shootingstar.adminpta.dto.request.StudentsImportRequest;
 import com.astromyllc.shootingstar.adminpta.dto.request.StudentsRequest;
 import com.astromyllc.shootingstar.adminpta.dto.request.alien.ApplicationRequest;
+import com.astromyllc.shootingstar.adminpta.dto.response.ClassListResponse;
+import com.astromyllc.shootingstar.adminpta.dto.response.ParentsResponse;
 import com.astromyllc.shootingstar.adminpta.dto.response.StudentsResponse;
 import com.astromyllc.shootingstar.adminpta.model.Parents;
 import com.astromyllc.shootingstar.adminpta.model.Students;
@@ -26,7 +28,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -67,7 +68,7 @@ public class StudentUtil {
     }
 
     public void getCurrentApplications(AdmissionRequest admissionRequest) {
-        fetchStudents(admissionRequest).stream().map(s -> mapAdmittedStudents(s)).collect(Collectors.toList());
+        fetchStudents(admissionRequest).stream().map(this::mapAdmittedStudents).toList();
 
     }
 
@@ -93,13 +94,14 @@ public class StudentUtil {
                 .build());
 
         List<Parents> parentsList = new ArrayList<>();
-        parentsList.addAll(s.getParentsRequests().stream().map(sp -> mapStudentParent(sp,studentId)).collect(Collectors.toList()));
+        parentsList.addAll(s.getParentsRequests().stream().map(sp -> mapStudentParent(sp,studentId)).toList());
 
         studentRepository.saveAll(studentsList);
         parentRepository.saveAll(parentsList);
 
         studentsGlobalList.addAll(studentsList);
         parentsGlobalList.addAll(parentsList);
+        log.info("{} records have been added to the students list",studentsGlobalList.size());
         return "done";
     }
 
@@ -118,16 +120,16 @@ public class StudentUtil {
                 .build();
     }
 
+    long studentCount=0l;
     private String generateStudentId(String applicationInstitution) {
-       long studentCount=0l;
-       if(studentsGlobalList.size()>0) {
+       if(studentsGlobalList.size()>0 &&  studentCount<1) {
            studentCount = 1+ studentsGlobalList.stream().filter(s -> s.getInstitutionCode().equalsIgnoreCase(applicationInstitution)).count();
        }else{
-           studentCount=1;
+           studentCount+=1;
        }
-       return applicationInstitution + StringUtils.right(("0000" + studentCount),4);
+       String id=applicationInstitution + StringUtils.right(("00000" + studentCount),5);
+       return id;
     }
-
     public StudentsResponse mapStudent_ToStudentResponse(Students s) {
         return StudentsResponse.builder()
                 .institutionCode(s.getInstitutionCode())
@@ -145,25 +147,62 @@ public class StudentUtil {
                 .picture(s.getPicture())
                 .placeOfBirth(s.getPlaceOfBirth())
                 .status(s.getStatus())
+                .studentClass(s.getStudentClass())
+                .studentParents(parentsGlobalList.stream().filter(sp->sp.getStudentId().equalsIgnoreCase(s.getStudentId())).map(this::mapParent_ToParentResponse).toList())
+                .build();
+    }
+
+    public ParentsResponse mapParent_ToParentResponse(Parents p){
+        return ParentsResponse.builder()
+                .studentId(p.getStudentId())
+                .institutionCode(p.getInstitutionCode())
+                .parentType(p.getParentType())
+                .firstNames(p.getFirstNames())
+                .lastName(p.getLastName())
+                .contact1(p.getContact1())
+                .contact2(p.getContact2())
+                .email(p.getEmail())
+                .occupation(p.getOccupation())
+                .placeOfWork(p.getPlaceOfWork())
+                .build();
+    }
+
+
+    public ClassListResponse mapStudent_ToClassListResponse(Students s) {
+        return ClassListResponse.builder()
+                .Name(s.getLastName() + " " + s.getFirstName() + (s.getOtherName() != null && !s.getOtherName().isEmpty() ? " " + s.getOtherName() : ""))
+                .StudentID(s.getStudentId())
+                .StudentClass(s.getStudentClass())
+                .Score("")
+                .Subject("")
+                .TotalScore("")
                 .build();
     }
 
     public Students mapBulkStudent_To_Students(StudentsImportRequest s){
-        String studentId = "";
-        List<Parents> parentsList=new ArrayList<>();
-        if(s.getStudentId().trim().isEmpty()) {
+        String studentId = s.getStudentId().trim().isEmpty() ? generateStudentId(s.getInstitutionCode()) : s.getStudentId();
+        if (s.getFirstName() == null) {
             generateStudentId(s.getInstitutionCode());
-        }else {
-            studentId=s.getStudentId();
         }
+
+        List<Parents> parentsList=new ArrayList<>();
+
+        /*if(s.getStudentId().trim().isEmpty()) {
+            generateStudentId(s.getInstitutionCode());
+        }*/
 
         if(s.getFirstName()==null) {
             generateStudentId(s.getInstitutionCode());
         }
 
+        parentsList.addAll(
+                s.getParentsRequests().stream()
+                        .map(parentRequest -> mapStudentParent(parentRequest, studentId))
+                        .toList()
+        );
 
-        parentsList.add(mapStudentParent(s.getParentsRequests().get(0),studentId));
-        parentsList.add(mapStudentParent(s.getParentsRequests().get(1),studentId));
+        /*parentsList.add(mapStudentParent(s.getParentsRequests().get(0),studentId));
+        parentsList.add(mapStudentParent(s.getParentsRequests().get(1),studentId));*/
         parentRepository.saveAll(parentsList);
         return Students.builder()
                 .studentId(studentId)

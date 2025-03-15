@@ -1,21 +1,25 @@
 package com.astromyllc.shootingstar.adminpta.serviceInterface;
 
-import com.astromyllc.shootingstar.adminpta.dto.request.AdmissionRequest;
-import com.astromyllc.shootingstar.adminpta.dto.request.StudentSkimRequest;
-import com.astromyllc.shootingstar.adminpta.dto.request.StudentsImportRequest;
+import com.astromyllc.shootingstar.adminpta.dto.request.*;
+import com.astromyllc.shootingstar.adminpta.dto.response.ClassListResponse;
 import com.astromyllc.shootingstar.adminpta.dto.response.StudentsResponse;
-import com.astromyllc.shootingstar.adminpta.model.Students;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface StudentServiceInterface {
 
-    public void fetchCurrentApplications(AdmissionRequest admissionRequest);
+    void fetchCurrentApplications(AdmissionRequest admissionRequest);
 
-    List<StudentsResponse> fetchAllStudents();
+    Optional<List<StudentsResponse>> fetchAllStudents();
 
-    List<StudentsResponse> fetchStudentsByClass(StudentSkimRequest request);
+    Optional<List<StudentsResponse>> fetchStudentsByClass(ClassListRequest request);
 
-    List<StudentsResponse> postBulkStudentList(List<StudentsImportRequest> request);
+    Optional<List<StudentsResponse>> postBulkStudentList(List<StudentsImportRequest> request);
+
+    Optional<List<ClassListResponse>>  fetchAssessmentList(ClassListRequest request);
+
+    Optional<List<StudentsResponse>>  fetchStudentsByStatus(SingleStringRequest status);
+
+    Optional<List<StudentsResponse>>  fetchStudentsByInstitution(SingleStringRequest institution);
 }

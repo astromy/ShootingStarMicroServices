@@ -4,13 +4,12 @@ import com.astromyllc.shootingstar.hr.dto.request.SingleStringRequest;
 import com.astromyllc.shootingstar.hr.dto.request.StaffRequest;
 import com.astromyllc.shootingstar.hr.dto.request.alien.InstitutionRequest;
 import com.astromyllc.shootingstar.hr.dto.response.*;
-import com.astromyllc.shootingstar.hr.model.*;
+import com.astromyllc.shootingstar.hr.model.Staff;
 import com.astromyllc.shootingstar.hr.repository.StaffRepository;
 import jakarta.transaction.Transactional;
 import jakarta.xml.bind.DatatypeConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.minidev.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpHeaders;
@@ -27,7 +26,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -126,11 +124,11 @@ public class StaffUtil {
                 .staffPicture(filepath)
                 .nextOfKing(staffRequest.getNextOfKing())
                 .institutionCode(staffRequest.getInstitutionCode())
-                //.professionalRecords(staffRequest.getProfessionalRecords().stream().map(p->ProfessionalRecordsUtil.mapProfessionalRecordRequest_ToProfessionalRecords(p)).collect(Collectors.toList()))
-                //.staffDocuments(staffRequest.getStaffDocuments().stream().map(sd-> StaffDocumentsUtil.mapStaffDocumentsRequest_ToStaffDocuents(sd)).collect(Collectors.toList()))
-                //.dependants(staffRequest.getDependants().stream().map(d->DependantsUtil.mapDependantsRequest_ToDependants(d)).collect(Collectors.toList()))
-                //.academicRecords(staffRequest.getAcademicRecords().stream().map(a->AcademicRecordsUtil.mapAcademicRecordRequest_ToAcademicRecords(a,newStaff.getStaffCode)).collect(Collectors.toList()))
-                // .portfolio(staffRequest.getPortfolio().stream().map(p->PortfolioUtil.mapPortFolioRequest_ToPortfolio(p,newStaff.getStaffCode)).collect(Collectors.toList()))
+                //.professionalRecords(staffRequest.getProfessionalRecords().stream().map(p->ProfessionalRecordsUtil.mapProfessionalRecordRequest_ToProfessionalRecords(p)).toList())
+                //.staffDocuments(staffRequest.getStaffDocuments().stream().map(sd-> StaffDocumentsUtil.mapStaffDocumentsRequest_ToStaffDocuents(sd)).toList())
+                //.dependants(staffRequest.getDependants().stream().map(d->DependantsUtil.mapDependantsRequest_ToDependants(d)).toList())
+                //.academicRecords(staffRequest.getAcademicRecords().stream().map(a->AcademicRecordsUtil.mapAcademicRecordRequest_ToAcademicRecords(a,newStaff.getStaffCode)).toList())
+                // .portfolio(staffRequest.getPortfolio().stream().map(p->PortfolioUtil.mapPortFolioRequest_ToPortfolio(p,newStaff.getStaffCode)).toList())
                 .build();
     }
 
@@ -159,10 +157,10 @@ public class StaffUtil {
     }
 
     public StaffResponse mapStaff_ToStaffResponse(Staff staff) throws URISyntaxException, IOException {
-        List<DependantsResponse> dr =  staff.getDependants().stream().filter(d -> d.getInstitutionCode().equalsIgnoreCase(staff.getInstitutionCode())).collect(Collectors.toList()).stream().map(d1->dependantsUtil.mapDependants_ToDependantResponse(d1)).collect(Collectors.toList());
-        List<StaffDocumentsResponse> sdr= staff.getStaffDocuments().stream().filter(sd -> sd.getInstitutionCode().equalsIgnoreCase(staff.getInstitutionCode())).collect(Collectors.toList()).stream().map(sd1->staffDocumentsUtil.mapStaffDocuments_ToStaffDocuentsResponse(sd1)).collect(Collectors.toList());
-        List<AcademicRecordsResponse> arr =staff.getAcademicRecords().stream().filter(d -> d.getInstitutionCode().equalsIgnoreCase(staff.getInstitutionCode())).collect(Collectors.toList()).stream().map(d1->academicRecordsUtil.mapAcademicRecord_ToAcademicRecordsResponse(d1)).collect(Collectors.toList());
-        List<ProfessionalRecordsResponse> prr =staff.getProfessionalRecords().stream().filter(d -> d.getInstitutionCode().equalsIgnoreCase(staff.getInstitutionCode())).collect(Collectors.toList()).stream().map(d1-> professionalRecordsUtil.mapProfessionalRecord_ToProfessionalRecordsResponse(d1)).collect(Collectors.toList());
+        List<DependantsResponse> dr =  staff.getDependants().stream().filter(d -> d.getInstitutionCode().equalsIgnoreCase(staff.getInstitutionCode())).toList().stream().map(DependantsUtil::mapDependants_ToDependantResponse).toList();
+        List<StaffDocumentsResponse> sdr= staff.getStaffDocuments().stream().filter(sd -> sd.getInstitutionCode().equalsIgnoreCase(staff.getInstitutionCode())).toList().stream().map(StaffDocumentsUtil::mapStaffDocuments_ToStaffDocuentsResponse).toList();
+        List<AcademicRecordsResponse> arr =staff.getAcademicRecords().stream().filter(d -> d.getInstitutionCode().equalsIgnoreCase(staff.getInstitutionCode())).toList().stream().map(AcademicRecordsUtil::mapAcademicRecord_ToAcademicRecordsResponse).toList();
+        List<ProfessionalRecordsResponse> prr =staff.getProfessionalRecords().stream().filter(d -> d.getInstitutionCode().equalsIgnoreCase(staff.getInstitutionCode())).toList().stream().map(ProfessionalRecordsUtil::mapProfessionalRecord_ToProfessionalRecordsResponse).toList();
 
         return StaffResponse.builder()
                 .id(String.valueOf(staff.getId()))

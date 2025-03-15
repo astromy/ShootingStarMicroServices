@@ -15,5 +15,7 @@ public interface AssessmentServiceInterface {
 
     Optional<TerminalReportResponse>  fetchStudentTerminalReport(AcademicReportRequest terminalReportRequest);
 
+    void PostStudentReports(AcademicReportRequest terminalReportRequest);
+
     Optional<TerminalReportResponse> fetchStudentTranscript(SingleStringRequest terminalReportRequest);
 }
