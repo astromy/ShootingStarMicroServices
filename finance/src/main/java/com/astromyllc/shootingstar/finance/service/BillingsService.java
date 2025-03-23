@@ -3,6 +3,7 @@ package com.astromyllc.shootingstar.finance.service;
 import com.astromyllc.shootingstar.finance.dto.request.BillingFetchRequest;
 import com.astromyllc.shootingstar.finance.dto.request.BillingsRequest;
 import com.astromyllc.shootingstar.finance.dto.response.BillingsResponse;
+import com.astromyllc.shootingstar.finance.dto.response.Student_BillResponse;
 import com.astromyllc.shootingstar.finance.model.Billings;
 import com.astromyllc.shootingstar.finance.repositoy.BillingsRepository;
 import com.astromyllc.shootingstar.finance.serviceInterface.BillingsServiceInterface;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +25,7 @@ import java.util.Optional;
 public class BillingsService implements BillingsServiceInterface {
     private final BillingsRepository billingsRepository;
     private final BillingsUtil billingsUtil;
+    private final Student_BillService student_BillService;
     private final BillUtil billsUtil;
 
     @Override
@@ -46,9 +49,9 @@ public class BillingsService implements BillingsServiceInterface {
     }
 
     @Override
-    public Optional<List<BillingsResponse>> createBillings(BillingsRequest billingsRequest) {
+    public Optional<List<Student_BillResponse>> createBillings(BillingsRequest billingsRequest) {
 
-     return  Optional.of(billingsRequest.getStudentId().stream()
+     List<Billings> billings = billingsRequest.getStudentId().stream()
                 .flatMap(stud -> BillUtil.billGlobalList.stream()
                         .filter(bill -> billingsRequest.getInstitutionCode().equalsIgnoreCase(bill.getInstitutionCode()) &&
                                 billingsRequest.getBillname().stream()
@@ -64,8 +67,15 @@ public class BillingsService implements BillingsServiceInterface {
                                 bill.getBill_Name(),
                                 stud)
                         )
-                ).map(billingsUtil::mapBillings_ToBillingResponse)
-                .toList());
+                ).toList();
+     billingsRepository.saveAll(billings);
+     BillingsUtil.billingGlobalList.addAll(billings);
+    return Optional.of(student_BillService.createStudentsBill(billings.stream().map(billingsUtil::mapBilling_ToStudentBill).toList()));
+     /*return Optional.of(billings
+                     .stream()
+                     .map(billingsUtil::mapBillings_ToBillingResponse)
+             .toList());*/
+
 
     }
 

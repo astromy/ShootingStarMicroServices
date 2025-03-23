@@ -1,5 +1,8 @@
 server:
   port: 3017
+  tomcat:
+    max-http-form-post-size: 314572800
+
 
 gateway:
   host: ${APIGATEWAY:astro-api-gateway:8083}
@@ -30,3 +33,8 @@ spring:
 
   application:
     name: astro-preorder
+
+  servlet:
+    multipart:
+      max-file-size: 314572800
+      max-request-size: 314572800

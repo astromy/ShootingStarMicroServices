@@ -3,6 +3,8 @@ package com.astromyllc.shootingstar.finance.controller;
 import com.astromyllc.shootingstar.finance.dto.request.BillingFetchRequest;
 import com.astromyllc.shootingstar.finance.dto.request.BillingsRequest;
 import com.astromyllc.shootingstar.finance.dto.response.BillingsResponse;
+import com.astromyllc.shootingstar.finance.dto.response.Student_BillResponse;
+import com.astromyllc.shootingstar.finance.model.Student_Bill;
 import com.astromyllc.shootingstar.finance.serviceInterface.BillingsServiceInterface;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,17 +22,9 @@ public class BillingController {
     private final BillingsServiceInterface billingsServiceInterface;
 
     @PostMapping
-    @RequestMapping("/api/finance/create-billing")
-    @ResponseStatus(HttpStatus.CREATED)
-    public BillingsResponse createBilling(@RequestBody BillingsRequest billingsRequest) {
-        log.info("Application  Received");
-        return billingsServiceInterface.updateBilling(billingsRequest);
-    }
-
-    @PostMapping
     @RequestMapping("/api/finance/create-billings")
     @ResponseStatus(HttpStatus.CREATED)
-    public Optional<List<BillingsResponse>> createBillings(@RequestBody BillingsRequest billingsRequest) {
+    public Optional<List<Student_BillResponse>> createBillings(@RequestBody BillingsRequest billingsRequest) {
         log.info("Application  Received");
         return billingsServiceInterface.createBillings(billingsRequest);
     }

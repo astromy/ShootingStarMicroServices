@@ -97,7 +97,7 @@ public class InstitutionController {
 
     @PostMapping("/api/setup/getInstitutionDepartment")
     @ResponseStatus(HttpStatus.OK)
-    public Optional<List<Optional<DepartmentResponse>>> getDepartmentByInstitution(@RequestBody SingleStringRequest beceCode) {
+    public List<Optional<DepartmentResponse>> getDepartmentByInstitution(@RequestBody SingleStringRequest beceCode) {
         log.info("Application  Received");
       return  departmentServiceInterface.getDepartmentByInstitution(beceCode);
     }
@@ -145,7 +145,7 @@ public class InstitutionController {
 
     @PostMapping("/api/setup/getInstitutionClasses")
     @ResponseStatus(HttpStatus.OK)
-    public Optional<List<Optional<ClassesResponse>>> getClasses(@RequestBody SingleStringRequest beceCode) {
+    public List<Optional<ClassesResponse>> getClasses(@RequestBody SingleStringRequest beceCode) {
         log.info("Class List  Received");
        return classesServiceInterface.getAllClassesByInstitution(beceCode);
     }
@@ -170,7 +170,7 @@ public class InstitutionController {
 
     @PostMapping("/api/setup/getInstitutionSubjects")
     @ResponseStatus(HttpStatus.OK)
-    public Optional<List<Optional<SubjectResponse>>> GetSubjects(@RequestBody SingleStringRequest beceCode) {
+    public List<Optional<SubjectResponse>> GetSubjects(@RequestBody SingleStringRequest beceCode) {
         log.info("Subject List  Received");
        return subjectServiceInterface.getAllSubjectsByInstitution(beceCode);
     }

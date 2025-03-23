@@ -7,6 +7,7 @@ import com.astromyllc.shootingstar.adminpta.dto.request.StudentsRequest;
 import com.astromyllc.shootingstar.adminpta.dto.request.alien.ApplicationRequest;
 import com.astromyllc.shootingstar.adminpta.dto.response.ClassListResponse;
 import com.astromyllc.shootingstar.adminpta.dto.response.ParentsResponse;
+import com.astromyllc.shootingstar.adminpta.dto.response.StudentSkimResponse;
 import com.astromyllc.shootingstar.adminpta.dto.response.StudentsResponse;
 import com.astromyllc.shootingstar.adminpta.model.Parents;
 import com.astromyllc.shootingstar.adminpta.model.Students;
@@ -151,6 +152,21 @@ public class StudentUtil {
                 .studentParents(parentsGlobalList.stream().filter(sp->sp.getStudentId().equalsIgnoreCase(s.getStudentId())).map(this::mapParent_ToParentResponse).toList())
                 .build();
     }
+    public StudentSkimResponse mapStudent_ToSkimpStudentResponse(Students s) {
+        return StudentSkimResponse.builder()
+                .institutionCode(s.getInstitutionCode())
+                .studentId(s.getStudentId())
+                .dateOfAdmission(String.valueOf(s.getDateOfAdmission()))
+                .lastName(s.getLastName())
+                .firstName(s.getFirstName())
+                .gender(s.getGender())
+                .nationality(s.getResidentialLocality())
+                .otherName(s.getOtherName())
+                .picture(s.getPicture())
+                .status(s.getStatus())
+                .studentClass(s.getStudentClass())
+                .build();
+    }
 
     public ParentsResponse mapParent_ToParentResponse(Parents p){
         return ParentsResponse.builder()
@@ -223,4 +239,5 @@ public class StudentUtil {
                 .birthCert(s.getBirthCert())
                 .build();
     }
+
 }

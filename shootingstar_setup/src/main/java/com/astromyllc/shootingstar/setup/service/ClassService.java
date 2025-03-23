@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -59,9 +60,15 @@ public class ClassService implements ClassesServiceInterface {
     }
 
     @Override
-    public Optional<List<Optional<ClassesResponse>>> getAllClassesByInstitution(SingleStringRequest institutionRequest) {
+    public List<Optional<ClassesResponse>> getAllClassesByInstitution(SingleStringRequest institutionRequest) {
         String finalBeceCode= institutionRequest.getVal();
         Optional<Institution> inst=institutionUtils.institutionGlobalList.stream().filter(x->x.getBececode().equalsIgnoreCase(finalBeceCode)).findFirst();
-        return Optional.ofNullable(inst.get().getClassList().stream().map(i->classesUtil.mapClassToClassResponse(i)).toList());
+        //return Optional.ofNullable(inst.get().getClassList().stream().map(i->classesUtil.mapClassToClassResponse(i)).toList());
+        return Optional.ofNullable(inst.get())
+                .map(i -> i.getClassList())  // Safe check if inst is null
+                .map(list -> list.stream())  // Safe check if getClassList() is null
+                .map(stream -> stream.map(ClassesUtil::mapClassToClassResponse))  // Safe map operation
+                .map(stream -> stream.toList())  // Convert stream to list safely
+                .orElse(Collections.emptyList());
     }
 }

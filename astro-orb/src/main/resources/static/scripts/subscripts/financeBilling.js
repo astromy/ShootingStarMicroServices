@@ -30,28 +30,73 @@ $(function () {
                         Student Billing
                     </h2>
                     <small>Used for Billing Students for a given academic period</small>
+
+
+                    <div class="row">
+                        <div class="col-lg-12 pull-left">
+                            <div class="form-group col-lg-2 ">
+                                <select class="form-control classGroupSelect">
+                                    <option>Select Class Group</option>
+                                 </select>
+                            </div>
+                            <div class="form-group col-lg-2 ">
+                                <select class="form-control classSelect">
+                                    <option>Select Class</option>
+                                 </select>
+                            </div>
+                            <div class="form-group col-lg-2">
+                                <select class="form-control termSelect">
+                                    <option value="0">Select Term</option>
+                                    <option value="First Term">First Term</option>
+                                    <option value="Second Term">Second Term</option>
+                                    <option value="Third Term">Third Term</option>
+                                 </select>
+                            </div>
+                            <div class="form-group col-lg-2">
+                                <select class="form-control academicYearSelect" >
+                                    <option>Select Academic Year</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-sm-2" style="float: right;">
+                                 <div id="billingFetch" class="">
+                                      <button class="btn btn-success col-lg-12 form-control" type="button" id="submitBtn">Submit</button>
+                                  </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
-        <div class="content animate-panel">
 
+
+               <div class="content animate-panel" id="pagecontent">
+                 <div class="hpanel">
+                    <div class="panel-heading">
+                        <div class="panel-tools">
+                            <a class="showhide"><i class="fa fa-chevron-up"></i></a>
+                            <a class="closebox"><i class="fa fa-times"></i></a>
+                        </div>
+                        Subject Scores
+                    </div>
                     <div class="panel-body">
                         <table id="billingTable" class="table table-striped table-bordered table-hover" width="100%">
                             <thead>
                                 <tr>
                                     <th hidden>id</th>
-                                    <th class="col-sm-3">Class Name</th>
-                                    <th class="col-sm-2">Academic Year</th>
-                                    <th class="col-sm-2">Term</th>
-                                    <th class="col-sm-1">Class Size</th>
-                                    <th class="col-sm-1">Billing Size</th>
-                                    <th class="col-sm-3">Billing Date</th>
+                                    <th>Student Id</th>
+                                    <th>Class</th>
+                                    <th>Term</th>
+                                    <th>Amount Due</th>
+                                    <th>Amount Paid</th>
+                                    <th>Amount Balance</th>
                                 </tr>
                             </thead>
                             <tbody id="billingTableBody"></tbody>
                         </table>
                     </div>
-        </div>
+                </div>
+             </div>
         
         
         <div class="modal fade hmodal-info" id="newBillModal" tabindex="-1" role="dialog"aria-hidden="true">
@@ -132,6 +177,47 @@ function billingIndut() {
         }
     });
 
+    document.querySelector(".dismissBill").addEventListener("click", function() {
+
+         const mainParent=document.querySelector('.parent');
+            const tabControls= mainParent.querySelectorAll('li');
+            tabControls.forEach(element => {
+                    element.style.pointerEvents = 'auto'; // Re-enable all clicks/interactions
+                    element.style.opacity = '1';
+            });
+            const checks=document.querySelectorAll('.i-checks').forEach(check => {
+                       check.checked = false;
+               });
+
+    });
+
+  document.querySelectorAll(".gBill").forEach(function(gBillElement) {
+      gBillElement.addEventListener("change", function() {
+
+                const mainParent=this.closest('.parent');
+                const tabControls= mainParent.querySelectorAll('li:not(.active)');
+
+                tabControls.forEach(element => {
+                        element.style.pointerEvents = 'none'; // Disable all clicks/interactions
+                        element.style.opacity = '0.5';
+                });
+
+                buildGeneralBill(this);
+      });
+  });
+
+  document.querySelectorAll(".sBill").forEach(function(sBillElement) {
+      sBillElement.addEventListener("change", function() {
+
+                const mainParent=this.closest('.parent');
+                const tabControls= mainParent.querySelectorAll('li:not(.active)');
+
+                tabControls.forEach(element => {
+                        element.style.pointerEvents = 'none'; // Disable all clicks/interactions
+                        element.style.opacity = '0.5';
+                });
+      });
+  });
 }
 
 
@@ -227,7 +313,7 @@ function createGeneralTab(){
 
   // Create the hpanel div
   const hpanelDiv = document.createElement('div');
-  hpanelDiv.classList.add('hpanel');
+  hpanelDiv.classList.add('hpanel','parent');
 
   // Create the nav tabs list
   const ulTabs = document.createElement('ul');

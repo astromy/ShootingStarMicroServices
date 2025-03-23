@@ -30,7 +30,7 @@ server:
   port: 0
 
 gateway:
-  host: ${APIGATEWAY:localhost:8083}
+  host: ${APIGATEWAY:astro-api-gateway:8083}
   # host: ${APIGATEWAY:astro-api-gateway}  # Commented
 
 eureka:
@@ -79,7 +79,7 @@ logging:
   level:
     org:
       springframework:
-        security=ERROR:
+        security: ERROR
 
       hibernate:
         SQL: ERROR
@@ -93,4 +93,4 @@ logging:
 
 
 keycloak:
-  address: ${KeycloakURL:keycloak:8080}
+  address: ${KeycloakURL:https://keycloak.astromyllc.com}

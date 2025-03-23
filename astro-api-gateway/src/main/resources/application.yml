@@ -1,3 +1,5 @@
+
+
 eureka:
   instance:
     preferIpAddress: true
@@ -10,39 +12,21 @@ eureka:
     fetchRegistry: true
 
 
+
 logging:
   level:
     root: INFO
-    org:
-      springframework:
-        security: ERROR
-        cloud:
-          gateway:
-            route:
-              RouteDefinitionLocator: INFO
+    org.springframework.security: DEBUG
+    org.springframework.cloud.gateway.route.RouteDefinitionLocator: INFO
 
 server:
   port: 8083
-  
+
 spring:
   main:
     web-application-type: reactive
   application:
-    name: astromyllc-api-gateway  
-  #security:
-    #oauth2:
-      #client:
-      #  provider:
-      #    keycloak.issuer-uri: http://keycloak:8090/realms/ShootingStar
-      #  registration:
-      #    keycloak:
-      #      client-id: astro_orb_microservices
-      #      client-secret: VSOLTuWTCIasuAK5xNS93YOKfmnwtUlE
-      #      authorization-grant-type: Client Credentials
-      #resourceserver:
-      #  jwt:
-      #    issuer-uri: http://keycloak:8090/realms/ShootingStar
-            
+    name: astromyllc-api-gateway
   cloud:
     compatibility-verifier:
       enabled: false
@@ -50,62 +34,60 @@ spring:
 
     ## Setup Service Routes
     gateway:
-   #   globalcors:
-   #     corsConfigurations:
-   #       '[/**]':
-   #         allowedOrigins:
-   #           - "http://localhost:7013"
-   #           - "http://localhost:3017"
-   #         allowedHeaders: "*"
-   #         allowedMethods:
-   #           - GET
-   #           - POST
       routes:
         - id: setup
           uri: lb://shootingStar-setup
-          predicates[0]: Path=/api/setup/**
+          predicates:
+            - Path=/api/setup/**
 
         ## Online Application Service Routes
         # routes[1]:
         - id: online-application
           uri: lb://online-application
-          predicates[0]: Path=/api/applications/**
+          predicates:
+            - Path=/api/applications/**
 
         ## HR Service Routes
         #routes[2]:
         - id: HR
           uri: lb://HR-Service
-          predicates[0]: Path=/api/hr/**
+          predicates:
+            - Path=/api/hr/**
 
         ## Finance Service Routes
         #routes[3]:
         - id: finance
           uri: lb://finance
-          predicates[0]: Path=/api/finance/**
+          predicates:
+            - Path=/api/finance/**
 
         ## Clinic Service Routes
         #routes[4]:
         - id: clinic
           uri: lb://clinic
-          predicates[0]: Path=/api/clinic/**
+          predicates:
+            - Path=/api/clinic/**
 
         ## Store-Inventory Service Routes
         #routes[5]:
         - id: stores-inventory
           uri: lb://stores-inventory
-          predicates[0]: Path=/api/stores_inventory/**
+          predicates:
+            - Path=/api/stores_inventory/**
 
         ## Academics Service Routes
         #routes[6]:
         - id: academics
           uri: lb://shootingStar-academics
-          predicates[0]: Path=/api/academics/**
+          predicates:
+            - Path=/api/academics/**
 
         ## Administration Service Routes
         #routes[7]:
         - id: administration-pta
           uri: lb://administration-pta
-          predicates[0]: Path=/api/administration-pta/**
+          predicates:
+            - Path=/api/administration-pta/**
 
         ## Administration Service Routes
         ##spring:cloud:gateway:routes[8]:id=astroauthauth
@@ -116,40 +98,39 @@ spring:
         #routes[8]:
         - id: discovery_server
           uri: http://localhost:8761
-          predicates[0]: Path=/eureka/web
-          filters[0]: SetPath=/
+          predicates:
+            - Path=/eureka/web
+          filters:
+            - SetPath=/
 
         ## Discovery Server Static Files
         #routes[9]:
         - id: discovery_server_static
           uri: http://localhost:8761
-          predicates[0]: Path=/eureka/**
+          predicates:
+            - Path=/eureka/**
 
         ## Astro Orb Front End Static Files
         #routes[9]:
-        - id:  astro_orb
+        - id: astro_orb
           uri: http://localhost:7013
-          predicates[0]: Path=/astro_orb/web
-          filters[0]: SetPath=/
+          predicates:
+            - Path=/astro_orb/web
+          filters:
+            - SetPath=/
 
         ## Astro Orb Front End Static Files
         #routes[9]:
         - id: astro_orb_static
           uri: http://localhost:7013
-          predicates[0]: Path=/orb/**
+          predicates:
+            - Path=/orb/**
 
 
   sleuth:
     sampler:
       probability: 1.0
 
-
-  #spring.security.oauth2.resourceserver.jwt.issuer-uri=http://localhost:8090/realms/ShootingStar
-
-  #security.oauth2.client.provider.provider.keycloak.issuer-uri=http://localhost:8090/realms/ShootingStar
-  #security.oauth2.client.registration.keycloak.client-id=astroauthauth
-  #security.oauth2.client.registration.keycloak.client-secret=5Ddz2poW7lJB5U7qhInn1Rk8tO77xM6X
-  #security.oauth2.client.registration.keycloak.authorization-grant-type=Client Credentials
 
 
 

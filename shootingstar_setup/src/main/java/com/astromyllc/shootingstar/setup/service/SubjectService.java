@@ -57,13 +57,20 @@ public class SubjectService implements SubjectServiceInterface {
     }
 
     @Override
-    public Optional<List<Optional<SubjectResponse>>> getAllSubjectsByInstitution(SingleStringRequest institutionRequest) {
+    public List<Optional<SubjectResponse>> getAllSubjectsByInstitution(SingleStringRequest institutionRequest) {
         String finalBeceCode= institutionRequest.getVal();
-        Optional<List<Optional<SubjectResponse>>> collect = Optional.of(InstitutionUtils.institutionGlobalList.stream()
-                .filter(i -> i.getBececode().equalsIgnoreCase(finalBeceCode))
-                .findFirst().get().getSubjectList().stream()
-                .map(s->subjectUtil.mapSubject_ToSubjectResponse(s)).toList());
-        return collect;
+        return Optional.ofNullable(InstitutionUtils.institutionGlobalList)  // Check if institutionGlobalList is null
+                .map(list -> list.stream()  // Stream over the list if it's not null
+                        .filter(i -> i.getBececode().equalsIgnoreCase(finalBeceCode))  // Filter based on BECE code
+                        .findFirst()  // Find the first matching institution
+                        .flatMap(i -> Optional.ofNullable(i.getSubjectList()))  // If institution found, get subject list (handle null)
+                        .map(subjectList -> subjectList.stream()  // If subject list is not null, stream it
+                                .map(s -> Optional.ofNullable(subjectUtil.mapSubject_ToSubjectResponse(s)))  // Map each subject safely
+                                .filter(Optional::isPresent)  // Filter out null results
+                                .map(Optional::get)  // Get the actual subject response
+                                .toList())  // Collect to list
+                        .orElse(Collections.emptyList()))  // If no matching institution or subject list is null, return an empty list
+                .orElse(Collections.emptyList());
     }
 
     @Override

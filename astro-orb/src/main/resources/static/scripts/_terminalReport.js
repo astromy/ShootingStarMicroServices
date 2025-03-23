@@ -421,13 +421,16 @@ function generatePDF(assessments) {
         terminalReport.setLineDash([0.5, 0.5]);
         terminalReport.line(xcord+36, ycord+162, 200, ycord+162); // Horizontal line
 
-        terminalReport.text("House Mistress' Remarks ", xcord, ycord+(162+7));
+        terminalReport.text("House Heads' Remarks ", xcord, ycord+(162+7));
         terminalReport.setLineDash([0.5, 0.5]);
         terminalReport.line(xcord+40, ycord+162+7, 200, ycord+162+7); // Horizontal line
 
-        terminalReport.text("Head Mistress' Remarks ", xcord, ycord+(162+14));
+        terminalReport.text("Heads' Remarks ", xcord, ycord+(162+14));
         terminalReport.setLineDash([0.5, 0.5]);
         terminalReport.line(xcord+40, ycord+162+14, 200, ycord+162+14); // Horizontal line
+
+
+        terminalReport.text("Heads' Signature ", xcord + 133,  ycord+162+23+(logoHeight/2));
 
 
 

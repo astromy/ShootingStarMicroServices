@@ -2,6 +2,7 @@ package com.astromyllc.shootingstar.adminpta.controller;
 
 import com.astromyllc.shootingstar.adminpta.dto.request.*;
 import com.astromyllc.shootingstar.adminpta.dto.response.ClassListResponse;
+import com.astromyllc.shootingstar.adminpta.dto.response.StudentSkimResponse;
 import com.astromyllc.shootingstar.adminpta.dto.response.StudentsResponse;
 import com.astromyllc.shootingstar.adminpta.serviceInterface.StudentServiceInterface;
 import lombok.RequiredArgsConstructor;
@@ -56,6 +57,12 @@ public class StudentsController {
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Optional<List<StudentsResponse>>> getStudentsByClass(@RequestBody ClassListRequest request) {
         return ResponseEntity.ok(studentServiceInterface.fetchStudentsByClass(request));
+    }
+
+    @PostMapping("/api/administration-pta/getSkimpStudentsByClass")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<Optional<List<StudentSkimResponse>>> getSkimpStudentsByClass(@RequestBody ClassListRequest request) {
+        return ResponseEntity.ok(studentServiceInterface.fetchSkimpStudentsByClass(request));
     }
 
     @PostMapping("/api/administration-pta/postBulkStudentList")

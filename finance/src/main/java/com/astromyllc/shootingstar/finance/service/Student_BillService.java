@@ -25,8 +25,43 @@ public class Student_BillService implements Student_BillServiceInterface {
 
     @Override
     public List<Student_BillResponse> createStudentsBill(List<Student_BillRequest> studentBillRequest) {
-        // Optional<Student_Bill> studentBillUtil.studentBillsGlobalList.stream().filter()
-        return null;
+        return studentBillRequest.stream()
+                .map(request -> {
+                    // Stream through the global list and filter based on institutionCode and studentId from each request
+                    Optional<Student_Bill> studentBill = Student_BillUtil.studentBillsGlobalList.stream()
+                            .filter(s -> s.getInstitutionCode().equalsIgnoreCase(request.getInstitutionCode())
+                                    && s.getStudentId().equalsIgnoreCase(request.getStudentId()))
+                            .findFirst();  // Find the first match or none (returns Optional)
+
+                    return studentBill.map(existingBill -> {
+                        // If a studentBill is found, update it
+                        existingBill.setOldBalance(existingBill.getAmountBalance());
+                        existingBill.setAmountBalance(existingBill.getAmountBalance()+request.getAmountDue());
+                        existingBill.setAmountDue(existingBill.getAmountDue()+request.getAmountDue());
+
+                        Student_Bill updatedBill = studentBillUtil.mapStudentBillRequest_ToStudentBill(request, existingBill);
+                        studentBillRepository.save(updatedBill);
+
+                        // Update the global list with the updated bill
+                        int index = Student_BillUtil.studentBillsGlobalList.indexOf(existingBill);
+                        if (index != -1) {
+                            // Replace the old studentBill with the updated one in the global list
+                            Student_BillUtil.studentBillsGlobalList.set(index, updatedBill);
+                        }
+
+                        // Return the Student_BillResponse for the updated bill
+                        return studentBillUtil.mapStudentBill_ToStudentBillResponse(updatedBill);
+                    }).orElseGet(() -> {
+                        // If no studentBill is found, create a new one, save it, and add to the global list
+                        Student_Bill newStudentBill = studentBillUtil.mapStudentBillRequest_ToStudentBill(request);
+                        studentBillRepository.save(newStudentBill);
+                        Student_BillUtil.studentBillsGlobalList.add(newStudentBill);
+
+                        // Return the Student_BillResponse for the new bill
+                        return studentBillUtil.mapStudentBill_ToStudentBillResponse(newStudentBill);
+                    });
+                })
+                .toList();
     }
 
     @Override
@@ -47,6 +82,14 @@ public class Student_BillService implements Student_BillServiceInterface {
     public List<Student_BillResponse> fetchStudentBillsByInstitution(StudentBillFetchRequest studentBillFetchRequest) {
         return Student_BillUtil.studentBillsGlobalList.stream().filter(
                         s -> s.getInstitutionCode().equalsIgnoreCase(studentBillFetchRequest.getInstitutionCode()))
+                .map(studentBillUtil::mapStudentBill_ToStudentBillResponse).toList();
+    }
+
+    @Override
+    public List<Student_BillResponse> fetchStudentBillsByInstitutionClass(StudentBillFetchRequest studentBillFetchRequest) {
+        return Student_BillUtil.studentBillsGlobalList.stream().filter(
+                        s -> s.getInstitutionCode().equalsIgnoreCase(studentBillFetchRequest.getInstitutionCode())
+                && s.getStudentClass().equalsIgnoreCase(studentBillFetchRequest.getStudentClass()))
                 .map(studentBillUtil::mapStudentBill_ToStudentBillResponse).toList();
     }
 

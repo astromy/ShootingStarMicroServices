@@ -14,5 +14,5 @@ public interface ClassesServiceInterface {
     public Optional<List<Optional<ClassesResponse>>> createClasses(ClassesRequest classesRequestList);
     public List<Optional<ClassesResponse>> getAllClasses();
     public Optional<List<Optional<ClassesResponse>>> getAllClassesByClassGroup(ClassGroupRequest classGroupRequest);
-    public Optional<List<Optional<ClassesResponse>>> getAllClassesByInstitution(SingleStringRequest institutionRequest);
+    public List<Optional<ClassesResponse>> getAllClassesByInstitution(SingleStringRequest institutionRequest);
 }

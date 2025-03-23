@@ -1,13 +1,38 @@
 
 id=null;
-fetchBillings(instId.split(",")[0]);
+var studentList=[];
+var billList=[];
+var v;
+fetchLookup(instId.split(",")[0]);
 
     window.copyrights();
+
+
+
+    async function fetchLookup(instId){
+     v= instId.replace(/[\[\]']+/g,'')
+          v=v.replace(/\//g, '')
+      var instRequest={"val":"ClassGroup"}
+      return  HttpPost("getLookUpByType",instRequest)
+       .then(function (result) {
+        fetchInstitutionBills(v);
+         populateClassGroup(result);
+         generateAcademicYears();
+    })
+    }
+
+  function populateClassGroup(data){
+ $(".classGroupSelect option:not(:eq(0))").remove();
+  data.forEach(function(d) {
+         var details = $("<option>").val(d.id).text(d.name);
+         $(".classGroupSelect").append(details);
+    });
+  }
 
     $('.saveBilling').click(async function() {
 
                 var jso= postdata();
-                return HttpPost("addLookUps",jso)
+                return HttpPost("bill-students-by-institution",jso)
                 .then(function(result){
                 $('.dismissBilling').click();
                     swal({
@@ -20,45 +45,80 @@ fetchBillings(instId.split(",")[0]);
 
      
     function postdata(){
-   var classGroup=[];
-    classGroup= document.getElementsByClassName('newClassGrouptxt');
-    for(var i=0;i<classGroup.length; i++){
-    name[i]=classGroup[i].value;
-    }
+
+        var json={
+                "term":document.querySelector(".termOptions").value,
+                "studentClass":document.querySelector(".billingClassOptions").value,
+                "studentId":studentList,
+                "billname":billList,
+                "institutionCode":v
+        }
+        return json;
     }
 
    
 
 
-  async function fetchBillings(instId){
-    var v= instId.replace(/[\[\]']+/g,'')
-    v=v.replace(/\//g, '')
+  async function fetchBillings(){
     var instRequest={"institutionCode":v,
                            "studentId":"",
-                        "studentClass":"",
-                                "term":""
+                        "studentClass":document.querySelector(".classSelect").value,
+                                "term":document.querySelector(".termSelect").value,
+                        "academicYear":document.querySelector(".academicYearSelect").value
                       }
-    return  HttpPost("get-billing-by-institution",instRequest)
+    return  HttpPost("get-billing-by-institutionClass",instRequest)
      .then(function (result) {
-     fetchInstitutionBills(result,v);
+        populateTable(result);
   })
   }
 
-    async function fetchInstitutionBills(result1,v){
+    async function fetchInstitutionBills(v){
       var instRequest={"val":v}
       return  HttpPost("get-bills-by-institution",instRequest)
        .then(function (result) {
-       fetchInstitutionClasses(result1,result,v)
+       fetchInstitutionClasses(result,v)
     })
     }
 
-    async function fetchInstitutionClasses(billing,bills,v){
+
+    document.querySelector('#submitBtn').addEventListener('click', async function () {
+    fetchBillings();
+    });
+
+
+
+document.querySelector('.classGroupSelect').addEventListener('change', async function () {
+
+      var vg=document.getElementsByClassName('classGroupSelect')[0].value;
+
+      var instRequest2={"institution":v,"classGroup":document.getElementsByClassName('classGroupSelect')[0].value}
+       try {
+              // Await the result of the HTTP request
+              const result2 = await HttpPost("getInstitutionClassesByClassGroup", instRequest2);
+              populateSelectClasses(result2);
+          } catch (error) {
+              console.error("Error in fetchInstitutionSubject:", error);
+          }
+    });
+
+
+  function populateSelectClasses(data){
+    $(".classSelect option:not(:eq(0))").remove();
+  data.forEach(function(d) {
+      var classOptions = document.querySelector(".classSelect")[0];
+         var details = $("<option>").val(d.name).text(d.name);
+         $(".classSelect").append(details);
+        });
+  }
+
+
+
+    async function fetchInstitutionClasses(bills,v){
       var instRequest={"val":v}
       return  HttpPost("getInstitutionClasses",instRequest)
        .then(function (result) {
          populateClasses(result)
          createGeneralBills(bills)
-         populateTable(billing)
     })
     }
 
@@ -76,11 +136,30 @@ fetchBillings(instId.split(",")[0]);
                                 "gender":"",
                                 "status":""
                         }
-      return  HttpPost("getStudentsByClass",instRequest)
+      return  HttpPost("getSkimpStudentsByClass",instRequest)
        .then(function (result) {
+       studentList=result.map(student => student.studentId);
        createStudentList(result);
     })
     }
+
+
+
+  function generateAcademicYears() {
+      const select = document.querySelector(".academicYearSelect");
+      select.innerHTML = ""; // Clear existing options
+
+      const currentYear = new Date().getFullYear();
+
+      for (let i = 4; i >= 0; i--) {
+          const startYear = currentYear - i;
+          const endYear = startYear + 1;
+          const option = document.createElement("option");
+          option.value = `${startYear}/${endYear}`;
+          option.textContent = `${startYear}/${endYear}`;
+          select.appendChild(option);
+      }
+  }
 
   function populateClasses(data){
 
@@ -99,9 +178,12 @@ fetchBillings(instId.split(",")[0]);
   }
 
   function populateTable(data){
+
 var bar = new Promise((resolve, reject) => {
+   $('#billingTable').DataTable().destroy();
+$("#billingTableBody").empty();
   data.forEach((d,index, array) =>  {
-        var details="<tr> <td hidden>" + d.id + " </td> <td> "+ d.billname +"</td><td>"+ d.term +"</td> <td>"+ d.term +"</td><td>"+ d.term +"</td><td>"+ d.term +"</td><td>"+ d.billingDate +"</td></tr>"
+        var details="<tr> <td hidden>" + d.studentBillId + " </td> <td> "+ d.studentId +"</td><td>"+ d.studentClass +"</td> <td>"+ d.term +"</td><td>"+ d.amountDue +"</td><td>"+ d.amountPaid +"</td><td>"+ d.amountBalance +"</td></tr>"
         $("#billingTableBody").append(details);
         if (index === array.length -1) resolve();
         });
@@ -134,7 +216,7 @@ function createGeneralBills(data){
         const checkboxCell = document.createElement('td');
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
-        checkbox.classList.add('i-checks');
+        checkbox.classList.add('i-checks','gBill');
         checkbox.checked = item.checked; // Set the checkbox state
         checkboxCell.appendChild(checkbox);
 
@@ -158,7 +240,7 @@ function createGeneralBills(data){
         const checkboxCell = document.createElement('td');
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
-        checkbox.classList.add('i-checks');
+        checkbox.classList.add('i-checks','sBill');
         checkbox.checked = item.checked; // Set the checkbox state
         checkboxCell.appendChild(checkbox);
 
@@ -231,11 +313,15 @@ function studentObject(data){
     return `
         <div class="row border border-info">
             <div class="col-sm-12">
-                <label style="font-weight: unset">${data.studentId}</label>
+                <label style="font-weight: unset studentId">${data.studentId}</label>
             </div>
             <div class="col-sm-12">
                 <label style="font-weight: unset">${data.lastName} ${data.firstName} ${data.otherName}</label>
             </div>
         </div>
     `;
+}
+
+function buildGeneralBill(el){
+billList.push(el.closest('tr').querySelectorAll('td')[1].innerHTML);
 }
