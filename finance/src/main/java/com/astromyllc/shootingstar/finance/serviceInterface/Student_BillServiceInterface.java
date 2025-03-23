@@ -16,4 +16,6 @@ public interface Student_BillServiceInterface {
     public Student_BillResponse fetchStudentBillByIdAndInstitution(StudentBillFetchRequest studentBillFetchRequest);
 
     public List<Student_BillResponse> fetchOwingStudentsByInstitution(StudentBillFetchRequest studentBillFetchRequest);
+
+   public List<Student_BillResponse> fetchStudentBillsByInstitutionClass(StudentBillFetchRequest studentBillFetchRequest);
 }

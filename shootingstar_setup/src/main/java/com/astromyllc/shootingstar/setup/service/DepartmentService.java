@@ -15,8 +15,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -40,12 +42,16 @@ public class DepartmentService implements DepartmentServiceInterface {
     }
 
     @Override
-    public Optional<List<Optional<DepartmentResponse>>> getDepartmentByInstitution(SingleStringRequest beceCode) {
+    public List<Optional<DepartmentResponse>> getDepartmentByInstitution(SingleStringRequest beceCode) {
         String finalBeceCode= beceCode.getVal();
-        return Optional.of(InstitutionUtils.institutionGlobalList.stream()
-                .filter(i->i.getBececode().equalsIgnoreCase(finalBeceCode))
-                .findFirst().get()
-                .getDepartmentList().stream()
-                .map(DepartmentUtil::mapDepartment_ToDepartmentResponse).toList());
+        return Optional.ofNullable(InstitutionUtils.institutionGlobalList)  // Ensure the list is not null
+                .flatMap(list -> list.stream()  // Convert to stream if the list is not null
+                        .filter(i -> i.getBececode().equalsIgnoreCase(finalBeceCode))  // Filter by BECE code
+                        .findFirst()  // Find the first matching institution
+                        .flatMap(i -> Optional.ofNullable(i.getDepartmentList()))  // Safely get department list (check for null)
+                        .map(departmentList -> departmentList.stream()  // Convert department list to stream if it's not null
+                                .map(DepartmentUtil::mapDepartment_ToDepartmentResponse)  // Map each department
+                                .collect(Collectors.toList())))  // Collect the results to a list
+                .orElse(Collections.emptyList());  // Return an empty list if any part is null
     }
 }

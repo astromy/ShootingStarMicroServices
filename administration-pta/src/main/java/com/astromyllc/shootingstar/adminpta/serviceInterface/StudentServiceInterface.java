@@ -2,6 +2,7 @@ package com.astromyllc.shootingstar.adminpta.serviceInterface;
 
 import com.astromyllc.shootingstar.adminpta.dto.request.*;
 import com.astromyllc.shootingstar.adminpta.dto.response.ClassListResponse;
+import com.astromyllc.shootingstar.adminpta.dto.response.StudentSkimResponse;
 import com.astromyllc.shootingstar.adminpta.dto.response.StudentsResponse;
 
 import java.util.List;
@@ -14,6 +15,8 @@ public interface StudentServiceInterface {
     Optional<List<StudentsResponse>> fetchAllStudents();
 
     Optional<List<StudentsResponse>> fetchStudentsByClass(ClassListRequest request);
+
+    Optional<List<StudentSkimResponse>> fetchSkimpStudentsByClass(ClassListRequest request);
 
     Optional<List<StudentsResponse>> postBulkStudentList(List<StudentsImportRequest> request);
 

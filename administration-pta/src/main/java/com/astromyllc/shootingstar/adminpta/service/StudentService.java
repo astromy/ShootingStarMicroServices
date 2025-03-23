@@ -2,6 +2,7 @@ package com.astromyllc.shootingstar.adminpta.service;
 
 import com.astromyllc.shootingstar.adminpta.dto.request.*;
 import com.astromyllc.shootingstar.adminpta.dto.response.ClassListResponse;
+import com.astromyllc.shootingstar.adminpta.dto.response.StudentSkimResponse;
 import com.astromyllc.shootingstar.adminpta.dto.response.StudentsResponse;
 import com.astromyllc.shootingstar.adminpta.model.Students;
 import com.astromyllc.shootingstar.adminpta.repository.StudentRepository;
@@ -14,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +39,12 @@ public class StudentService implements StudentServiceInterface {
         return Optional.of(StudentUtil.studentsGlobalList.stream()
                 .filter(st->st.getStudentClass().equalsIgnoreCase(request.getStudentClass()))
                 .map(studentUtil::mapStudent_ToStudentResponse).toList());
+    }
+    @Override
+    public Optional<List<StudentSkimResponse>> fetchSkimpStudentsByClass(ClassListRequest request) {
+        return Optional.of(StudentUtil.studentsGlobalList.stream()
+                .filter(st->st.getStudentClass().equalsIgnoreCase(request.getStudentClass()))
+                .map(studentUtil::mapStudent_ToSkimpStudentResponse).toList());
     }
 
     @Override

@@ -95,9 +95,9 @@ $(function () {
                                                                   placeholder="Altanative Contact" name="contact2" minlength="10">
                                                        </div>
                                                        <div class="form-group col-lg-6">
-                                                           <label for="bececode">BECE Code</label>
+                                                           <label for="bececode">WAEC Code</label>
                                                            <input type="text" required id="bececode" class="form-control"
-                                                                  placeholder="Bece Code of School" name="bececode" minlength="5">
+                                                                  placeholder="WAEC Code of School" name="bececode" minlength="5">
                                                        </div>
                                                        <div class="form-group col-lg-6">
                                                            <label for="postalAddress">Postal Address</label>

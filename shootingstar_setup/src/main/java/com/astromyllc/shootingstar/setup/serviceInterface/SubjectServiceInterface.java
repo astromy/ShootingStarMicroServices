@@ -16,7 +16,7 @@ public interface SubjectServiceInterface {
     public  void createSubjects(List<SubjectRequest> subjectRequestList);
     public List<Optional<SubjectResponse>> getAllSubjects();
     public List<Optional<SubjectResponse>> getAllSubjectsByClass(ClassesRequest classesRequest);
-    public Optional<List<Optional<SubjectResponse>>> getAllSubjectsByInstitution(SingleStringRequest institutionRequest);
+    public List<Optional<SubjectResponse>> getAllSubjectsByInstitution(SingleStringRequest institutionRequest);
     public Optional<List<Optional<SubjectResponse>>> getAllSubjectsByInstitutionAndClassGroup(SubjectDetails institutionRequest);
     public List<Optional<SubjectResponse>> getAllSubjectsByClassGroup(SingleStringRequest classGroup);
 }

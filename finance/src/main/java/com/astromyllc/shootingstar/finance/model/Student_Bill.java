@@ -17,6 +17,7 @@ public class Student_Bill {
     private Long studentBillId;
     private Double amountDue;
     private Double amountPaid;
+    @Column(unique = true)
     private String studentId;
     private Double amountBalance;
     private String term;

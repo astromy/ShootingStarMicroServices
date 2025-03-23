@@ -1,9 +1,6 @@
 package com.astromyllc.astroorb.controller;
 
-import com.astromyllc.astroorb.dto.request.BillRequest;
-import com.astromyllc.astroorb.dto.request.BillingFetchRequest;
-import com.astromyllc.astroorb.dto.request.PreOrderInstitutionRequest;
-import com.astromyllc.astroorb.dto.request.SingleStringRequest;
+import com.astromyllc.astroorb.dto.request.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import lombok.RequiredArgsConstructor;
@@ -48,9 +45,16 @@ public class FinanceController {
     }
 
     @ResponseBody
-    @RequestMapping(value = "/get-billing-by-institution", method = RequestMethod.POST)
+    @RequestMapping(value = "/get-billing-by-institutionClass", method = RequestMethod.POST)
     public ResponseEntity<String> getClassBilling(@RequestBody BillingFetchRequest jso) {
-        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/finance/get-billings-by-institution");
+        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/finance/getStudentBillsByInstitutionClass");
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/bill-students-by-institution", method = RequestMethod.POST)
+    public ResponseEntity<String> billStudents(@RequestBody BillingsRequest jso) {
+        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/finance/create-billings");
         return response;
     }
 

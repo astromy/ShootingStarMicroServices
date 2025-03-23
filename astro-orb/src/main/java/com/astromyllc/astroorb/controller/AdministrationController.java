@@ -63,6 +63,12 @@ public class AdministrationController {
     }
 
     @ResponseBody
+    @RequestMapping(value = "/getSkimpStudentsByClass", method = RequestMethod.POST)
+    public ResponseEntity<String> getSkimpStudentsByClass(@RequestBody StudentSkimRequest jso) {
+        return BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/administration-pta/getSkimpStudentsByClass");
+    }
+
+    @ResponseBody
     @RequestMapping(value = "/postBulkStudentList", method = RequestMethod.POST)
     public ResponseEntity<String> submitBulkStudentList(@RequestBody List<StudentsImportRequest> jso) {
         return BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/administration-pta/postBulkStudentList");

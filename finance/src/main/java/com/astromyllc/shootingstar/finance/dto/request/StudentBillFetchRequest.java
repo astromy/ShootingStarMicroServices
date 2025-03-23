@@ -12,4 +12,5 @@ import lombok.NoArgsConstructor;
 public class StudentBillFetchRequest {
     private String institutionCode;
     private String studentId;
+    private String studentClass;
 }

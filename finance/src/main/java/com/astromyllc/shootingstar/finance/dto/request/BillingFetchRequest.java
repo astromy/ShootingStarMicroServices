@@ -15,5 +15,6 @@ public class BillingFetchRequest {
     private String institutionCode;
     private String studentId;
     private String studentClass;
+    private String academicYear;
     private String term;
 }

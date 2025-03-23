@@ -30,6 +30,8 @@ public class StudentBillController {
         return studentBillServiceInterface.createStudentBill(studentBillRequest);
     }
 
+
+
     @PostMapping
     @RequestMapping("/api/finance/create-studentsBill")
     @ResponseStatus(HttpStatus.CREATED)
@@ -45,6 +47,15 @@ public class StudentBillController {
     public List<Student_BillResponse> getStudentBillsByInstitution(@RequestBody StudentBillFetchRequest studentBillFetchRequest) {
         log.info("Application  Received");
         return studentBillServiceInterface.fetchStudentBillsByInstitution(studentBillFetchRequest);
+    }
+
+
+    @PostMapping
+    @RequestMapping("/api/finance/getStudentBillsByInstitutionClass")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Student_BillResponse> getStudentBillsByInstitutionClass(@RequestBody StudentBillFetchRequest studentBillFetchRequest) {
+        log.info("Application  Received");
+        return studentBillServiceInterface.fetchStudentBillsByInstitutionClass(studentBillFetchRequest);
     }
 
 

@@ -31,9 +31,9 @@ eureka:
 spring:
   web:
     error:
-      include-stacktrace=always:
+      include-stacktrace: always
   mvc:
-    throw-exception-if-no-handler-found=true:
+    throw-exception-if-no-handler-found: true
   thymeleaf:
     cache: false
 

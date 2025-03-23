@@ -1,8 +1,10 @@
 package com.astromyllc.shootingstar.finance.utils;
 
 import com.astromyllc.shootingstar.finance.dto.request.BillingsRequest;
+import com.astromyllc.shootingstar.finance.dto.request.Student_BillRequest;
 import com.astromyllc.shootingstar.finance.dto.response.BillingsResponse;
 import com.astromyllc.shootingstar.finance.model.Billings;
+import com.astromyllc.shootingstar.finance.model.Student_Bill;
 import com.astromyllc.shootingstar.finance.repositoy.BillingsRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -63,6 +65,20 @@ public class BillingsUtil {
                 .studentClass(billings1.getStudentClass())
                 .billname(billings1.getBillname())
                 .studentId(billings1.getStudentId())
+                .build();
+    }
+
+
+    public Student_BillRequest mapBilling_ToStudentBill(Billings sb) {
+        return Student_BillRequest.builder()
+                .studentBillId(sb.getBillingId())
+                .amountDue(sb.getBillamnt())
+                .amountPaid(0.0)
+                .studentId(sb.getStudentId())
+                .term(sb.getTerm())
+                .studentClass(sb.getStudentClass())
+                .institutionCode(sb.getInstitutionCode())
+                .amountBalance(sb.getBillamntbal())
                 .build();
     }
 }
