@@ -20,6 +20,8 @@ public class BillingsRequest {
     @Nonnull
     private String term;
     @Nonnull
+    private String academicYear;
+    @Nonnull
     private String studentClass;
     @Nonnull
     private List<String> studentId;

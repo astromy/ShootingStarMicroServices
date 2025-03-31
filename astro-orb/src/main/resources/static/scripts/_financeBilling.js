@@ -17,7 +17,6 @@ fetchLookup(instId.split(",")[0]);
        .then(function (result) {
         fetchInstitutionBills(v);
          populateClassGroup(result);
-         generateAcademicYears();
     })
     }
 
@@ -51,6 +50,7 @@ fetchLookup(instId.split(",")[0]);
                 "studentClass":document.querySelector(".billingClassOptions").value,
                 "studentId":studentList,
                 "billname":billList,
+                "academicYear":document.querySelector(".academicYearSelect").value,
                 "institutionCode":v
         }
         return json;
@@ -63,8 +63,7 @@ fetchLookup(instId.split(",")[0]);
     var instRequest={"institutionCode":v,
                            "studentId":"",
                         "studentClass":document.querySelector(".classSelect").value,
-                                "term":document.querySelector(".termSelect").value,
-                        "academicYear":document.querySelector(".academicYearSelect").value
+                                "term":document.querySelector(".termSelect").value
                       }
     return  HttpPost("get-billing-by-institutionClass",instRequest)
      .then(function (result) {
@@ -146,8 +145,7 @@ document.querySelector('.classGroupSelect').addEventListener('change', async fun
 
 
   function generateAcademicYears() {
-      const select = document.querySelector(".academicYearSelect");
-      select.innerHTML = ""; // Clear existing options
+        const select = clonable.querySelector(".academicYearSelect");
 
       const currentYear = new Date().getFullYear();
 
@@ -170,11 +168,7 @@ document.querySelector('.classGroupSelect').addEventListener('change', async fun
                       option.textContent = d.name;
                       classOptions.appendChild(option);
           });
-
- /* data.forEach(function(d) {
-        var details="<option value='" + d.id + "'>" + d.name +" </option>"
-        $(".billingClassOptions").append(details);
-    });*/
+         generateAcademicYears();
   }
 
   function populateTable(data){

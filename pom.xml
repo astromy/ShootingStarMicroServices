@@ -23,7 +23,7 @@
         <module>hr-service</module>
         <module>finance</module>
         <module>clinic</module>
-       <!-- <module>astroauthauth</module>-->
+       <module>accommodation</module>
         <module>stores-inventory</module>
         <module>academics</module>
         <module>administration-pta</module>
@@ -93,7 +93,7 @@
                     <to>
                         <image>registry.hub.docker.com/astromyllc/${project.artifactId}</image>
                         <tags>
-                            <tag>0.006</tag>
+                            <tag>0.007</tag>
                         </tags>
                         <auth>
                             <username>astromyllc</username>

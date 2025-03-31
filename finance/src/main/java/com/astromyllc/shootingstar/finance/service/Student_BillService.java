@@ -35,10 +35,6 @@ public class Student_BillService implements Student_BillServiceInterface {
 
                     return studentBill.map(existingBill -> {
                         // If a studentBill is found, update it
-                        existingBill.setOldBalance(existingBill.getAmountBalance());
-                        existingBill.setAmountBalance(existingBill.getAmountBalance()+request.getAmountDue());
-                        existingBill.setAmountDue(existingBill.getAmountDue()+request.getAmountDue());
-
                         Student_Bill updatedBill = studentBillUtil.mapStudentBillRequest_ToStudentBill(request, existingBill);
                         studentBillRepository.save(updatedBill);
 

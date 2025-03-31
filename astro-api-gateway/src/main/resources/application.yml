@@ -89,6 +89,13 @@ spring:
           predicates:
             - Path=/api/administration-pta/**
 
+        ## Accommodation Service Routes
+        #routes[10]:
+        - id: accommodation
+          uri: lb://accommodation
+          predicates:
+            - Path=/api/accommodation/**
+
         ## Administration Service Routes
         ##spring:cloud:gateway:routes[8]:id=astroauthauth
         ##spring:cloud:gateway:routes[8]:uri=lb://astroauthauth

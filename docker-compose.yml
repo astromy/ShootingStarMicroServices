@@ -30,7 +30,7 @@ services:
     expose:
       - 5431
     ports:
-      - 5431:5431
+      - "5431:5431"
     command: -p 5431
     restart: unless-stopped
     networks:
@@ -52,7 +52,7 @@ services:
     expose:
       - 5432
     ports:
-      - 5432:5432
+      - "5432:5432"
     restart: unless-stopped
     networks:
       - astro_network
@@ -73,7 +73,7 @@ services:
     expose:
       - 5433
     ports:
-      - 5433:5433
+      - "5433:5433"
     command: -p 5433
     restart: unless-stopped
     networks:
@@ -95,8 +95,30 @@ services:
     expose:
       - 5434
     ports:
-      - 5434:5434
+      - "5434:5434"
     command: -p 5434
+    restart: unless-stopped
+    networks:
+      - astro_network
+
+
+  postgres-accommodation:
+    container_name: prostgres-accommodation
+    image: postgres
+    environment:
+      POSTGRES_DB: accommodation
+      POSTGRES_USER: astromyllc
+      POSTGRES_PASSWORD: ${PS}
+      PGDATA: /data/postgres
+    volumes:
+      - ./postgres-accommodation:/data/postgres
+    healthcheck:
+      test: "exit 0"
+    expose:
+      - 5436
+    ports:
+      - "5436:5436"
+    command: -p 5436
     restart: unless-stopped
     networks:
       - astro_network
@@ -110,7 +132,7 @@ services:
     expose:
       - 27017
     ports:
-      - 27017:27017
+      - "27017:27017"
     healthcheck:
       test: "exit 0"
     volumes:
@@ -126,7 +148,7 @@ services:
     expose:
       - 27018
     ports:
-      - 27018:27018
+      - "27018:27018"
     command: mongod --port 27018
     healthcheck:
       test: "exit 0"
@@ -143,7 +165,7 @@ services:
     expose:
       - 27019
     ports:
-      - 27019:27019
+      - "27019:27019"
     command: mongod --port 27019
     healthcheck:
       test: "exit 0"
@@ -167,7 +189,7 @@ services:
     expose:
       - 5435
     ports:
-      - 5435:5435
+      - "5435:5435"
     restart: unless-stopped
     healthcheck:
       test: "exit 0"
@@ -211,7 +233,7 @@ services:
     expose:
       - 9411
     ports:
-     - 9411:9411
+     - "9411:9411"
     healthcheck:
       test: "exit 0"
     networks:
@@ -238,7 +260,7 @@ services:
     container_name: discovery-server
     pull_policy: always
     ports:
-      - 8761:8761
+      - "8761:8761"
     expose:
      - 8761
     environment:
@@ -256,7 +278,7 @@ services:
     container_name: astro-orb
     pull_policy: always
     ports:
-      - 7013:7013
+      - "7013:7013"
     expose:
       - 7013
     environment:
@@ -279,7 +301,7 @@ services:
     container_name: astro-preorder
     pull_policy: always
     ports:
-      - 3017:3017
+      - "3017:3017"
     expose:
       - 3017
     environment:
@@ -304,7 +326,7 @@ services:
     container_name: astro-api-gateway
     pull_policy: always
     ports:
-      - 8083:8083
+      - "8083:8083"
     expose:
       - 8083
     command: ["-p","8083"]
@@ -334,7 +356,7 @@ services:
     expose:
       - 1370
     ports:
-      - 1370:1370
+      - "1370:1370"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-clinic:5431/clinic
@@ -364,7 +386,7 @@ services:
     expose:
       - 1371
     ports:
-      - 1371:1371
+      - "1371:1371"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-shootingstar_academics:5432/shootingstar_academics
@@ -398,7 +420,7 @@ services:
     expose:
       - 1372
     ports:
-      - 1372:1372
+      - "1372:1372"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-shootingstarfinance:5433/shootingstarfinance
@@ -429,7 +451,7 @@ services:
     expose:
       - 1373
     ports:
-      - 1373:1373
+      - "1373:1373"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-shootingstarsetup:5434/shootingstarsetup
@@ -448,29 +470,29 @@ services:
       - astro_network
 
   ## ASTROAUTHAUTH Service
- # astroauthauth:
- #   image: astromyllc/astroauthauth:0.003
- #   container_name: astroauthauth
- #   pull_policy: always
- #   command: ["-p","7013"]
- #   ports:
- #     - "7013:7013"
- #   environment:
- #     - SPRING_PROFILES_ACTIVE=docker
- #     - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-astroauthauth:7031/astroauthauth
- #   healthcheck:
- #     test: "exit 0"
- #   depends_on:
- #     zipkin:
- #       condition: service_healthy
- #    postgres-astroauthauth:
- #       condition: service_healthy
- #     discovery-server:
- #       condition: service_healthy
- #     astro-api-gateway:
- #       condition: service_healthy
- #   networks:
- #     - astro_network
+  accommodation:
+    image: astromyllc/accommodation:0.003
+    container_name: astroauthauth
+    pull_policy: always
+    command: ["-p","7013"]
+    ports:
+      - "7013:7013"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-accommodation:7031/accommodation
+    healthcheck:
+      test: "exit 0"
+    depends_on:
+      zipkin:
+        condition: service_healthy
+      postgres-accommodation:
+        condition: service_healthy
+      discovery-server:
+        condition: service_healthy
+      astro-api-gateway:
+        condition: service_healthy
+    networks:
+      - astro_network
 
 
 ### MONGO DB BASED SERVICES
@@ -484,7 +506,7 @@ services:
     expose:
       - 1374
     ports:
-      - 1374:1374
+      - "1374:1374"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
     healthcheck:
@@ -512,7 +534,7 @@ services:
     expose:
       - 1375
     ports:
-      - 1375:1375
+      - "1375:1375"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
     healthcheck:
@@ -538,7 +560,7 @@ services:
     pull_policy: always
     command: ["-p","1376"]
     ports:
-      - 1376:1376
+      - "1376:1376"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
     healthcheck:

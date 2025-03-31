@@ -1,8 +1,6 @@
 package com.astromyllc.shootingstar.setup.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import jakarta.persistence.Table;
 import lombok.*;
 
 @Entity

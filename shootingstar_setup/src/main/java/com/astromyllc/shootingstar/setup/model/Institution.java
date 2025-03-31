@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.time.LocalDate;
 import java.util.List;
+
 @Entity
 @Table(name = "\"institution\"")
 @NoArgsConstructor
@@ -46,25 +47,25 @@ public class Institution {
     private String headSignature;
 
     @ToString.Exclude
-    @OneToOne(targetEntity = GradingSetting.class,cascade = CascadeType.ALL)
+    @OneToOne(targetEntity = GradingSetting.class,cascade = CascadeType.MERGE)
     private GradingSetting gradingSetting;
 
     @ToString.Exclude
-    @OneToMany(fetch = FetchType.EAGER,targetEntity =Subject.class, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER,targetEntity =Subject.class, cascade = CascadeType.MERGE)
     @JoinColumn(name = "institutionSubject",referencedColumnName = "idInstitution")
     private List<Subject> subjectList;
 
     @ToString.Exclude
-    @OneToMany(fetch = FetchType.EAGER,targetEntity =Classes.class, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER,targetEntity =Classes.class, cascade = CascadeType.MERGE)
     @JoinColumn(name = "institutionClass",referencedColumnName = "idInstitution")
     private List<Classes> classList;
 
     @ToString.Exclude
-    @OneToOne(targetEntity = Admissions.class,cascade = CascadeType.ALL)
+    @OneToOne(targetEntity = Admissions.class,cascade = CascadeType.MERGE)
     private Admissions admissions;
 
     @ToString.Exclude
-    @OneToMany(fetch = FetchType.EAGER,targetEntity =Department.class, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER,targetEntity =Department.class, cascade = CascadeType.MERGE)
     @JoinColumn(name = "institutionDepartment",referencedColumnName = "idInstitution")
     private List<Department> departmentList;
 }

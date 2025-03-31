@@ -18,6 +18,7 @@ import java.net.URI;
 import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
@@ -36,85 +37,66 @@ public class SetupController {
 
     @ResponseBody
     @RequestMapping(value = "/preRequestInstitution", method = RequestMethod.POST)
-    public ResponseEntity<String> preRequestInstitution(@RequestBody PreOrderInstitutionRequest jso) throws IOException {
-
-        ResponseEntity<String> responseData = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/signupInstitution");
-        return responseData;
+    public ResponseEntity<String> preRequestInstitution(@RequestBody PreOrderInstitutionRequest jso) throws IOException, InterruptedException {
+        return BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/signupInstitution");
     }
 
     @ResponseBody
     //@PostMapping("/migratePreOrder")
     @RequestMapping(value = "/migratePreOrder", method = RequestMethod.POST)
-    public ResponseEntity<String> migratePreorder(@RequestBody String jso) throws IOException {
-
-        ResponseEntity<String> responseData = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/migratePreOrder");
-        return responseData;
+    public ResponseEntity<String> migratePreorder(@RequestBody String jso) throws IOException, InterruptedException {
+        return BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/migratePreOrder");
     }
 
     @ResponseBody
     @RequestMapping(value = "/addLookUps", method = RequestMethod.POST)
     public ResponseEntity<String> addLookUp(@RequestBody List<LookupRequest> jso) throws IOException {
-
-        ResponseEntity<String> responseData = BACKENDCOMMPOSTLIST(Collections.singletonList(jso), "http://" + backendserve + "/api/setup/addLookUps");
-        return responseData;
+        return BACKENDCOMMPOSTLIST(Collections.singletonList(jso), "http://" + backendserve + "/api/setup/addLookUps");
     }
 
     @ResponseBody
     @RequestMapping(value = "/addClasses", method = RequestMethod.POST)
-    public ResponseEntity<String> addClasses(@RequestBody ClassesRequest jso) throws IOException {
-        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/addClasses");
-        return response;
+    public ResponseEntity<String> addClasses(@RequestBody ClassesRequest jso) throws IOException, InterruptedException {
+        return BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/addClasses");
     }
 
     @ResponseBody
     @RequestMapping(value = "/addSubjects", method = RequestMethod.POST)
-    public ResponseEntity<String>  addSubjects(@RequestBody SubjectRequest jso) throws IOException {
-
-        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/addSubjects");
-        return response;
+    public ResponseEntity<String>  addSubjects(@RequestBody SubjectRequest jso) throws IOException, InterruptedException {
+        return BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/addSubjects");
     }
 
 
     @ResponseBody
     @RequestMapping(value = "/addAdmissions", method = RequestMethod.POST)
-    public ResponseEntity<String> addAdmissions(@RequestBody AdmissionsEntryRequest jso) throws IOException {
-
-        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/addAdmissionSetup");
-        return response;
+    public ResponseEntity<String> addAdmissions(@RequestBody AdmissionsEntryRequest jso) throws IOException, InterruptedException {
+        return BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/addAdmissionSetup");
     }
 
 
     @ResponseBody
     @RequestMapping(value = "/addDepartment", method = RequestMethod.POST)
-    public ResponseEntity<String>  addDepartments(@RequestBody DepartmentRequest jso) throws IOException {
-
-        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/addDepartment");
-        return response;
+    public ResponseEntity<String>  addDepartments(@RequestBody DepartmentRequest jso) throws IOException, InterruptedException {
+        return BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/addDepartment");
     }
 
 
     @ResponseBody
     @RequestMapping(value = "/addGradingSetting", method = RequestMethod.POST)
-    public ResponseEntity<String> addGrading(@RequestBody GradingSettingRequest jso) throws IOException {
-
-        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/addGradingSetting");
-        return response;
+    public ResponseEntity<String> addGrading(@RequestBody GradingSettingRequest jso) throws IOException, InterruptedException {
+        return BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/addGradingSetting");
     }
 
     @ResponseBody
     @RequestMapping(value = "/addPermissions", method = RequestMethod.POST)
-    public ResponseEntity<String> addPermissions(@RequestBody PermissionRequest jso) throws IOException {
-
-        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/addLookUp");
-        return response;
+    public ResponseEntity<String> addPermissions(@RequestBody PermissionRequest jso) throws IOException, InterruptedException {
+        return BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/addLookUp");
     }
 
     @ResponseBody
     @RequestMapping(value = "/addDesignation", method = RequestMethod.POST)
-    public ResponseEntity<String> addDesignation(@RequestBody DesignationRequest jso) throws IOException {
-
-        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/addDesignations");
-        return response;
+    public ResponseEntity<String> addDesignation(@RequestBody DesignationRequest jso) throws IOException, InterruptedException {
+        return BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/addDesignations");
     }
 
 
@@ -124,83 +106,63 @@ public class SetupController {
 //=======================================================================================================================
     @ResponseBody
     @RequestMapping(value = "/getInstitutionByCode", method = RequestMethod.POST)
-    public ResponseEntity<String> fetchInstitution(@RequestBody SingleStringRequest jso) throws IOException {
-
-        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/getInstitutionByCode");
-        return response;
+    public ResponseEntity<String> fetchInstitution(@RequestBody SingleStringRequest jso) throws IOException, InterruptedException {
+        return BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/getInstitutionByCode");
     }
 
 
     @ResponseBody
     @RequestMapping(value = "/getLookUpByType", method = RequestMethod.POST)
-    public ResponseEntity<String> getLookUpByType(@RequestBody SingleStringRequest jso) throws IOException {
-
-        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/getLookUpByType");
-        return response;
+    public ResponseEntity<String> getLookUpByType(@RequestBody SingleStringRequest jso) throws IOException, InterruptedException {
+        return BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/getLookUpByType");
     }
 
     @ResponseBody
     @RequestMapping(value = "/getInstitutionClasses", method = RequestMethod.POST)
-    public ResponseEntity<String> getInstitutionClasses(@RequestBody SingleStringRequest jso) throws IOException {
-
-        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/getInstitutionClasses");
-        return response;
+    public ResponseEntity<String> getInstitutionClasses(@RequestBody SingleStringRequest jso) throws IOException, InterruptedException {
+        return BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/getInstitutionClasses");
     }
 
     @ResponseBody
     @RequestMapping(value = "/getInstitutionClassesByClassGroup", method = RequestMethod.POST)
-    public ResponseEntity<String> getInstitutionClassesByClassGroup(@RequestBody ClassGroupRequest jso) throws IOException {
-
-        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/getInstitutionClassesByClassGroup");
-        return response;
+    public ResponseEntity<String> getInstitutionClassesByClassGroup(@RequestBody ClassGroupRequest jso) throws IOException, InterruptedException {
+        return BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/getInstitutionClassesByClassGroup");
     }
 
     @ResponseBody
     @RequestMapping(value = "/getInstitutionSubjects", method = RequestMethod.POST)
-    public ResponseEntity<String> getInstitutionSubjects(@RequestBody SingleStringRequest jso) throws IOException {
-
-        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/getInstitutionSubjects");
-        return response;
+    public ResponseEntity<String> getInstitutionSubjects(@RequestBody SingleStringRequest jso) throws IOException, InterruptedException {
+        return BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/getInstitutionSubjects");
     }
 
     @ResponseBody
     @RequestMapping(value = "/getInstitutionSubjectsAndClassGroup", method = RequestMethod.POST)
-    public ResponseEntity<String> getInstitutionSubjects(@RequestBody SubjectDetails jso) throws IOException {
-
-        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/getInstitutionSubjectsAndClassGroup");
-        return response;
+    public ResponseEntity<String> getInstitutionSubjects(@RequestBody SubjectDetails jso) throws IOException, InterruptedException {
+        return BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/getInstitutionSubjectsAndClassGroup");
     }
 
     @ResponseBody
     @RequestMapping(value = "/getInstitutionAdmissionSetup", method = RequestMethod.POST)
-    public ResponseEntity<String> getInstitutionAdmissionSetup(@RequestBody SingleStringRequest jso) throws IOException {
-
-        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/getInstitutionAdmissionSetup");
-        return response;
+    public ResponseEntity<String> getInstitutionAdmissionSetup(@RequestBody SingleStringRequest jso) throws IOException, InterruptedException {
+        return BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/getInstitutionAdmissionSetup");
     }
 
     @ResponseBody
     @RequestMapping(value = "/getInstitutionDepartment", method = RequestMethod.POST)
-    public ResponseEntity<String> getInstitutionDepartment(@RequestBody SingleStringRequest jso) throws IOException {
-
-        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/getInstitutionDepartment");
-        return response;
+    public ResponseEntity<String> getInstitutionDepartment(@RequestBody SingleStringRequest jso) throws IOException, InterruptedException {
+        return BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/getInstitutionDepartment");
     }
 
     @ResponseBody
     @RequestMapping(value = "/getInstitutionGradingSetting", method = RequestMethod.POST)
-    public ResponseEntity<String> getInstitutionGrading(@RequestBody SingleStringRequest jso) throws IOException {
-
-        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/getInstitutionGradingSetting");
-        return response;
+    public ResponseEntity<String> getInstitutionGrading(@RequestBody SingleStringRequest jso) throws IOException, InterruptedException {
+        return BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/getInstitutionGradingSetting");
     }
 
     @ResponseBody
     @RequestMapping(value = "/getDesignation", method = RequestMethod.POST)
-    public ResponseEntity<String> getDesignation(@RequestBody SingleStringRequest jso) throws IOException {
-
-        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/getInstitutionDesignations");
-        return response;
+    public ResponseEntity<String> getDesignation(@RequestBody SingleStringRequest jso) throws IOException, InterruptedException {
+        return BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/getInstitutionDesignations");
     }
 
 
@@ -238,10 +200,12 @@ public class SetupController {
 
             int status = httpURLConnection.getResponseCode();
 
-            if (status != HttpURLConnection.HTTP_OK && status != HttpURLConnection.HTTP_ACCEPTED && status != HttpURLConnection.HTTP_CREATED && status != HttpURLConnection.HTTP_NO_CONTENT)
-                inputStream = httpURLConnection.getErrorStream();
-            else
+            if (status >= 200 && status < 300) {
                 inputStream = httpURLConnection.getInputStream();
+            } else {
+                inputStream = httpURLConnection.getErrorStream();
+            }
+
             InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
 
             try (BufferedReader brIn = new BufferedReader(
@@ -273,64 +237,17 @@ public class SetupController {
         }
     }
 
-    private ResponseEntity<String> BACKENDCOMMPOST(Object jso, String url) {
+    private ResponseEntity<String> BACKENDCOMMPOST(Object jso, String url) throws IOException, InterruptedException {
 
-        HttpURLConnection httpURLConnection = null;
-        StringBuilder response = new StringBuilder();
-        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-        BufferedReader br = null;
-        try {
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(new ObjectMapper().writeValueAsString(jso)))
+                .build();
 
-            httpURLConnection = (HttpURLConnection) new URL(url).openConnection();
-            httpURLConnection.setRequestMethod("POST");
-            httpURLConnection.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
-            httpURLConnection.setRequestProperty("Accept", "application/json");
-            httpURLConnection.setDoOutput(true);
-            httpURLConnection.setDoInput(true);
-
-            DataOutputStream wr = new DataOutputStream(httpURLConnection.getOutputStream());
-            String json = ow.writeValueAsString(jso);
-            wr.writeBytes(json);
-            wr.flush();
-            wr.close();
-
-            InputStream inputStream;
-
-            int status = httpURLConnection.getResponseCode();
-
-            if (status != HttpURLConnection.HTTP_OK && !String.valueOf(status).contains("2"))
-                inputStream = httpURLConnection.getErrorStream();
-            else
-                inputStream = httpURLConnection.getInputStream();
-            InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
-
-            try (BufferedReader brIn = new BufferedReader(
-                    new InputStreamReader(httpURLConnection.getInputStream(), "utf-8"))) {
-                String responseLine = null;
-                while ((responseLine = brIn.readLine()) != null) {
-                    response.append(responseLine.trim());
-                }
-            }
-            // System.out.println(response.toString());
-            return ResponseEntity.ok(response.toString());
-        } catch (IOException e) {
-            // Log the error for debugging
-            e.printStackTrace();
-            // Return a generic error response with status 500 Internal Server Error
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error occurred while fetching institution: " + e.getMessage());
-        } finally {
-            if (httpURLConnection != null) {
-                httpURLConnection.disconnect();
-            }
-            if (br != null) {
-                try {
-                    br.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        return ResponseEntity.status(response.statusCode()).body(response.body());
     }
 
 }

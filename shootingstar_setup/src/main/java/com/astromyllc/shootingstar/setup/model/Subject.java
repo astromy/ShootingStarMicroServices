@@ -21,6 +21,4 @@ public class Subject {
     private String classGroup;
     @NonNull
     private Integer preference;
-    /*@ManyToOne(optional = false)
-    private Institution institution;*/
 }
