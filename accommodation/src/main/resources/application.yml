@@ -1,0 +1,98 @@
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/accommodation
+    username: astromyllc
+    password: IdowhatIlikeIlikewhatIdo!@3
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+      default_schema: public
+
+
+  zipkin:
+    base-url: http://localhost:9411
+  sleuth:
+    sampler:
+      probability: 1.0
+  cloud:
+    compatibility-verifier:
+      enabled: false
+  application:
+    name: accommodation
+
+server:
+  port: 0
+
+gateway:
+  host: ${APIGATEWAY:localhost}
+  # host: ${APIGATEWAY:astro-api-gateway}  # Commented
+
+data:
+  connection: ${CONNECTION_STRING:localhost:5432}
+
+eureka:
+  instance:
+    preferIpAddress: true
+    leaseRenewalIntervalInSeconds: 10
+    leaseExpirationDurationInSeconds: 3
+  client:
+    serviceUrl:
+      defaultZone: http://eureka:password@localhost:8761/eureka
+    registerWithEureka: true
+    fetchRegistry: true
+
+management:
+  health:
+    circuitbreakers:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      setup:
+        registerHealthIndicator: true
+        event-consumer-buffer-size: 10
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 5s
+        permittedNumberOfCallsInHalfOpenState: 3
+        authomaticTransitionFromOpenToHalfOpenEnabled: true
+  timelimiter:
+    instances:
+      setup:
+        timeout-duration: 3s
+
+
+
+logging:
+  level:
+    org:
+      springframework:
+        security: ERROR
+        web: ERROR
+        client:
+          RestTemplate: ERROR
+        boot:
+          autoconfigure: ERROR
+      hibernate:
+        SQL: ERROR
+        type:
+          descriptor:
+            sql:
+              BasicBinder: ERROR
+    root: ERROR
+
+
+keycloak:
+  address: ${KeycloakURL:https://keycloak.astromyllc.com}

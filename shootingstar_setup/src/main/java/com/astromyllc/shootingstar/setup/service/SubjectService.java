@@ -14,9 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,12 +28,38 @@ public class SubjectService implements SubjectServiceInterface {
     private final InstitutionRepository institutionRepository;
     @Override
     public Optional<List<Optional<SubjectResponse>>> createSubject(SubjectRequest subjectRequest) {
-        Optional<Institution> inst= InstitutionUtils.institutionGlobalList.stream().filter(x->x.getBececode().equalsIgnoreCase(subjectRequest.getInstitution())).findFirst();
-        List<Subject> sj=inst.get().getSubjectList();
-        sj.addAll(subjectRequest.getSubjectDetails().stream().map(SubjectUtil::mapSubjectRequest_ToSubject).toList());
+        log.info("Subject Request {}", subjectRequest);
+        Optional<Institution> inst= InstitutionUtils.institutionGlobalList.stream()
+                .filter(x->x.getBececode().equalsIgnoreCase(subjectRequest.getInstitution())).findFirst();
+
+        if (inst.isEmpty()) {
+            log.warn("Institution not found!");
+            return Optional.empty();
+        }
+
+        Institution institution = inst.get();
+
+        List<Subject> sj=institution.getSubjectList();
+        if (sj == null) {
+            sj = new ArrayList<>();
+        }
+
+        // Convert existing subjects into a Set for quick lookup
+        Set<String> existingSubjects = sj.stream()
+                .map(sub -> sub.getName().toLowerCase() + "_" + sub.getClassGroup().toLowerCase()) // Unique key: name + classGroup
+                .collect(Collectors.toSet());
+
+        // Filter out subjects that already exist
+        List<Subject> newSubjects = subjectRequest.getSubjectDetails().stream()
+                .map(SubjectUtil::mapSubjectRequest_ToSubject)
+                .filter(sub -> !existingSubjects.contains(sub.getName().toLowerCase() + "_" + sub.getClassGroup().toLowerCase()))
+                .toList();
+
+        sj.addAll(newSubjects);
         inst.get().setSubjectList(sj);
+        log.info("INSTITUTION ID {}", inst.get().getIdInstitution());
         institutionRepository.save(inst.get());
-        Optional<List<Optional<SubjectResponse>>> sr= Optional.ofNullable(inst.get().getSubjectList().stream().map(s->subjectUtil.mapSubject_ToSubjectResponse(s)).toList());
+        Optional<List<Optional<SubjectResponse>>> sr= Optional.of(inst.get().getSubjectList().stream().map(subjectUtil::mapSubject_ToSubjectResponse).toList());
         return sr;
 
     }
@@ -47,12 +71,12 @@ public class SubjectService implements SubjectServiceInterface {
 
     @Override
     public List<Optional<SubjectResponse>> getAllSubjects() {
-       return SubjectUtil.subjectGlobalList.stream().map(s->subjectUtil.mapSubject_ToSubjectResponse(s)).toList();
+       return SubjectUtil.subjectGlobalList.stream().map(subjectUtil::mapSubject_ToSubjectResponse).toList();
     }
 
     @Override
     public List<Optional<SubjectResponse>> getAllSubjectsByClass(ClassesRequest classesRequest) {
-       return InstitutionUtils.institutionGlobalList.stream().filter(i->i.getIdInstitution().equals(classesRequest.getInstitution())).findFirst().get().getClassList()
+       return InstitutionUtils.institutionGlobalList.stream().filter(i-> false).findFirst().get().getClassList()
                 .stream().map(cl->classesRequest.getClassDetailList().stream().filter(c->c.getId().equals(cl.getIdClasses()))).map(s->subjectUtil.mapSubject_ToSubjectResponse((Subject) s)).toList();
     }
 

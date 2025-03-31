@@ -1,12 +1,12 @@
 package com.astromyllc.shootingstar.setup.model;
 
-import com.sun.mail.iap.ByteArray;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Size;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @Entity
 @Table(name = "preorder_institution")

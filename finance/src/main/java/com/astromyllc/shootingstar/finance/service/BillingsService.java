@@ -26,25 +26,9 @@ public class BillingsService implements BillingsServiceInterface {
     private final BillingsRepository billingsRepository;
     private final BillingsUtil billingsUtil;
     private final Student_BillService student_BillService;
-    private final BillUtil billsUtil;
 
     @Override
     public BillingsResponse updateBilling(BillingsRequest billingsRequest) {
-
-        Optional<Billings> billings = BillingsUtil.billingGlobalList.stream().filter(
-                b -> b.getInstitutionCode().equalsIgnoreCase(billingsRequest.getInstitutionCode())
-                        && b.getBillname().equalsIgnoreCase(billingsRequest.getBillname().get(0))).findFirst();
-        if (billings.isEmpty()) {
-
-            /*Billings billings1 = billingsUtil.mapBillingRequest_ToBilling(inst, studClass, term, amnt, billBal, billDesc, billName, student);
-            billingsRepository.save(billings1);
-            billingsUtil.billingGlobalList.add(billings1);
-            return billingsUtil.mapBillings_ToBillingResponse(billings1);*/
-        } else {
-          //Bill=  billsUtil.billGlobalList.stream().filter(b->)
-           // double bal=(billings.getBillamnt()+billings.getBillamntbal())-(billings.getBillamntbal()+billingsRequest.)
-            billingsRepository.save(billingsUtil.mapBillingRequest_ToBilling(billingsRequest, billings.get()));
-        }
         return null;
     }
 
@@ -70,13 +54,33 @@ public class BillingsService implements BillingsServiceInterface {
                 ).toList();
      billingsRepository.saveAll(billings);
      BillingsUtil.billingGlobalList.addAll(billings);
-    return Optional.of(student_BillService.createStudentsBill(billings.stream().map(billingsUtil::mapBilling_ToStudentBill).toList()));
-     /*return Optional.of(billings
-                     .stream()
-                     .map(billingsUtil::mapBillings_ToBillingResponse)
-             .toList());*/
 
+    return Optional.of( student_BillService.createStudentsBill(billings.stream()
+            .collect(Collectors.groupingBy(Billings::getStudentId))  // Group by studentId
+            .entrySet().stream()  // Stream over the grouped entries
+            .map(entry -> {
+                String studentId = entry.getKey();  // Get studentId from the group
+                String studClass= entry.getValue().get(0).getStudentClass();
+                String instCode= entry.getValue().get(0).getInstitutionCode();
+                String term= entry.getValue().get(0).getTerm();
+                Double totalAmount = entry.getValue().stream()  // Sum the billamnt for the group
+                        .mapToDouble(Billings::getBillamnt)
+                        .sum();
 
+                // Now, map the summed data to a Student_BillRequest
+                // We use the mapBilling_ToStudentBill method to convert
+                // Create a new Billings object to pass into the map function
+                Billings summarizedBilling = new Billings();
+                summarizedBilling.setStudentId(studentId);
+                summarizedBilling.setBillamnt(totalAmount);
+                summarizedBilling.setTerm(term);
+                summarizedBilling.setStudentClass(studClass);
+                summarizedBilling.setInstitutionCode(instCode);
+
+                // Use the existing map function to map to Student_BillRequest
+                return billingsUtil.mapBilling_ToStudentBill(summarizedBilling);
+            })
+            .toList()));
     }
 
     @Override

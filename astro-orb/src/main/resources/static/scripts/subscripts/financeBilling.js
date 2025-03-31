@@ -52,11 +52,6 @@ $(function () {
                                     <option value="Third Term">Third Term</option>
                                  </select>
                             </div>
-                            <div class="form-group col-lg-2">
-                                <select class="form-control academicYearSelect" >
-                                    <option>Select Academic Year</option>
-                                </select>
-                            </div>
                             <div class="form-group col-sm-2" style="float: right;">
                                  <div id="billingFetch" class="">
                                       <button class="btn btn-success col-lg-12 form-control" type="button" id="submitBtn">Submit</button>
@@ -244,16 +239,6 @@ function constructExistingBillings(){
     el5.innerHTML=("Select Class");
     el4.appendChild(el5);   // Append default option to select
 
-/*
-    el4.addEventListener("change", function() {
-      var selectedValue = this.value;
-
-        if (selectedValue !== "Select Class") {
-        const el=document.querySelector('.tabs');
-        el.style.pointerEvents = 'auto'; // Re-enable all clicks/interactions
-        el.style.opacity = '1';          // Restore original appearance (optional)
-        }
-    });*/
 
         el3.appendChild(el4);   // Append select to col-md-12
         el2.appendChild(el3);   // Append col-md-12 to inner row
@@ -291,6 +276,33 @@ function constructExistingBillings(){
         ell2.appendChild(ell3);   // Append col-md-12 to inner row
         ell1.appendChild(ell2);   // Append inner row to col-sm-6
         clonable.appendChild(ell1); // Append col-sm-6 to outer row (clonable)
+
+
+
+    var ell1o=document.createElement("div");
+    ell1o.setAttribute("class", "col-sm-3");
+
+    var ell2o=document.createElement("div");
+    ell2o.setAttribute("class", "row");
+
+    var ell3o=document.createElement("div");
+    ell3o.setAttribute("class", "col-md-12");
+
+    var ell4o=document.createElement("select");
+    ell4o.setAttribute("class", "form-control m-b academicYearSelect");
+    ell4o.setAttribute("name", "academicYear");
+    ell4o.setAttribute("id", "academicYearOptions");
+
+    var ell5o=document.createElement("option");
+    ell5o.innerHTML=("Select Academic Year");
+
+    ell4o.appendChild(ell5o);   // Append default option to select
+        ell3o.appendChild(ell4o);   // Append select to col-md-12
+        ell2o.appendChild(ell3o);   // Append col-md-12 to inner row
+        ell1o.appendChild(ell2o);   // Append inner row to col-sm-6
+
+
+        clonable.appendChild(ell1o); // Append col-sm-6 to outer row (clonable)
 
 createGeneralTab();
 

@@ -1,0 +1,98 @@
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    ##driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:postgresql://postgres-accommodation:5436/accommodation
+    username: astromyllc
+    password: IdowhatIlikeIlikewhatIdo!@3
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+      default_schema: public
+
+  codec:
+    max-in-memory-size: 20971520
+
+  zipkin:
+    base-url: http://zipkin:9411
+  sleuth:
+    sampler:
+      probability: 1.0
+  cloud:
+    compatibility-verifier:
+      enabled: false
+  application:
+    name: shootingStar-setup
+
+server:
+  port: 0
+
+gateway:
+  host: ${APIGATEWAY:astro-api-gateway:8083}
+  # host: ${APIGATEWAY:astro-api-gateway}  # Commented
+
+
+data:
+  connection: ${CONNECTION_STRING:postgres-accommodation:5436}
+
+eureka:
+  instance:
+    preferIpAddress: true
+    leaseRenewalIntervalInSeconds: 10
+    leaseExpirationDurationInSeconds: 3
+  client:
+    serviceUrl:
+      defaultZone: http://eureka:password@discovery-server:8761/eureka
+    registerWithEureka: true
+    fetchRegistry: true
+
+management:
+  health:
+    circuitbreakers:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      setup:
+        registerHealthIndicator: true
+        event-consumer-buffer-size: 10
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 5s
+        permittedNumberOfCallsInHalfOpenState: 3
+        authomaticTransitionFromOpenToHalfOpenEnabled: true
+  timelimiter:
+    instances:
+      setup:
+        timeout-duration: 3s
+
+
+
+logging:
+  level:
+    org:
+      springframework:
+        security: ERROR
+        web:
+          client:
+            RestTemplate: ERROR
+        boot:
+          autoconfigure: ERROR
+
+      hibernate:
+        SQL: ERROR
+        transaction: ERROR
+
+    root: ERROR
+    org.springframework.web: ERROR

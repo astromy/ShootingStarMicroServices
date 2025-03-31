@@ -32,24 +32,23 @@ public class Student_BillUtil {
         return Student_Bill.builder()
                 .studentClass(studentBillRequest.getStudentClass())
                 .studentId(studentBillRequest.getStudentId())
-                .amountBalance(studentBillRequest.getAmountBalance())
+                .amountBalance(studentBillRequest.getAmountBalance() != null ? studentBillRequest.getAmountBalance() :studentBillRequest.getAmountDue())
                 .amountDue(studentBillRequest.getAmountDue())
                 .term(studentBillRequest.getTerm())
                 .amountPaid(studentBillRequest.getAmountPaid())
                 .institutionCode(studentBillRequest.getInstitutionCode())
-                .oldBalance(studentBillRequest.getOldBalance())
+                .oldBalance(studentBillRequest.getOldBalance() != null ? studentBillRequest.getOldBalance() : 0.0)
                 .build();
     }
-
     public Student_Bill mapStudentBillRequest_ToStudentBill(Student_BillRequest studentBillRequest, Student_Bill studentBill) {
         studentBill.setStudentClass(studentBillRequest.getStudentClass());
         studentBill.setStudentId(studentBillRequest.getStudentId());
         studentBill.setInstitutionCode(studentBillRequest.getInstitutionCode());
         studentBill.setTerm(studentBillRequest.getTerm());
-        studentBill.setAmountDue(studentBillRequest.getAmountDue());
-        studentBill.setAmountBalance(studentBillRequest.getAmountBalance());
-        studentBill.setAmountPaid(studentBillRequest.getAmountPaid());
-        studentBill.setOldBalance(studentBillRequest.getOldBalance());
+        studentBill.setAmountDue(studentBill.getAmountDue() + studentBillRequest.getAmountDue());
+        studentBill.setAmountBalance(studentBill.getAmountBalance() + studentBillRequest.getAmountDue());
+        studentBill.setAmountPaid(studentBillRequest.getAmountPaid() + studentBill.getAmountPaid());
+        studentBill.setOldBalance(studentBill.getOldBalance());
         return  studentBill;
     }
 
