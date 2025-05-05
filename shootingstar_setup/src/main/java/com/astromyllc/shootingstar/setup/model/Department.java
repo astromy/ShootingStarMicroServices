@@ -11,14 +11,20 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @Data
-@Embeddable
-@EqualsAndHashCode(of = "idDepartment")
+/*@Embeddable*/
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Department {
     @Id
+    @EqualsAndHashCode.Include
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idDepartment;
     @NonNull
     private String name;
+
+    @ManyToOne
+    @JoinColumn(name = "idInstitution")
+    private Institution institution;
+
     @OneToMany(fetch = FetchType.EAGER,targetEntity =Designation.class, cascade = CascadeType.ALL)
     @JoinColumn(name = "departmentDesignation",referencedColumnName = "idDepartment")
     private List<Designation> designationList;

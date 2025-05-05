@@ -8,9 +8,9 @@ import com.astromyllc.shootingstar.setup.model.Institution;
 import com.astromyllc.shootingstar.setup.model.PreOrderInstitution;
 import com.astromyllc.shootingstar.setup.repository.InstitutionRepository;
 import com.astromyllc.shootingstar.setup.repository.PreOrderInstitutionRepository;
+import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
@@ -24,7 +24,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.core.Response;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -37,19 +36,18 @@ import static org.keycloak.admin.client.CreatedResponseUtil.getCreatedId;
 @Slf4j
 public class InstitutionUtils {
 
+    public static List<Institution> institutionGlobalList = null;
+    public static List<PreOrderInstitution> preOrderInstitutionGlobalList = null;
+    public static List<String> permissions = null;
+    static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private final InstitutionRepository institutionRepository;
+    private final PreOrderInstitutionRepository preOrderInstitutionRepository;
+    private final SubjectUtil subjectUtil;
+    private final MailUtil mailUtil;
     @Value("${gateway.host}")
     private String keycloakSecrete;
     @Value("${keycloak.address}")
     private String keycloakURL;
-
-    private final InstitutionRepository institutionRepository;
-    private final PreOrderInstitutionRepository preOrderInstitutionRepository;
-    private final SubjectUtil subjectUtil;
-    public static List<Institution> institutionGlobalList = null;
-    public static List<PreOrderInstitution> preOrderInstitutionGlobalList = null;
-    public static List<String> permissions = null;
-
-    static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     @Bean
     public void fetAllInstitutions() {
@@ -110,28 +108,28 @@ public class InstitutionUtils {
                         ? AdmissionUtil.mapAdmissionToAdmissionResponse(institution.getAdmissions())
                         : null)
                 .classList(institution.getClassList() != null
-                        ?institution.getClassList().stream()
+                        ? institution.getClassList().stream()
                         .filter(Objects::nonNull)
                         .map(ClassesUtil::mapClassToClassResponse)
                         .toList()
-                : Collections.emptyList())
-                .gradingSetting(institution.getGradingSetting()!=null
-                        ?GradingSettingUtil.mapGradeSetting_ToGradeSettingResponse(institution.getGradingSetting())
-                        :null)
-                .subjectList(institution.getSubjectList()!=null
-                        ?institution.getSubjectList().stream()
+                        : Collections.emptyList())
+                .gradingSetting(institution.getGradingSetting() != null
+                        ? GradingSettingUtil.mapGradeSetting_ToGradeSettingResponse(institution.getGradingSetting())
+                        : null)
+                .subjectList(institution.getSubjectList() != null
+                        ? institution.getSubjectList().stream()
                         .filter(Objects::nonNull)
                         .map(subjectUtil::mapSubject_ToSubjectResponse)
                         .toList()
                         : Collections.emptyList())
-                .classList(institution.getClassList()!=null
-                        ?institution.getClassList().stream()
+                .classList(institution.getClassList() != null
+                        ? institution.getClassList().stream()
                         .filter(Objects::nonNull)
                         .map(ClassesUtil::mapClassToClassResponse)
                         .toList()
                         : Collections.emptyList())
-                .departmentList(institution.getDepartmentList()!=null
-                        ?institution.getDepartmentList().stream()
+                .departmentList(institution.getDepartmentList() != null
+                        ? institution.getDepartmentList().stream()
                         .filter(Objects::nonNull)
                         .map(DepartmentUtil::mapDepartment_ToDepartmentResponse)
                         .toList()
@@ -233,7 +231,6 @@ public class InstitutionUtils {
     }
 
 
-
     public void createKeycloakCredentials(PreOrderInstitution institution) {
         List<String> permissions = new ArrayList<String>();
         permissions.add("setup classes");
@@ -300,15 +297,11 @@ public class InstitutionUtils {
 
         Keycloak kc = KeycloakBuilder.builder()
                 .serverUrl(keycloakURL)
-                .realm("master")
-                .grantType(OAuth2Constants.PASSWORD)
-                .username("admin")
-                .password("IdowhatIlikeIlikewhatIdo!@3")
-                .clientId("admin-cli")
-                .resteasyClient(
-                        new ResteasyClientBuilder()
-                                .connectionPoolSize(10).build()
-                ).build();
+                .realm("ShootingStar")
+                .clientId("astro_orb_microservices")
+                .clientSecret("VSOLTuWTCIasuAK5xNS93YOKfmnwtUlE")
+                .grantType(OAuth2Constants.CLIENT_CREDENTIALS)
+                .build();
 
         /**
          * Create Groups(Institution) and subGroups (User types)
@@ -388,6 +381,9 @@ public class InstitutionUtils {
                 log.info("Roles added to user: " + rolesToAdd);
             }
 
+            sendmail(institution,client,institution.getBececode(),institution.getEmail());
+            alertMail(institution,"astromyllc@gmail.com");
+
 
         } catch (Exception e) {
             System.out.println(e.toString());
@@ -414,6 +410,55 @@ public class InstitutionUtils {
         }
     }
 
+    private void sendmail(PreOrderInstitution inst, String userName, String passCode, String reciepient) {
+        String mailBody = "<html><body>" +
+
+                "Hi "+ inst.getName() +" Team,.<br>" +
+
+                "Welcome aboard! We’re thrilled to have you as part of our growing community. Your subscription is now active, and we’re excited to support your journey every step of the way..<br>" +
+
+                "Please find herein, your credentials to the Orb School Application.<br>" +
+                "Username: " + userName + "<br>" +
+                "Password: " + passCode + "!23<br>" +
+                "Link to the app: <a href='https://orb.astromyllc.com'>https://orb.astromyllc.com</a>" +
+
+                "If you have any questions or need help getting started, we're just a message away..<br>" +
+
+                "Here’s to a great partnership! 🚀.<br>" +
+
+                "Warm regards,.<br>" +
+                "support@astromyllc.com.<br>" +
+                "Astromy ORB Services.<br>" +
+
+                "</body></html>";
+
+
+        mailUtil.sendTransactionalEmail(reciepient, "Welcome to the Astromy ORB application", mailBody,"support");
+    }
+
+    private void alertMail(PreOrderInstitution inst, String reciepient) {
+        String mailBody = "<html><body>" +
+
+                "A new Client has filled out the pre-subscription for the ORB application<br>" +
+
+                "Please find herein, the details of the institution.<br>" +
+                "Institution Name             : " + inst.getName() + "<br>" +
+                "Institution Population       : " + inst.getPopulation() + "<br>" +
+                "Institution Contact          : " + inst.getContact1() + "<br>" +
+                "Institution email            : " + inst.getEmail() + "<br>" +
+                "Institution Name             : " + inst.getWebsite() + "<br>" +
+                "Institution City             : " + inst.getCity() + "<br>" +
+                "Institution Subscription Type: " + inst.getSubscription() + "<br>" +
+
+                "Warm regards,.<br>" +
+                "support@astromyllc.com.<br>" +
+                "Astromy ORB Services.<br>" +
+
+                "</body></html>";
+
+
+        mailUtil.sendTransactionalEmail(reciepient, "NEW ORB SUBSCRIPTION", mailBody,"support");
+    }
 
     @Bean
     private void createPermissions() {
@@ -426,6 +471,7 @@ public class InstitutionUtils {
         permissions.add("setup permissions");
         permissions.add("setup institution");
         permissions.add("setup classgroup");
+        permissions.add("setup accommodation");
 
         permissions.add("Human_Resource onboarding");
         permissions.add("Human_Resource records");
@@ -468,6 +514,13 @@ public class InstitutionUtils {
         permissions.add("Infirmary diagnosis_recording");
         permissions.add("Infirmary medical_history");
 
+        permissions.add("Accommodation accommodationStudentList");
+        permissions.add("Accommodation roomAllocation");
+        permissions.add("Accommodation dutyRoster");
+        permissions.add("Accommodation resourceTracking");
+        permissions.add("Accommodation positions");
+        permissions.add("Accommodation faults");
+
         permissions.add("Stores sales");
         permissions.add("Stores inventory");
         permissions.add("Stores insight");
@@ -481,15 +534,11 @@ public class InstitutionUtils {
 
         Keycloak kc = KeycloakBuilder.builder()
                 .serverUrl(keycloakURL)
-                .realm("master")
-                .grantType(OAuth2Constants.PASSWORD)
-                .username("admin")
-                .password("IdowhatIlikeIlikewhatIdo!@3")
-                .clientId("admin-cli")
-                .resteasyClient(
-                        new ResteasyClientBuilder()
-                                .connectionPoolSize(10).build()
-                ).build();
+                .realm("ShootingStar")
+                .clientId("astro_orb_microservices")
+                .clientSecret("VSOLTuWTCIasuAK5xNS93YOKfmnwtUlE")
+                .grantType(OAuth2Constants.CLIENT_CREDENTIALS)
+                .build();
 
         for (String role : permissions) {
             try {

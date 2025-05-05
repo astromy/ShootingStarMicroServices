@@ -1,5 +1,5 @@
 
-var instId = $("meta[name='institutionId']").attr("content");
+var instId = $("meta[name='institutionId']").attr("content").split("/")[1];
 fetchInstitutionClasses(instId.split(",")[0]);
 
 

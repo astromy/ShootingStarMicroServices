@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @Data
-@Embeddable
+/*@Embeddable*/
 @EqualsAndHashCode(of = "idApplicationCategory")
 public class ApplicationCategory {
     @Id

@@ -1,5 +1,5 @@
 var selectPlan,institution,slogan,country,region,city,email,contact1,contact2,bececode,postalAddress,streams,population,website;
-var instId = $("meta[name='institutionId']").attr("content");
+var instId = $("meta[name='institutionId']").attr("content").split("/")[1];
 fetchInstitution(instId.split(",")[0]);
     $(".selectPlan").on('click', function(event){
          event.preventDefault();

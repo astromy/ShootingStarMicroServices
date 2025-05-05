@@ -11,8 +11,8 @@ import java.util.Optional;
 
 public interface ClassesServiceInterface {
     public void createClass(ClassesRequest classesRequest);
-    public Optional<List<Optional<ClassesResponse>>> createClasses(ClassesRequest classesRequestList);
+    public List<Optional<ClassesResponse>> createClasses(ClassesRequest classesRequestList);
     public List<Optional<ClassesResponse>> getAllClasses();
-    public Optional<List<Optional<ClassesResponse>>> getAllClassesByClassGroup(ClassGroupRequest classGroupRequest);
+    public List<Optional<ClassesResponse>> getAllClassesByClassGroup(ClassGroupRequest classGroupRequest);
     public List<Optional<ClassesResponse>> getAllClassesByInstitution(SingleStringRequest institutionRequest);
 }

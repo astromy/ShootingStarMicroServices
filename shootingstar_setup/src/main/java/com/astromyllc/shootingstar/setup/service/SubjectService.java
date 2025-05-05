@@ -27,40 +27,49 @@ public class SubjectService implements SubjectServiceInterface {
     private final InstitutionUtils institutionUtils;
     private final InstitutionRepository institutionRepository;
     @Override
-    public Optional<List<Optional<SubjectResponse>>> createSubject(SubjectRequest subjectRequest) {
+    public List<Optional<SubjectResponse>> createSubject(SubjectRequest subjectRequest) {
         log.info("Subject Request {}", subjectRequest);
-        Optional<Institution> inst= InstitutionUtils.institutionGlobalList.stream()
-                .filter(x->x.getBececode().equalsIgnoreCase(subjectRequest.getInstitution())).findFirst();
 
-        if (inst.isEmpty()) {
-            log.warn("Institution not found!");
-            return Optional.empty();
-        }
+        return InstitutionUtils.institutionGlobalList.stream()
+                .filter(x -> x.getBececode().equalsIgnoreCase(subjectRequest.getInstitution())) // Filter by BECE code
+                .findFirst() // Find the first matching institution
+                .map(institution -> {
+                    // Ensure the subject list is not null, and process it directly
+                    institution.setSubjectList(Optional.ofNullable(institution.getSubjectList()).orElse(new ArrayList<>()));
 
-        Institution institution = inst.get();
+                    // Convert existing subjects into a Set for quick lookup (name + classGroup as unique key)
+                    Set<String> existingSubjects = institution.getSubjectList().stream()
+                            .map(sub -> (sub.getName().toLowerCase() + "_" + sub.getClassGroup().toLowerCase())) // Unique key
+                            .collect(Collectors.toSet());
 
-        List<Subject> sj=institution.getSubjectList();
-        if (sj == null) {
-            sj = new ArrayList<>();
-        }
+                    // Filter out subjects that already exist and add new subjects
+                    List<Subject> newSubjects=
+                            subjectRequest.getSubjectDetails().stream()
+                                    .map(s->{
+                                       Subject ns= SubjectUtil.mapSubjectRequest_ToSubject(s);
+                                       ns.setInstitution(institution);
+                                       return ns;
+                                    })
+                                    .filter(sub -> !existingSubjects.contains(sub.getName().toLowerCase() + "_" + sub.getClassGroup().toLowerCase()))
+                                    .collect(Collectors.toList());
 
-        // Convert existing subjects into a Set for quick lookup
-        Set<String> existingSubjects = sj.stream()
-                .map(sub -> sub.getName().toLowerCase() + "_" + sub.getClassGroup().toLowerCase()) // Unique key: name + classGroup
-                .collect(Collectors.toSet());
 
-        // Filter out subjects that already exist
-        List<Subject> newSubjects = subjectRequest.getSubjectDetails().stream()
-                .map(SubjectUtil::mapSubjectRequest_ToSubject)
-                .filter(sub -> !existingSubjects.contains(sub.getName().toLowerCase() + "_" + sub.getClassGroup().toLowerCase()))
-                .toList();
+                    // Save the updated institution with the new subject list
+                    subjectRepository.saveAll(newSubjects);
+                    institution.getSubjectList().addAll(newSubjects);
 
-        sj.addAll(newSubjects);
-        inst.get().setSubjectList(sj);
-        log.info("INSTITUTION ID {}", inst.get().getIdInstitution());
-        institutionRepository.save(inst.get());
-        Optional<List<Optional<SubjectResponse>>> sr= Optional.of(inst.get().getSubjectList().stream().map(subjectUtil::mapSubject_ToSubjectResponse).toList());
-        return sr;
+                    log.info("INSTITUTION ID {}", institution.getIdInstitution());
+
+                    // Return the list of subject responses wrapped in Optional
+                    return institution.getSubjectList().stream()
+                            .map(subjectUtil::mapSubject_ToSubjectResponse)
+                            .collect(Collectors.toList());
+                })
+                .map(ArrayList::new)  // Collect into a List<Optional<SubjectResponse>>
+                .orElseGet(() -> {
+                    log.warn("Institution not found!");
+                    return new ArrayList<Optional<SubjectResponse>>();  // Return an empty list if institution is not found
+                });
 
     }
 
@@ -83,7 +92,7 @@ public class SubjectService implements SubjectServiceInterface {
     @Override
     public List<Optional<SubjectResponse>> getAllSubjectsByInstitution(SingleStringRequest institutionRequest) {
         String finalBeceCode= institutionRequest.getVal();
-        return Optional.ofNullable(InstitutionUtils.institutionGlobalList)  // Check if institutionGlobalList is null
+        List<Optional<SubjectResponse>> returnVal=  Optional.ofNullable(InstitutionUtils.institutionGlobalList)  // Check if institutionGlobalList is null
                 .map(list -> list.stream()  // Stream over the list if it's not null
                         .filter(i -> i.getBececode().equalsIgnoreCase(finalBeceCode))  // Filter based on BECE code
                         .findFirst()  // Find the first matching institution
@@ -95,6 +104,8 @@ public class SubjectService implements SubjectServiceInterface {
                                 .toList())  // Collect to list
                         .orElse(Collections.emptyList()))  // If no matching institution or subject list is null, return an empty list
                 .orElse(Collections.emptyList());
+        log.debug("\n\n\n\n Subject List..... {}",returnVal );
+        return returnVal;
     }
 
     @Override

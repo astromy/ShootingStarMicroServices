@@ -111,8 +111,8 @@
                                         <div class="col-lg-9">
                                             <div class="row">
                                                 <div class="form-group col-lg-12">
-                                                    <label for="clientName">Institution</label>
-                                                    <input type="text" requ ired id="clientName" class="form-control"
+                                                    <label for="clientName" class="required">Institution</label>
+                                                    <input type="text" required id="clientName" class="form-control mandatory"
                                                            name="clientName" minlength="3" placeholder="School Name">
                                                 </div>
                                                 <div class="form-group col-lg-12">
@@ -121,26 +121,28 @@
                                                            name="slogan" placeholder="School Slogan" minlength="5">
                                                 </div>
                                                 <div class="form-group col-lg-6">
-                                                    <label for="country">Country</label>
-                                                    <input type="text" autocomplete="off" id="country"
-                                                           class="form-control" placeholder="Country"
-                                                           name="country" minlength="2">
+                                                    <label for="country" class="required">Country</label>
+                                                    <select autocomplete="off" id="country"
+                                                           class="form-control mandatory"
+                                                            name="country">
+                                                        <option value="">Select Country</option>
+                                                    </select>
                                                 </div>
                                                 <div class="form-group col-lg-6">
-                                                    <label for="region">Region</label>
+                                                    <label for="region" class="required">Region</label>
                                                     <input type="text" autocomplete="off" required id="region"
-                                                           class="form-control" placeholder="Region" name="region"
+                                                           class="form-control mandatory" placeholder="Region" name="region"
                                                            minlength="3">
                                                 </div>
                                                 <div class="form-group col-lg-6">
-                                                    <label for="city">City</label>
-                                                    <input type="text" required id="city" class="form-control"
+                                                    <label for="city" class="required">City</label>
+                                                    <input type="text" required id="city" class="form-control mandatory"
                                                            placeholder="City" name="city" minlength="5">
                                                 </div>
                                                 <div class="form-group col-lg-6">
-                                                    <label for="email">Email</label>
+                                                    <label for="email" class="required">Email</label>
                                                     <input type="text" autocomplete="off" required id="email"
-                                                           class="form-control" name="email"
+                                                           class="form-control mandatory" name="email"
                                                            placeholder="Official email of school">
                                                 </div>
                                             </div>
@@ -149,11 +151,11 @@
                                     <div class="row">
                                         <div class="col-lg-3 text-center">
                                             <div>
-                                                <label for="crest">School Crest</label>
+                                                <label for="crest" class="required">School Crest</label>
                                             </div>
                                             <output class="imageOutput" name="crest" id="crest"
                                                     style="height: 220px; width:220px; border-radius: 10px;display: inline-block;"></output>
-                                            <input class="imageInput" type="file"
+                                            <input class="imageInput mandatory" type="file"
                                                    style="width: 200px;padding: 12px;display: inline;"
                                                    accept="image/jpeg, image/png, image/jpg">
                                         </div>
@@ -161,8 +163,8 @@
                                             <div class="row">
 
                                                 <div class="form-group col-lg-6">
-                                                    <label for="contact1">Contact</label>
-                                                    <input type="text" required id="contact1" class="form-control"
+                                                    <label for="contact1" class="required">Contact</label>
+                                                    <input type="text" required id="contact1" class="form-control mandatory"
                                                            placeholder="Main Contact Number" name="contact1"
                                                            minlength="10">
                                                 </div>
@@ -173,15 +175,15 @@
                                                            minlength="10">
                                                 </div>
                                                 <div class="form-group col-lg-6">
-                                                    <label for="bececode">WAEC Code</label>
-                                                    <input type="text" required id="bececode" class="form-control"
+                                                    <label for="bececode" class="required">WAEC Code</label>
+                                                    <input type="text" required id="bececode" class="form-control mandatory"
                                                            placeholder="WAEC Code of School" name="bececode"
                                                            minlength="5">
                                                 </div>
                                                 <div class="form-group col-lg-6">
-                                                    <label for="postalAddress">Postal Address</label>
+                                                    <label for="postalAddress" class="required">Postal Address</label>
                                                     <input type="text" required id="postalAddress"
-                                                           class="form-control" name="postalAddress"
+                                                           class="form-control mandatory" name="postalAddress"
                                                            placeholder="Official Postal Address of school"
                                                            minlength="3">
                                                 </div>
@@ -193,9 +195,9 @@
                                                 </div>
 
                                                 <div class="form-group col-lg-6">
-                                                    <label for="population">Population</label>
+                                                    <label for="population" class="required">Population</label>
                                                     <input type="number" required id="population"
-                                                           class="form-control" name="population"
+                                                           class="form-control mandatory" name="population"
                                                            placeholder="Student Population">
                                                 </div>
 

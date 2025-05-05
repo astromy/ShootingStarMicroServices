@@ -1,32 +1,19 @@
 package com.astromyllc.astroorb.controller;
 
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import org.keycloak.KeycloakPrincipal;
-import org.keycloak.KeycloakSecurityContext;
-import org.keycloak.adapters.OidcKeycloakAccount;
-import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken;
-import org.keycloak.representations.AccessToken;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
-import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
 
 @Controller
 public class UserController {
@@ -44,6 +31,7 @@ public class UserController {
             OAuth2AuthorizedClient authorizedClient = getAuthorizedClient(authentication);
 
             // Populate the model with user details
+            model.addAttribute("accessToken",authorizedClient.getAccessToken().getTokenValue());
             model.addAttribute("userName", principal.getAttribute("preferred_username"));
             model.addAttribute("clientName", authorizedClient.getClientRegistration().getClientId());
             model.addAttribute("scopes", authorizedClient.getAccessToken().getScopes());
@@ -63,10 +51,10 @@ public class UserController {
 
     }
 
-    @Value("${keycloak.base-url}")
-    private String keycloakBaseUrl;
+   /* @Value("${keycloak.base-url}")
+    private String keycloakBaseUrl;*/
 
-    @Value("${keycloak.realm}")
+/*    @Value("${keycloak.realm}")
     private String realm;
 
     @GetMapping("/logout")
@@ -75,7 +63,7 @@ public class UserController {
         String logoutUrl = String.format("%s/realms/%s/protocol/openid-connect/logout?redirect_uri=%s",
                 keycloakBaseUrl, realm, redirectUri);
         return "redirect:" + logoutUrl;
-    }
+    }*/
 
 
     private OAuth2AuthorizedClient getAuthorizedClient(OAuth2AuthenticationToken authentication) {

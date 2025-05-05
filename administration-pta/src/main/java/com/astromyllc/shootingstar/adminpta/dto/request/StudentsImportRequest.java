@@ -28,4 +28,5 @@ public class StudentsImportRequest {
     private String studentClass;
     private String status;
     private List<ParentsRequest> parentsRequests;
+    private List<StudentSubjectsRequest> studentSubjectsRequests;
 }

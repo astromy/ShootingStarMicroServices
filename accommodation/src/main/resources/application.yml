@@ -34,10 +34,6 @@ data:
   connection: ${CONNECTION_STRING:localhost:5432}
 
 eureka:
-  instance:
-    preferIpAddress: true
-    leaseRenewalIntervalInSeconds: 10
-    leaseExpirationDurationInSeconds: 3
   client:
     serviceUrl:
       defaultZone: http://eureka:password@localhost:8761/eureka
@@ -75,23 +71,24 @@ resilience4j:
 
 
 
+
 logging:
   level:
+    root: INFO
     org:
       springframework:
-        security: ERROR
-        web: ERROR
-        client:
-          RestTemplate: ERROR
+        web: INFO
+        security: INFO
         boot:
-          autoconfigure: ERROR
+          autoconfigure: INFO
+      springframework.web.client.RestTemplate: INFO
+
       hibernate:
         SQL: ERROR
         type:
           descriptor:
             sql:
               BasicBinder: ERROR
-    root: ERROR
 
 
 keycloak:

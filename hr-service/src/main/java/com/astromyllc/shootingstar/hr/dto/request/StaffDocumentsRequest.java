@@ -17,4 +17,5 @@ public class StaffDocumentsRequest {
     private String documentType;
     private String documentExtension;
     private String institutionCode;
+    private String staffDocs;
 }

@@ -11,7 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @Data
-@Embeddable
+/*@Embeddable*/
 @EqualsAndHashCode(of = "idDesignation")
 public class Designation {
     @Id

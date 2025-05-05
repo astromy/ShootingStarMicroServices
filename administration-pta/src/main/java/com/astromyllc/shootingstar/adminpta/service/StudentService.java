@@ -13,8 +13,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -49,11 +52,42 @@ public class StudentService implements StudentServiceInterface {
 
     @Override
     public Optional<List<StudentsResponse>> postBulkStudentList(List<StudentsImportRequest> request) {
-      List<Students> studentsList=  request.stream().map(studentUtil::mapBulkStudent_To_Students).toList();
+     /* List<Students> studentsList=  request.stream().map(studentUtil::mapStudentsRequest_To_Students).toList();
         studentRepository.saveAll(studentsList);
         StudentUtil.studentsGlobalList.addAll(studentsList);
-        log.info("{} New records have been persited into the Database",studentsList.size());
-        return Optional.of(studentsList.stream().map(studentUtil::mapStudent_ToStudentResponse).toList());
+        log.info("{} New records have been persited into the Database",studentsList.size());*/
+       // return Optional.of(studentsList.stream().map(studentUtil::mapStudent_ToStudentResponse).toList());
+
+        Optional<List<StudentsResponse>> studentsResponse = request.stream()
+                .map(studentRequest -> {
+                    Optional<Students> existingStudent = StudentUtil.studentsGlobalList.stream()
+                            .filter(s -> s.getInstitutionCode().equalsIgnoreCase(studentRequest.getInstitutionCode()) &&
+                                    s.getStudentId().equalsIgnoreCase(studentRequest.getStudentId()))
+                            .findFirst();
+
+                    return existingStudent
+                            .map(student -> {
+                                try {
+                                    return studentUtil.updateExistingStudents(studentRequest, student);
+                                } catch (URISyntaxException | IOException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            })
+                            .orElseGet(() -> {
+                                try {
+                                    return studentUtil.createNewStudents(studentRequest);
+                                } catch (URISyntaxException | IOException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            });
+                })
+                .filter(Optional::isPresent) // Keep only present Optionals
+                .map(Optional::get)          // Unwrap them
+                .collect(Collectors.collectingAndThen(
+                        Collectors.toList(),
+                        list -> list.isEmpty() ? Optional.empty() : Optional.of(list)
+                ));
+        return studentsResponse;
     }
 
     @Override

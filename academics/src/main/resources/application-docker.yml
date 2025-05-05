@@ -1,8 +1,6 @@
 eureka:
   instance:
-    preferIpAddress: true
-    leaseRenewalIntervalInSeconds: 10
-    leaseExpirationDurationInSeconds: 3
+    non-secure-port: 1371
   client:
     serviceUrl:
       defaultZone: http://eureka:password@discovery-server:8761/eureka
@@ -11,6 +9,7 @@ eureka:
 
 server:
   port: 1371
+
 
 gateway:
   host: ${APIGATEWAY:astro-api-gateway:8083}
@@ -74,19 +73,17 @@ resilience4j:
 
 
 
+
 logging:
   level:
+    root: INFO
     org:
       springframework:
-        security: ERROR
-        root: INFO
-        web: ERROR
-        orm:
-          jpa: ERROR
+        web: INFO
+        security: INFO
         boot:
-          autoconfigure: ERROR
-          client:
-            RestTemplate: ERROR
+          autoconfigure: INFO
+      springframework.web.client.RestTemplate: INFO
 
       hibernate:
         SQL: ERROR

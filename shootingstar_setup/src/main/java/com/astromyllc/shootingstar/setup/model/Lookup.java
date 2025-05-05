@@ -10,7 +10,7 @@ import org.checkerframework.common.aliasing.qual.Unique;
 @AllArgsConstructor
 @Builder
 @Data
-@Embeddable
+/*@Embeddable*/
 @EqualsAndHashCode(of = "idLookup")
 public class Lookup {
     @Id

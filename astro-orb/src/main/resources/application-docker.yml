@@ -8,20 +8,16 @@ gateway:
 
 logging:
   level:
+    root: ERROR
     org:
       springframework:
-        security=ERROR:
-    root: ERROR
-    org.springframework.web: ERROR
-    org.springframework.security: ERROR
-    org.springframework.boot.autoconfigure: ERROR
-    org.springframework.web.client.RestTemplate: ERROR
+        web: ERROR
+        security: ERROR
+        boot:
+          autoconfigure: ERROR
+      springframework.web.client.RestTemplate: ERROR
 
 eureka:
-  instance:
-    preferIpAddress: true
-    leaseRenewalIntervalInSeconds: 10
-    leaseExpirationDurationInSeconds: 3
   client:
     serviceUrl:
       defaultZone: http://eureka:password@discovery-server:8761/eureka
@@ -32,9 +28,15 @@ eureka:
 spring:
   web:
     error:
-      include-stacktrace=always:
+      include-stacktrace: always
   mvc:
-    throw-exception-if-no-handler-found=true:
+    throw-exception-if-no-handler-found: true
+  thymeleaf:
+    cache: false
+
+  codec:
+    max-in-memory-size: 20MB
+
   security:
     oauth2:
       client:
@@ -44,7 +46,6 @@ spring:
             client-secret: ywUvVeSUVbbwgsfABUNWyKPJimFXkcwJ
             authorization-grant-type: authorization_code
             redirect-uri: "{baseUrl}/login/oauth2/code/astroauthauth"
-            logout-success-url: "https://keycloak.astromyllc.com/auth/realms/ShootingStar/protocol/openid-connect/auth"
             scope:
               - openid
               - profile
@@ -54,11 +55,7 @@ spring:
           ShootingStar:
             issuer-uri: "https://keycloak.astromyllc.com/realms/ShootingStar"
 
-  thymeleaf:
-    cache: false
 
-  codec:
-    max-in-memory-size: 20MB
 
   application:
     name: orb_frontend
@@ -75,8 +72,3 @@ spring:
       max-request-size: 7024MB
       enabled: true
 
-
-
-keycloak:
-  base-url: https://orb.astromyllc.com  # Change this in production
-  realm: ShootingStar

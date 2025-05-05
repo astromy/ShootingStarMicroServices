@@ -9,7 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 @Data
-@Embeddable
+/*@Embeddable*/
 @EqualsAndHashCode(of = "idAdmissionCriteria")
 public class AdmissionCriteria {
     @Id

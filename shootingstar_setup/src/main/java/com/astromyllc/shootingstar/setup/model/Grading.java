@@ -9,7 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 @Data
-@Embeddable
+/*@Embeddable*/
 @EqualsAndHashCode(of = "idGrading")
 public class Grading {
    @Id

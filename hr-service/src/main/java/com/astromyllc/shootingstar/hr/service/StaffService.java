@@ -3,6 +3,7 @@ package com.astromyllc.shootingstar.hr.service;
 import com.astromyllc.shootingstar.hr.dto.request.SingleStringRequest;
 import com.astromyllc.shootingstar.hr.dto.request.StaffPermissionsRequest;
 import com.astromyllc.shootingstar.hr.dto.request.StaffRequest;
+import com.astromyllc.shootingstar.hr.dto.request.StaffSubjectsRequest;
 import com.astromyllc.shootingstar.hr.dto.request.api.StaffCodeRequest;
 import com.astromyllc.shootingstar.hr.dto.response.StaffResponse;
 import com.astromyllc.shootingstar.hr.model.*;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +36,8 @@ public class StaffService implements StaffServiceInterface {
     private final DependantsUtil dependantsUtil;
     private final StaffPermissionsUtil staffPermissionsUtil;
     private final AcademicRecordsUtil academicRecordsUtil;
+    private final StaffDesignationUtil staffDesignationUtil;
+    private final StaffSubjectsUtil staffSubjectsUtil;
 
     @Override
     public Optional<StaffResponse> createStaff(List<StaffRequest> staffRequests) throws IOException, URISyntaxException {
@@ -43,21 +47,41 @@ public class StaffService implements StaffServiceInterface {
                 Staff newStaff = staffUtil.mapStaffRequest_ToStaff(staffRequest);
                 //staffRepository.save(newStaff);
 
-                List<ProfessionalRecords> pr = staffRequest.getProfessionalRecords().stream().map(p -> ProfessionalRecordsUtil.mapProfessionalRecordRequest_ToProfessionalRecords(p, newStaff.getStaffCode())).toList();
-                professionalRecordsUtil.saveAll(pr);
-                newStaff.setProfessionalRecords(pr);
+                if (staffRequest.getProfessionalRecords()!= null && !staffRequest.getProfessionalRecords().isEmpty()){
+                    List<ProfessionalRecords> pr = staffRequest.getProfessionalRecords().stream().map(p -> ProfessionalRecordsUtil.mapProfessionalRecordRequest_ToProfessionalRecords(p, newStaff.getStaffCode())).toList();
+                    professionalRecordsUtil.saveAll(pr);
+                    newStaff.setProfessionalRecords(pr);
+                }
 
+                if ( staffRequest.getStaffDocuments()!= null && !staffRequest.getStaffDocuments().isEmpty()){
                 List<StaffDocuments> sds = staffRequest.getStaffDocuments().stream().map(sd -> StaffDocumentsUtil.mapStaffDocumentsRequest_ToStaffDocuents(sd, newStaff.getStaffCode())).toList();
                 staffDocumentsUtil.saveAll(sds);
                 newStaff.setStaffDocuments(sds);
+                }
 
+                if (staffRequest.getDependants()!= null && !staffRequest.getDependants().isEmpty()){
                 List<Dependants> dp = staffRequest.getDependants().stream().map(d -> DependantsUtil.mapDependantsRequest_ToDependants(d, newStaff.getStaffCode())).toList();
                 dependantsUtil.saveAll(dp);
                 newStaff.setDependants(dp);
+                }
 
+                if (staffRequest.getAcademicRecords()!= null && !staffRequest.getAcademicRecords().isEmpty()){
                 List<AcademicRecords> ac = staffRequest.getAcademicRecords().stream().map(a -> AcademicRecordsUtil.mapAcademicRecordRequest_ToAcademicRecords(a, newStaff.getStaffCode())).toList();
                 academicRecordsUtil.saveAll(ac);
                 newStaff.setAcademicRecords(ac);
+                }
+
+                if (staffRequest.getStaffDesignations()!= null && !staffRequest.getStaffDesignations().isEmpty()){
+                    List<DesignationList> dl = staffRequest.getStaffDesignations().stream().map(StaffDesignationUtil::mapStaffDesignationListRequest_ToStaffDesignationList).toList();
+                    staffDesignationUtil.saveAll(dl);
+                    newStaff.setStaffDesignations(dl);
+                }
+
+                if (staffRequest.getStaffSubjects()!= null && !staffRequest.getStaffSubjects().isEmpty()){
+                    List<StaffSubjects> ss = staffRequest.getStaffSubjects().stream().map(StaffSubjectsUtil::mapStaffSubjectRequest_ToStaffSubjects).toList();
+                    staffSubjectsUtil.saveAll(ss);
+                    newStaff.setStaffSubjects(ss);
+                }
 
                 staffRepository.save(newStaff);
 
@@ -137,11 +161,89 @@ public class StaffService implements StaffServiceInterface {
                 s.setAcademicRecords(updatedAcademicRecords);
 
 
+                List<DesignationList> staffDesignationList = staffRequest.getStaffDesignations().stream()
+                        .map(requestRecord -> {
+                            // Check if the academic record already exists
+                            Optional<DesignationList> existingRecord = staff.get().getStaffDesignations().stream()
+                                    .filter(existing -> existing.getInstitutionCode().equalsIgnoreCase(requestRecord.getInstitutionCode()) &&
+                                            existing.getDesignation().equals(requestRecord.getDesignation()))
+                                    .findFirst();
+
+                            // If exists, update the record; otherwise, add as new
+                            return existingRecord.map(existing -> {
+                                staffDesignationUtil.updateStaffDesignation(existing, requestRecord); // Assuming an update method exists
+                                return existing;
+                            }).orElseGet(() -> StaffDesignationUtil.mapStaffDesignationListRequest_ToStaffDesignationList(requestRecord));
+                        })
+                        .toList();
+
+                // Save the updated list of academic records
+                staffDesignationUtil.saveAll(staffDesignationList);
+
+                // Set the updated list on the staff object
+                s.setStaffDesignations(staffDesignationList);
+
+
+                List<StaffSubjects> staffSubjects = staffRequest.getStaffSubjects().stream()
+                        .map(requestRecord -> {
+                            // Check if the academic record already exists
+                            Optional<StaffSubjects> existingRecord = staff.get().getStaffSubjects().stream()
+                                    .filter(existing -> existing.getInstitutionCode().equalsIgnoreCase(requestRecord.getInstitutionCode()) &&
+                                            existing.getSubject().equals(requestRecord.getSubject()))
+                                    .findFirst();
+
+                            // If exists, update the record; otherwise, add as new
+                            return existingRecord.map(existing -> {
+                                staffSubjectsUtil.updateStaffSubjects(existing, requestRecord); // Assuming an update method exists
+                                return existing;
+                            }).orElseGet(() -> StaffSubjectsUtil.mapStaffSubjectRequest_ToStaffSubjects(requestRecord));
+                        })
+                        .toList();
+
+                // Save the updated list of academic records
+                staffSubjectsUtil.saveAll(staffSubjects);
+
+                // Set the updated list on the staff object
+                s.setStaffSubjects(staffSubjects);
+
                 staffRepository.save(s);
                 return Optional.of(staffUtil.mapStaff_ToStaffResponse(s));
             }
         }
        return null;
+    }
+
+    public Optional<List<StaffResponse>> createStaffList(List<StaffRequest> staffRequests) {
+        Optional<List<StaffResponse>> staffResponses = staffRequests.stream()
+                .map(staffRequest -> {
+                    Optional<Staff> existingStaff = StaffUtil.staffGlobalList.stream()
+                            .filter(s -> s.getInstitutionCode().equalsIgnoreCase(staffRequest.getInstitutionCode()) &&
+                                    (s.getSnnitNumber().equalsIgnoreCase(staffRequest.getSnnitNumber()))|| s.getNationalID().equalsIgnoreCase(staffRequest.getNationalID()))
+                            .findFirst();
+
+                    return existingStaff
+                            .map(staff -> {
+                                try {
+                                    return staffUtil.updateExistingStaff(staffRequest, staff);
+                                } catch (URISyntaxException | IOException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            })
+                            .orElseGet(() -> {
+                                try {
+                                    return staffUtil.createNewStaff(staffRequest);
+                                } catch (URISyntaxException | IOException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            });
+                })
+                .filter(Optional::isPresent) // Keep only present Optionals
+                .map(Optional::get)          // Unwrap them
+                .collect(Collectors.collectingAndThen(
+                        Collectors.toList(),
+                        list -> list.isEmpty() ? Optional.empty() : Optional.of(list)
+                ));
+        return staffResponses;
     }
 
     @Override
@@ -180,7 +282,7 @@ public class StaffService implements StaffServiceInterface {
 
     @Override
     public Optional<StaffResponse> addStaffPermissions(List<StaffPermissionsRequest> staffPermissionsRequests) throws IOException, URISyntaxException {
-        StaffPermissionsUtil.KeyclaokCreateUserCredentials(staffPermissionsRequests);
+        staffPermissionsUtil.KeyclaokCreateUserCredentials(staffPermissionsRequests);
         Optional<Staff> staff = StaffUtil.staffGlobalList.stream().filter(s -> s.getInstitutionCode().equalsIgnoreCase(staffPermissionsRequests.get(0).getInstitutionCode()) && s.getStaffCode().equalsIgnoreCase(staffPermissionsRequests.get(0).getStaffCode())).findFirst();
         if (staff.isPresent()) {
 
@@ -219,6 +321,66 @@ public class StaffService implements StaffServiceInterface {
         return Optional.empty();
     }
 
+    @Override
+    public Optional<StaffResponse> addStaffSubjects(List<StaffSubjectsRequest> staffSubjectsRequests)
+            throws IOException, URISyntaxException {
+
+        // 1. Find the staff member
+        Optional<Staff> staff = StaffUtil.staffGlobalList.stream()
+                .filter(s ->
+                        s.getInstitutionCode().equalsIgnoreCase(staffSubjectsRequests.get(0).getInstitutionCode()) &&
+                                s.getStaffCode().equalsIgnoreCase(staffSubjectsRequests.get(0).getStaffId()))
+                .findFirst();
+
+        if (staff.isPresent()) {
+            // 2. Get existing subjects (or empty list if null)
+            List<StaffSubjects> existingStaffSubjects =
+                    Optional.ofNullable(staff.get().getStaffSubjects())
+                            .orElse(Collections.emptyList());
+
+            // 3. Create a map with composite key: "subject_subjectClass" (case-insensitive)
+            Map<String, StaffSubjects> existingStaffSubjectsMap = existingStaffSubjects.stream()
+                    .collect(Collectors.toMap(
+                            ss -> (ss.getSubject().toLowerCase() + "_" + ss.getSubjectClass().toLowerCase()),
+                            ss -> ss
+                    ));
+
+            // 4. Process each request
+            List<StaffSubjects> staffSubjects = Stream.concat(
+                    existingStaffSubjects.stream()
+                            .peek(existing -> staffSubjectsRequests.stream()
+                                    .filter(req ->
+                                            req.getSubject().equalsIgnoreCase(existing.getSubject()) &&
+                                                    req.getSubjectClass().equalsIgnoreCase(existing.getSubjectClass()))
+                                    .findFirst()
+                                    .ifPresent(req -> StaffSubjectsUtil.updateStaffSubjects(existing, req))),
+                    staffSubjectsRequests.stream()
+                            .filter(req -> existingStaffSubjects.stream()
+                                    .noneMatch(existing ->
+                                            existing.getSubject().equalsIgnoreCase(req.getSubject()) &&
+                                                    existing.getSubjectClass().equalsIgnoreCase(req.getSubjectClass())))
+                            .map(StaffSubjectsUtil::mapStaffSubjectRequest_ToStaffSubjects)
+            ).collect(Collectors.toList());
+
+            // 5. Save updates
+            staffSubjectsUtil.saveAll(staffSubjects);
+            staff.get().setStaffSubjects(staffSubjects);
+            staffRepository.save(staff.get());
+
+            return Optional.of(staffUtil.mapStaff_ToStaffResponse(staff.get()));
+        }
+        return Optional.empty();
+    }
+
+
+    @Override
+    public Optional<StaffResponse> getStaffByStaffCode(SingleStringRequest staffcodeRequest) throws IOException, URISyntaxException {
+        Optional<Staff> staff = StaffUtil.staffGlobalList.stream().filter(s -> s.getStaffCode().equalsIgnoreCase(staffcodeRequest.getVal())).findFirst();
+        if(!staff.isEmpty()) {
+            return  Optional.ofNullable(staffUtil.mapStaff_ToStaffResponse(staff.get()));
+        }
+        return null;
+    }
 
 
 }

@@ -1,12 +1,18 @@
 package com.astromyllc.shootingstar.adminpta.model;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
 import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Document(value="students")
 @NoArgsConstructor
@@ -48,4 +54,14 @@ public class Students {
     private String studentClass;
     @NonNull
     private String status;
+
+    @DBRef
+    @OneToMany(fetch = FetchType.EAGER,targetEntity = StudentSubjects.class, cascade = CascadeType.ALL)
+    @JoinColumn(name = "studentSubjects",referencedColumnName = "id")
+    private List<StudentSubjects> studentSubjects;
+
+    @DBRef
+    @OneToMany(fetch = FetchType.EAGER,targetEntity = Parents.class, cascade = CascadeType.ALL)
+    @JoinColumn(name = "parentsList",referencedColumnName = "id")
+    private List<Parents> parentsList;
 }

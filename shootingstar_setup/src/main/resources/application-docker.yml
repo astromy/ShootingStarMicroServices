@@ -7,10 +7,18 @@ spring:
     password: IdowhatIlikeIlikewhatIdo!@3
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
-    show-sql: true
+    show-sql: false
     hibernate:
       ddl-auto: update
       default_schema: public
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.security.reactive.ReactiveSecurityAutoConfiguration
+      - org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
+  security:
+    user:
+      name: disabled
+      password: disabled
 
   codec:
     max-in-memory-size: 20971520
@@ -26,23 +34,57 @@ spring:
   application:
     name: shootingStar-setup
 
+
+
+  mail:
+    # Email rate limiting configuration
+    rate-limit: 5
+    queue-capacity: 1000
+
+    # Retry configuration
+    max-retries: 3
+    retry-delay: 5000
+
+    host: smtp.zeptomail.com
+    port: 587
+    username: emailapikey
+    password: "wSsVR61//x/xXfp0nmCqIuZunVtQB1j3FRx8iVOm7nT8H6/D/cc8w0KYVACvSvJNFmQ7RjIXprgoyUxV1mBY2tV8yFsACCiF9mqRe1U4J3x17qnvhDzIWW5YlBaJJYwPxwxtm2RoEMkj+g=="
+    protocol: smtp
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+          ssl:
+            trust: "smtp.zeptomail.com"
+        debug: false
+
+
+
+
+
 server:
-  port: 0
+  port: 1373
 
 gateway:
   host: ${APIGATEWAY:astro-api-gateway:8083}
   # host: ${APIGATEWAY:astro-api-gateway}  # Commented
 
 eureka:
-  instance:
-    preferIpAddress: true
-    leaseRenewalIntervalInSeconds: 10
-    leaseExpirationDurationInSeconds: 3
   client:
+    registryFetchIntervalSeconds: 5
     serviceUrl:
       defaultZone: http://eureka:password@discovery-server:8761/eureka
     registerWithEureka: true
     fetchRegistry: true
+  instance:
+    port: 1373
+
 
 management:
   health:
@@ -75,22 +117,26 @@ resilience4j:
 
 
 
+
 logging:
   level:
+    root: ERROR
     org:
       springframework:
-        security: INFO
+        web: ERROR
+        security: ERROR
+        boot:
+          autoconfigure: ERROR
+      springframework.web.client.RestTemplate: ERROR
 
       hibernate:
         SQL: ERROR
         transaction: ERROR
 
-    root: INFO
-    org.springframework.web: INFO
-    org.springframework.security: INFO
-    org.springframework.boot.autoconfigure: INFO
-    org.springframework.web.client.RestTemplate: INFO
-
 
 keycloak:
   address: ${KeycloakURL:https://keycloak.astromyllc.com}
+
+
+data:
+  connection: ${CONNECTION_STRING:postgres-accommodation:5432}

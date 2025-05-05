@@ -54,3 +54,15 @@ resilience4j:
     instances:
       setup:
         timeout-duration: 3s
+
+
+logging:
+  level:
+    root: INFO
+    org:
+      springframework:
+        web: INFO
+        security: INFO
+        boot:
+          autoconfigure: INFO
+      springframework.web.client.RestTemplate: INFO

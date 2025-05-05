@@ -25,10 +25,6 @@ gateway:
   host: ${APIGATEWAY:localhost}
 
 eureka:
-  instance:
-    preferIpAddress: true
-    leaseRenewalIntervalInSeconds: 10
-    leaseExpirationDurationInSeconds: 3
   client:
     serviceUrl:
       defaultZone: http://eureka:password@localhost:8761/eureka
@@ -66,13 +62,14 @@ resilience4j:
 
 
 
+
 logging:
   level:
+    root: INFO
     org:
       springframework:
-        security=ERROR:
-    root: INFO
-    org.springframework.web: INFO
-    org.springframework.security: INFO
-    org.springframework.boot.autoconfigure: INFO
-    org.springframework.web.client.RestTemplate: INFO
+        web: INFO
+        security: INFO
+        boot:
+          autoconfigure: INFO
+      springframework.web.client.RestTemplate: INFO

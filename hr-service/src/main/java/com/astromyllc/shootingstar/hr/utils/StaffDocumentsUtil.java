@@ -1,8 +1,11 @@
 package com.astromyllc.shootingstar.hr.utils;
 
+import com.astromyllc.shootingstar.hr.dto.request.AcademicRecordsRequest;
 import com.astromyllc.shootingstar.hr.dto.request.StaffDocumentsRequest;
 import com.astromyllc.shootingstar.hr.dto.response.StaffDocumentsResponse;
+import com.astromyllc.shootingstar.hr.model.AcademicRecords;
 import com.astromyllc.shootingstar.hr.model.ProfessionalRecords;
+import com.astromyllc.shootingstar.hr.model.StaffDesignation;
 import com.astromyllc.shootingstar.hr.model.StaffDocuments;
 import com.astromyllc.shootingstar.hr.repository.StaffDocumentsRepository;
 import jakarta.transaction.Transactional;
@@ -15,6 +18,7 @@ import org.springframework.stereotype.Component;
 import java.io.*;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
@@ -54,5 +58,14 @@ public class StaffDocumentsUtil {
     public void saveAll(List<StaffDocuments> sds) {
         staffDocumentsRepository.saveAll(sds);
         staffDocumentsGlobalList.addAll(sds);
+    }
+
+
+    public void updateStaffDocuments(StaffDocuments existing, StaffDocumentsRequest requestRecord, String staffCode) {
+        existing.setDocument(requestRecord.getDocument());
+        existing.setDocumentType(requestRecord.getDocumentType());
+        existing.setDocumentExtension(requestRecord.getDocumentExtension());
+        existing.setInstitutionCode(requestRecord.getInstitutionCode());
+        existing.setStaffDocs(requestRecord.getStaffDocs());
     }
 }

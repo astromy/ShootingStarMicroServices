@@ -3,6 +3,7 @@ package com.astromyllc.shootingstar.hr.controller;
 import com.astromyllc.shootingstar.hr.dto.request.SingleStringRequest;
 import com.astromyllc.shootingstar.hr.dto.request.StaffPermissionsRequest;
 import com.astromyllc.shootingstar.hr.dto.request.StaffRequest;
+import com.astromyllc.shootingstar.hr.dto.request.StaffSubjectsRequest;
 import com.astromyllc.shootingstar.hr.dto.request.api.StaffCodeRequest;
 import com.astromyllc.shootingstar.hr.dto.response.StaffResponse;
 import com.astromyllc.shootingstar.hr.serviceInterface.StaffServiceInterface;
@@ -33,11 +34,27 @@ public class StaffController {
     }
 
     @PostMapping
+    @RequestMapping("/api/hr/createStaffList")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Optional<List<StaffResponse>> SubmitStaffList(@RequestBody List<StaffRequest> staffRequest) throws IOException, URISyntaxException {
+        log.info("hr Received");
+        return staffServiceInterface.createStaffList(staffRequest);
+    }
+
+    @PostMapping
     @RequestMapping("/api/hr/addStaffPermissions")
     @ResponseStatus(HttpStatus.CREATED)
     public Optional<StaffResponse> AddStaffPermissions(@RequestBody List<StaffPermissionsRequest> staffPermissionsRequests) throws IOException, URISyntaxException {
         log.info("hr received {} records of StaffPermissions",staffPermissionsRequests);
         return staffServiceInterface.addStaffPermissions(staffPermissionsRequests);
+    }
+
+    @PostMapping
+    @RequestMapping("/api/hr/addStaffSubjects")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Optional<StaffResponse> UpdateStaffSubjects(@RequestBody List<StaffSubjectsRequest> staffSubjectsRequests) throws IOException, URISyntaxException {
+        log.info("hr received {} records of StaffPermissions",staffSubjectsRequests);
+        return staffServiceInterface.addStaffSubjects(staffSubjectsRequests);
     }
 
     @PostMapping
@@ -54,5 +71,12 @@ public class StaffController {
     public Optional<List<StaffResponse>> getStaffByInstitution(@RequestBody SingleStringRequest staffcodeRequest) throws IOException, URISyntaxException {
         log.info("Fetching List of Staff Based on Institution");
         return staffServiceInterface.getStaffByInstitution(staffcodeRequest);
+    }
+    @PostMapping
+    @RequestMapping("/api/hr/getStaffByStaffId")
+    @ResponseStatus(HttpStatus.OK)
+    public Optional<StaffResponse> getStaffByStaffCode(@RequestBody SingleStringRequest staffcodeRequest) throws IOException, URISyntaxException {
+        log.info("Fetching List of Staff Based on Institution");
+        return staffServiceInterface.getStaffByStaffCode(staffcodeRequest);
     }
 }

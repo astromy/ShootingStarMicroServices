@@ -2,16 +2,60 @@ spring:
   data:
     mongodb:
       uri: mongodb://localhost:27017/hr-service
+      auto-index-creation: true
+
   application:
     name: HR-Service
+
   cloud:
     compatibility-verifier:
       enabled: false
+
   zipkin:
     base-url: http://localhost:9411
   sleuth:
     sampler:
       probability: 1.0
+
+  webflux:
+    netty:
+      max-initial-line-length: 19192
+      max-header-size: 19192
+      max-chunk-size: 10485760
+    codec:
+      max-in-memory-size: 10485760
+
+
+
+  mail:
+    # Email rate limiting configuration
+    rate-limit: 5
+    queue-capacity: 1000
+
+    # Retry configuration
+    max-retries: 3
+    retry-delay: 5000
+
+    host: smtp.zeptomail.com
+    port: 587
+    username: emailapikey
+    password: "wSsVR61//x/xXfp0nmCqIuZunVtQB1j3FRx8iVOm7nT8H6/D/cc8w0KYVACvSvJNFmQ7RjIXprgoyUxV1mBY2tV8yFsACCiF9mqRe1U4J3x17qnvhDzIWW5YlBaJJYwPxwxtm2RoEMkj+g=="
+    protocol: smtp
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+          ssl:
+            trust: "smtp.zeptomail.com"
+        debug: false
+
+
 
 server:
   port: 0
@@ -20,10 +64,6 @@ gateway:
   host: ${APIGATEWAY:localhost:8083}
 
 eureka:
-  instance:
-    preferIpAddress: true
-    leaseRenewalIntervalInSeconds: 10
-    leaseExpirationDurationInSeconds: 3
   client:
     serviceUrl:
       defaultZone: http://eureka:password@localhost:8761/eureka

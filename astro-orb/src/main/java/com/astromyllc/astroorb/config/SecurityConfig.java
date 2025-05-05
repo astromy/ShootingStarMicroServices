@@ -10,7 +10,10 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
 @Configuration
 public class SecurityConfig {
 
@@ -18,9 +21,14 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http, ClientRegistrationRepository clientRegistrationRepository) throws Exception {
         http
                 // Require authentication for all requests
+
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/public/**", "/resources/**").permitAll()
                         .anyRequest().authenticated()  // Require authentication for all other requests
+                )
+                // Enable CSRF with Cookie-based token storage
+                .csrf(csrf -> csrf
+                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                 )
                 // OAuth2 Login configuration using Keycloak
                 .oauth2Login(oauth2 -> oauth2
@@ -33,7 +41,7 @@ public class SecurityConfig {
                 // Logout configuration
                 .logout(logout -> logout
                         .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-                        .logoutSuccessHandler(oidcLogoutSuccessHandler(clientRegistrationRepository))
+                        .logoutSuccessHandler(loggingOidcLogoutSuccessHandler(clientRegistrationRepository))
                         .invalidateHttpSession(true)
                         .clearAuthentication(true)
                 )
@@ -47,13 +55,20 @@ public class SecurityConfig {
     }
 
     // OIDC logout handler to redirect to Keycloak's logout endpoint
-    private LogoutSuccessHandler oidcLogoutSuccessHandler(ClientRegistrationRepository clientRegistrationRepository) {
-        OidcClientInitiatedLogoutSuccessHandler oidcLogoutSuccessHandler =
+    private LogoutSuccessHandler loggingOidcLogoutSuccessHandler(ClientRegistrationRepository clientRegistrationRepository) {
+        OidcClientInitiatedLogoutSuccessHandler logoutHandler =
                 new OidcClientInitiatedLogoutSuccessHandler(clientRegistrationRepository);
 
-        // Specify the post-logout redirect URI (change this to the correct value)
-        oidcLogoutSuccessHandler.setPostLogoutRedirectUri("https://orb.astromyllc.com");
+        logoutHandler.setPostLogoutRedirectUri("{baseUrl}/");
 
-        return oidcLogoutSuccessHandler;
+        return (request, response, authentication) -> {
+            // Log the actual URL being used
+            String baseUrl = ServletUriComponentsBuilder.fromRequest(request).build().toUriString();
+            System.out.println("Actual base URL at logout time: " + baseUrl);
+
+            // Delegate to the actual logout handler
+            logoutHandler.onLogoutSuccess(request, response, authentication);
+        };
     }
+
 }

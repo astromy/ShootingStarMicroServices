@@ -28,45 +28,41 @@ public class DepartmentService implements DepartmentServiceInterface {
     private final DepartmentRepository departmentRepository;
     private final DepartmentUtil departmentUtil;
     @Override
-    public Optional<List<Optional<DepartmentResponse>>> createDepartments(DepartmentRequest departmentRequest) {
-        Optional<Institution> inst = InstitutionUtils.institutionGlobalList.stream()
+    public List<Optional<DepartmentResponse>> createDepartments(DepartmentRequest departmentRequest) {
+        return InstitutionUtils.institutionGlobalList.stream()
                 .filter(x -> x.getBececode().equalsIgnoreCase(departmentRequest.getInstitution()))
-                .findFirst();
+                .findFirst()
+                .map(inst -> {
+                    // Handle the department list directly without introducing a new variable
+                    inst.setDepartmentList(
+                            new ArrayList<>(Optional.ofNullable(inst.getDepartmentList()).orElse(new ArrayList<>())) // to make sure you have a valid List reference
+                    );
 
-        if (inst.isEmpty()) {
-            log.warn("Institution not found!");
-            return Optional.empty();
-        }
+                    // Filter new departments and add them to the department list
+                   List<Department> newDepartments=
+                            departmentRequest.getDepartmentDetailsList().stream()
+                                    .map(d->{
+                                        Department nd= DepartmentUtil.mapDepartmentRequest_ToDepartment(d);
+                                    nd.setInstitution(inst);
+                                    return nd;
+                                    })
+                                    .filter(d -> inst.getDepartmentList().stream().noneMatch(existing -> existing.getName().equalsIgnoreCase(d.getName())))
+                                    .toList();
 
-        List<Department> dl = inst.get().getDepartmentList();
-        if (dl == null) {
-            dl = new ArrayList<>();
-        }
 
-        // Convert existing departments into a Set for quick lookup
-        Set<String> existingDepartments = dl.stream()
-                .map(d -> d.getName().toLowerCase()) // Unique key: department name
-                .collect(Collectors.toSet());
+                    // Save the updated institution with the new department list
+                    departmentRepository.saveAll(newDepartments);
+                    inst.getDepartmentList().addAll(newDepartments);
 
-        // Filter out departments that already exist
-        List<Department> newDepartments = departmentRequest.getDepartmentDetailsList().stream()
-                .map(DepartmentUtil::mapDepartmentRequest_ToDepartment)
-                .filter(d -> !existingDepartments.contains(d.getName().toLowerCase()))
-                .toList();
-
-        // Add only unique departments
-        dl.addAll(newDepartments);
-        inst.get().setDepartmentList(dl);
-
-        institutionRepository.save(inst.get());
-
-        Optional<List<Optional<DepartmentResponse>>> dr = Optional.of(
-                inst.get().getDepartmentList().stream()
-                        .map(DepartmentUtil::mapDepartment_ToDepartmentResponse)
-                        .toList()
-        );
-
-        return dr;
+                    // Return the mapped list of department responses, each wrapped in an Optional
+                    return inst.getDepartmentList().stream()
+                            .map(DepartmentUtil::mapDepartment_ToDepartmentResponse)
+                            .collect(Collectors.toList());
+                })
+                .orElseGet(() -> {
+                    log.warn("Institution not found!");
+                    return new ArrayList<Optional<DepartmentResponse>>();  // Return an empty list if institution is not found
+                });
     }
 
     @Override

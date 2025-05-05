@@ -4,6 +4,7 @@ import com.astromyllc.shootingstar.hr.dto.request.StaffPermissionsRequest;
 import com.astromyllc.shootingstar.hr.model.StaffPermissions;
 import com.astromyllc.shootingstar.hr.repository.StaffPermissionsRepository;
 import jakarta.transaction.Transactional;
+import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
@@ -13,6 +14,7 @@ import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
+import org.keycloak.representations.idm.GroupRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,9 +24,11 @@ import org.springframework.stereotype.Component;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 @Component
 @RequiredArgsConstructor
@@ -44,6 +48,8 @@ public class StaffPermissionsUtil {
 
     private final StaffPermissionsRepository staffPermissionsRepository;
     public static List<StaffPermissions> staffPermissionsGlobalList;
+    public final MailUtil mailUtil;
+    public final StaffUtil staffUtil;
     static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     @Bean
@@ -75,111 +81,202 @@ public class StaffPermissionsUtil {
                 .build();
     }
 
-    public static void KeyclaokCreateUserCredentials(List<StaffPermissionsRequest> staffPermissionsRequests) {
+    AtomicBoolean isNewUser = new AtomicBoolean(false);
+    public void KeyclaokCreateUserCredentials(List<StaffPermissionsRequest> staffPermissionsRequests) {
+        if (staffPermissionsRequests == null || staffPermissionsRequests.isEmpty()) {
+            throw new IllegalArgumentException("Staff permissions requests cannot be empty");
+        }
 
-        // Authenticate and connect to Keycloak
+        StaffPermissionsRequest request = staffPermissionsRequests.get(0);
+        String staffCode = request.getStaffCode();
+
+        // Find staff email from global list
+        String staffEmail = StaffUtil.staffGlobalList.stream()
+                .filter(s -> s.getStaffCode().equalsIgnoreCase(staffCode))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Staff not found: " + staffCode))
+                .getStaffEmail();
+
         Keycloak keycloak = KeycloakBuilder.builder()
                 .serverUrl(keycloakURL)
-                .realm("master")
-                .grantType(OAuth2Constants.PASSWORD)
-                .username("admin")
-                .password("IdowhatIlikeIlikewhatIdo!@3")
-                .clientId("admin-cli")
-                .resteasyClient(
-                        new ResteasyClientBuilder()
-                                .connectionPoolSize(10).build()
-                ).build();
+                .realm("ShootingStar")
+                .clientId("astro_orb_microservices")
+                .clientSecret("VSOLTuWTCIasuAK5xNS93YOKfmnwtUlE")
+                .grantType(OAuth2Constants.CLIENT_CREDENTIALS)
+                .build();
 
         try {
-            // Get the realm resource
             RealmResource realmResource = keycloak.realm("ShootingStar");
-
-            /*String staffCode=staffPermissionsRequests.get(0).getStaffCode();
-            List<UserRepresentation> users = realmResource.users().search(staffPermissionsRequests.get(0).getStaffCode());
-            if (users.isEmpty()) {
-                System.out.println("User not found!");
-                return;
-            }*/
-
-
-            // Retrieve user by username
-            UserRepresentation user = new UserRepresentation();
             UsersResource usersResource = realmResource.users();
-            // Flag to check if the user is newly created
-            AtomicBoolean isNewUser = new AtomicBoolean(false);
 
-            String userId = usersResource.search(staffPermissionsRequests.get(0).getStaffCode()).stream()
+            // 1. Find or create user
+            UserRepresentation user = findOrCreateUser(usersResource, staffCode, staffEmail);
+            String userId = user.getId();
+
+            List<GroupRepresentation> groups = realmResource.groups().groups();
+            GroupRepresentation tGroup = groups.stream()
+                    .filter(g -> g.getName().equalsIgnoreCase(request.getInstitutionCode()))
                     .findFirst()
-                    .map(euser -> euser.getId()) // If user exists, get their ID
-                    .orElseGet(() -> { // If user doesn't exist, create the user
-                        isNewUser.set(true); // Mark user as newly created
-                        UserRepresentation newUser = new UserRepresentation();
-                        newUser.setUsername(staffPermissionsRequests.get(0).getStaffCode());
-                        newUser.setEnabled(true);
+                    .orElse(null);
 
-                        usersResource.create(newUser);
+            //GroupRepresentation tGroup= searchGroupsByName(keycloak,"ShootingStar",request.getInstitutionCode());
 
-                        // Retrieve the created user's ID
-                        return usersResource.search(staffPermissionsRequests.get(0).getStaffCode()).stream()
-                                .findFirst()
-                                .orElseThrow(() -> new RuntimeException("User creation failed"))
-                                .getId();
-                    });
+            List<GroupRepresentation> userGroups = keycloak.realm("ShootingStar")
+                    .users()
+                    .get(userId)
+                    .groups();
 
-            // Step 3: Set User Password
+
+            // Check if user is already in the group
+            boolean alreadyInGroup = userGroups.stream()
+                    .anyMatch(group -> group.getId().equals(tGroup.getId()));
+
+            if (!alreadyInGroup) {
+                keycloak.realm("ShootingStar").users().get(userId).joinGroup(tGroup.getId());
+            }
+
+
+            String mailBody = "<html><body>" +
+                    "Please find herein, your credentials to the Orb School Application.<br>" +
+                    "Username: " + staffCode + "<br>" +
+                    "Password: " + staffCode + "!23<br>" +
+                    "Link to the app: <a href='https://orb.astromyllc.com'>https://orb.astromyllc.com</a>" +
+                    "</body></html>";
+                    //"Please find herein, your credentials to the Orb School Application.\n\nUsername: " + staffCode + "\n\nPassword: " + staffCode + "!23\n\nLink to the app: https://orb.astromyllc.com";
+
+            // 2. Handle password for new users
             if (isNewUser.get()) {
-            CredentialRepresentation password = new CredentialRepresentation();
-            password.setTemporary(true); // temporary password
-            password.setType(CredentialRepresentation.PASSWORD);
-            password.setValue(staffPermissionsRequests.get(0).getStaffCode() + "123");
+                setInitialPassword(usersResource, userId, staffCode);
 
-            usersResource.get(userId).resetPassword(password);
-            log.info("Password set for user: " + staffPermissionsRequests.get(0).getStaffCode());
-            } else {
-                log.info("User already exists: " + staffPermissionsRequests.get(0).getStaffCode());
+                // Send email asynchronously
+               CompletableFuture.runAsync(() -> {
+                    try {
+                       String fromEmail=StaffUtil.institutionRequest.getName().replace(" ", ".");
+                        int secondDotIndex = fromEmail.indexOf('.', fromEmail.indexOf('.') + 1);
+                        fromEmail= fromEmail.substring(0, secondDotIndex );
+                        mailUtil.sendTransactionalEmail(staffEmail, "User Credentials to the ORB application", mailBody,fromEmail);
+                    } catch (Exception e) {
+                        log.error("Failed to send email to {}", staffEmail, e);
+                    }
+                });
+            }{
+                String fromEmail=staffUtil.getInstitution(request.getInstitutionCode()) .getName().replace(" ", ".");
+                int secondDotIndex = fromEmail.indexOf('.', fromEmail.indexOf('.') + 1);
+                fromEmail= fromEmail.substring(0, secondDotIndex );
+                mailUtil.sendTransactionalEmail(staffEmail, "User Credentials to the ORB application", mailBody,fromEmail);
             }
 
-            staffPermissionsRequests.stream()
-                    .filter(request -> "add".equalsIgnoreCase(request.getState()))
-                    .forEach(request -> System.out.println("Checking role: " + request.getPermissionCode()));
+            // 3. Process role assignments
+            processRoleAssignments(realmResource, usersResource, userId, staffPermissionsRequests);
 
-            // Separate roles to add and remove based on the "state" field
-            List<RoleRepresentation> rolesToAdd = staffPermissionsRequests.stream()
-                    .filter(request -> "add".equalsIgnoreCase(request.getState())) // Filter roles with state "add"
-                    .map(roleName -> realmResource.roles().get(roleName.getPermissionCode()).toRepresentation())
-                    .toList();
-
-            List<RoleRepresentation> rolesToRemove = staffPermissionsRequests.stream()
-                    .filter(request -> "delete".equalsIgnoreCase(request.getState())) // Filter roles with state "delete"
-                    .map(roleName -> realmResource.roles().get(roleName.getPermissionCode()).toRepresentation())
-                    .toList();
-
-            // Step 5: Assign Roles to User (Add)
-            if (!rolesToAdd.isEmpty()) {
-                usersResource.get(userId).roles().realmLevel().add(rolesToAdd);
-
-                for (RoleRepresentation rolesToAddItem:rolesToAdd) {
-                    realmResource.users().get(userId).roles().realmLevel().add(Collections.singletonList(rolesToAddItem));
-                }
-                log.info("Roles added to user: " + rolesToAdd);
-            }
-
-            // Step 6: Remove Roles from User
-            if (!rolesToRemove.isEmpty()) {
-                usersResource.get(userId).roles().realmLevel().remove(rolesToRemove);
-
-                for (RoleRepresentation rolesToRemoveItem:rolesToRemove) {
-                    realmResource.users().get(userId).roles().realmLevel().remove(Collections.singletonList(rolesToRemoveItem));
-                }
-                log.info("Roles removed from user: " + rolesToRemove);
-            }
-
-            log.info("Roles assigned to user: " + staffPermissionsRequests.get(0).getStaffCode());
+            log.info("Successfully processed permissions for user: {}", staffCode);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Failed to process Keycloak user credentials for {}", staffCode, e);
+            throw new RuntimeException("User creation/update failed for " + staffCode, e);
         } finally {
-            keycloak.close(); // Close the Keycloak client
+            keycloak.close();
         }
+    }
+
+    private UserRepresentation findOrCreateUser(UsersResource usersResource, String staffCode, String staffEmail) {
+        // Try to find existing user first
+        List<UserRepresentation> users = usersResource.search(staffCode);
+        if (!users.isEmpty()) {
+            return users.get(0);
+        }
+
+        // Create new user if not found
+        UserRepresentation newUser = new UserRepresentation();
+        newUser.setUsername(staffCode);
+        newUser.setEmail(staffEmail);
+        newUser.setEnabled(true);
+
+
+
+        Response response = usersResource.create(newUser);
+        if (response.getStatus() != 201) {
+            throw new RuntimeException("Failed to create user in Keycloak. Status: " + response.getStatus());
+        }
+
+        // Get the created user with retry logic
+        return waitForUserCreation(usersResource, staffCode);
+    }
+
+    private UserRepresentation waitForUserCreation(UsersResource usersResource, String staffCode) {
+        int attempts = 0;
+        while (attempts < 3) {
+            List<UserRepresentation> users = usersResource.search(staffCode);
+            if (!users.isEmpty()) {
+                isNewUser.set(true); // Mark user as newly created
+                return users.get(0);
+            }
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new RuntimeException("Interrupted while waiting for user creation");
+            }
+            attempts++;
+        }
+        throw new RuntimeException("User creation verification failed after retries");
+    }
+
+    private void setInitialPassword(UsersResource usersResource, String userId, String staffCode) {
+        CredentialRepresentation password = new CredentialRepresentation();
+        password.setTemporary(true);
+        password.setType(CredentialRepresentation.PASSWORD);
+        password.setValue(staffCode + "!23");
+
+        usersResource.get(userId).resetPassword(password);
+        log.info("Password set successfully for user: {}", staffCode);
+    }
+
+    private void processRoleAssignments(RealmResource realmResource,
+                                        UsersResource usersResource,
+                                        String userId,
+                                        List<StaffPermissionsRequest> requests) {
+        // Separate roles to add and remove
+        List<RoleRepresentation> rolesToAdd = requests.stream()
+                .filter(req -> "add".equalsIgnoreCase(req.getState()))
+                .map(req -> getRoleRepresentation(realmResource, req.getPermissionCode()))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+        List<RoleRepresentation> rolesToRemove = requests.stream()
+                .filter(req -> "delete".equalsIgnoreCase(req.getState()))
+                .map(req -> getRoleRepresentation(realmResource, req.getPermissionCode()))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+        // Process role assignments
+        if (!rolesToAdd.isEmpty()) {
+            usersResource.get(userId).roles().realmLevel().add(rolesToAdd);
+            log.info("Added roles {} to user {}", rolesToAdd, userId);
+        }
+
+        if (!rolesToRemove.isEmpty()) {
+            usersResource.get(userId).roles().realmLevel().remove(rolesToRemove);
+            log.info("Removed roles {} from user {}", rolesToRemove, userId);
+        }
+    }
+
+    private RoleRepresentation getRoleRepresentation(RealmResource realmResource, String roleName) {
+        try {
+            return realmResource.roles().get(roleName).toRepresentation();
+        } catch (Exception e) {
+            log.warn("Role {} not found in Keycloak", roleName);
+            return null;
+        }
+    }
+
+    public GroupRepresentation searchGroupsByName(Keycloak keycloak, String realm, String searchTerm) {
+        return keycloak.realm(realm)
+                .groups()
+                .groups()
+                .stream()
+                .filter(group -> group.getName().equals(searchTerm))
+                .findFirst()
+                .orElse(null);
     }
 
 }

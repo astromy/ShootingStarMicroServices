@@ -1,5 +1,5 @@
 id=null;
-var instId = $("meta[name='institutionId']").attr("content");
+var instId = $("meta[name='institutionId']").attr("content").split("/")[1];
 fetchInstitutionGrading(instId.split(",")[0]);
 
 

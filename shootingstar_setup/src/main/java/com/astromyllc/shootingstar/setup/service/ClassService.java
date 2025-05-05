@@ -33,45 +33,44 @@ public class ClassService implements ClassesServiceInterface {
     }
 
     @Override
-    public Optional<List<Optional<ClassesResponse>>> createClasses(ClassesRequest classesRequestList) {
-        Optional<Institution> inst = InstitutionUtils.institutionGlobalList.stream()
-                .filter(x -> x.getBececode().equalsIgnoreCase(classesRequestList.getInstitution()))
-                .findFirst();
+    public List<Optional<ClassesResponse>> createClasses(ClassesRequest classesRequestList) {
+        return InstitutionUtils.institutionGlobalList.stream()
+                .filter(x -> x.getBececode().equalsIgnoreCase(classesRequestList.getInstitution())) // Filter by BECE code
+                .findFirst() // Find the first matching institution
+                .map(inst -> {
+                    // Ensure the class list is not null, then process it directly
+                    inst.setClassList(Optional.ofNullable(inst.getClassList()).orElse(new ArrayList<>()));
 
-        if (inst.isEmpty()) {
-            log.warn("Institution not found!");
-            return Optional.empty();
-        }
+                    // Convert existing class names into a Set for quick lookup
+                    Set<String> existingClasses = inst.getClassList().stream()
+                            .map(c -> c.getName().toLowerCase())
+                            .collect(Collectors.toSet());
 
-        List<Classes> cl = inst.get().getClassList();
-        if (cl == null) {
-            cl = new ArrayList<>();
-        }
+                    // Filter out existing classes and add only new ones
+                 List<Classes> newClasses=
+                            classesRequestList.getClassDetailList().stream()
+                                    .map(c -> {
+                                        Classes mappedClass = ClassesUtil.mapClassRequestToClass(c);
+                                        mappedClass.setInstitution(inst);  // Set the institution reference
+                                        return mappedClass;
+                                    })
+                                    .filter(c -> !existingClasses.contains(c.getName().toLowerCase()))
+                                    .toList();
 
-        // Convert existing classes into a Set for quick lookup
-        Set<String> existingClasses = cl.stream()
-                .map(c -> c.getName().toLowerCase()) // Unique key: class name
-                .collect(Collectors.toSet());
+                    // Save the updated institution with the new class list
+                    classesRepository.saveAll(newClasses);
+                    inst.getClassList().addAll(newClasses);
 
-        // Filter out classes that already exist
-        List<Classes> newClasses = classesRequestList.getClassDetailList().stream()
-                .map(ClassesUtil::mapClassRequestToClass)
-                .filter(c -> !existingClasses.contains(c.getName().toLowerCase()))
-                .toList();
-
-        // Add only unique classes
-        cl.addAll(newClasses);
-        inst.get().setClassList(cl);
-
-        institutionRepository.save(inst.get());
-
-        Optional<List<Optional<ClassesResponse>>> cr = Optional.of(
-                inst.get().getClassList().stream()
-                        .map(ClassesUtil::mapClassToClassResponse)
-                        .toList()
-        );
-
-        return cr;
+                    // Return the list of class responses wrapped in Optional
+                    return inst.getClassList().stream()
+                            .map(ClassesUtil::mapClassToClassResponse)
+                            .collect(Collectors.toList());
+                })
+                .map(ArrayList::new) // Collect into a List<Optional<ClassesResponse>>
+                .orElseGet(() -> {
+                    log.warn("Institution not found!");
+                    return new ArrayList<Optional<ClassesResponse>>(); // Return an empty list if the institution is not found
+                });
     }
 
     @Override
@@ -80,24 +79,24 @@ public class ClassService implements ClassesServiceInterface {
     }
 
     @Override
-    public Optional<List<Optional<ClassesResponse>>> getAllClassesByClassGroup(ClassGroupRequest classGroupRequest) {
-      return  Optional.of(InstitutionUtils.institutionGlobalList.stream()
+    public List<Optional<ClassesResponse>> getAllClassesByClassGroup(ClassGroupRequest classGroupRequest) {
+      return  InstitutionUtils.institutionGlobalList.stream()
               .filter(i->i.getBececode().equalsIgnoreCase(classGroupRequest.getInstitution()))
               .findFirst().get().getClassList().stream()
               .filter(f->f.getClassGroup().equalsIgnoreCase(classGroupRequest.getClassGroup()))
-              .map(ClassesUtil::mapClassToClassResponse).toList());
+              .map(ClassesUtil::mapClassToClassResponse).toList();
     }
 
     @Override
     public List<Optional<ClassesResponse>> getAllClassesByInstitution(SingleStringRequest institutionRequest) {
         String finalBeceCode= institutionRequest.getVal();
-        Optional<Institution> inst= InstitutionUtils.institutionGlobalList.stream().filter(x->x.getBececode().equalsIgnoreCase(finalBeceCode)).findFirst();
-        //return Optional.ofNullable(inst.get().getClassList().stream().map(i->classesUtil.mapClassToClassResponse(i)).toList());
-        return Optional.of(inst.get())
+        List<Optional<ClassesResponse>> classesResponse= InstitutionUtils.institutionGlobalList.stream().filter(x->x.getBececode().equalsIgnoreCase(finalBeceCode)).findFirst()
                 .map(Institution::getClassList)  // Safe check if inst is null
                 .map(Collection::stream)  // Safe check if getClassList() is null
                 .map(stream -> stream.map(ClassesUtil::mapClassToClassResponse))  // Safe map operation
                 .map(Stream::toList)  // Convert stream to list safely
                 .orElse(Collections.emptyList());
+        log.debug("\n\n\n\n List OF Classes..... {}",classesResponse );
+        return classesResponse;
     }
 }

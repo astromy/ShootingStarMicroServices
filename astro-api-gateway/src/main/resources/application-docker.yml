@@ -1,10 +1,6 @@
 
 
 eureka:
-  instance:
-    preferIpAddress: true
-    leaseRenewalIntervalInSeconds: 10
-    leaseExpirationDurationInSeconds: 3
   client:
     serviceUrl:
       defaultZone: http://eureka:password@discovery-server:8761/eureka
@@ -12,16 +8,24 @@ eureka:
     fetchRegistry: true
 
 
-
 logging:
   level:
     root: INFO
-    org.springframework.security: DEBUG
-    org.springframework.cloud.gateway.route.RouteDefinitionLocator: INFO
+    org:
+      springframework:
+        web: INFO
+        security: INFO
+        boot:
+          autoconfigure: INFO
+        cloud:
+          gateway:
+            route:
+              RouteDefinitionLocator: INFO
+      springframework.web.client.RestTemplate: INFO
+
 
 server:
   port: 8083
-  
 spring:
   main:
     web-application-type: reactive
@@ -30,7 +34,23 @@ spring:
   cloud:
     compatibility-verifier:
       enabled: false
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.security.reactive.ReactiveSecurityAutoConfiguration
+      - org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
+  security:
+    user:
+      name: disabled
+      password: disabled
 
+# application.properties
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+      access:
+        permit-all: "*"
 
   ## Setup Service Routes
     gateway:
@@ -39,57 +59,73 @@ spring:
           uri: lb://shootingStar-setup
           predicates:
             - Path=/api/setup/**
+          filters:
+            - RemoveRequestHeader=Authorization
 
-  ## Online Application Service Routes
+        ## Online Application Service Routes
      # routes[1]:
         - id: online-application
           uri: lb://online-application
           predicates:
             - Path=/api/applications/**
+          filters:
+            - RemoveRequestHeader=Authorization
 
-  ## HR Service Routes
+        ## HR Service Routes
       #routes[2]:
         - id: HR
           uri: lb://HR-Service
           predicates:
             - Path=/api/hr/**
+          filters:
+            - RemoveRequestHeader=Authorization
 
-  ## Finance Service Routes
+        ## Finance Service Routes
       #routes[3]:
         - id: finance
           uri: lb://finance
           predicates:
             - Path=/api/finance/**
+          filters:
+            - RemoveRequestHeader=Authorization
 
-  ## Clinic Service Routes
+        ## Clinic Service Routes
       #routes[4]:
         - id: clinic
           uri: lb://clinic
           predicates:
             - Path=/api/clinic/**
+          filters:
+            - RemoveRequestHeader=Authorization
 
-  ## Store-Inventory Service Routes
+        ## Store-Inventory Service Routes
       #routes[5]:
         - id: stores-inventory
           uri: lb://stores-inventory
           predicates:
             - Path=/api/stores_inventory/**
+          filters:
+            - RemoveRequestHeader=Authorization
 
-  ## Academics Service Routes
+        ## Academics Service Routes
       #routes[6]:
         - id: academics
           uri: lb://shootingStar-academics
           predicates:
             - Path=/api/academics/**
+          filters:
+            - RemoveRequestHeader=Authorization
 
-  ## Administration Service Routes
+        ## Administration Service Routes
       #routes[7]:
         - id: administration-pta
           uri: lb://administration-pta
           predicates:
             - Path=/api/administration-pta/**
+          filters:
+            - RemoveRequestHeader=Authorization
 
-  ## Administration Service Routes
+        ## Administration Service Routes
   ##spring:cloud:gateway:routes[8]:id=astroauthauth
   ##spring:cloud:gateway:routes[8]:uri=lb://astroauthauth
   ##spring:cloud:gateway:routes[8]:predicates[0]=Path=/api/**

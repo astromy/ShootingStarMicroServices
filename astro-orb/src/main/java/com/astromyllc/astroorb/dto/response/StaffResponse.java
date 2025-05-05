@@ -23,6 +23,7 @@ public class StaffResponse {
     private String residentialTown;
     private String contact1;
     private String backupContact;
+    private String staffEmail;
     private String nationalIDType;
     private String nationalID;
     private String snnitNumber;

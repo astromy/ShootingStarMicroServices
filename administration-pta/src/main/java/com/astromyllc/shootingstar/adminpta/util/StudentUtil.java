@@ -1,15 +1,10 @@
 package com.astromyllc.shootingstar.adminpta.util;
 
-import com.astromyllc.shootingstar.adminpta.dto.request.AdmissionRequest;
-import com.astromyllc.shootingstar.adminpta.dto.request.ParentsRequest;
-import com.astromyllc.shootingstar.adminpta.dto.request.StudentsImportRequest;
-import com.astromyllc.shootingstar.adminpta.dto.request.StudentsRequest;
+import com.astromyllc.shootingstar.adminpta.dto.request.*;
 import com.astromyllc.shootingstar.adminpta.dto.request.alien.ApplicationRequest;
-import com.astromyllc.shootingstar.adminpta.dto.response.ClassListResponse;
-import com.astromyllc.shootingstar.adminpta.dto.response.ParentsResponse;
-import com.astromyllc.shootingstar.adminpta.dto.response.StudentSkimResponse;
-import com.astromyllc.shootingstar.adminpta.dto.response.StudentsResponse;
+import com.astromyllc.shootingstar.adminpta.dto.response.*;
 import com.astromyllc.shootingstar.adminpta.model.Parents;
+import com.astromyllc.shootingstar.adminpta.model.StudentSubjects;
 import com.astromyllc.shootingstar.adminpta.model.Students;
 import com.astromyllc.shootingstar.adminpta.repository.ParentRepository;
 import com.astromyllc.shootingstar.adminpta.repository.StudentRepository;
@@ -25,10 +20,19 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -37,6 +41,9 @@ public class StudentUtil {
 
     private final StudentRepository studentRepository;
     private final ParentRepository parentRepository;
+    private final StudentSubjectUtil studentSubjectUtil;
+    private final ParentsUtil parentsUtil;
+    
     private final WebClient.Builder webClientBuilder;
     public static List<Students> studentsGlobalList;
     public static List<Parents> parentsGlobalList;
@@ -132,6 +139,20 @@ public class StudentUtil {
        return id;
     }
     public StudentsResponse mapStudent_ToStudentResponse(Students s) {
+
+        List<ParentsResponse> p = Optional.ofNullable(s.getParentsList())
+                .orElse(Collections.emptyList())
+                .stream()
+                .filter(d -> d.getInstitutionCode().equalsIgnoreCase(s.getInstitutionCode()))
+                .map(ParentsUtil::mapParents_ToParentsResponse)
+                .toList();
+
+        List<StudentSubjectsResponse> ss = Optional.ofNullable(s.getStudentSubjects())
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(StudentSubjectUtil::mapStudentSubject_ToStudentSubjectResponse)
+                .toList();
+
         return StudentsResponse.builder()
                 .institutionCode(s.getInstitutionCode())
                 .studentId(s.getStudentId())
@@ -195,7 +216,38 @@ public class StudentUtil {
                 .build();
     }
 
-    public Students mapBulkStudent_To_Students(StudentsImportRequest s){
+    public Students mapStudentsRequest_To_Students(StudentsImportRequest s){
+        String studentId = s.getStudentId().trim().isEmpty() ? generateStudentId(s.getInstitutionCode()) : s.getStudentId();
+        if (s.getFirstName() == null) {
+            generateStudentId(s.getInstitutionCode());
+        }
+
+        List<Parents> parentsList=new ArrayList<>();
+
+        if(s.getFirstName()==null) {
+            generateStudentId(s.getInstitutionCode());
+        }
+        return Students.builder()
+                .studentId(studentId)
+                .dateOfAdmission(s.getDateOfAdmission())
+                .dateOfBirth(s.getDateOfBirth())
+                .gender(s.getGender())
+                .firstName(s.getFirstName())
+                .denomination(s.getDenomination())
+                .otherName(s.getOtherName())
+                .lastName(s.getLastName())
+                .studentClass(s.getStudentClass())
+                .status(s.getStatus())
+                .placeOfBirth(s.getPlaceOfBirth())
+                .countryOfBirth(s.getCountryOfBirth())
+                .residentialLocality(s.getResidentialLocality())
+                .institutionCode(s.getInstitutionCode())
+                .picture(s.getPicture())
+                .birthCert(s.getBirthCert())
+                .build();
+    }
+
+    public Students mapStudentsRequest_To_Students(StudentsImportRequest s, Students es){
         String studentId = s.getStudentId().trim().isEmpty() ? generateStudentId(s.getInstitutionCode()) : s.getStudentId();
         if (s.getFirstName() == null) {
             generateStudentId(s.getInstitutionCode());
@@ -239,5 +291,109 @@ public class StudentUtil {
                 .birthCert(s.getBirthCert())
                 .build();
     }
+
+    public Optional<StudentsResponse> createNewStudents(StudentsImportRequest studentsRequest) throws URISyntaxException, IOException {
+        Students newStudents = mapStudentsRequest_To_Students(studentsRequest);
+
+        processRecords(studentsRequest.getParentsRequests(),
+                (r -> ParentsUtil.mapParentRequest_ToParent(r, newStudents.getStudentId())),
+                parentsUtil::saveAll,
+                newStudents::setParentsList);
+
+        processRecords(studentsRequest.getStudentSubjectsRequests(),
+                r -> StudentSubjectUtil.mapStudentsSubjectRequest_ToStudentsSubjects(r, newStudents.getStudentId()),
+                studentSubjectUtil::saveAll,
+                newStudents::setStudentSubjects);
+
+        studentRepository.save(newStudents);
+        studentsGlobalList.add(newStudents);
+
+        return Optional.of(mapStudent_ToStudentResponse(newStudents));
+    }
+
+
+
+    public Optional<StudentsResponse> updateExistingStudents(StudentsImportRequest studentsImportRequest, Students existingStudent) throws URISyntaxException, IOException {
+        Students updatedStudents = mapStudentsRequest_To_Students(studentsImportRequest, existingStudent);
+
+        this.<ParentsRequest, Parents>updateRecords(
+                studentsImportRequest.getParentsRequests(),
+                existingStudent.getParentsList(),
+                ParentsUtil::mapParentRequest_ToParent,
+                parentsUtil::updateParents,
+                parentsUtil::saveAll,
+                updatedStudents::setParentsList,
+                updatedStudents.getStudentId(),
+                (ent, req) -> ent.getParentType().equalsIgnoreCase(req.getParentType()) &&
+                        ent.getStudentId().equals(req.getStudentId())
+        );
+
+        this.<StudentSubjectsRequest, StudentSubjects>updateRecords(
+                studentsImportRequest.getStudentSubjectsRequests(),
+                existingStudent.getStudentSubjects(),
+                StudentSubjectUtil::mapStudentsSubjectRequest_ToStudentsSubjects,
+                studentSubjectUtil::updateStudentSubjects,
+                studentSubjectUtil::saveAll,
+                updatedStudents::setStudentSubjects,
+                updatedStudents.getStudentId(),
+                (ent, req) -> ent.getSubjectName().equalsIgnoreCase(req.getSubjectName())
+        );
+
+        studentRepository.save(updatedStudents);
+        return Optional.of(mapStudent_ToStudentResponse(updatedStudents));
+    }
+
+
+    private <T, R> void processRecords(List<T> records,
+                                       Function<T, R> mapper,
+                                       Consumer<List<R>> saveFn,
+                                       Consumer<List<R>> setter) {
+        if (records != null && !records.isEmpty()) {
+            List<R> mapped = records.stream().map(mapper).collect(Collectors.toList());
+            saveFn.accept(mapped);
+            setter.accept(mapped);
+        }
+    }
+
+    private <REQ, ENT> void updateRecords(List<REQ> requestRecords,
+                                          List<ENT> existingRecords,
+                                          BiFunction<REQ, String, ENT> mapper,
+                                          TriConsumer<ENT, REQ, String> updater,
+                                          Consumer<List<ENT>> saveFn,
+                                          Consumer<List<ENT>> setter,
+                                          String studentsCode,
+                                          BiPredicate<ENT, REQ> matchPredicate) {
+        if (requestRecords != null && !requestRecords.isEmpty()) {
+            List<ENT> updated = requestRecords.stream()
+                    .map(req -> {
+                        Optional<ENT> existing = existingRecords.stream()
+                                .filter(e -> matchPredicate.test(e, req))
+                                .findFirst();
+                        return existing.map(e -> {
+                            updater.accept(e, req, studentsCode);
+                            return e;
+                        }).orElseGet(() -> mapper.apply(req, studentsCode));
+                    })
+                    .collect(Collectors.toList());
+            saveFn.accept(updated);
+            setter.accept(updated);
+        }
+    }
+
+    @FunctionalInterface
+    interface TriConsumer<T, U, V> {
+        void accept(T t, U u, V v);
+    }
+
+    private boolean isSameRecord(Object existing, Object incoming) {
+        if (existing instanceof Parents e && incoming instanceof Parents r) {
+            return e.getInstitutionCode().equalsIgnoreCase(r.getInstitutionCode()) &&
+                    e.getStudentId().equals(r.getStudentId());
+        } else if (existing instanceof StudentSubjects e && incoming instanceof StudentSubjects r) {
+            return e.getSubjectName().equalsIgnoreCase(r.getSubjectName());
+        }
+        return false;
+    }
+
 
 }
