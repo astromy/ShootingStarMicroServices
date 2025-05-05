@@ -17,7 +17,6 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @Data
-@Embeddable
 @EqualsAndHashCode(of = "id")
 public class Staff {
     @Id
@@ -33,6 +32,7 @@ public class Staff {
     private String residentialTown;
     private String contact1;
     private String backupContact;
+    private String staffEmail;
     private String nationalIDType;
     @Indexed(unique = true)
     private String nationalID;
@@ -74,8 +74,18 @@ public class Staff {
     private List<StaffDocuments> staffDocuments;
 
     @DBRef
-    @OneToMany(fetch = FetchType.EAGER,targetEntity = StaffDocuments.class, cascade = CascadeType.ALL)
-    @JoinColumn(name = "staffDocs",referencedColumnName = "id")
+    @OneToMany(fetch = FetchType.EAGER,targetEntity = StaffPermissions.class, cascade = CascadeType.ALL)
+    @JoinColumn(name = "staffPermission",referencedColumnName = "id")
     private List<StaffPermissions> staffPermissions;
+
+    @DBRef
+    @OneToMany(fetch = FetchType.EAGER,targetEntity = DesignationList.class, cascade = CascadeType.ALL)
+    @JoinColumn(name = "staffDesignations",referencedColumnName = "id")
+    private List<DesignationList> staffDesignations;
+
+    @DBRef
+    @OneToMany(fetch = FetchType.EAGER,targetEntity = StaffSubjects.class, cascade = CascadeType.ALL)
+    @JoinColumn(name = "staffSubjects",referencedColumnName = "id")
+    private List<StaffSubjects> staffSubjects;
 
 }

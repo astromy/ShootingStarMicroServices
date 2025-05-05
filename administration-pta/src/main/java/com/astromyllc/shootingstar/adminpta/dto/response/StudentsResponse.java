@@ -31,4 +31,5 @@ public class StudentsResponse {
     private String status;
     private String studentClass;
     private List<ParentsResponse> studentParents;
+    private List<StudentSubjectsResponse> studentSubjectsResponse;
 }

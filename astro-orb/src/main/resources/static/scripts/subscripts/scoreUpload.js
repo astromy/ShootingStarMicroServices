@@ -46,10 +46,9 @@ $(function () {
                             </div>
                             <div class="form-group col-lg-2">
                                 <select class="form-control termSelect">
-                                    <option value="0">Select Term</option>
-                                    <option value="First Term">First Term</option>
-                                    <option value="Second Term">Second Term</option>
-                                    <option value="Third Term">Third Term</option>
+                                    <option value="0">Select Semester</option>
+                                    <option value="First Term">First Semester</option>
+                                    <option value="Second Term">Second Semester</option>
                                  </select>
                             </div>
                             <div class="form-group col-lg-2">

@@ -11,10 +11,11 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @Data
-@Embeddable
-@EqualsAndHashCode(of = "idAdmissions")
+/*@Embeddable*/
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Admissions {
     @Id
+    @EqualsAndHashCode.Include
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idAdmissions;
     @OneToMany(fetch = FetchType.EAGER,targetEntity =AdmissionCriteria.class, cascade = CascadeType.ALL)

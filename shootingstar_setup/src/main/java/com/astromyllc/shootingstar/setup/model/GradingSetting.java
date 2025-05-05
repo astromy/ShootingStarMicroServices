@@ -11,10 +11,11 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @Data
-@Embeddable
-@EqualsAndHashCode(of = "idGradingSetting")
+/*@Embeddable*/
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class GradingSetting {
     @Id
+    @EqualsAndHashCode.Include
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idGradingSetting;
     @NonNull

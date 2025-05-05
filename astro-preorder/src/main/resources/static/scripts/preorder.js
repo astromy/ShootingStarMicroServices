@@ -1,202 +1,123 @@
-var selectPlan,institution,slogan,country,region,city,email,contact1,contact2,bececode,postalAddress,streams,population,website;
+const countries = ["Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Côte d'Ivoire", "Cabo Verde", "Cambodia", "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo (Congo-Brazzaville)", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czechia (Czech Republic)", "Democratic Republic of the Congo", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia", "Fiji", "Finland", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Holy See", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar (Burma)", "Namibia", "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Korea", "North Macedonia", "Norway", "Oman", "Pakistan", "Palau", "Palestine State", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Korea", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Tajikistan", "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States of America", "Uruguay", "Uzbekistan", "Vanuatu", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe"];
 
-    $(".selectPlan").on('click', function(event){
-         event.preventDefault();
-         $('.subscriptionOption').removeClass('active');
-         $(this).closest(".subscriptionOption").addClass("active");
-         var x=$(this).closest('.subscriptionOption').find('.subscriptionPlan');
-         selectPlan=x.text();
+var selectPlan, institution, slogan, country, region, city, email, contact1, contact2, bececode,
+    postalAddress, streams, population, website, crest;
+var imagesArray = [];
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize components
+    initPlanSelection();
+    initTabNavigation();
+    setupFormValidation();
+    initImageUpload();
+    initTermsAndConditions();
+    initPrintButton();
+
+    // Initialize country select
+    const countrySelect = document.getElementById('country');
+    countries.forEach(country => {
+        const option = document.createElement('option');
+        option.value = country;
+        option.textContent = country;
+        countrySelect.appendChild(option);
     });
 
-    $('.prev').click(function () {
-        var tabs= $('.tab-pane');
-        var tbs= $('.tab-pane.active');
-        tabs.removeClass('active');
-        var prevLi = tbs.prev().addClass("active");
-
-        var header=$('.wizardTabs');
-        var header1=$('.wizardTabs.btn-primary');
-        header.removeClass('btn-primary');
-        header.addClass('btn-default');
-        header1.prev().removeClass('btn-default').addClass('btn-primary');
-    });
-
-    $('.next').click(function () {
-        
-       var tabs= $('.tab-pane');
-       var tbs= $('.tab-pane.active');
-       tabs.removeClass('active');
-       var nextLi = tbs.next().addClass("active");  
-
-       var header=$('.wizardTabs')
-       var header1=$('.wizardTabs.btn-primary');
-       header.removeClass('btn-primary');
-       header.addClass('btn-default');
-       header1.next().removeClass('btn-default').addClass('btn-primary');
-       document.getElementById('client').innerHTML=document.getElementsByName('clientName')[0].value;
-       confdata();
-    });
-
-    $('.tnc').click(function(){
-    document.getElementById('modb').innerHTML=contract;
-    document.getElementById('contractClient').innerHTML=$('[name="clientName"]').val();
-    document.getElementById('dtime').innerHTML=datetime();
-    })
-
-    $('#submitRequest').click(function() {
-            var approve = $(".approveCheck").is(':checked');
-            if(approve) {
-               var c= validateForm();
-               if(c===true){
-                // Got to step 1
-              //  $('[href=#step1]').tab('show');
-                postdata();
-                var jso= buildJson();
-                // Serialize data to post method
-                var datastring = $("#simpleForm").serialize();
-
-                // Show notification
-    //        Example code for post form
-
-;
-	var header = $("meta[name='_csrf_header']").attr("content");
-	var token = $("meta[name='_csrf']").attr("content");
-
-        $.ajax({
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-            url : "preRequestInstitution",
-            type : 'POST',
-            data : JSON.stringify(jso),
-            beforeSend : function(xhr) {
-                xhr.setRequestHeader(header, token);
-            },
-            cache : false,
-            contentType : false,
-            processData : false,
-            xhr : function() {
-                var myXhr = $.ajaxSettings.xhr();
-                if (myXhr.upload) {
-                    myXhr.upload.addEventListener('progress', function(
-                            e) {
-                        if (e.lengthComputable) {
-                            $('progress').attr({
-                                value : e.loaded,
-                                max : e.total,
-                            });
-                        }
-                    }, false);
-                }
-                return myXhr;
-            },
-            success : function(data) {
-                    swal({
-                           title: "Thank you!",
-                           text: "Your application is being submitted",
-                           type: "success"
-                      });
-            },
-            error : function(errMsg) {
-                swal({
-                       title: "Sorry!",
-                       text:  "Operation Failed",
-                       type: "error"
-                  });
-            }
-        });
-
-
-	/*$.post("preRequestInstitution", jso, function(data) {
-
-	})*/
-
-            }
-            } else {
-                // Show notification
-                swal({
-                    title: "Error!",
-                    text: "You have to first approve to the Terms and Conditions.",
-                    type: "error"
-                });
-            }
+    // Set copyright year
+    document.getElementById('copyrightYear').textContent = new Date().getFullYear();
 });
 
-$('#copyrightYear').text(getYear());
+function isValidCountry(inputCountry) {
+    return countries.includes(inputCountry);
+}
 
-    function confdata(){
+function initPlanSelection() {
+    $(".selectPlan").on('click', function(event) {
+        event.preventDefault();
+        $('.subscriptionOption').removeClass('active');
+        $(this).closest(".subscriptionOption").addClass("active");
+        var x = $(this).closest('.subscriptionOption').find('.subscriptionPlan');
+        selectPlan = x.text();
+    });
+}
 
-    $('[name="clientName_"]').text( $('[name="clientName"]').val());
-    $('[name="slogan_"]').text($('[name="slogan"]').val());
-    $('[name="country_"]').text($('[name="country"]').val());
-    $('[name="region_"]').text($('[name="region"]').val());
-    $('[name="city_"]').text($('[name="city"]').val());
-    $('[name="email_"]').text($('[name="email"]').val());
-    $('[name="contact1_"]').text($('[name="contact1"]').val());
-    $('[name="contact2_"]').text($('[name="contact2"]').val());
-    $('[name="bececode_"]').text($('[name="bececode"]').val());
-    $('[name="postalAddress_"]').text($('[name="postalAddress"]').val());
-    $('[name="streams_"]').text($('[name="streams"]').val());
-    $('[name="population_"]').text($('[name="population"]').val());
-    $('[name="website_"]').text($('[name="website"]').val());
-    $('[name="subscription_"]').text(selectPlan);
-    //crest=getBase64Image(document.getElementById("crestImage"));
-    }
-     
-    function postdata(){
+function initTabNavigation() {
+    const tabs = document.querySelectorAll('.wizardTabs');
+    const tabContents = document.querySelectorAll('.tab-pane');
+    const nextButtons = document.querySelectorAll('.next');
+    const prevButtons = document.querySelectorAll('.prev');
 
-    institution= $('[name="clientName"]').val();
-    slogan= $('[name="slogan"]').val();
-    country=$('[name="country"]').val();
-    region=$('[name="region"]').val();
-    city= $('[name="city"]').val();
-    email= $('[name="email"]').val();
-    contact1= $('[name="contact1"]').val();
-    contact2= $('[name="contact2"]').val();
-    bececode=$('[name="bececode"]').val();
-    postalAddress= $('[name="postalAddress"]').val();
-    streams= $('[name="streams"]').val();
-    population=$('[name="population"]').val();
-    website=$('[name="website"]').val();
-    crest=getBase64Image(document.getElementById("crestImage"));
+    let currentTab = 0;
+    showTab(currentTab);
+
+    function showTab(index) {
+        tabContents.forEach((content, i) => {
+            content.classList.toggle('active', i === index);
+        });
+
+        tabs.forEach((tab, i) => {
+            tab.classList.toggle('btn-primary', i === index);
+            tab.classList.toggle('btn-default', i !== index);
+        });
     }
 
-    function buildJson(){
-        var jsonObject={
-            "name":institution,
-            "slogan":slogan,
-            "country":country,
-            "region":region,
-            "city":city,
-            "email":email,
-            "contact1":contact1,
-            "contact2":contact2,
-            "bececode":bececode,
-            "postalAddress":postalAddress,
-            "streams":streams,
-            "population":population,
-            "website":website,
-            "subscription":selectPlan,
-            "status":"Pre-Order",
-            "creationDate":"",
-            "crest":crest
-        };
+    nextButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (validateCurrentTab(currentTab)) {
+                currentTab++;
+                showTab(currentTab);
+                document.getElementById('client').innerHTML = document.getElementsByName('clientName')[0].value;
+                confdata();
+            }
+        });
+    });
 
-        return jsonObject
+    prevButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            currentTab--;
+            showTab(currentTab);
+        });
+    });
+}
+
+function validateCurrentTab(tabIndex) {
+    if (tabIndex === 0) {
+        // Validate form using jQuery Validation
+        const formValid = $("#institutionForm").valid();
+        const imageValid = validateImageUpload();
+
+        if (!formValid || !imageValid) {
+            // Scroll to first error if any
+            const firstError = $(".is-invalid").first();
+            if (firstError.length) {
+                $('html, body').animate({
+                    scrollTop: firstError.offset().top - 100
+                }, 500);
+            }
+            return false;
+        }
+        return true;
     }
+    return true;
+}
 
-    function getBase64Image(img) {
-        var canvas = document.createElement("canvas");
-        canvas.width = img.width;
-        canvas.height = img.height;
-        var ctx = canvas.getContext("2d");
-        ctx.drawImage(img, 0, 0);
-        var dataURL = canvas.toDataURL("image/png");
-        return dataURL.split(",")[1].replace('"',"");
-      }
+function setupFormValidation() {
+    // Custom validation methods
+    $.validator.addMethod("ghanaPhone", function(value, element) {
+        return this.optional(element) || /^(?:\+233|0)[235]\d{8}$/.test(value);
+    }, "Please enter a valid Ghanaian phone number (format: +233XXXXXXXXX or 0XXXXXXXXX)");
 
-    function validateForm(){
+    $.validator.addMethod("strictEmail", function(value, element) {
+        return this.optional(element) ||
+            /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(value);
+    }, "Please enter a valid email address (e.g., user@example.com)");
+
+    $.validator.addMethod("validCountry", function(value, element) {
+        return this.optional(element) || countries.includes(value);
+    }, "Please select a valid country from the list");
+
+    // Form validation
     $("#institutionForm").validate({
         rules: {
             clientName: {
@@ -209,7 +130,7 @@ $('#copyrightYear').text(getYear());
             },
             country: {
                 required: true,
-                minlength: 2
+                validCountry: true
             },
             region: {
                 required: true,
@@ -221,11 +142,15 @@ $('#copyrightYear').text(getYear());
             },
             email: {
                 required: true,
-                email: true
+                email: false,
+                strictEmail: true
             },
             contact1: {
                 required: true,
-                minlength: 10
+                ghanaPhone: true
+            },
+            contact2: {
+                ghanaPhone: true
             },
             bececode: {
                 required: true,
@@ -245,139 +170,285 @@ $('#copyrightYear').text(getYear());
             }
         },
         messages: {
-
-            institution: {
+            clientName: {
                 required: "Please enter the name of your Institution",
                 minlength: "Please enter valid institutional Name"
             },
             slogan: {
                 required: "Please enter your slogan or motto",
-                minlength: "Slogan can't be less that 5 characters in lenght"
+                minlength: "Slogan must be at least 5 characters"
             },
             country: {
-                required: "Please enter the country you operate from",
-                minlength: "Please enter valid country"
+                required: "Please select a country",
+                validCountry: "Please select a valid country from the list"
             },
             region: {
-                required: "Please enter the region or province you operate from",
-                minlength: "Please enter valid region"
+                required: "Please enter the region or province",
+                minlength: "Region must be at least 3 characters"
             },
             city: {
-                required: "Please enter the city you operate from",
-                minlength: "Please enter valid city"
+                required: "Please enter the city",
+                minlength: "City must be at least 5 characters"
             },
             email: {
-                required: "Please enter your email",
-                email: "Please enter valid email"
+                required: "Please enter your email address",
+                strictEmail: "Must be a valid email (e.g., name@domain.com)"
             },
             contact1: {
                 required: "Please enter your phone number",
-                minlength: "Please enter valid phone number"
+                ghanaPhone: "Must be +233XXXXXXXXX or 0XXXXXXXXX (9 digits after prefix)"
+            },
+            contact2: {
+                ghanaPhone: "Must be +233XXXXXXXXX or 0XXXXXXXXX (9 digits after prefix)"
             },
             bececode: {
                 required: "Please enter your BECE code",
-                minlength: "Please enter valid code"
+                minlength: "BECE code must be at least 5 characters"
             },
             postalAddress: {
                 required: "Please enter your postal address",
-                minlength: "Please enter valid address"
+                minlength: "Address must be at least 3 characters"
             },
             streams: {
-                required: "Please enter the number of streams you run",
-                number: "Please enter valid number"
+                required: "Please enter number of streams",
+                number: "Must be a valid number"
             },
             population: {
-                required: "Please enter your institutional population",
-                number: "Please enter valid number"
+                required: "Please enter student population",
+                number: "Must be a valid number"
             }
         },
-        submitHandler: function(form) {
-            form.submit();
+        errorElement: "span",
+        errorClass: "invalid-feedback",
+        highlight: function(element) {
+            $(element).addClass('is-invalid');
+            $(element).closest('.form-group').addClass('has-error');
+        },
+        unhighlight: function(element) {
+            $(element).removeClass('is-invalid');
+            $(element).closest('.form-group').removeClass('has-error');
         },
         errorPlacement: function(error, element) {
-            $( element )
-                    .closest( "form" )
-                    .find( "label[for='" + element.attr( "id" ) + "']" )
-                    .append( error );
+            if (element.attr("type") === "file") {
+                error.insertAfter(element.parent());
+            } else {
+                error.insertAfter(element);
+            }
         },
-        errorElement: "span",
+        invalidHandler: function(event, validator) {
+            const errors = validator.numberOfInvalids();
+            if (errors) {
+                const message = errors === 1
+                    ? 'There is 1 invalid field. Please correct it.'
+                    : `There are ${errors} invalid fields. Please correct them.`;
+
+                swal({
+                    title: "Form Validation Errors",
+                    text: message,
+                    type: "error",
+                    confirmButtonText: "OK, I'll fix them"
+                });
+            }
+        }
     });
 
-return true;
-};
-
-
-const input = document.querySelector(".imageInput")
-const output = document.querySelector(".imageOutput")
-var verfyOutput=document.querySelector("#crest_")
-let imagesArray = []
-
-input.addEventListener("change", () => {
-    const file = input.files
-    imagesArray=[];
-    imagesArray.push(file[0])
-    displayImages()
-  })
-
-  function displayImages() {
-    let images = ""
-    imagesArray.forEach((image, index) => {
-      images += `<div class="crest">
-                  <img src="${URL.createObjectURL(image)}" alt="image" id="crestImage" class="crest">
-                  <span onclick="deleteImage(${index})">&times;</span>
-                </div>`
-    })
-    output.innerHTML = images
-    verfyOutput=images
-  }
-
-  function deleteImage(index) {
-    imagesArray.splice(index, 1)
-    imagesArray=[];
-    displayImages()
-  }
-
-function datetime(){
-
-var objToday = new Date(),
-	weekday = new Array('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'),
-	dayOfWeek = weekday[objToday.getDay()],
-	domEnder = function() { var a = objToday; if (/1/.test(parseInt((a + "").charAt(0)))) return "th"; a = parseInt((a + "").charAt(1)); return 1 == a ? "st" : 2 == a ? "nd" : 3 == a ? "rd" : "th" }(),
-	dayOfMonth = today + ( objToday.getDate() < 10) ? '0' + objToday.getDate() + domEnder : objToday.getDate() + domEnder,
-	months = new Array('January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'),
-	curMonth = months[objToday.getMonth()],
-	curYear = objToday.getFullYear(),
-	curHour = objToday.getHours() > 12 ? objToday.getHours() - 12 : (objToday.getHours() < 10 ? "0" + objToday.getHours() : objToday.getHours()),
-	curMinute = objToday.getMinutes() < 10 ? "0" + objToday.getMinutes() : objToday.getMinutes(),
-	curSeconds = objToday.getSeconds() < 10 ? "0" + objToday.getSeconds() : objToday.getSeconds(),
-	curMeridiem = objToday.getHours() > 12 ? "PM" : "AM";
-var today = curHour + ":" + curMinute + "." + curSeconds + curMeridiem + " " + dayOfWeek + " " + dayOfMonth + " of " + curMonth + ", " + curYear;
-return objToday
+    // Real-time validation feedback
+    $('#institutionForm input').on('blur', function() {
+        $(this).valid();
+    });
 }
 
-function getYear(){
-var objToday = new Date();
-curYear = objToday.getFullYear();
-return curYear;
+function validateImageUpload() {
+    const imageInput = $('.imageInput');
+    if (imagesArray.length === 0) {
+        imageInput.addClass('is-invalid');
+        const existingError = imageInput.parent().find('.invalid-feedback');
+        if (!existingError.length) {
+            imageInput.after('<div class="invalid-feedback">Please upload a school crest</div>');
+        }
+        return false;
+    }
+    imageInput.removeClass('is-invalid');
+    imageInput.parent().find('.invalid-feedback').remove();
+    return true;
 }
 
-$("#printToPdf").click(function() {
-            var divContents = document.getElementById("modb").innerHTML;
-            var printWindow = window.open('', '', 'height=400,width=800');
-            printWindow.document.write('<html><head><title>DIV Contents</title>');
-            printWindow.document.write('</head><body >');
-            printWindow.document.write(divContents);
-            printWindow.document.write('</body></html>');
-            printWindow.document.close();
-            printWindow.print();
-            printWindow.close();
-            $("#dismiss").click();
+function initImageUpload() {
+    const input = document.querySelector(".imageInput");
+    const output = document.querySelector(".imageOutput");
+    const verifyOutput = document.querySelector("#crest_");
+
+    input.addEventListener("change", () => {
+        const file = input.files;
+        imagesArray = [];
+        if (file && file[0]) {
+            imagesArray.push(file[0]);
+            displayImages();
+        }
+    });
+
+    function displayImages() {
+        let images = "";
+        imagesArray.forEach((image, index) => {
+            images += `<div class="crest">
+                        <img src="${URL.createObjectURL(image)}" alt="image" id="crestImage" class="crest">
+                        <span onclick="deleteImage(${index})">&times;</span>
+                      </div>`;
         });
+        output.innerHTML = images;
+        verifyOutput.innerHTML = images;
+    }
 
+    window.deleteImage = function(index) {
+        imagesArray.splice(index, 1);
+        displayImages();
+        document.querySelector('.imageInput').value = '';
+    };
+}
 
+function initTermsAndConditions() {
+    $('.tnc').click(function() {
+        document.getElementById('modb').innerHTML = contract;
+        document.getElementById('contractClient').innerHTML = $('[name="clientName"]').val();
+        document.getElementById('dtime').innerHTML = new Date().toLocaleString();
+    });
 
+    $('#submitRequest').click(function() {
+        var approve = $(".approveCheck").is(':checked');
+        if (!approve) {
+            swal({
+                title: "Error!",
+                text: "You have to first approve to the Terms and Conditions.",
+                type: "error"
+            });
+            return false;
+        }
 
+        // Final validation before submission
+        if (!validateCurrentTab(0)) {
+            return false;
+        }
 
+        postdata();
+        var jso = buildJson();
+
+        var header = $("meta[name='_csrf_header']").attr("content");
+        var token = $("meta[name='_csrf']").attr("content");
+
+        $.ajax({
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            url: "preRequestInstitution",
+            type: 'POST',
+            data: JSON.stringify(jso),
+            beforeSend: function(xhr) {
+                xhr.setRequestHeader(header, token);
+            },
+            success: function(data) {
+                swal({
+                    title: "Thank you!",
+                    text: "Your application is being submitted",
+                    type: "success"
+                });
+            },
+            error: function(errMsg) {
+                swal({
+                    title: "Sorry!",
+                    text: "Operation Failed",
+                    type: "error"
+                });
+            }
+        });
+    });
+}
+
+function initPrintButton() {
+    $("#printToPdf").click(function() {
+        var divContents = document.getElementById("modb").innerHTML;
+        var printWindow = window.open('', '', 'height=400,width=800');
+        printWindow.document.write('<html><head><title>DIV Contents</title>');
+        printWindow.document.write('</head><body >');
+        printWindow.document.write(divContents);
+        printWindow.document.write('</body></html>');
+        printWindow.document.close();
+        printWindow.print();
+        printWindow.close();
+        $("#dismiss").click();
+    });
+}
+
+function confdata() {
+    $('[name="clientName_"]').text($('[name="clientName"]').val());
+    $('[name="slogan_"]').text($('[name="slogan"]').val());
+    $('[name="country_"]').text($('[name="country"]').val());
+    $('[name="region_"]').text($('[name="region"]').val());
+    $('[name="city_"]').text($('[name="city"]').val());
+    $('[name="email_"]').text($('[name="email"]').val());
+    $('[name="contact1_"]').text($('[name="contact1"]').val());
+    $('[name="contact2_"]').text($('[name="contact2"]').val());
+    $('[name="bececode_"]').text($('[name="bececode"]').val());
+    $('[name="postalAddress_"]').text($('[name="postalAddress"]').val());
+    $('[name="streams_"]').text($('[name="streams"]').val());
+    $('[name="population_"]').text($('[name="population"]').val());
+    $('[name="website_"]').text($('[name="website"]').val());
+    $('[name="subscription_"]').text(selectPlan);
+}
+
+function postdata() {
+    institution = $('[name="clientName"]').val();
+    slogan = $('[name="slogan"]').val();
+    country = $('[name="country"]').val();
+    region = $('[name="region"]').val();
+    city = $('[name="city"]').val();
+    email = $('[name="email"]').val();
+    contact1 = $('[name="contact1"]').val();
+    contact2 = $('[name="contact2"]').val();
+    bececode = $('[name="bececode"]').val();
+    postalAddress = $('[name="postalAddress"]').val();
+    streams = $('[name="streams"]').val();
+    population = $('[name="population"]').val();
+    website = $('[name="website"]').val();
+
+    // Get base64 image if available
+    const crestImage = document.getElementById("crestImage");
+    if (crestImage) {
+        crest = getBase64Image(crestImage);
+    }
+}
+
+function buildJson() {
+    return {
+        "name": institution,
+        "slogan": slogan,
+        "country": country,
+        "region": region,
+        "city": city,
+        "email": email,
+        "contact1": contact1,
+        "contact2": contact2,
+        "bececode": bececode,
+        "postalAddress": postalAddress,
+        "streams": streams,
+        "population": population,
+        "website": website,
+        "subscription": selectPlan,
+        "status": "Pre-Order",
+        "creationDate": "",
+        "crest": crest
+    };
+}
+
+function getBase64Image(img) {
+    var canvas = document.createElement("canvas");
+    canvas.width = img.width;
+    canvas.height = img.height;
+    var ctx = canvas.getContext("2d");
+    ctx.drawImage(img, 0, 0);
+    var dataURL = canvas.toDataURL("image/png");
+    return dataURL.split(",")[1].replace('"', "");
+}
 
 
 

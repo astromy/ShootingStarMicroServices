@@ -26,6 +26,7 @@ public class StaffResponse {
     private String residentialTown;
     private String contact1;
     private String backupContact;
+    private String staffEmail;
     private String nationalIDType;
     @Indexed(unique = true)
     private String nationalID;
@@ -45,6 +46,8 @@ public class StaffResponse {
     private List<AcademicRecordsResponse> academicRecords;
     private List<ProfessionalRecordsResponse> professionalRecords;
     private List<StaffDocumentsResponse> staffDocuments;
+    private List<StaffSubjectsResponse> staffSubjectsResponseList;
+    private List<DesignationListResponse> staffDesignationResponseList;
 
 
 }

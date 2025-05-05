@@ -26,10 +26,11 @@ public class ClassesUtil {
     }
 
     public static Classes mapClassRequestToClass(ClassDetail c) {
-        return Classes.builder()
+        Classes c2= Classes.builder()
                 .classGroup(c.getClassGroup())
                 .name(c.getName())
                 .build();
+        return c2;
     }
 
 

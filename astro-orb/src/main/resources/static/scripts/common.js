@@ -11,7 +11,7 @@ window.tabs;
 window.specificTab;
 window.specificStudentsTab;
 
-window.instId = $("meta[name='institutionId']").attr("content");
+window.instId = $("meta[name='institutionId']").attr("content").split("/")[1];
 window.type= $('[name="type"]').val();
 cd4=$("meta[name='cd4']").attr("content").replace("[", "").replace("]", "").split(",");
 
@@ -84,7 +84,16 @@ var scriptsToRemove = [];
  "vendor/ladda/dist/ladda.min.js",
  "vendor/ladda/dist/ladda.jquery.min.js",
  "vendor/summernote/dist/summernote.min.js",
- "dataTables/datatables.min.js"
+ "dataTables/datatables.min.js",
+
+ "vendor/datatables/media/js/jquery.dataTables.min.js",
+ "vendor/datatables.net-bs/js/dataTables.bootstrap.min.js",
+ "vendor/pdfmake/build/pdfmake.min.js",
+ "vendor/pdfmake/build/vfs_fonts.js",
+ "vendor/datatables.net-buttons/js/buttons.html5.min.js",
+ "vendor/datatables.net-buttons/js/buttons.print.min.js",
+ "vendor/datatables.net-buttons/js/dataTables.buttons.min.js",
+ "vendor/datatables.net-buttons-bs/js/buttons.bootstrap.min.js",
  ];
 
  const absoultePath = [];
@@ -175,6 +184,15 @@ function addEventListeners() {
     document.getElementById("transcript").addEventListener("click", studentsTranscriptBuild);
 
     document.getElementById("studEnrollment").addEventListener("click", studentBulkUploadBuild);
+
+    //STAFF FUNCTIONS
+    document.getElementById("staffQuestionUpload").addEventListener("click", staffQuestionUpload);
+    document.getElementById("staffAssignment").addEventListener("click", staffAssignment);
+    document.getElementById("staffExams").addEventListener("click", staffExams);
+    document.getElementById("staffScoreUpload").addEventListener("click", staffScoreUploadBuild);
+    document.getElementById("staffAssignmentReview").addEventListener("click", staffAssignmentReview);
+
+
     /*document.getElementById("institution").addEventListener("click", institutionBuild);
     document.getElementById("institution").addEventListener("click", institutionBuild);
     document.getElementById("institution").addEventListener("click", institutionBuild);
@@ -1068,6 +1086,165 @@ function studentBulkUploadBuild() {
 }
 
 
+
+//----------------STAFF FUNCTIONS----------------------------------
+
+
+function staffQuestionUpload() {
+
+    // Define new resources specific to this view
+        const newScripts = [
+                "vendor/sweetalert/lib/sweet-alert.min.js",
+                 "scripts/subscripts/staffScoreUpload.js"
+        ];
+        const newLinks = [
+                "vendor/sweetalert/lib/sweet-alert.css",
+                "vendor/metisMenu/dist/metisMenu.css",
+                "vendor/animate.css/animate.css",
+                "vendor/datatables.net-bs/css/dataTables.bootstrap.min.css",
+                "styles/switch.css"
+        ];
+
+        // Remove previous non-default scripts/links
+        removeUnwantedResources("script", activeScripts);
+        removeUnwantedResources("link", activeLinks);
+
+        // Add new resources
+        addNewResources("script", newScripts);
+        addNewResources("link", newLinks);
+
+        // Update the active state with new resources
+        newScripts.forEach((src) => activeScripts.add(src));
+
+    newLinks.forEach((href) => activeLinks.add(href));
+
+
+}
+
+function staffAssignment() {
+
+     // Define new resources specific to this view
+         const newScripts = [
+                 "vendor/sweetalert/lib/sweet-alert.min.js",
+                  "scripts/subscripts/staffScoreUpload.js"
+         ];
+         const newLinks = [
+                 "vendor/sweetalert/lib/sweet-alert.css",
+                 "vendor/metisMenu/dist/metisMenu.css",
+                 "vendor/animate.css/animate.css",
+                 "vendor/datatables.net-bs/css/dataTables.bootstrap.min.css",
+                 "styles/switch.css"
+         ];
+
+         // Remove previous non-default scripts/links
+         removeUnwantedResources("script", activeScripts);
+         removeUnwantedResources("link", activeLinks);
+
+         // Add new resources
+         addNewResources("script", newScripts);
+         addNewResources("link", newLinks);
+
+         // Update the active state with new resources
+         newScripts.forEach((src) => activeScripts.add(src));
+
+     newLinks.forEach((href) => activeLinks.add(href));
+
+
+ }
+
+ function staffExams() {
+
+       // Define new resources specific to this view
+           const newScripts = [
+                   "vendor/sweetalert/lib/sweet-alert.min.js",
+                    "scripts/subscripts/staffScoreUpload.js"
+           ];
+           const newLinks = [
+                   "vendor/sweetalert/lib/sweet-alert.css",
+                   "vendor/metisMenu/dist/metisMenu.css",
+                   "vendor/animate.css/animate.css",
+                   "vendor/datatables.net-bs/css/dataTables.bootstrap.min.css",
+                   "styles/switch.css"
+           ];
+
+           // Remove previous non-default scripts/links
+           removeUnwantedResources("script", activeScripts);
+           removeUnwantedResources("link", activeLinks);
+
+           // Add new resources
+           addNewResources("script", newScripts);
+           addNewResources("link", newLinks);
+
+           // Update the active state with new resources
+           newScripts.forEach((src) => activeScripts.add(src));
+
+       newLinks.forEach((href) => activeLinks.add(href));
+
+
+   }
+
+
+ function staffScoreUploadBuild() {
+
+       // Define new resources specific to this view
+           const newScripts = [
+                   "vendor/sweetalert/lib/sweet-alert.min.js",
+                    "scripts/subscripts/staffScoreUpload.js"
+           ];
+           const newLinks = [
+                   "vendor/sweetalert/lib/sweet-alert.css",
+                   "vendor/metisMenu/dist/metisMenu.css",
+                   "vendor/animate.css/animate.css",
+                   "vendor/datatables.net-bs/css/dataTables.bootstrap.min.css",
+                   "styles/switch.css"
+           ];
+
+           // Remove previous non-default scripts/links
+           removeUnwantedResources("script", activeScripts);
+           removeUnwantedResources("link", activeLinks);
+
+           // Add new resources
+           addNewResources("script", newScripts);
+           addNewResources("link", newLinks);
+
+           // Update the active state with new resources
+           newScripts.forEach((src) => activeScripts.add(src));
+
+       newLinks.forEach((href) => activeLinks.add(href));
+
+
+   }
+
+   function staffAssignmentReview() {
+
+           // Define new resources specific to this view
+               const newScripts = [
+                       "vendor/sweetalert/lib/sweet-alert.min.js",
+                        "scripts/subscripts/staffScoreUpload.js"
+               ];
+               const newLinks = [
+                       "vendor/sweetalert/lib/sweet-alert.css",
+                       "vendor/metisMenu/dist/metisMenu.css",
+                       "vendor/animate.css/animate.css",
+                       "vendor/datatables.net-bs/css/dataTables.bootstrap.min.css",
+                       "styles/switch.css"
+               ];
+
+               // Remove previous non-default scripts/links
+               removeUnwantedResources("script", activeScripts);
+               removeUnwantedResources("link", activeLinks);
+
+               // Add new resources
+               addNewResources("script", newScripts);
+               addNewResources("link", newLinks);
+
+               // Update the active state with new resources
+               newScripts.forEach((src) => activeScripts.add(src));
+
+           newLinks.forEach((href) => activeLinks.add(href));
+
+
+       }
 
 //-------------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------------

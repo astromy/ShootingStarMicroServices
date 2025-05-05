@@ -28,6 +28,7 @@
         <module>academics</module>
         <module>administration-pta</module>
         <module>astro-preorder</module>
+        <module>astro-admission-acceptance</module>
         <module>astro-orb</module>
     </modules>
 
@@ -93,7 +94,7 @@
                     <to>
                         <image>registry.hub.docker.com/astromyllc/${project.artifactId}</image>
                         <tags>
-                            <tag>0.007</tag>
+                            <tag>0.010</tag>
                         </tags>
                         <auth>
                             <username>astromyllc</username>

@@ -140,14 +140,20 @@ public class AssessmentService implements AssessmentServiceInterface {
                     Assessment examAssessment = examsMap.get(key);
                     if (examAssessment != null) {
                         continuousAssessment.setExamsScore(examAssessment.getExamsScore());
-                        continuousAssessment.setTotalScore(Math.round((continuousAssessment.getClassScore() != null ? continuousAssessment.getClassScore() : 0)
-                                + examAssessment.getExamsScore()* 100.0) / 100.0);
-                       // continuousAssessment.setGrade(examAssessment.getGrade());
                     }
 
-                    log.info("Merged Student: =>", continuousAssessment);
-                    return continuousAssessment;
+                    // Calculate total score ONLY if either class or exam score is not null
+                    if (continuousAssessment.getClassScore() != null || continuousAssessment.getExamsScore() != null) {
+                        double classScore = continuousAssessment.getClassScore() != null ? continuousAssessment.getClassScore() : 0.0;
+                        double examScore = continuousAssessment.getExamsScore() != null ? continuousAssessment.getExamsScore() : 0.0;
+                        continuousAssessment.setTotalScore(Math.round((classScore + examScore) * 100.0) / 100.0);
+                        return continuousAssessment;
+                    }
+
+                    // Return null if both are null — to be filtered out later
+                    return null;
                 })
+                .filter(Objects::nonNull) // ✅ Remove assessments where both scores were null
                 .toList();
 
 

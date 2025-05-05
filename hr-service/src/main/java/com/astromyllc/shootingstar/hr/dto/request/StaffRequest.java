@@ -1,13 +1,9 @@
 package com.astromyllc.shootingstar.hr.dto.request;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.annotation.Nonnull;
-import jakarta.persistence.Embeddable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.mongodb.core.index.Indexed;
 
 import java.util.List;
 
@@ -26,6 +22,7 @@ public class StaffRequest {
     private String residentialTown;
     private String contact1;
     private String backupContact;
+    private String staffEmail;
     private String nationalIDType;
     private String nationalID;
     private String snnitNumber;
@@ -43,6 +40,8 @@ public class StaffRequest {
     private List<AcademicRecordsRequest> academicRecords;
     private List<ProfessionalRecordsRequest> professionalRecords;
     private List<StaffDocumentsRequest> staffDocuments;
+    private List<DesignationListRequest> staffDesignations;
+    private List<StaffSubjectsRequest> staffSubjects;
 
 
 }

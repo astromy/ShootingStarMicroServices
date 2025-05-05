@@ -5,12 +5,12 @@ var staffProfessionalDetails=[];
 var staffDocumentDetails=[];
 var exisitingstaff=[];
 var staffList=[];
-var firstName ,lastName,fullName,gender,dob,contact,bContact,doe,nationality,snnit,ht,residence,idType,idNumber,maritalStatus, nos, nok,code,designation,level;
+var firstName ,lastName,fullName,gender,dob,contact,bContact,staffEmail,doe,nationality,snnit,ht,residence,idType,idNumber,maritalStatus, nos, nok,code,designation,level;
 var tempStaffHolder;
 var countryList=["Afghanistan","Albania","Algeria","Andorra","Angola","Antigua and Barbuda","Argentina","Armenia","Australia","Austria","Azerbaijan","The Bahamas","Bahrain","Bangladesh","Barbados","Belarus","Belgium","Belize","Benin","Bhutan","Bolivia","Bosnia and Herzegovina","Botswana","Brazil","Brunei ","Bulgaria","Burkina Faso","Burma","Burundi","Cambodia","Cameroon","Canada","Cape Verde","Central African Republic","Chad","Chile","China","Colombia","Comoros ","Democratic Republic of Congo","Congo-Brazzaville ","Costa Rica","Cote dIvoire","Croatia","Cuba","Cyprus","Czech Republic","Denmark","Djibouti","Dominica","Dominican Republic","East Timor (see Timor-Leste)","Ecuador","Egypt","El Salvador","Equatorial Guinea","Eritrea","Estonia","Ethiopia","Fiji","Finland","France","Gabon","The Gambia","Georgia","Germany","Ghana","Greece","Grenada","Guatemala","Guinea","Guinea-Bissau","Guyana","Haiti","Holy See","Honduras","Hong Kong","Hungary","Iceland","India","Indonesia","Iran","Iraq","Ireland","Israel","Italy","Jamaica","Japan","Jordan","Kazakhstan","Kenya","Kiribati","Kosovo","Kuwait","Kyrgyzstan","Laos","Latvia","Lebanon","Lesotho","Liberia","Libya","Liechtenstein","Lithuania","Luxembourg","Macau","Macedonia","Madagascar","Malawi","Malaysia","Maldives","Mali","Malta","Marshall Islands","Mauritania","Mauritius","Mexico","Micronesia","Moldova","Monaco","Mongolia","Montenegro","Morocco","Mozambique","Namibia","Nauru","Nepal","Netherlands","Netherlands Antilles","New Zealand","Nicaragua","Niger","Nigeria","North Korea","Norway","Oman","Pakistan","Palau","Palestinian Territories","Panama","Papua New Guinea","Paraguay","Peru","Philippines","Poland","Portugal ","Qatar","Romania","Russia","Rwanda","Saint Kitts and Nevis","Saint Lucia","Saint Vincent and the Grenadines","Samoa ","San Marino","Sao Tome and Principe","Saudi Arabia","Senegal","Serbia","Seychelles","Sierra Leone","Singapore","Slovakia","Slovenia","Solomon Islands","Somalia","South Africa","South Korea","South Sudan","Spain ","Sri Lanka","Sudan","Suriname","Swaziland ","Sweden","Switzerland","Syria","Taiwan","Tajikistan","Tanzania","Thailand ","Timor-Leste","Togo","Tonga","Trinidad and Tobago","Tunisia","Turkey","Turkmenistan","Tuvalu","Uganda","Ukraine","United Arab Emirates","United Kingdom","Uruguay","Uzbekistan","Vanuatu","Venezuela","Vietnam","Yemen","Zambia","Zambia","Zimbabwe"
 ]
 
-var instId = $("meta[name='institutionId']").attr("content");
+var instId = $("meta[name='institutionId']").attr("content").split("/")[1];
 var v= instId.split(",")[0].replace(/[\[\]']+/g,'')
     instId=v.replace(/\//g, '')
 fetchStaffList(instId);
@@ -32,10 +32,15 @@ fetchDepartment(instId)
         tempStaffHolder=undefined;
         itra-=1;
         addTableRow('staffTableBody_'+ itra)
+         $('#staffTable_'+ itra).DataTable().destroy();
+        dataTableInit('staffTable_'+ itra);
     });
 
     var itra=1;
     $('.next').click(function () {
+        if($('.staffPane').hasClass('active')) {
+          readNewStaffData()
+        }
 
        var tabs= $('.tab-pane');
        var tbs= $('.tab-pane.active');
@@ -49,6 +54,8 @@ fetchDepartment(instId)
        header1.next().removeClass('btn-default').addClass('btn-primary');
        tempStaffHolder=undefined;
         addTableRow('staffTableBody_'+ itra)
+         $('#staffTable_'+ itra).DataTable().destroy();
+        dataTableInit('staffTable_'+ itra);
         itra+=1;
     });
 
@@ -232,12 +239,8 @@ function passdetails(){
 
 }
 
-
-function addTableRow(tableId) {
-    // Find the table by ID
-    const table = document.getElementById(tableId);
-
-    // Retrieve values from the specified input and select elements
+function readNewStaffData(){
+// Retrieve values from the specified input and select elements
     code=document.getElementById('code').value;
      firstName = document.getElementById('staffFName').value;
      lastName = document.getElementById('staffLName').value;
@@ -247,6 +250,7 @@ function addTableRow(tableId) {
 
      contact = document.getElementById('contact').value;
      bContact = document.getElementById('bContact').value;
+     staffEmail = document.getElementById('staffEmail').value;
      doe = document.getElementById('doe').value;
      nationality = document.getElementById('nationality').options[document.getElementById('nationality').selectedIndex].text;
      snnit = document.getElementById('snnit').value;
@@ -259,7 +263,11 @@ function addTableRow(tableId) {
      nos = document.getElementById('nos').value;
      nok = document.getElementById('nok').value;
      level = document.getElementById('level').value;
+}
 
+function addTableRow(tableId) {
+    // Find the table by ID
+    const table = document.getElementById(tableId);
 
      const testButton = document.getElementsByClassName('test')[0];
     // Create a new row
@@ -270,9 +278,9 @@ function addTableRow(tableId) {
            row.addEventListener('click', function() {
 
            tempStaffHolder=  formatNewStaff();
-          /* if(tempStaffHolder.firstNames.length>3){
+           if(tempStaffHolder.firstNames.length>3){
            staffList.push(tempStaffHolder);
-           }*/
+           }
                switch (itra) {
                    case 1:
                        // Code for itra = 1
@@ -595,6 +603,7 @@ function formatNewStaff(){
        "residentialTown":residence,
        "contact1":contact,
        "backupContact":bContact,
+       "staffEmail":staffEmail,
        "nationalIDType":idType,
        "nationalID":idNumber,
        "snnitNumber":snnit,
@@ -736,4 +745,35 @@ return staffObject;
       }
 
 
+/* VALIDATION SECTION*/
+//============================================================
 
+
+// Additional real-time validation
+document.getElementById('staffEmail').addEventListener('blur', function() {
+  const email = this.value;
+  if (email && !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
+    this.setCustomValidity('Please include an @ and a valid domain (e.g., name@company.com)');
+    this.reportValidity();
+  }
+});
+
+
+
+
+function dataTableInit(tabeId){
+        // Initialize Example 1
+            $('#'+ tabeId).DataTable({
+                dom: "<'row'<'col-sm-4'l><'col-sm-4 text-center'B><'col-sm-4'f>>" +
+                     "<'row'<'col-sm-12'tr>>" +
+                     "<'row'<'col-sm-5'i><'col-sm-7'p>>",
+                lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
+                buttons: [
+                    { extend: 'copy', className: 'btn btn-sm btn-primary' },
+                    { extend: 'csv', title: 'Department List', className: 'btn btn-sm btn-success' },
+                    { extend: 'pdf', title: 'Department List', className: 'btn btn-sm btn-danger' },
+                    { extend: 'print', className: 'btn btn-sm btn-secondary' }
+                ],
+                responsive: true
+            });
+  }

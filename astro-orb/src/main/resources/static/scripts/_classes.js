@@ -1,5 +1,5 @@
 id=null;
-fetchInstitutionClasses(instId.split(",")[0]);
+fetchLookup(instId.split(",")[0]);
 
 
     window.copyrights();
@@ -44,20 +44,19 @@ fetchInstitutionClasses(instId.split(",")[0]);
     }
 
 
-  async function fetchInstitutionClasses(instId){
+  function fetchLookup (instId){
     var v= instId.replace(/[\[\]']+/g,'')
     v=v.replace(/\//g, '')
-    var instRequest={"val":v}
-    return  HttpPost("getInstitutionClasses",instRequest)
-     .then(result => fetchLookup(result))
+      var instRequest={"val":"ClassGroup"}
+    return  HttpPost("getLookUpByType",instRequest)
+     .then(result => fetchInstitutionClasses(result,v))
   }
 
-    async function fetchLookup(result1){
-      var instRequest={"val":"ClassGroup"}
-      return  HttpPost("getLookUpByType",instRequest)
+    function fetchInstitutionClasses(result1,v){
+      return HttpPost("getInstitutionClasses",v)
        .then(function (result) {
-         populateTable(result1)
-         populateClassGroup(result)
+         populateTable(result)
+         populateClassGroup(result1)
     })
     }
 

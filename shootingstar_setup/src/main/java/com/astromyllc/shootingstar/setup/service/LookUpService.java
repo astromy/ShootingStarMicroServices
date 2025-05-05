@@ -52,7 +52,9 @@ public class LookUpService implements LookupServiceInterface {
     @Override
     public List<Optional<LookupResponse>> getAllLookupsByType(SingleStringRequest lookupType1) {
         String lookupType= lookupType1.getVal();
-        return LookupUtil.lookupGlobalList.stream().filter(x->x.getType().equalsIgnoreCase(lookupType)).map(lookupUtil::mapLookUp_ToLookUpResponse).toList();
+        List<Optional<LookupResponse>> lookup= LookupUtil.lookupGlobalList.stream().filter(x->x.getType().equalsIgnoreCase(lookupType)).map(lookupUtil::mapLookUp_ToLookUpResponse).toList();
+        log.info("LOOKUP FEED ===>{}",lookup);
+        return lookup;
     }
 
     @Override

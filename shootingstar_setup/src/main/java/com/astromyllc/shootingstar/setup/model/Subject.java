@@ -9,10 +9,11 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 @Data
-@Embeddable
-@EqualsAndHashCode(of = "idSubject")
+/*@Embeddable*/
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Subject {
     @Id
+    @EqualsAndHashCode.Include
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idSubject;
     @NonNull
@@ -21,4 +22,8 @@ public class Subject {
     private String classGroup;
     @NonNull
     private Integer preference;
+
+    @ManyToOne
+    @JoinColumn(name = "idInstitution")
+    private Institution institution;
 }

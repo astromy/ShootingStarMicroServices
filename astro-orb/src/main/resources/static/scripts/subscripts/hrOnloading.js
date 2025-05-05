@@ -16,13 +16,13 @@ let onboarding = `
                             <a class="btn btn-default wizardTabs" data-toggle="tab">Step 2 - Dependant Data</a>
                             <a class="btn btn-default wizardTabs" data-toggle="tab">Step 3 - Academic Data</a>
                             <a class="btn btn-default wizardTabs" data-toggle="tab">Step 4 - Professional Data</a>
-                            <a class="btn btn-default wizardTabs" data-toggle="tab">Step 5 - Professional Data</a>
+                            <a class="btn btn-default wizardTabs" data-toggle="tab">Step 5 - Staff Designation</a>
                             <a class="btn btn-default wizardTabs" data-toggle="tab">Step 5 - Approve & Submit</a>
 
                         </div>
 
                         <div class="tab-content">
-                            <div class="p-m tab-pane active">
+                            <div class="p-m tab-pane staffPane active">
                                 <!-- <form name="simpleForm" id="simpleForms" action="">-->
                                 <form id="staffForm" role="form">
                                     <div class="row">
@@ -84,6 +84,23 @@ let onboarding = `
                                                     <input type="text" autocomplete="off" required id="bContact"
                                                            class="form-control" name="bContact"
                                                            placeholder="Backup Contact">
+                                                </div>
+                                                <div class="form-group col-lg-6">
+                                                    <label for="staffEmail">Staff Email</label>
+                                                    <input
+                                                      type="email"
+                                                      id="staffEmail"
+                                                      name="staffEmail"
+                                                      class="form-control"
+                                                      placeholder="Staff Email"
+                                                      pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+                                                      title="Please enter a valid company email address (e.g., name@company.com)"
+                                                      required
+                                                      autocomplete="email"
+                                                      inputmode="email"
+                                                      oninvalid="this.setCustomValidity('Please enter a valid company email address in the format: name@domain.com')"
+                                                      oninput="this.setCustomValidity('')"
+                                                    >
                                                 </div>
                                             </div>
                                         </div>
@@ -205,7 +222,6 @@ let onboarding = `
                                             <table id="staffTable_1" class="table table-striped table-bordered table-hover" width="100%">
                                                 <thead>
                                                     <tr>
-                                                        <th hidden></th>
                                                         <th >Staff ID</th>
                                                         <th >Staff Name</th>
                                                         <th >Staff Gender</th>
@@ -238,7 +254,6 @@ let onboarding = `
                                             <table id="staffTable_2" class="table table-striped table-bordered table-hover" width="100%">
                                                 <thead>
                                                     <tr>
-                                                        <th hidden></th>
                                                         <th >Staff ID</th>
                                                         <th >Staff Name</th>
                                                         <th >Staff Gender</th>
@@ -271,7 +286,6 @@ let onboarding = `
                                             <table id="staffTable_3" class="table table-striped table-bordered table-hover" width="100%">
                                                 <thead>
                                                     <tr>
-                                                        <th hidden></th>
                                                         <th >Staff ID</th>
                                                         <th >Staff Name</th>
                                                         <th >Staff Gender</th>
@@ -304,7 +318,6 @@ let onboarding = `
                                             <table id="staffTable_4" class="table table-striped table-bordered table-hover" width="100%">
                                                 <thead>
                                                     <tr>
-                                                        <th hidden></th>
                                                         <th >Staff ID</th>
                                                         <th >Staff Name</th>
                                                         <th >Staff Gender</th>
@@ -336,7 +349,6 @@ let onboarding = `
                                             <table id="staffTable_5" class="table table-striped table-bordered table-hover" width="100%">
                                                 <thead>
                                                     <tr>
-                                                        <th hidden></th>
                                                         <th >Staff ID</th>
                                                         <th >Staff Name</th>
                                                         <th >Staff Gender</th>

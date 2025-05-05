@@ -1,10 +1,12 @@
 package com.astromyllc.shootingstar.hr.utils;
 
+import com.astromyllc.shootingstar.hr.dto.request.DesignationListRequest;
 import com.astromyllc.shootingstar.hr.dto.request.SingleStringRequest;
 import com.astromyllc.shootingstar.hr.dto.request.StaffRequest;
+import com.astromyllc.shootingstar.hr.dto.request.StaffSubjectsRequest;
 import com.astromyllc.shootingstar.hr.dto.request.alien.InstitutionRequest;
 import com.astromyllc.shootingstar.hr.dto.response.*;
-import com.astromyllc.shootingstar.hr.model.Staff;
+import com.astromyllc.shootingstar.hr.model.*;
 import com.astromyllc.shootingstar.hr.repository.StaffRepository;
 import jakarta.transaction.Transactional;
 import jakarta.xml.bind.DatatypeConverter;
@@ -25,7 +27,14 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -36,7 +45,7 @@ public class StaffUtil {
     private final WebClient.Builder webClientBuilder;
     public static List<Staff> staffGlobalList;
     private static Long staffIndex = 0L;
-    private static InstitutionRequest institutionRequest = null;
+    public static InstitutionRequest institutionRequest = null;
     static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     @Value("${gateway.host}")
     private String host;
@@ -45,6 +54,8 @@ public class StaffUtil {
     private final StaffDocumentsUtil staffDocumentsUtil;
     private final DependantsUtil dependantsUtil;
     private final AcademicRecordsUtil academicRecordsUtil;
+    private final StaffDesignationUtil staffDesignationUtil;
+    private final StaffSubjectsUtil staffSubjectsUtil;
 
     @Bean
     private void fetchAllStaff() {
@@ -63,16 +74,8 @@ public class StaffUtil {
                 .val(institutionCode)
                 .build();
         institutionRequest =
-                /*webClientBuilder.build().post()
-                .uri("http://"+host+"/api/setup/getInstitutionByCode")
-                //.contentType(MediaType.APPLICATION_JSON)
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .bodyValue(request)//(Mono.just(json), JSONObject.class)
-                .retrieve()
-                .bodyToMono(InstitutionRequest.class)
-                .block();*/
 
-                WebClient.builder()
+                webClientBuilder
                         .baseUrl("http://"+host)
                         .filter(ExchangeFilterFunction.ofRequestProcessor(clientRequest -> {
                             System.out.println("Request: " + clientRequest);
@@ -90,11 +93,46 @@ public class StaffUtil {
                         .retrieve()
                         .bodyToMono(InstitutionRequest.class)
                         .block();
-        staffIndex = staffGlobalList
+       /* staffIndex = staffGlobalList
                 .stream()
                 .filter(x -> x.getInstitutionCode().equalsIgnoreCase(institutionCode))
-                .count() + 1;
+                .count() + 1;*/
+        staffIndex = staffGlobalList.stream()
+                .reduce((first, second) -> second)
+                .map(staff -> {
+                    String[] parts = staff.getStaffCode().split("-");
+                    return parts.length > 1 ? Long.parseLong(parts[1]) : null;
+                })
+                .orElse(0L);
+        staffIndex+=1;
+
         return "S" + institutionCode + "-" + staffIndex;
+
+    }
+    public  InstitutionRequest getInstitution(String institutionCode) {
+        SingleStringRequest request = SingleStringRequest.builder()
+                .val(institutionCode)
+                .build();
+      return  institutionRequest =
+
+                webClientBuilder
+                        .baseUrl("http://"+host)
+                        .filter(ExchangeFilterFunction.ofRequestProcessor(clientRequest -> {
+                            System.out.println("Request: " + clientRequest);
+                            return Mono.just(clientRequest);
+                        }))
+                        .filter(ExchangeFilterFunction.ofResponseProcessor(clientResponse -> {
+                            System.out.println("Response: " + clientResponse);
+                            return Mono.just(clientResponse);
+                        }))
+                        .build()
+                        .post()
+                        .uri("/api/setup/getInstitutionByCode")
+                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                        .bodyValue(request)
+                        .retrieve()
+                        .bodyToMono(InstitutionRequest.class)
+                        .block();
 
     }
 
@@ -113,6 +151,7 @@ public class StaffUtil {
                 .residentialTown(staffRequest.getResidentialTown())
                 .contact1(staffRequest.getContact1())
                 .backupContact(staffRequest.getBackupContact())
+                .staffEmail(staffRequest.getStaffEmail())
                 .nationalIDType(staffRequest.getNationalIDType())
                 .nationalID(staffRequest.getNationalID())
                 .snnitNumber(staffRequest.getSnnitNumber())
@@ -133,9 +172,9 @@ public class StaffUtil {
     }
 
     public Staff mapStaffRequest_ToStaff(StaffRequest staffRequest, Staff staff) throws URISyntaxException, IOException {
-         staff.setDateOfBirth(LocalDate.parse(staffRequest.getDateOfBirth(), formatter));
+        staff.setDateOfBirth(LocalDate.parse(staffRequest.getDateOfBirth(), formatter));
         staff.setDateOfEmployment(LocalDate.parse(staffRequest.getDateOfEmployment(), formatter));
-        staff.setStaffCode(staffRequest.getStaffCode());
+        staff.setStaffCode(Optional.ofNullable(staffRequest.getStaffCode()).orElse(staff.getStaffCode()));
         staff.setFirstNames(staffRequest.getFirstNames());
         staff.setLastName(staffRequest.getLastName());
         staff.setNationality(staffRequest.getNationality());
@@ -143,6 +182,7 @@ public class StaffUtil {
         staff.setResidentialTown(staffRequest.getResidentialTown());
         staff.setContact1(staffRequest.getContact1());
         staff.setBackupContact(staffRequest.getBackupContact());
+        staff.setStaffEmail(staffRequest.getStaffEmail());
         staff.setNationalIDType(staffRequest.getNationalIDType());
         staff.setNationalID(staffRequest.getNationalID());
         staff.setSnnitNumber(staffRequest.getSnnitNumber());
@@ -157,10 +197,47 @@ public class StaffUtil {
     }
 
     public StaffResponse mapStaff_ToStaffResponse(Staff staff) throws URISyntaxException, IOException {
-        List<DependantsResponse> dr =  staff.getDependants().stream().filter(d -> d.getInstitutionCode().equalsIgnoreCase(staff.getInstitutionCode())).toList().stream().map(DependantsUtil::mapDependants_ToDependantResponse).toList();
-        List<StaffDocumentsResponse> sdr= staff.getStaffDocuments().stream().filter(sd -> sd.getInstitutionCode().equalsIgnoreCase(staff.getInstitutionCode())).toList().stream().map(StaffDocumentsUtil::mapStaffDocuments_ToStaffDocuentsResponse).toList();
-        List<AcademicRecordsResponse> arr =staff.getAcademicRecords().stream().filter(d -> d.getInstitutionCode().equalsIgnoreCase(staff.getInstitutionCode())).toList().stream().map(AcademicRecordsUtil::mapAcademicRecord_ToAcademicRecordsResponse).toList();
-        List<ProfessionalRecordsResponse> prr =staff.getProfessionalRecords().stream().filter(d -> d.getInstitutionCode().equalsIgnoreCase(staff.getInstitutionCode())).toList().stream().map(ProfessionalRecordsUtil::mapProfessionalRecord_ToProfessionalRecordsResponse).toList();
+        List<DependantsResponse> dr = Optional.ofNullable(staff.getDependants())
+                .orElse(Collections.emptyList())
+                .stream()
+                .filter(d -> d.getInstitutionCode().equalsIgnoreCase(staff.getInstitutionCode()))
+                .map(DependantsUtil::mapDependants_ToDependantResponse)
+                .toList();
+
+        List<StaffDocumentsResponse> sdr = Optional.ofNullable(staff.getStaffDocuments())
+                .orElse(Collections.emptyList())
+                .stream()
+                .filter(sd -> sd.getInstitutionCode().equalsIgnoreCase(staff.getInstitutionCode()))
+                .map(StaffDocumentsUtil::mapStaffDocuments_ToStaffDocuentsResponse)
+                .toList();
+
+        List<AcademicRecordsResponse> arr = Optional.ofNullable(staff.getAcademicRecords())
+                .orElse(Collections.emptyList())
+                .stream()
+                .filter(ar -> ar.getInstitutionCode().equalsIgnoreCase(staff.getInstitutionCode()))
+                .map(AcademicRecordsUtil::mapAcademicRecord_ToAcademicRecordsResponse)
+                .toList();
+
+        List<ProfessionalRecordsResponse> prr = Optional.ofNullable(staff.getProfessionalRecords())
+                .orElse(Collections.emptyList())
+                .stream()
+                .filter(pr -> pr.getInstitutionCode().equalsIgnoreCase(staff.getInstitutionCode()))
+                .map(ProfessionalRecordsUtil::mapProfessionalRecord_ToProfessionalRecordsResponse)
+                .toList();
+
+        List<DesignationListResponse> dl = Optional.ofNullable(staff.getStaffDesignations())
+                .orElse(Collections.emptyList())
+                .stream()
+                .filter(ar -> ar.getInstitutionCode().equalsIgnoreCase(staff.getInstitutionCode()))
+                .map(StaffDesignationUtil::mapStaffDesignationList_ToStaffDesignationListResponse)
+                .toList();
+
+        List<StaffSubjectsResponse> ssr = Optional.ofNullable(staff.getStaffSubjects())
+                .orElse(Collections.emptyList())
+                .stream()
+                .filter(ar -> ar.getInstitutionCode().equalsIgnoreCase(staff.getInstitutionCode()))
+                .map(StaffSubjectsUtil::mapStaffSubject_ToStaffSubjectsResponse)
+                .toList();
 
         return StaffResponse.builder()
                 .id(String.valueOf(staff.getId()))
@@ -174,6 +251,7 @@ public class StaffUtil {
                 .residentialTown(staff.getResidentialTown())
                 .contact1(staff.getContact1())
                 .backupContact(staff.getBackupContact())
+                .staffEmail(staff.getStaffEmail())
                 .nationalIDType(staff.getNationalIDType())
                 .nationalID(staff.getNationalID())
                 .snnitNumber(staff.getSnnitNumber())
@@ -189,6 +267,8 @@ public class StaffUtil {
                 .staffDocuments(sdr)
                 .academicRecords(arr)
                 .professionalRecords(prr)
+                .staffDesignationResponseList(dl)
+                .staffSubjectsResponseList(ssr)
                 .build();
     }
 
@@ -199,6 +279,201 @@ public class StaffUtil {
         OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(fileLocation));
         outputStream.write(data);
         return fileLocation;
+    }
+
+    public Optional<StaffResponse> createNewStaff(StaffRequest staffRequest) throws URISyntaxException, IOException {
+        Staff newStaff = mapStaffRequest_ToStaff(staffRequest);
+
+        processRecords(staffRequest.getProfessionalRecords(),
+                (r -> ProfessionalRecordsUtil.mapProfessionalRecordRequest_ToProfessionalRecords(r, newStaff.getStaffCode())),
+                professionalRecordsUtil::saveAll,
+                newStaff::setProfessionalRecords);
+
+        processRecords(staffRequest.getStaffDocuments(),
+                r -> StaffDocumentsUtil.mapStaffDocumentsRequest_ToStaffDocuents(r, newStaff.getStaffCode()),
+                staffDocumentsUtil::saveAll,
+                newStaff::setStaffDocuments);
+
+        processRecords(staffRequest.getDependants(),
+                r -> DependantsUtil.mapDependantsRequest_ToDependants(r, newStaff.getStaffCode()),
+                dependantsUtil::saveAll,
+                newStaff::setDependants);
+
+        processRecords(staffRequest.getAcademicRecords(),
+                r -> AcademicRecordsUtil.mapAcademicRecordRequest_ToAcademicRecords(r, newStaff.getStaffCode()),
+                academicRecordsUtil::saveAll,
+                newStaff::setAcademicRecords);
+
+        processRecords(staffRequest.getStaffDesignations(),
+                StaffDesignationUtil::mapStaffDesignationListRequest_ToStaffDesignationList,
+                staffDesignationUtil::saveAll,
+                newStaff::setStaffDesignations);
+
+        processRecords(staffRequest.getStaffSubjects(),
+                StaffSubjectsUtil::mapStaffSubjectRequest_ToStaffSubjects,
+                staffSubjectsUtil::saveAll,
+                newStaff::setStaffSubjects);
+
+        staffRepository.save(newStaff);
+        StaffUtil.staffGlobalList.add(newStaff);
+
+        return Optional.of(mapStaff_ToStaffResponse(newStaff));
+    }
+
+
+    public Optional<StaffResponse> updateExistingStaff(StaffRequest staffRequest, Staff existingStaff) throws URISyntaxException, IOException {
+        Staff updatedStaff = mapStaffRequest_ToStaff(staffRequest, existingStaff);
+
+        /*
+        * Update Staff Professional Records
+         */
+        updateRecords(
+                staffRequest.getProfessionalRecords(),
+                existingStaff.getProfessionalRecords(),
+                ProfessionalRecordsUtil::mapProfessionalRecordRequest_ToProfessionalRecords,
+                professionalRecordsUtil::updateProfessionalRecord,
+                professionalRecordsUtil::saveAll,
+                updatedStaff::setProfessionalRecords,
+                updatedStaff.getStaffCode(),
+                (ent, req) -> ent.getNameOfInstitution().equalsIgnoreCase(req.getNameOfInstitution()) &&
+                        ent.getDateOfEmployment().equals(req.getDateOfEmployment())
+        );
+
+        /*
+         * Update Staff Dependant Records
+         */
+        updateRecords(
+                staffRequest.getDependants(),
+                existingStaff.getDependants(),
+                DependantsUtil::mapDependantsRequest_ToDependants,
+                DependantsUtil::updateDependants,
+                dependantsUtil::saveAll,
+                updatedStaff::setDependants,
+                updatedStaff.getStaffCode(),
+                (ent, req) -> ent.getName().equalsIgnoreCase(req.getName()) &&
+                        ent.getDateOfBirth().equals(req.getDateOfBirth())
+        );
+
+        /*
+         * Update Staff Academic Records
+         */
+        updateRecords(
+                staffRequest.getAcademicRecords(),
+                existingStaff.getAcademicRecords(),
+                AcademicRecordsUtil::mapAcademicRecordRequest_ToAcademicRecords,
+                academicRecordsUtil::updateAcademicRecord,
+                academicRecordsUtil::saveAll,
+                updatedStaff::setAcademicRecords,
+                updatedStaff.getStaffCode(),
+                (ent, req) -> ent.getNameOfInstitution().equalsIgnoreCase(req.getNameOfInstitution()) &&
+                        ent.getDateOfGraduation().equals(req.getDateOfGraduation())
+        );
+
+        /*
+         * Update Staff Documents Records
+         */
+        updateRecords(
+                staffRequest.getStaffDocuments(),
+                existingStaff.getStaffDocuments(),
+                StaffDocumentsUtil::mapStaffDocumentsRequest_ToStaffDocuents,
+                staffDocumentsUtil::updateStaffDocuments,
+                staffDocumentsUtil::saveAll,
+                updatedStaff::setStaffDocuments,
+                updatedStaff.getStaffCode(),
+                (ent, req) -> ent.getInstitutionCode().equalsIgnoreCase(req.getInstitutionCode()) &&
+                        ent.getDocumentType().equals(req.getDocumentType())
+        );
+
+        /*
+         * Update Staff Teaching Subjects Records
+         */
+        this.<StaffSubjectsRequest, StaffSubjects>updateRecords(
+                staffRequest.getStaffSubjects(),
+                existingStaff.getStaffSubjects(),
+                (req, staffCode) -> StaffSubjectsUtil.mapStaffSubjectRequest_ToStaffSubjects(req),
+                (existing, requestRecord, staffCode) -> StaffSubjectsUtil.updateStaffSubjects(existing, requestRecord),
+                staffSubjectsUtil::saveAll,
+                updatedStaff::setStaffSubjects,
+                updatedStaff.getStaffCode(),
+                (ent, req) -> ent.getSubject().equalsIgnoreCase(req.getSubject()) &&
+                        ent.getSubjectClass().equalsIgnoreCase(req.getSubjectClass()) &&
+                        ent.getInstitutionCode().equalsIgnoreCase(req.getInstitutionCode())
+        );
+
+        /*
+         * Update Staff Designation Records
+         */
+        this.<DesignationListRequest, DesignationList>updateRecords(
+                staffRequest.getStaffDesignations(),
+                existingStaff.getStaffDesignations(),
+                (req, staffCode) -> StaffDesignationUtil.mapStaffDesignationListRequest_ToStaffDesignationList(req),
+                (existing, requestRecord, staffCode) -> staffDesignationUtil.updateStaffDesignation(existing, requestRecord),
+                staffDesignationUtil::saveAll,
+                updatedStaff::setStaffDesignations,
+                updatedStaff.getStaffCode(),
+                (ent, req) -> ent.getInstitutionCode().equalsIgnoreCase(req.getInstitutionCode()) &&
+                        ent.getDesignation().equalsIgnoreCase(req.getDesignation())
+        );
+
+
+        staffRepository.save(updatedStaff);
+        return Optional.of(mapStaff_ToStaffResponse(updatedStaff));
+    }
+
+    private <T, R> void processRecords(List<T> records,
+                                       Function<T, R> mapper,
+                                       Consumer<List<R>> saveFn,
+                                       Consumer<List<R>> setter) {
+        if (records != null && !records.isEmpty()) {
+            List<R> mapped = records.stream().map(mapper).collect(Collectors.toList());
+            saveFn.accept(mapped);
+            setter.accept(mapped);
+        }
+    }
+    private <REQ, ENT> void updateRecords(List<REQ> requestRecords,
+                                          List<ENT> existingRecords,
+                                          BiFunction<REQ, String, ENT> mapper,
+                                          TriConsumer<ENT, REQ, String> updater,
+                                          Consumer<List<ENT>> saveFn,
+                                          Consumer<List<ENT>> setter,
+                                          String staffCode,
+                                          BiPredicate<ENT, REQ> matchPredicate) {
+        if (requestRecords != null && !requestRecords.isEmpty()) {
+            List<ENT> updated = requestRecords.stream()
+                    .map(req -> {
+                        Optional<ENT> existing =  Optional.ofNullable(existingRecords)
+                                .orElse(Collections.emptyList())
+                                .stream()
+                                .filter(e -> matchPredicate.test(e, req))
+                                .findFirst();
+                        return existing.map(e -> {
+                            updater.accept(e, req, staffCode);
+                            return e;
+                        }).orElseGet(() -> mapper.apply(req, staffCode));
+                    })
+                    .collect(Collectors.toList());
+            saveFn.accept(updated);
+            setter.accept(updated);
+        }
+    }
+
+    @FunctionalInterface
+    interface TriConsumer<T, U, V> {
+        void accept(T t, U u, V v);
+    }
+
+    private boolean isSameRecord(Object existing, Object incoming) {
+        if (existing instanceof ProfessionalRecords e && incoming instanceof ProfessionalRecords r) {
+            return e.getNameOfInstitution().equalsIgnoreCase(r.getNameOfInstitution()) &&
+                    e.getDateOfEmployment().equals(r.getDateOfEmployment());
+        } else if (existing instanceof Dependants e && incoming instanceof Dependants r) {
+            return e.getName().equalsIgnoreCase(r.getName()) &&
+                    e.getDateOfBirth().equals(r.getDateOfBirth());
+        } else if (existing instanceof AcademicRecords e && incoming instanceof AcademicRecords r) {
+            return e.getNameOfInstitution().equalsIgnoreCase(r.getNameOfInstitution()) &&
+                    e.getDateOfGraduation().equals(r.getDateOfGraduation());
+        }
+        return false;
     }
 
 }

@@ -3705,3 +3705,14 @@ color: #999
 .agreement{
 font-size: 14px !important;
 }
+
+.required::after {
+  content: " *";
+  color: red;
+}
+
+.mandatory {
+  border-left: 3px solid red; /* Left border as indicator */
+  /* OR */
+  border: 1px solid red;
+}

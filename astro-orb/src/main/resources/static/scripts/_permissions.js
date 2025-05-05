@@ -3,7 +3,7 @@ var exisitingstaff=[];
 var staffPermissionList=[];
 var staffCode;
 
-var instId = $("meta[name='institutionId']").attr("content");
+var instId = $("meta[name='institutionId']").attr("content").split("/")[1];
 var v= instId.split(",")[0].replace(/[\[\]']+/g,'')
     instId=v.replace(/\//g, '')
 fetchStaffList(instId);
