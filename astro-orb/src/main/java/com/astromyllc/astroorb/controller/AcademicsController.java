@@ -79,6 +79,22 @@ public class AcademicsController {
     }
 
     @ResponseBody
+    @RequestMapping(value = "/generateBroadsheet", method = RequestMethod.POST)
+    public ResponseEntity<String> generateBroadsheet(@RequestBody AcademicReportRequest jso) throws IOException {
+
+        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/academics/generateBroadsheet");
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/getExistingClassSubjectScores", method = RequestMethod.POST)
+    public ResponseEntity<String> getExistingClassSubjectScores(@RequestBody AcademicReportRequest jso) throws IOException {
+
+        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/academics/getExistingClassSubjectScores");
+        return response;
+    }
+
+    @ResponseBody
     @RequestMapping(value = "/fetchStudentTerminalReport", method = RequestMethod.POST)
     public ResponseEntity<String> fetchStudentTerminalReport(@RequestBody AcademicReportRequest jso) throws IOException {
 

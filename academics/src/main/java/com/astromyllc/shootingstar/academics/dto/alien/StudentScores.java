@@ -5,35 +5,43 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-@Data
 public class StudentScores {
     private String studentId;
     private Double totalScoreObtained;
     private Double totalScorePossible;
+    @Builder.Default
+    private boolean hasNullData = false;
 
-   /* public StudentScores() {
-        this.totalScoreObtained = 0.0;
-        this.totalScorePossible = 0.0;
-    }*/
-
-   /* public StudentScores(String studentId, Double score, Double totalScore) {
-        this.studentId = studentId;
-        this.totalScoreObtained = score != null ? score : 0.0;
-        this.totalScorePossible = totalScore != null ? totalScore : 0.0;
-    }*/
-
-    public static StudentScores merge(StudentScores s1, StudentScores s2) {
-        return new StudentScores(
-                s1.studentId != null ? s1.studentId : s2.studentId,
-                s1.totalScoreObtained + s2.totalScoreObtained,
-                s1.totalScorePossible + s2.totalScorePossible
-        );
+    // Public method to check for null data
+    public boolean hasNullData() {
+        return this.hasNullData ||
+                this.studentId == null ||
+                this.totalScoreObtained == null ||
+                this.totalScorePossible == null;
     }
 
-    public String getStudentId() { return studentId; }
-    public Double getTotalScoreObtained() { return totalScoreObtained; }
-    public Double getTotalScorePossible() { return totalScorePossible; }
+    // Static merge method
+    public static StudentScores merge(StudentScores s1, StudentScores s2) {
+        return StudentScores.builder()
+                .studentId(s1.studentId != null ? s1.studentId : s2.studentId)
+                .totalScoreObtained(sumPreservingNulls(s1.totalScoreObtained, s2.totalScoreObtained))
+                .totalScorePossible(sumPreservingNulls(s1.totalScorePossible, s2.totalScorePossible))
+                .hasNullData(s1.hasNullData() || s2.hasNullData())
+                .build();
+    }
+
+    // Alias for merge (mergePreservingNulls)
+    public static StudentScores mergePreservingNulls(StudentScores s1, StudentScores s2) {
+        return merge(s1, s2);
+    }
+
+    private static Double sumPreservingNulls(Double a, Double b) {
+        if (a == null) return b;
+        if (b == null) return a;
+        return a + b;
+    }
 }

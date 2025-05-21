@@ -11,102 +11,98 @@ elm.addEventListener("click", function () {});
 
 async function displayReport(data) {
   try {
-    scoreJson = data; // Assuming `data` follows TerminalReportResponse format
+    const scoreJson = data;
+    const tbody = $("#reportTableBody");
+    const thead = $("#reportTableHead");
 
-    const fieldMapping = [
-      "no",
-      "studentId",
-      "studentName",
-      "studentClass",
-      "subject",
-      "classScore",
-      "examsScore",
-      "totalScore",
-      "grade",
-      "position",
-    ];
+    tbody.empty();
+    thead.empty();
 
-    let tbody = $("#reportTableBody");
-    tbody.empty(); // Clear existing rows
-
-    if (
-      !scoreJson.studentReportResponseList ||
-      scoreJson.studentReportResponseList.length === 0
-    ) {
-      tbody.append(
-        "<tr><td colspan='10'>No student reports available</td></tr>"
-      );
+    const studentList = scoreJson.studentReportResponseList || [];
+    if (studentList.length === 0) {
+      tbody.append("<tr><td colspan='100%'>No student reports available</td></tr>");
       return;
     }
 
-    let studentCounter = 1;
-    let rows = [];
+    // 1. Extract all unique subjects from all students
+    const allSubjects = [];
+    const subjectSet = new Set();
 
-    // Iterate over students
-    $.each(scoreJson.studentReportResponseList, function (_, student) {
-      let assessments = student.studentAssessment || [];
-
-      // Default row when no assessments
-      if (assessments.length === 0) {
-        rows.push(`
-                    <tr>
-                        <td>${studentCounter++}</td>
-                        <td>${student.studentId}</td>
-                        <td>${student.firstName} ${student.otherName || ""} ${
-          student.lastName
-        }</td>
-                        <td></td>
-                        <td colspan="6">No assessments available</td>
-                    </tr>
-                `);
-        return;
-      }
-
-      // Loop through assessments efficiently
-      assessments.forEach((assessment, index) => {
-        rows.push(`
-                    <tr>
-                        ${
-                          index === 0
-                            ? `
-                            <td rowspan="${
-                              assessments.length
-                            }">${studentCounter++}</td>
-                            <td rowspan="${assessments.length}">${
-                                student.studentId
-                              }</td>
-                            <td rowspan="${assessments.length}">${
-                                student.firstName
-                              } ${student.otherName || ""} ${
-                                student.lastName
-                              }</td>
-                            <td rowspan="${assessments.length}">${
-                                assessment.studentClass
-                              }</td>
-                        `
-                            : ""
-                        }
-                        <td>${assessment.subject}</td>
-                        <td>${assessment.classScore}</td>
-                        <td>${assessment.examsScore}</td>
-                        <td>${assessment.totalScore}</td>
-                        <td>${assessment.grade}</td>
-                        <td>${assessment.position}</td>
-                    </tr>
-                `);
+    studentList.forEach(student => {
+      student.studentAssessment?.forEach(assessment => {
+        if (!subjectSet.has(assessment.subject)) {
+          subjectSet.add(assessment.subject);
+          allSubjects.push(assessment.subject);
+        }
       });
     });
 
-    // Append all rows in one go (improves performance)
+    // 2. Build header rows
+    let headerRow1 = `
+      <tr>
+        <th rowspan="2">No</th>
+        <th rowspan="2">Student ID</th>
+        <th rowspan="2">Name</th>
+    `;
+    allSubjects.forEach(subject => {
+      headerRow1 += `<th colspan="3">${subject}</th>`;
+    });
+    headerRow1 += '</tr>';
+
+    let headerRow2 = '<tr>';
+    allSubjects.forEach(() => {
+      headerRow2 += `
+        <th>Class Score</th>
+        <th>Exams Score</th>
+        <th>Total Score</th>
+      `;
+    });
+    headerRow2 += '</tr>';
+
+    thead.html(headerRow1 + headerRow2);
+
+    // 3. Build student rows
+    const rows = [];
+    let counter = 1;
+
+    studentList.forEach(student => {
+      const fullName = [student.firstName, student.otherName, student.lastName].filter(Boolean).join(" ");
+      let row = `
+        <td>${counter++}</td>
+        <td>${student.studentId || ""}</td>
+        <td>${fullName}</td>
+      `;
+
+      allSubjects.forEach(subject => {
+        const assessment = student.studentAssessment?.find(a => a.subject === subject);
+        if (assessment) {
+          row += `
+            <td>${assessment.classScore ?? '-'}</td>
+            <td>${assessment.examsScore ?? '-'}</td>
+            <td>${assessment.totalScore ?? '-'}</td>
+          `;
+        } else {
+          row += '<td>-</td><td>-</td><td>-</td>';
+        }
+      });
+
+      rows.push(`<tr>${row}</tr>`);
+    });
+
     tbody.append(rows.join(""));
+
   } catch (error) {
-    console.error("Error processing report data:", error);
+    console.error("Error building report:", error);
+    tbody.html(`<tr><td colspan='100%'>Error: ${error.message}</td></tr>`);
   }
 }
 
+
+/*
 document
   .querySelector("#reportTable_wrapper")
   .setAttribute("style", "overflow: auto;");
+*/
 
 var selectedValue = document
   .querySelector("#scoreTypeControl")
@@ -126,21 +122,36 @@ document
     }
   });
 
-url = "generateStudentTerminalReport";
+url = "generateBroadsheet";
 
 $("#reportGenerateBtn").click(async function () {
-  var jso = postdata();
+  const jso = postdata();
   return HttpPost(url, jso).then(function (result) {
-    $("#reportTable").DataTable().destroy();
+    if ($.fn.DataTable.isDataTable("#reportTable")) {
+      $("#reportTable").DataTable().destroy();
+    }
+
     reportDataJSON = result;
-    displayReport(result);
+    displayReport(result); // build headers + rows
+
+    // Reinitialize DataTable AFTER DOM is ready
+  setTimeout(() => {
+    $('#reportTable').DataTable({
+      dom: "<'row'<'col-sm-4'l><'col-sm-4 text-center'B><'col-sm-4'f>>tp",
+      scrollX: true,
+      pageLength: 25,
+      buttons: ['copy', 'csv', 'excel', 'pdf', 'print']
+    });
+  }, 100);
+
     swal({
       title: "Thank you!",
       text: "Operation Successfully",
-      type: "success",
+      type: "success"
     });
   });
 });
+
 
 function postdata() {
   var jsonObject = {
@@ -234,20 +245,6 @@ document
     }
   });
 
-/*async function fetchInstitutionSubject(instId){
-      var v= instId.replace(/[\[\]']+/g,'')
-      v=v.replace(/\//g, '')
-      var instRequest={"val":v}
-       try {
-              // Await the result of the HTTP request
-              const result = await HttpPost("getInstitutionSubjects", instRequest);
-              await fetchInstitutionClasses(v);
-              // Pass the result to fetchLookup and await it
-              return await fetchLookup(result);
-          } catch (error) {
-              console.error("Error in fetchInstitutionSubject:", error);
-          }
-    }*/
 
 function populateClasses(data) {
   $(".classSelect option:not(:eq(0))").remove();
@@ -578,6 +575,6 @@ function generatePDF(assessments) {
   // ** Save or Download PDF **
   terminalReport.save(
     studentReports[0].studentAssessment[0]?.studentClass +
-      " Terminal Report.pdf"
+      " Broadsheet Report.pdf"
   );
 }

@@ -1,15 +1,22 @@
 package com.astromyllc.shootingstar.academics.util;
 
+import com.astromyllc.shootingstar.academics.dto.request.ClassListRequest;
 import com.astromyllc.shootingstar.academics.dto.alien.StudentScores;
-import com.astromyllc.shootingstar.academics.dto.request.ContinuousAssessmentRequest;
+import com.astromyllc.shootingstar.academics.dto.alien.Students;
 import com.astromyllc.shootingstar.academics.dto.request.ExamsAssessmentRequest;
+import com.astromyllc.shootingstar.academics.dto.response.ClassListResponse;
 import com.astromyllc.shootingstar.academics.dto.response.ExamsAssessmentResponse;
 import com.astromyllc.shootingstar.academics.model.ExamsAssessment;
 import com.astromyllc.shootingstar.academics.repository.ExamsAssessmentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -28,12 +35,30 @@ public class ExamsAssessmentUtil {
     private final ExamsAssessmentRepository assessmentRepository;
     public static List<ExamsAssessment> examsAssessmentGlobalList;
 
+    private final WebClient.Builder webClientBuilder;
     static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    @Value("${gateway.host}")
+    private String host;
 
     @Bean
     private void fetAllExamsAssessment() {
         examsAssessmentGlobalList = assessmentRepository.findAll();
         log.info("Global ExamsAssessment List populated with {} records", examsAssessmentGlobalList.size());
+    }
+
+
+    public List<ClassListResponse> fetchStudentsByClass(String studentClass, String institutionCode) {
+        ClassListRequest request = ClassListRequest.builder()
+                .institutionCode(institutionCode)
+                .studentClass(studentClass)
+                .build();
+         List<ClassListResponse>   response= webClientBuilder.build().post()
+                .uri("http://"+host+"/api/administration-pta/getAssessmentList")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .bodyValue(request)
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<List<ClassListResponse>>() {}).block();
+         return response;
     }
 
     public ExamsAssessment mapExamsAssessmentRequest_ToExamsAssessment(ExamsAssessmentRequest examsAssessmentRequest) {
@@ -68,13 +93,20 @@ public class ExamsAssessmentUtil {
     public static Map<String, Map<Long, Map<String, StudentScores>>> CalculateExamsScores(List<ExamsAssessment> assessments) {
         return assessments.stream()
                 .collect(Collectors.groupingBy(
-                        ExamsAssessment::getStudentClass, // Group by studentClass
+                        ExamsAssessment::getStudentClass,
                         Collectors.groupingBy(
-                                ExamsAssessment::getSubject, // Group by subject
+                                ExamsAssessment::getSubject,
                                 Collectors.toMap(
-                                        ExamsAssessment::getStudentId, // Group by studentId
-                                        req -> new StudentScores(req.getStudentId(), req.getScore(), req.getTotalScore()),
-                                        StudentScores::merge // Merge scores for the same student
+                                        ExamsAssessment::getStudentId,
+                                        req -> StudentScores.builder()
+                                                .studentId(req.getStudentId())
+                                                .totalScoreObtained(req.getScore())
+                                                .totalScorePossible(req.getTotalScore())
+                                                .hasNullData(req.getStudentId() == null ||
+                                                        req.getScore() == null ||
+                                                        req.getTotalScore() == null)
+                                                .build(),
+                                        StudentScores::merge
                                 )
                         )
                 ));

@@ -44,7 +44,8 @@ public class AssessmentUtil {
     private List<LookupResponse> lookUpGlobalResponse=null;
     public static List<InstitutionRequest> institutionGlobalRequest = null;
     public List<Students> studentsGlobalRequest = null;
-    private InstitutionRequest singleInstitutionGlobalRequest = null;
+    public InstitutionRequest singleInstitutionGlobalRequest = null;
+    public GradingSettingRequest gs=null;
 
     private final ExecutorService executorService;
 
@@ -77,8 +78,14 @@ public class AssessmentUtil {
                             .retrieve()
                             .bodyToMono(InstitutionRequest.class)
                             .block();
-            log.info("Institution {} fetched", singleInstitutionGlobalRequest);
-            //return result;
+
+    }
+
+    public void getApplicableGradingSetting(AcademicReportRequest ar){
+        fetchSetupdata(ar.getInstitutionCode());
+        fetchStudents(ar.getInstitutionCode());
+        fetchClassGroups(ar.getInstitutionCode());
+        gs=singleInstitutionGlobalRequest.getGradingSetting().stream().filter(gs->gs.getId().equals(ar.getGradingSetting())).findFirst().get();
     }
 
     // @Bean
@@ -109,15 +116,15 @@ public class AssessmentUtil {
     }
 
     private Double computeExamsScore(Double total, Double actual) {
-        return (Math.round(((actual / total) * singleInstitutionGlobalRequest.getGradingSetting().getExamsPercentage())* 100.0) / 100.0);
+        return (Math.round(((actual / total) * gs.getExamsPercentage())* 100.0) / 100.0);
     }
 
     private Double computeClassScore(Double total, Double actual) {
-        return (Math.round(((actual / total) * singleInstitutionGlobalRequest.getGradingSetting().getClassPercentage())* 100.0) / 100.0);
+        return (Math.round(((actual / total) * gs.getClassPercentage())* 100.0) / 100.0);
     }
 
     private GradingRequest computeGrade(Double studentScore) {
-        return singleInstitutionGlobalRequest.getGradingSetting().getGradingList()
+        return gs.getGradingList()
                 .stream()
                 .filter(gr -> gr.getLowerLimit() <= studentScore) // Keep grades that apply
                 .max(Comparator.comparing(GradingRequest::getLowerLimit)) // Get the one with the highest lower limit
@@ -312,15 +319,37 @@ public class AssessmentUtil {
                 .term(a.getTerm())
                 .studentId(a.getStudentId())
                 .subject(a.getSubject())
-                .classScore(a.getClassScore().toString())
-                .examsScore(a.getExamsScore().toString())
-                .totalScore(a.getTotalScore().toString())
+                .classScore(nullSafeToString(a.getClassScore()))
+                .examsScore(nullSafeToString(a.getExamsScore()))
+                .totalScore(nullSafeToString(a.getTotalScore()))
                 .institutionCode(a.getInstitutionCode())
                 .grade(a.getGrade())
                 .gradeRemarks(a.getGradeRemarks())
                 .position(a.getPosition().toString())
                 .build();
     }
+
+
+    public AssessmentResponse mapAssessment_ToAssessmentResponse_For_Broadsheet(Assessment a,String classGroup) {
+        cg=classGroup;
+        return AssessmentResponse.builder()
+                .academicYear(a.getAcademicYear())
+                .dateTime(a.getDateTime())
+                .studentClass(a.getStudentClass())
+                .term(a.getTerm())
+                .studentId(a.getStudentId())
+                .subject(a.getSubject())
+                .classScore(nullSafeToString(a.getClassScore()))
+                .examsScore(nullSafeToString(a.getExamsScore()))
+                .totalScore(nullSafeToString(a.getTotalScore()))
+                .institutionCode(a.getInstitutionCode())
+                .build();
+    }
+
+    public static String nullSafeToString(Object obj) {
+        return obj != null ? obj.toString() : null;
+    }
+
 
     public AssessmentResponse mapAssessment_ToAssessmentResponse(Assessment a) {
         return AssessmentResponse.builder()
@@ -330,9 +359,9 @@ public class AssessmentUtil {
                 .term(a.getTerm())
                 .studentId(a.getStudentId())
                 .subject(a.getSubject())
-                .classScore(a.getClassScore().toString())
-                .examsScore(a.getExamsScore().toString())
-                .totalScore(a.getTotalScore().toString())
+                .classScore(nullSafeToString(a.getClassScore()))
+                .examsScore(nullSafeToString(a.getExamsScore()))
+                .totalScore(nullSafeToString(a.getTotalScore()))
                 .institutionCode(a.getInstitutionCode())
                 .grade(a.getGrade())
                 .gradeRemarks(a.getGradeRemarks())
@@ -377,6 +406,17 @@ public class AssessmentUtil {
                 .build();
     }
 
+/*
+* This Code here is not done It needs serious review
+* */
+    public ExistingUploadedScoreResponse mapAssessment_To_ExistingUploadedScoreResponse(Assessment eus) {
+        return ExistingUploadedScoreResponse.builder()
+                .classScore(eus.getClassScore())
+                .examsScore(eus.getExamsScore())
+                .institutionCode(eus.getInstitutionCode())
+                .build();
+    }
+
     public double calculateTotalAverage(List<AssessmentResponse> assessments) {
         if (assessments == null || assessments.isEmpty()) {
             return 0.0; // Return 0 if there are no assessments
@@ -400,6 +440,7 @@ public class AssessmentUtil {
         }
     }
 
+    /*
     public List<Assessment> passExamsAssessment(Map.Entry<String, Map<Long, Map<String, StudentScores>>> sr,AcademicReportRequest terminalReportRequest) {
         String studentClass = sr.getKey(); // Example: "ClassA"
         if (singleInstitutionGlobalRequest==null) {
@@ -433,8 +474,59 @@ public class AssessmentUtil {
                             });
                 })
                 .toList(); // Collect all assessments
+    }*/
+
+    public List<Assessment> passExamsAssessment(
+            Map.Entry<String, Map<Long, Map<String, StudentScores>>> classEntry,
+            AcademicReportRequest request) {
+
+        if (singleInstitutionGlobalRequest == null) {
+            fetchSetupdata(request.getInstitutionCode());
+            fetchStudents(request.getInstitutionCode());
+            fetchClassGroups(request.getInstitutionCode());
+        }
+
+        return classEntry.getValue().entrySet().stream()
+                .flatMap(subjectEntry -> {
+                    Long subjectId = subjectEntry.getKey();
+
+                    // Using SubjectRequest to get subject name
+                    String subjectName = singleInstitutionGlobalRequest.getSubjectList().stream()
+                            .filter(Objects::nonNull)  // Filter out null subjects
+                            .filter(s -> subjectId.equals(s.getId()))  // Match by ID
+                            .findFirst()
+                            .map(SubjectRequest::getName)  // Get name from SubjectRequest
+                            .orElse("UNKNOWN_SUBJECT");  // Default if not found
+
+                    return subjectEntry.getValue().entrySet().stream()
+                            .map(studentEntry -> {
+                                String studentId = studentEntry.getKey();
+                                StudentScores scores = studentEntry.getValue();
+
+                                // Calculate exam score (preserving null)
+                                Double examScore = null;
+                                if (scores.getTotalScoreObtained() != null &&
+                                        scores.getTotalScorePossible() != null &&
+                                        scores.getTotalScorePossible() != 0) {
+                                    examScore = Math.round(
+                                            computeExamsScore(scores.getTotalScorePossible(),scores.getTotalScoreObtained()) * 100)/ 100.0;
+                                }
+
+                                return Assessment.builder()
+                                        .academicYear(request.getAcademicYear())
+                                        .dateTime(LocalDateTime.now())
+                                        .studentClass(classEntry.getKey())
+                                        .term(request.getTerm())
+                                        .studentId(studentId)
+                                        .subject(subjectName)
+                                        .examsScore(examScore)
+                                        .institutionCode(request.getInstitutionCode())
+                                        .build();
+                            });
+                })
+                .toList();
     }
-    public List<Assessment> passContinuousAssessment(Map.Entry<String, Map<Long, Map<String, StudentScores>>> sr, AcademicReportRequest terminalReportRequest, StudentScores studentScores) {
+   /* public List<Assessment> passContinuousAssessment(Map.Entry<String, Map<Long, Map<String, StudentScores>>> sr, AcademicReportRequest terminalReportRequest, StudentScores studentScores) {
         String studentClass = sr.getKey(); // Example: "ClassA"
         if (singleInstitutionGlobalRequest==null) {
             fetchSetupdata(terminalReportRequest.getInstitutionCode());
@@ -460,13 +552,76 @@ public class AssessmentUtil {
                                         .term(terminalReportRequest.getTerm())
                                         .studentId(studentId) // "S001"
                                         .subject(singleInstitutionGlobalRequest.getSubjectList().stream().filter(sb-> Objects.equals(sb.getId(), subjectId)).findFirst().get().getName()) // "Mathematics" (Example)
-                                        .classScore(Math.round(computeClassScore(studentScores.getTotalScorePossible(),scores.getTotalScoreObtained())* 100.0) / 100.0) // 200.0
+
                                         .institutionCode(terminalReportRequest.getInstitutionCode())
                                         //.grade(computeGrade(scores.getTotalScoreObtained() + scores.getTotalScorePossible()).getGrade())
                                         .build();
                             });
                 })
                 .toList(); // Collect all assessments
+    }*/
+
+    public List<Assessment> passContinuousAssessment(
+            Map.Entry<String, Map<Long, Map<String, StudentScores>>> classEntry,
+            AcademicReportRequest request,
+            StudentScores highestScores) {
+
+        if (singleInstitutionGlobalRequest == null) {
+            fetchSetupdata(request.getInstitutionCode());
+            fetchStudents(request.getInstitutionCode());
+            fetchClassGroups(request.getInstitutionCode());
+        }
+
+        return classEntry.getValue().entrySet().stream()
+                .flatMap(subjectEntry -> {
+                    Long subjectId = subjectEntry.getKey();
+
+                    // Using SubjectRequest DTO to get subject name
+                    String subjectName = singleInstitutionGlobalRequest.getSubjectList().stream()
+                            .filter(Objects::nonNull)  // Filter out null subjects
+                            .filter(s -> subjectId.equals(s.getId()))  // Match by ID
+                            .findFirst()
+                            .map(SubjectRequest::getName)  // Get name from SubjectRequest
+                            .orElse("UNKNOWN_SUBJECT");  // Default if not found
+
+                    return subjectEntry.getValue().entrySet().stream()
+                            .map(studentEntry -> {
+                                String studentId = studentEntry.getKey();
+                                StudentScores scores = studentEntry.getValue();
+
+                                // Calculate class score (preserving null)
+                                Double classScore = null;
+                                if (scores.getTotalScoreObtained() != null &&
+                                        highestScores.getTotalScorePossible() != null &&
+                                        highestScores.getTotalScorePossible() != 0) {
+                                    classScore = Math.round(
+                                            computeClassScore(highestScores.getTotalScorePossible(),scores.getTotalScoreObtained()) * 100)/ 100.0;
+                                }
+
+                                // Build assessment with potential null values
+                                Assessment assessment = Assessment.builder()
+                                        .academicYear(request.getAcademicYear())
+                                        .dateTime(LocalDateTime.now())
+                                        .studentClass(classEntry.getKey())
+                                        .term(request.getTerm())
+                                        .studentId(studentId)
+                                        .subject(subjectName)
+                                        .classScore(classScore)  // Could be null
+                                        .institutionCode(request.getInstitutionCode())
+                                        .build();
+
+                                // Mark assessments with null data
+                                if (classEntry.getKey().equals("NULL_CLASS") ||
+                                        subjectId == -1L ||
+                                        studentId.equals("NULL_STUDENT_ID") ||
+                                        scores.hasNullData()) {
+                                    assessment.setGradeRemarks("INCOMPLETE_DATA");
+                                }
+
+                                return assessment;
+                            });
+                })
+                .toList();
     }
 
 
@@ -574,5 +729,4 @@ public class AssessmentUtil {
         // Return the initials as a string
         return initials.toString().toUpperCase();  // Convert to uppercase for standard initials format
     }
-
 }

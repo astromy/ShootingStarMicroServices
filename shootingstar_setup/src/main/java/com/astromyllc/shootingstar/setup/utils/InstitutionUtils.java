@@ -78,7 +78,7 @@ public class InstitutionUtils {
                 .headSignature(institutionRequest.getHeadSignature())
                 .admissions(AdmissionUtil.mapAdmissionRequestToAdmission(institutionRequest.getAdmissions()))
                 .classList(institutionRequest.getClassList().stream().map(ClassesUtil::mapClassRequestToClass).toList())
-                .gradingSetting(GradingSettingUtil.mapGradeSettingRequest_ToGradeSetting(institutionRequest.getGradingSetting()))
+                .gradingSetting(institutionRequest.getGradingSetting().stream().map(GradingSettingUtil::mapGradeSettingRequest_ToGradeSetting).toList())
                 .subjectList(institutionRequest.getSubjectList().stream().map(SubjectUtil::mapSubjectRequest_ToSubject).toList())
                 .departmentList(institutionRequest.getDepartmentList().stream().map(DepartmentUtil::mapDepartmentRequest_ToDepartment).toList())
                 .build();
@@ -113,9 +113,15 @@ public class InstitutionUtils {
                         .map(ClassesUtil::mapClassToClassResponse)
                         .toList()
                         : Collections.emptyList())
-                .gradingSetting(institution.getGradingSetting() != null
-                        ? GradingSettingUtil.mapGradeSetting_ToGradeSettingResponse(institution.getGradingSetting())
-                        : null)
+                .gradingSetting(Optional.ofNullable(institution.getGradingSetting())
+                        .map(list -> list.stream()
+                                .filter(Objects::nonNull)
+                                .map(GradingSettingUtil::mapGradeSetting_ToGradeSettingResponse)
+                                .filter(Optional::isPresent)
+                                .map(Optional::get)
+                                .toList())
+                        .filter(list -> !list.isEmpty()))
+
                 .subjectList(institution.getSubjectList() != null
                         ? institution.getSubjectList().stream()
                         .filter(Objects::nonNull)

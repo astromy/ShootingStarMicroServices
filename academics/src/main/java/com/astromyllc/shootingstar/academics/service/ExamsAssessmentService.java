@@ -1,6 +1,8 @@
 package com.astromyllc.shootingstar.academics.service;
 
+import com.astromyllc.shootingstar.academics.dto.alien.Students;
 import com.astromyllc.shootingstar.academics.dto.request.ExamsAssessmentRequest;
+import com.astromyllc.shootingstar.academics.dto.response.ClassListResponse;
 import com.astromyllc.shootingstar.academics.dto.response.ExamsAssessmentResponse;
 import com.astromyllc.shootingstar.academics.model.ContinuousAssessment;
 import com.astromyllc.shootingstar.academics.model.ExamsAssessment;
@@ -18,6 +20,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,19 +43,26 @@ public class ExamsAssessmentService implements ExamsAssessmentServiceInterface {
 
     @Override
     public Optional<ExamsAssessmentResponse> submitExamsAssessments(List<ExamsAssessmentRequest> examsAssessmentRequests) {
-      /*  List <ExamsAssessment> ea= examsAssessmentRequests.stream().map(examsAssessmentUtil::mapExamsAssessmentRequest_ToExamsAssessment).toList();
-        examsAssessmentRepository.saveAll(ea);
-        ;*/
+      List<ClassListResponse> studentsList=examsAssessmentUtil.fetchStudentsByClass(examsAssessmentRequests.get(0).getStudentClass(),examsAssessmentRequests.get(0).getInstitutionCode());
 
+        // Create a Set of student IDs for faster lookup
+        Set<String> validStudentIds = studentsList.stream()
+                .map(ClassListResponse::getStudentID)
+                .collect(Collectors.toSet());
 
-        Map<Boolean, List<ExamsAssessment>> partitioned = examsAssessmentRequests.stream()
+        // Filter requests to only include those with valid student IDs
+        List<ExamsAssessmentRequest> validRequests = examsAssessmentRequests.stream()
+                .filter(request -> validStudentIds.contains(request.getStudentId()))
+                .toList();
+
+        Map<Boolean, List<ExamsAssessment>> partitioned = validRequests.stream()
                 .map(examsAssessmentUtil::mapExamsAssessmentRequest_ToExamsAssessment)
                 .collect(Collectors.partitioningBy(ca -> ExamsAssessmentUtil.examsAssessmentGlobalList.stream()
-                        .anyMatch(existingCa -> existingCa.getStudentId().equals(ca.getStudentId()) &&
-                                existingCa.getInstitutionCode().equals(ca.getInstitutionCode()) &&
-                                existingCa.getTerm().equals(ca.getTerm()) &&
+                        .anyMatch(existingCa -> existingCa.getStudentId().equalsIgnoreCase(ca.getStudentId()) &&
+                                existingCa.getInstitutionCode().equalsIgnoreCase(ca.getInstitutionCode()) &&
+                                existingCa.getTerm().equalsIgnoreCase(ca.getTerm()) &&
                                 existingCa.getSubject().equals(ca.getSubject()) &&
-                                existingCa.getAcademicYear().equals(ca.getAcademicYear()))));
+                                existingCa.getAcademicYear().equalsIgnoreCase(ca.getAcademicYear()))));
 
         List<ExamsAssessment> existingRecords = partitioned.get(true);  // Existing records
         List<ExamsAssessment> newRecords = partitioned.get(false);     // New records

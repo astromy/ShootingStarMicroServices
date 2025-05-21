@@ -47,8 +47,8 @@ public class Institution {
     private String headSignature;
 
     @ToString.Exclude
-    @OneToOne(targetEntity = GradingSetting.class,cascade = {CascadeType.PERSIST, CascadeType.REFRESH})
-    private GradingSetting gradingSetting;
+    @OneToMany(mappedBy = "institution",cascade = {CascadeType.ALL, CascadeType.REFRESH}, fetch = FetchType.EAGER)
+    private List<GradingSetting> gradingSetting;
 
     @ToString.Exclude
     @OneToMany(mappedBy = "institution",cascade = CascadeType.ALL, fetch = FetchType.EAGER)
@@ -59,7 +59,7 @@ public class Institution {
     private List<Classes> classList;
 
     @ToString.Exclude
-    @OneToOne(targetEntity = Admissions.class,cascade = {CascadeType.PERSIST, CascadeType.REFRESH})
+    @OneToOne(targetEntity = Admissions.class,cascade = {CascadeType.ALL, CascadeType.REFRESH})
     private Admissions admissions;
 
     @ToString.Exclude

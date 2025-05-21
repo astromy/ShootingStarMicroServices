@@ -3,6 +3,7 @@ package com.astromyllc.shootingstar.academics.controller;
 import com.astromyllc.shootingstar.academics.dto.request.AcademicReportRequest;
 import com.astromyllc.shootingstar.academics.dto.request.SingleStringRequest;
 import com.astromyllc.shootingstar.academics.dto.response.AssessmentResponse;
+import com.astromyllc.shootingstar.academics.dto.response.ExistingUploadedScoreResponse;
 import com.astromyllc.shootingstar.academics.dto.response.TerminalReportResponse;
 import com.astromyllc.shootingstar.academics.serviceInterface.AssessmentServiceInterface;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,17 @@ public class AcademicsController {
         return ResponseEntity.ok( assessmentServiceInterface.generateTerminalReports(terminalReportRequest));
 
     }
+
+    /*
+    This API is far from complete both functionally and Logically
+     */
+    @PostMapping("/api/academics/getExistingClassSubjectScores")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<Optional<List<ExistingUploadedScoreResponse>>> getExistingClassSubjectScores(@RequestBody AcademicReportRequest terminalReportRequest) {
+        log.info("Assessment  Received");
+        return ResponseEntity.ok( assessmentServiceInterface.getExistingClassSubjectScores(terminalReportRequest));
+
+    }
     @PostMapping("/api/academics/fetchStudentTerminalReport")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Optional<TerminalReportResponse>> fetchStudentTerminalReport(@RequestBody AcademicReportRequest terminalReportRequest) {
@@ -61,6 +73,14 @@ public class AcademicsController {
     public ResponseEntity<Optional<TerminalReportResponse>> fetchStudentTranscript(@RequestBody SingleStringRequest terminalReportRequest) {
         log.info("Transcript Request  Received");
         return ResponseEntity.ok( assessmentServiceInterface.fetchStudentTranscript(terminalReportRequest));
+
+    }
+
+    @PostMapping("/api/academics/generateBroadsheet")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<Optional<TerminalReportResponse>> generateBroadsheet(@RequestBody AcademicReportRequest terminalReportRequest) {
+        log.info("Assessment  Received");
+        return ResponseEntity.ok( assessmentServiceInterface.generateBroadsheet(terminalReportRequest));
 
     }
 }

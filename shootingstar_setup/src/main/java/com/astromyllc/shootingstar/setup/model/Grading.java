@@ -20,6 +20,4 @@ public class Grading {
  @NonNull
     private String grade;
     private String comment;
-    //@ManyToOne(optional = false)
-   // private GradingSetting gradingSetting;
 }
