@@ -120,14 +120,14 @@ resilience4j:
 
 logging:
   level:
-    root: ERROR
+    root: INFO
     org:
       springframework:
-        web: ERROR
-        security: ERROR
+        web: INFO
+        security: INFO
         boot:
-          autoconfigure: ERROR
-      springframework.web.client.RestTemplate: ERROR
+          autoconfigure: INFO
+      springframework.web.client.RestTemplate: INFO
 
       hibernate:
         SQL: ERROR

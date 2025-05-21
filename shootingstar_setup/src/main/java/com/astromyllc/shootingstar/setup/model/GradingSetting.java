@@ -18,15 +18,17 @@ public class GradingSetting {
     @EqualsAndHashCode.Include
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idGradingSetting;
-    @NonNull
+    @Column(nullable = false)
     private Double classPercentage;
-    @NonNull
+    @Column(nullable = false)
     private Double examsPercentage;
     private Double trailingMark;
     private int allowedTrails;
-    @OneToMany(fetch = FetchType.EAGER,targetEntity =Grading.class, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER,targetEntity =Grading.class, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "gradeSettingGrading",referencedColumnName = "idGradingSetting")
     private List<Grading> gradingList;
-    /*@OneToOne(mappedBy = "gradingSetting",cascade = CascadeType.ALL)
-    private Institution institution;*/
+
+    @ManyToOne
+    @JoinColumn(name = "idInstitution")
+    private Institution institution;
 }

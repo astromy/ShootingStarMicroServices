@@ -5,8 +5,8 @@ $(function () {
                 <div class=" panel-body row">
                     <div class="pull-right col-lg-5">
 
-                            <div id="classListExport" class="col-lg-4">
-                                <button class="btn btn-primary col-lg-12" type="button" id="classListExport">Export Class List</button>
+                            <div id="classStudentListExport" class="col-lg-4">
+                                <button class="btn btn-primary col-lg-12" type="button" id="classStudentListExportBtn">Export Class List</button>
                             </div>
                             <div id="hbreadcrumb" class="col-lg-4">
                                     <div class="row"  style="display: none;">
@@ -14,14 +14,14 @@ $(function () {
                                             <div>
                                                 <label for="">Score File [Excel]</label>
                                             </div>
-                                            <input class="scoreInput" type="file" id="scoreInput" style="width: 200px;padding: 12px;display: inline; visibility: hidden;" accept=".xls,.xlsx,.csv"/>
+                                            <input class="studentsInput" type="file" id="studentsInput" style="width: 200px;padding: 12px;display: inline; visibility: hidden;" accept=".xls,.xlsx,.csv"/>
                                             <p id="error" class="fileError" style="color: red; display: none;">Only PDF files are allowed!</p>
                                         </div>
                                     </div>
-                                <button class="btn btn-info scoreUploadBtn" type="button" id="scoreUploadBtn">Upload Subject Score</button>
+                                <button class="btn btn-info studentsUploadBtn" type="button" id="studentsUploadBtn">Upload Student List</button>
                             </div>
-                            <div id="scoreSubmitExport" class="col-lg-4">
-                                    <button class="btn btn-success col-lg-12" type="button" id="scoreSubmitExport">Submit</button>
+                            <div id="studentsSubmitBtn" class="col-lg-4">
+                                    <button class="btn btn-success col-lg-12" type="button" id="studentsSubmitBtn">Submit</button>
                             </div>
 
                         </div>
@@ -46,9 +46,10 @@ $(function () {
                             </div>
                             <div class="form-group col-lg-2">
                                 <select class="form-control termSelect">
-                                    <option value="0">Select Semester</option>
-                                    <option value="First Semester">First Semester</option>
-                                    <option value="Second Semester">Second Semester</option>
+                                    <option value="0">Select Term</option>
+                                    <option value="First Term">First Term</option>
+                                    <option value="Second Term">Second Term</option>
+                                    <option value="Third Term">Third Term</option>
                                  </select>
                             </div>
                             <div class="form-group col-lg-2">
@@ -79,19 +80,19 @@ $(function () {
                 <a class="showhide"><i class="fa fa-chevron-up"></i></a>
                 <a class="closebox"><i class="fa fa-times"></i></a>
             </div>
-            Subject Scores
+            Student List
         </div>
         <div class="panel-body">
-            <table id="subjectScoreTable" class="table table-striped table-bordered table-hover" width="100%">
+            <table id="studentsListTable" class="table table-striped table-bordered table-hover" width="100%">
                 <thead>
-                <tr id="scoreTableHead">
+                <tr id="studentsTableHead">
                     <th>Student ID</th>
                     <th>Student Last Name</th>
                     <th>Student First Names</th>
                     <th>Score</th>
                 </tr>
                 </thead>
-                <tbody id="scoreTableBody"></tbody>
+                <tbody id="studentsTableBody"></tbody>
             </table>
 
         </div>
@@ -119,7 +120,7 @@ $(function () {
 
     var script14 = document.createElement("script");
     script14.setAttribute("type", "text/javascript");
-    script14.setAttribute("src", "scripts/_scoreUpload.js");
+    script14.setAttribute("src", "scripts/_studentBulkUpload.js");
 
     var script15 = document.createElement("script");
     script15.setAttribute("type", "text/javascript");
@@ -147,18 +148,3 @@ function scoreUploadIndut() {
     document.getElementsByClassName("modalbody")[0].insertAdjacentHTML('beforeend', div);
 }
 
-
-$(function () {
-
-    // Initialize Example 1
-    $('#subjectScoreTable').dataTable({
-        dom: "<'row'<'col-sm-4'l><'col-sm-4 text-center'B><'col-sm-4'f>>tp",
-        "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
-        buttons: [
-            { extend: 'copy', className: 'btn-sm' },
-            { extend: 'csv', title: 'ExampleFile', className: 'btn-sm' },
-            { extend: 'pdf', title: 'ExampleFile', className: 'btn-sm' },
-            { extend: 'print', className: 'btn-sm' }
-        ]
-    });
-});

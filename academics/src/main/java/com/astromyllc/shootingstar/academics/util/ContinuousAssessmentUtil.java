@@ -67,16 +67,25 @@ public class ContinuousAssessmentUtil {
                 .build();
     }
 
+
+
     public static Map<String, Map<Long, Map<String, StudentScores>>> CalculateScores(List<ContinuousAssessment> assessments) {
         return assessments.stream()
                 .collect(Collectors.groupingBy(
-                        ContinuousAssessment::getStudentClass, // Group by studentClass
+                        ca -> ca.getStudentClass() != null ? ca.getStudentClass() : "NULL_CLASS",
                         Collectors.groupingBy(
-                                ContinuousAssessment::getSubject, // Group by subject
+                                ca -> ca.getSubject() != null ? ca.getSubject() : -1L,
                                 Collectors.toMap(
-                                        ContinuousAssessment::getStudentId, // Group by studentId
-                                        req -> new StudentScores(req.getStudentId(), req.getScore(), req.getTotalScore()),
-                                        StudentScores::merge // Merge scores for the same student
+                                        ca -> ca.getStudentId() != null ? ca.getStudentId() : "NULL_STUDENT_ID",
+                                        req -> StudentScores.builder()
+                                                .studentId(req.getStudentId())
+                                                .totalScoreObtained(req.getScore())
+                                                .totalScorePossible(req.getTotalScore())
+                                                .hasNullData(req.getStudentId() == null ||
+                                                        req.getScore() == null ||
+                                                        req.getTotalScore() == null)
+                                                .build(),
+                                        StudentScores::mergePreservingNulls
                                 )
                         )
                 ));

@@ -3,8 +3,11 @@ package com.astromyllc.shootingstar.academics.service;
 import com.astromyllc.shootingstar.academics.dto.alien.StudentScores;
 import com.astromyllc.shootingstar.academics.dto.request.AcademicReportRequest;
 import com.astromyllc.shootingstar.academics.dto.request.SingleStringRequest;
+import com.astromyllc.shootingstar.academics.dto.response.ExistingUploadedScoreResponse;
 import com.astromyllc.shootingstar.academics.dto.response.TerminalReportResponse;
 import com.astromyllc.shootingstar.academics.model.Assessment;
+import com.astromyllc.shootingstar.academics.model.ContinuousAssessment;
+import com.astromyllc.shootingstar.academics.model.ExamsAssessment;
 import com.astromyllc.shootingstar.academics.repository.AssessmentRepository;
 import com.astromyllc.shootingstar.academics.serviceInterface.AssessmentServiceInterface;
 import com.astromyllc.shootingstar.academics.util.AssessmentUtil;
@@ -17,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -28,23 +32,24 @@ public class AssessmentService implements AssessmentServiceInterface {
     private final ExamsAssessmentUtil examsAssessmentUtil;
     private final AssessmentRepository assessmentRepository;
 
-   @Override
+    @Override
     public Optional<TerminalReportResponse> fetchStudentTerminalReport(AcademicReportRequest terminalReportRequest) {
-       assessmentUtil.fetchSetupdata(terminalReportRequest.getInstitutionCode());
-       assessmentUtil.fetchStudents(terminalReportRequest.getInstitutionCode());
-       assessmentUtil.fetchClassGroups(terminalReportRequest.getInstitutionCode());
+        assessmentUtil.fetchSetupdata(terminalReportRequest.getInstitutionCode());
+        assessmentUtil.fetchStudents(terminalReportRequest.getInstitutionCode());
+        assessmentUtil.fetchClassGroups(terminalReportRequest.getInstitutionCode());
+        assessmentUtil.getApplicableGradingSetting(terminalReportRequest);
 
-      List<Assessment>assessmentList=  AssessmentUtil.assessmentsGlobalList.stream()
+        List<Assessment> assessmentList = AssessmentUtil.assessmentsGlobalList.stream()
                 .filter(ar -> ar.getStudentClass().equalsIgnoreCase(terminalReportRequest.getTargetClass())
                         && ar.getAcademicYear().equalsIgnoreCase(terminalReportRequest.getAcademicYear())
                         && ar.getTerm().equalsIgnoreCase(terminalReportRequest.getTerm())
                         && ar.getInstitutionCode().equalsIgnoreCase(terminalReportRequest.getInstitutionCode()))
-              .toList();
-       TerminalReportResponse result=assessmentUtil.getTerminalReportResponse(
-               assessmentList.stream()
-                       .map(awp->assessmentUtil.mapAssessment_ToAssessmentResponse(awp,terminalReportRequest.getClassGroup()))
-                       .toList(), terminalReportRequest);
-       return  Optional.ofNullable(result);
+                .toList();
+        TerminalReportResponse result = assessmentUtil.getTerminalReportResponse(
+                assessmentList.stream()
+                        .map(awp -> assessmentUtil.mapAssessment_ToAssessmentResponse(awp, terminalReportRequest.getClassGroup()))
+                        .toList(), terminalReportRequest);
+        return Optional.ofNullable(result);
     }
 
     @Override
@@ -52,35 +57,59 @@ public class AssessmentService implements AssessmentServiceInterface {
         assessmentUtil.fetchSetupdata(terminalReportRequest.getInstitutionCode());
         assessmentUtil.fetchStudents(terminalReportRequest.getInstitutionCode());
         assessmentUtil.fetchClassGroups(terminalReportRequest.getInstitutionCode());
+        assessmentUtil.getApplicableGradingSetting(terminalReportRequest);
 
-        List<Assessment>assessmentList=  AssessmentUtil.assessmentsGlobalList.stream()
+        List<Assessment> assessmentList = AssessmentUtil.assessmentsGlobalList.stream()
                 .filter(ar -> ar.getStudentClass().equalsIgnoreCase(terminalReportRequest.getTargetClass())
                         && ar.getAcademicYear().equalsIgnoreCase(terminalReportRequest.getAcademicYear())
                         && ar.getTerm().equalsIgnoreCase(terminalReportRequest.getTerm())
                         && ar.getInstitutionCode().equalsIgnoreCase(terminalReportRequest.getInstitutionCode()))
                 .toList();
-        TerminalReportResponse result=assessmentUtil.getTerminalReportResponseWithParent(
+        TerminalReportResponse result = assessmentUtil.getTerminalReportResponseWithParent(
                 assessmentList.stream()
-                        .map(awp->assessmentUtil.mapAssessment_ToAssessmentResponse(awp,terminalReportRequest.getClassGroup()))
+                        .map(awp -> assessmentUtil.mapAssessment_ToAssessmentResponse(awp, terminalReportRequest.getClassGroup()))
                         .toList(), terminalReportRequest);
-        assessmentUtil.sendSMS(result.getStudentReportResponseList(),result.getInstitutionDetail().getName());
+        assessmentUtil.sendSMS(result.getStudentReportResponseList(), result.getInstitutionDetail().getName());
         //return  Optional.ofNullable(result);
     }
 
     @Override
     public Optional<TerminalReportResponse> fetchStudentTranscript(SingleStringRequest terminalReportRequest) {
-        List<Assessment>assessmentList=  AssessmentUtil.assessmentsGlobalList.stream()
+        List<Assessment> assessmentList = AssessmentUtil.assessmentsGlobalList.stream()
                 .filter(ar -> ar.getStudentId().equalsIgnoreCase(terminalReportRequest.getVal()))
                 .toList();
-        TerminalReportResponse result=assessmentUtil.getTerminalReportResponse(
+        TerminalReportResponse result = assessmentUtil.getTerminalReportResponse(
                 assessmentList.stream()
                         .map(assessmentUtil::mapAssessment_ToAssessmentResponse)
-                        .toList(),terminalReportRequest );
-        return  Optional.ofNullable(result);
+                        .toList(), terminalReportRequest);
+        return Optional.ofNullable(result);
+    }
+
+    /*
+THis code Is far from complete both logically and structurally
+ */
+    @Override
+    public Optional<List<ExistingUploadedScoreResponse>> getExistingClassSubjectScores(AcademicReportRequest terminalReportRequest) {
+        List<ExistingUploadedScoreResponse> existingUploadedScoreResponse = null;
+        AssessmentUtil.assessmentsGlobalList.stream()
+                .filter(eus -> eus.getAcademicYear().equalsIgnoreCase(terminalReportRequest.getAcademicYear()) &&
+                        eus.getStudentClass().equalsIgnoreCase(terminalReportRequest.getTargetClass()) &&
+                        eus.getInstitutionCode().equalsIgnoreCase(terminalReportRequest.getInstitutionCode()) &&
+                        eus.getTerm().equalsIgnoreCase(terminalReportRequest.getTerm())
+                ).map(eus -> assessmentUtil.mapAssessment_To_ExistingUploadedScoreResponse(eus)).toList();
+
+        return Optional.ofNullable(existingUploadedScoreResponse);
     }
 
     @Override
     public Optional<TerminalReportResponse> generateTerminalReports(AcademicReportRequest terminalReportRequest) {
+
+        if (assessmentUtil.singleInstitutionGlobalRequest==null) {
+            assessmentUtil.fetchSetupdata(terminalReportRequest.getInstitutionCode());
+            assessmentUtil.fetchStudents(terminalReportRequest.getInstitutionCode());
+            assessmentUtil.fetchClassGroups(terminalReportRequest.getInstitutionCode());
+            assessmentUtil.getApplicableGradingSetting(terminalReportRequest);
+        }
 
         Map<String, Map<Long, Map<String, StudentScores>>> continuousResult = ContinuousAssessmentUtil.CalculateScores(
                 ContinuousAssessmentUtil.continuousAssessmentGlobalList.stream()
@@ -88,7 +117,15 @@ public class AssessmentService implements AssessmentServiceInterface {
                                 && ca.getAcademicYear().equalsIgnoreCase(terminalReportRequest.getAcademicYear())
                                 && ca.getTerm().equalsIgnoreCase(terminalReportRequest.getTerm())
                                 && ca.getInstitutionCode().equalsIgnoreCase(terminalReportRequest.getInstitutionCode()))
-                        .toList());
+                        .collect(Collectors.groupingBy(
+                                ca -> new AbstractMap.SimpleEntry<>(ca.getStudentId(), ca.getSubject()),
+                                Collectors.maxBy(Comparator.comparing(ContinuousAssessment::getDateTime)))
+                        )
+                        .values()
+                        .stream()
+                        .flatMap(optional -> optional.map(Stream::of).orElseGet(Stream::empty))
+                        .toList()
+        );
 
 
         Map<String, Map<Long, Map<String, StudentScores>>> examsResult = ExamsAssessmentUtil.CalculateExamsScores(
@@ -97,11 +134,18 @@ public class AssessmentService implements AssessmentServiceInterface {
                                 && ca.getAcademicYear().equalsIgnoreCase(terminalReportRequest.getAcademicYear())
                                 && ca.getTerm().equalsIgnoreCase(terminalReportRequest.getTerm())
                                 && ca.getInstitutionCode().equalsIgnoreCase(terminalReportRequest.getInstitutionCode()))
-                        .toList());
+                        .collect(Collectors.groupingBy(
+                                ca -> new AbstractMap.SimpleEntry<>(ca.getStudentId(), ca.getSubject()),
+                                Collectors.maxBy(Comparator.comparing(ExamsAssessment::getDateTime)))
+                        )
+                        .values()
+                        .stream()
+                        .flatMap(optional -> optional.map(Stream::of).orElseGet(Stream::empty))
+                        .toList()
+        );
 
 
-        List<Assessment> resultingAssessment=new ArrayList<>();
-
+        List<Assessment> resultingAssessment = new ArrayList<>();
 
 
         Optional<StudentScores> highestTotalScore = continuousResult.values().stream() // Map<String, Map<Long, Map<String, StudentScores>>>
@@ -110,10 +154,9 @@ public class AssessmentService implements AssessmentServiceInterface {
                 .max(Comparator.comparingDouble(StudentScores::getTotalScorePossible)); // Get the max total score
 
 
-        List<Assessment> continuous= continuousResult.entrySet().stream()
-                .flatMap(sr -> assessmentUtil.passContinuousAssessment(sr, terminalReportRequest,highestTotalScore.get()).stream()) // Convert List to Stream
+        List<Assessment> continuous = continuousResult.entrySet().stream()
+                .flatMap(sr -> assessmentUtil.passContinuousAssessment(sr, terminalReportRequest, highestTotalScore.get()).stream()) // Convert List to Stream
                 .toList();
-
 
 
         List<Assessment> exams = examsResult.entrySet().stream()
@@ -157,11 +200,8 @@ public class AssessmentService implements AssessmentServiceInterface {
                 .toList();
 
 
-
-
-
-       List<Assessment> assessmentsListWithoutPosition= mergedAssessments.stream().map(assessmentUtil::buildAssessment).toList();
-        List<Assessment> assessmentsListWithPosition=assessmentUtil.insertPositions(assessmentsListWithoutPosition);
+        List<Assessment> assessmentsListWithoutPosition = mergedAssessments.stream().map(assessmentUtil::buildAssessment).toList();
+        List<Assessment> assessmentsListWithPosition = assessmentUtil.insertPositions(assessmentsListWithoutPosition);
 
 
         List<Assessment> assessmentsToSave = new ArrayList<>();
@@ -195,10 +235,156 @@ public class AssessmentService implements AssessmentServiceInterface {
 
         // Save all updates to the database
         assessmentRepository.saveAll(assessmentsToSave);
-        TerminalReportResponse result=assessmentUtil.buildTerminalReportResponse(assessmentsListWithPosition.stream().map(awp->assessmentUtil.mapAssessment_ToAssessmentResponse(awp,terminalReportRequest.getClassGroup())).toList(), assessmentUtil.studentsGlobalRequest);
+        TerminalReportResponse result = assessmentUtil.buildTerminalReportResponse(assessmentsListWithPosition.stream().map(awp -> assessmentUtil.mapAssessment_ToAssessmentResponse(awp, terminalReportRequest.getClassGroup())).toList(), assessmentUtil.studentsGlobalRequest);
 
         return Optional.ofNullable(result);
     }
 
+
+
+    @Override
+    public Optional<TerminalReportResponse> generateBroadsheet(AcademicReportRequest terminalReportRequest) {
+        assessmentUtil.getApplicableGradingSetting(terminalReportRequest);
+        Map<String, Map<Long, Map<String, StudentScores>>> continuousResult = ContinuousAssessmentUtil.CalculateScores(
+                ContinuousAssessmentUtil.continuousAssessmentGlobalList.stream()
+                        .filter(ca -> ca.getStudentClass().equalsIgnoreCase(terminalReportRequest.getTargetClass())
+                                && ca.getAcademicYear().equalsIgnoreCase(terminalReportRequest.getAcademicYear())
+                                && ca.getTerm().equalsIgnoreCase(terminalReportRequest.getTerm())
+                                && ca.getInstitutionCode().equalsIgnoreCase(terminalReportRequest.getInstitutionCode()))
+                        .collect(Collectors.groupingBy(
+                                ca -> new AbstractMap.SimpleEntry<>(ca.getStudentId(), ca.getSubject()),
+                                Collectors.maxBy(Comparator.comparing(ContinuousAssessment::getDateTime)))
+                        )
+                        .values()
+                        .stream()
+                        .flatMap(optional -> optional.map(Stream::of).orElseGet(Stream::empty))
+                        .toList()
+        );
+
+
+        Map<String, Map<Long, Map<String, StudentScores>>> examsResult = ExamsAssessmentUtil.CalculateExamsScores(
+                ExamsAssessmentUtil.examsAssessmentGlobalList.stream()
+                        .filter(ca -> ca.getStudentClass().equalsIgnoreCase(terminalReportRequest.getTargetClass())
+                                && ca.getAcademicYear().equalsIgnoreCase(terminalReportRequest.getAcademicYear())
+                                && ca.getTerm().equalsIgnoreCase(terminalReportRequest.getTerm())
+                                && ca.getInstitutionCode().equalsIgnoreCase(terminalReportRequest.getInstitutionCode()))
+                        .collect(Collectors.groupingBy(
+                                ca -> new AbstractMap.SimpleEntry<>(ca.getStudentId(), ca.getSubject()),
+                                Collectors.maxBy(Comparator.comparing(ExamsAssessment::getDateTime)))
+                        )
+                        .values()
+                        .stream()
+                        .flatMap(optional -> optional.map(Stream::of).orElseGet(Stream::empty))
+                        .toList()
+        );
+
+
+        List<Assessment> resultingAssessment = new ArrayList<>();
+
+
+        Optional<StudentScores> highestTotalScore = continuousResult.values().stream() // Map<String, Map<Long, Map<String, StudentScores>>>
+                .flatMap(subjectMap -> subjectMap.values().stream()) // Extract Map<Long, Map<String, StudentScores>>
+                .flatMap(studentMap -> studentMap.values().stream()) // Extract Map<String, StudentScores>
+                .max(Comparator.comparingDouble(StudentScores::getTotalScorePossible)); // Get the max total score
+
+
+        List<Assessment> continuous = continuousResult.entrySet().stream()
+                .flatMap(sr -> assessmentUtil.passContinuousAssessment(sr, terminalReportRequest, highestTotalScore.get()).stream()) // Convert List to Stream
+                .toList();
+
+
+        List<Assessment> exams = examsResult.entrySet().stream()
+                .flatMap(sr -> assessmentUtil.passExamsAssessment(sr, terminalReportRequest).stream()) // Convert List to Stream
+                .toList(); // Collect all assessments
+
+
+        // Convert exams list to a lookup map for quick access
+        Map<String, Assessment> examsMap = exams.stream()
+                .collect(Collectors.toMap(
+                        e -> String.join("_", e.getSubject(), e.getTerm(), e.getStudentClass(),
+                                e.getAcademicYear(), e.getStudentId(), e.getInstitutionCode()),
+                        e -> e,
+                        (existing, replacement) -> existing // Handle duplicates (keep the first one)
+                ));
+
+        List<Assessment> mergedAssessments = continuous.stream()
+                .map(continuousAssessment -> {
+                    String key = String.join("_",
+                            continuousAssessment.getSubject(),
+                            continuousAssessment.getTerm(),
+                            continuousAssessment.getStudentClass(),
+                            continuousAssessment.getAcademicYear(),
+                            continuousAssessment.getStudentId(),
+                            continuousAssessment.getInstitutionCode());
+
+                    Assessment examAssessment = examsMap.get(key);
+
+                    if (examAssessment != null) {
+                        continuousAssessment.setExamsScore(examAssessment.getExamsScore());
+                    }
+
+                    // Calculate total score ONLY if both scores exist
+                    if (continuousAssessment.getClassScore() != null &&
+                            continuousAssessment.getExamsScore() != null) {
+                        continuousAssessment.setTotalScore(
+                                Math.round((continuousAssessment.getClassScore() +
+                                        continuousAssessment.getExamsScore()) * 100.0) / 100.0
+                        );
+                    } else {
+                        continuousAssessment.setTotalScore(null);
+                        continuousAssessment.setGradeRemarks(
+                                continuousAssessment.getGradeRemarks() == null ?
+                                        "MISSING_SCORES" :
+                                        continuousAssessment.getGradeRemarks() + ",MISSING_SCORES"
+                        );
+                    }
+
+                    return continuousAssessment;
+                })
+                .toList();
+
+
+       // List<Assessment> assessmentsListWithoutPosition = mergedAssessments.stream().map(assessmentUtil::buildAssessment).toList();
+       // List<Assessment> assessmentsListWithPosition = assessmentUtil.insertPositions(assessmentsListWithoutPosition);
+
+
+      //  List<Assessment> assessmentsToSave = new ArrayList<>();
+
+       /* for (Assessment newAssessment : assessmentsListWithPosition) {
+            // Check if assessment exists in global list
+            Optional<Assessment> existingAssessmentOpt = assessmentUtil.assessmentsGlobalList.stream()
+                    .filter(existing ->
+                            existing.getStudentId().equals(newAssessment.getStudentId()) &&
+                                    existing.getSubject().equals(newAssessment.getSubject()) &&
+                                    existing.getTerm().equals(newAssessment.getTerm()) &&
+                                    existing.getAcademicYear().equals(newAssessment.getAcademicYear()) &&
+                                    existing.getInstitutionCode().equals(newAssessment.getInstitutionCode()))
+                    .findFirst();
+
+            if (existingAssessmentOpt.isPresent()) {
+                // Update existing assessment in global list
+                Assessment existingAssessment = existingAssessmentOpt.get();
+                existingAssessment.setClassScore(newAssessment.getClassScore());
+                existingAssessment.setExamsScore(newAssessment.getExamsScore());
+                existingAssessment.setTotalScore(newAssessment.getTotalScore());
+                existingAssessment.setGrade(newAssessment.getGrade());
+
+                assessmentsToSave.add(existingAssessment); // Prepare for DB save
+            } else {
+                // Add new assessment to global list and prepare for DB save
+                assessmentUtil.assessmentsGlobalList.add(newAssessment);
+                assessmentsToSave.add(newAssessment);
+            }
+        }*/
+
+        // Save all updates to the database
+       // assessmentRepository.saveAll(assessmentsToSave);
+        TerminalReportResponse result = assessmentUtil.buildTerminalReportResponse(
+                mergedAssessments.stream().map(
+                        awp -> assessmentUtil.mapAssessment_ToAssessmentResponse_For_Broadsheet(awp, terminalReportRequest.getClassGroup())
+                ).toList(), assessmentUtil.studentsGlobalRequest);
+
+        return Optional.ofNullable(result);
+    }
 
 }

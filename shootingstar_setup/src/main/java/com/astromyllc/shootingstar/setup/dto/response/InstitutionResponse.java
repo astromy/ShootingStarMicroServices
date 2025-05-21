@@ -40,7 +40,7 @@ public class InstitutionResponse {
     @Column(columnDefinition = "LONGTEXT")
     private String headSignature;
 
-    private Optional<GradingSettingResponse> gradingSetting;
+    private Optional<List<GradingSettingResponse>> gradingSetting;
     private List<Optional<SubjectResponse>> subjectList;
     private List<Optional<ClassesResponse>> classList;
     private Optional<AdmissionsResponse> admissions;

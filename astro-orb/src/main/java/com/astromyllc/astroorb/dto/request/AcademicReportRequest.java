@@ -13,4 +13,5 @@ public class AcademicReportRequest {
     private String targetClass;
     private String classGroup;
     private String term;
+    private Integer gradingSetting;
 }

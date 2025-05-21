@@ -1,11 +1,15 @@
 package com.astromyllc.shootingstar.academics.service;
 
+import com.astromyllc.shootingstar.academics.dto.alien.Students;
 import com.astromyllc.shootingstar.academics.dto.request.ContinuousAssessmentRequest;
+import com.astromyllc.shootingstar.academics.dto.request.ExamsAssessmentRequest;
+import com.astromyllc.shootingstar.academics.dto.response.ClassListResponse;
 import com.astromyllc.shootingstar.academics.dto.response.ContinuousAssessmentResponse;
 import com.astromyllc.shootingstar.academics.model.ContinuousAssessment;
 import com.astromyllc.shootingstar.academics.repository.ContinuousAssessmentRepository;
 import com.astromyllc.shootingstar.academics.serviceInterface.ContinuousAssessmentServiceInterface;
 import com.astromyllc.shootingstar.academics.util.ContinuousAssessmentUtil;
+import com.astromyllc.shootingstar.academics.util.ExamsAssessmentUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +19,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,6 +29,7 @@ import java.util.stream.Collectors;
 public class ContinuousAssessmentService implements ContinuousAssessmentServiceInterface {
     private final ContinuousAssessmentRepository continuousAssessmentRepository;
     private final ContinuousAssessmentUtil continuousAssessmentUtil;
+    private final ExamsAssessmentUtil examsAssessmentUtil;
 
     static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
@@ -38,17 +44,27 @@ public class ContinuousAssessmentService implements ContinuousAssessmentServiceI
     @Override
     public Optional<ContinuousAssessmentResponse> submitContinuousAssessments(List<ContinuousAssessmentRequest> continuousAssessmentRequest) {
 
-   /*     List<ContinuousAssessment> ca = continuousAssessmentRequest.stream()
-                .map(continuousAssessmentUtil::mapContinuousAssessmentRequest_ToContinuousAssessment).toList();*/
+        List<ClassListResponse> studentsList=examsAssessmentUtil.fetchStudentsByClass(continuousAssessmentRequest.get(0).getStudentClass(),continuousAssessmentRequest.get(0).getInstitutionCode());
 
-        Map<Boolean, List<ContinuousAssessment>> partitioned = continuousAssessmentRequest.stream()
+        // Create a Set of student IDs for faster lookup
+        Set<String> validStudentIds = studentsList.stream()
+                .map(ClassListResponse::getStudentID)
+                .collect(Collectors.toSet());
+
+        // Filter requests to only include those with valid student IDs
+        List<ContinuousAssessmentRequest> validRequests = continuousAssessmentRequest.stream()
+                .filter(request -> validStudentIds.contains(request.getStudentId()))
+                .toList();
+
+
+        Map<Boolean, List<ContinuousAssessment>> partitioned = validRequests.stream()
                 .map(continuousAssessmentUtil::mapContinuousAssessmentRequest_ToContinuousAssessment)
                 .collect(Collectors.partitioningBy(ca -> ContinuousAssessmentUtil.continuousAssessmentGlobalList.stream()
-                        .anyMatch(existingCa -> existingCa.getStudentId().equals(ca.getStudentId()) &&
-                                existingCa.getInstitutionCode().equals(ca.getInstitutionCode()) &&
-                                existingCa.getTerm().equals(ca.getTerm()) &&
+                        .anyMatch(existingCa -> existingCa.getStudentId().equalsIgnoreCase(ca.getStudentId()) &&
+                                existingCa.getInstitutionCode().equalsIgnoreCase(ca.getInstitutionCode()) &&
+                                existingCa.getTerm().equalsIgnoreCase(ca.getTerm()) &&
                                 existingCa.getSubject().equals(ca.getSubject()) &&
-                                existingCa.getAcademicYear().equals(ca.getAcademicYear()))));
+                                existingCa.getAcademicYear().equalsIgnoreCase(ca.getAcademicYear()))));
 
         List<ContinuousAssessment> existingRecords = partitioned.get(true);  // Existing records
         List<ContinuousAssessment> newRecords = partitioned.get(false);     // New records

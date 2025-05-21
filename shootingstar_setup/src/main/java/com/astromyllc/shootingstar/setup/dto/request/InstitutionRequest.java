@@ -43,7 +43,7 @@ public class InstitutionRequest {
     @Column(columnDefinition = "LONGTEXT")
     private String headSignature;
 
-    private GradingSettingDetails gradingSetting;
+    private List<GradingSettingDetails> gradingSetting;
     private List<SubjectDetails> subjectList;
     private List<ClassDetail> classList;
     private AdmissionsRequest admissions;

@@ -5,14 +5,14 @@ $(function () {
                 <div class=" panel-body row">
                     <div class="pull-right col-lg-8">
 
-                            <div class="form-group col-lg-3">
-                                <select class="form-control gradingSettingSelect">
-                                    <option value="0">Select Grading Setting</option>
-                                 </select>
-                            </div>
+                                                <div class="form-group col-lg-3">
+                                                    <select class="form-control gradingSettingSelect">
+                                                        <option value="0">Select Grading Setting</option>
+                                                     </select>
+                                                </div>
 
                             <div id="reportExport" class="col-lg-3">
-                                <button class="btn btn-primary col-lg-12" type="button" id="reportExportBtn">Export Class List</button>
+                                <button class="btn btn-primary col-lg-12" type="button" id="reportExportBtn">Export Broadsheet</button>
                             </div>
                             <div id="hbreadcrumb" class="col-lg-3">
                                 <button class="btn btn-info reportPublishBtn col-lg-12" type="button" id="reportPublishBtn">Publish Report</button>
@@ -38,7 +38,7 @@ $(function () {
                             </div>
                             <div class="form-group col-lg-2">
                                 <select class="form-control termSelect">
-                                    <option value="0">Select Term</option>
+                                    <option value="0">Select Semester</option>
                                     <option value="First Semester">First Term</option>
                                     <option value="Second Semester">Second Term</option>
                                  </select>
@@ -61,8 +61,8 @@ $(function () {
 
     //function institutionBuild() {
     let reportPublish = `
-    
-    
+
+
     <div class="content animate-panel" id="pagecontent">
     <div class="hpanel">
 
@@ -74,20 +74,9 @@ $(function () {
             Subject Scores
         </div>
         <div class="panel-body">
-            <table id="reportTable" class="table table-striped table-bordered table-hover" width="100%">
-                <thead>
-                <tr id="scoreTableHead">
-                    <th>No</th>
-                    <th>Student ID</th>
-                    <th>Name</th>
-                    <th>Class/th>
-                    <th>Subject</th>
-                    <th>Class Score</th>
-                    <th>Exams Score</th>
-                    <th>Total Score</th>
-                    <th>Grade</th>
-                    <th>Position</th>
-                </tr>
+            <table id="reportTable" class="table table-striped table-bordered table-hover" width="100%" style="text-align: center;">
+                <thead id="reportTableHead">
+                    <!-- Will be built dynamically -->
                 </thead>
                 <tbody id="reportTableBody"></tbody>
             </table>
@@ -139,8 +128,8 @@ $(function () {
                     console.log("✅ XLSX Loaded");
 
                     // Load _terminalReport.js AFTER ALL dependencies are available
-                    loadScript("scripts/_terminalReport.js", function () {
-                        console.log("✅ _terminalReport.js Loaded, all dependencies are ready.");
+                    loadScript("scripts/_broadSheet.js", function () {
+                        console.log("✅ _broadSheet.js Loaded, all dependencies are ready.");
                     });
                 });
             });
@@ -166,18 +155,3 @@ function reportPublishIndut() {
     document.getElementsByClassName("modalbody")[0].insertAdjacentHTML('beforeend', div);
 }
 
-
-$(function () {
-
-    // Initialize Example 1
-    $('#reportTable').dataTable({
-        dom: "<'row'<'col-sm-4'l><'col-sm-4 text-center'B><'col-sm-4'f>>tp",
-        "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
-        buttons: [
-            { extend: 'copy', className: 'btn-sm' },
-            { extend: 'csv', title: 'ExampleFile', className: 'btn-sm' },
-            { extend: 'pdf', title: 'ExampleFile', className: 'btn-sm' },
-            { extend: 'print', className: 'btn-sm' }
-        ]
-    });
-});
