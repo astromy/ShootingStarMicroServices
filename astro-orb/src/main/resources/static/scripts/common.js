@@ -186,6 +186,7 @@ function trackExistingResources(tagName, defaultArray, activeSet) {
 }
 
 function addEventListeners() {
+//SETUP FUNCTIONS
   document
     .getElementById("institution")
     .addEventListener("click", institutionBuild);
@@ -207,6 +208,8 @@ function addEventListeners() {
   document
     .getElementById("permissions")
     .addEventListener("click", permissionsBuild);
+
+//HR FUNCTIONS
   document
     .getElementById("onloading")
     .addEventListener("click", onloadingBuild);
@@ -221,6 +224,8 @@ function addEventListeners() {
   document
     .getElementById("offloading")
     .addEventListener("click", offloadingBuild);
+
+//FINANCIAL FUNCTIONS
   document
     .getElementById("billcreation")
     .addEventListener("click", billcreationBuild);
@@ -252,7 +257,7 @@ function addEventListeners() {
     .addEventListener("click", trialbalanaceBuild);
   document
 
-  //ACADEMIC FUNCTIONS
+//ACADEMIC FUNCTIONS
     .getElementById("scoreUpload")
     .addEventListener("click", scoreUploadBuild);
   document
@@ -265,9 +270,32 @@ function addEventListeners() {
     .getElementById("broadSheet")
     .addEventListener("click", broadSheetBuild);
 
+//ADMINISTRATION FUNCTIONS
   document
     .getElementById("studEnrollment")
     .addEventListener("click", studentBulkUploadBuild);
+  document
+    .getElementById("studRecords")
+    .addEventListener("click", studentRecordsBuild);
+  document
+    .getElementById("studSuspension")
+    .addEventListener("click", suspendedStudentBuild);
+  document
+    .getElementById("studDismissal")
+    .addEventListener("click", dismissedStudentBuild);
+  document
+    .getElementById("studList")
+    .addEventListener("click", studentListBuild);
+  document
+    .getElementById("classList")
+    .addEventListener("click", classListBuild);
+  document
+    .getElementById("academicTT")
+    .addEventListener("click", academicTimeTableBuild);
+  document
+    .getElementById("idGen")
+    .addEventListener("click", idCardGenerationBuild);
+
 
   //STAFF FUNCTIONS
   document
@@ -1061,6 +1089,202 @@ function broadSheetBuild() {
 //-------------------------------------------------------------------------------------------------------
 
 function studentBulkUploadBuild() {
+  // Define new resources specific to this view
+  const newScripts = [
+    "vendor/sweetalert/lib/sweet-alert.min.js",
+    "scripts/subscripts/studentBulkUpload.js",
+  ];
+  const newLinks = [
+    "vendor/sweetalert/lib/sweet-alert.css",
+    "vendor/metisMenu/dist/metisMenu.css",
+    "vendor/animate.css/animate.css",
+    "vendor/datatables.net-bs/css/dataTables.bootstrap.min.css",
+    "styles/switch.css",
+  ];
+
+  // Remove previous non-default scripts/links
+  removeUnwantedResources("script", activeScripts);
+  removeUnwantedResources("link", activeLinks);
+
+  // Add new resources
+  addNewResources("script", newScripts);
+  addNewResources("link", newLinks);
+
+  // Update the active state with new resources
+  newScripts.forEach((src) => activeScripts.add(src));
+
+  newLinks.forEach((href) => activeLinks.add(href));
+}
+
+function studentRecordsBuild() {
+  // Define new resources specific to this view
+  const newScripts = [
+    "vendor/sweetalert/lib/sweet-alert.min.js",
+    "scripts/subscripts/studentBulkUpload.js",
+  ];
+  const newLinks = [
+    "vendor/sweetalert/lib/sweet-alert.css",
+    "vendor/metisMenu/dist/metisMenu.css",
+    "vendor/animate.css/animate.css",
+    "vendor/datatables.net-bs/css/dataTables.bootstrap.min.css",
+    "styles/switch.css",
+  ];
+
+  // Remove previous non-default scripts/links
+  removeUnwantedResources("script", activeScripts);
+  removeUnwantedResources("link", activeLinks);
+
+  // Add new resources
+  addNewResources("script", newScripts);
+  addNewResources("link", newLinks);
+
+  // Update the active state with new resources
+  newScripts.forEach((src) => activeScripts.add(src));
+
+  newLinks.forEach((href) => activeLinks.add(href));
+}
+
+function suspendedStudentBuild() {
+  // Define new resources specific to this view
+  const newScripts = [
+    "vendor/sweetalert/lib/sweet-alert.min.js",
+    "scripts/subscripts/studentBulkUpload.js",
+  ];
+  const newLinks = [
+    "vendor/sweetalert/lib/sweet-alert.css",
+    "vendor/metisMenu/dist/metisMenu.css",
+    "vendor/animate.css/animate.css",
+    "vendor/datatables.net-bs/css/dataTables.bootstrap.min.css",
+    "styles/switch.css",
+  ];
+
+  // Remove previous non-default scripts/links
+  removeUnwantedResources("script", activeScripts);
+  removeUnwantedResources("link", activeLinks);
+
+  // Add new resources
+  addNewResources("script", newScripts);
+  addNewResources("link", newLinks);
+
+  // Update the active state with new resources
+  newScripts.forEach((src) => activeScripts.add(src));
+
+  newLinks.forEach((href) => activeLinks.add(href));
+}
+
+function dismissedStudentBuild() {
+  // Define new resources specific to this view
+  const newScripts = [
+    "vendor/sweetalert/lib/sweet-alert.min.js",
+    "scripts/subscripts/studentBulkUpload.js",
+  ];
+  const newLinks = [
+    "vendor/sweetalert/lib/sweet-alert.css",
+    "vendor/metisMenu/dist/metisMenu.css",
+    "vendor/animate.css/animate.css",
+    "vendor/datatables.net-bs/css/dataTables.bootstrap.min.css",
+    "styles/switch.css",
+  ];
+
+  // Remove previous non-default scripts/links
+  removeUnwantedResources("script", activeScripts);
+  removeUnwantedResources("link", activeLinks);
+
+  // Add new resources
+  addNewResources("script", newScripts);
+  addNewResources("link", newLinks);
+
+  // Update the active state with new resources
+  newScripts.forEach((src) => activeScripts.add(src));
+
+  newLinks.forEach((href) => activeLinks.add(href));
+}
+
+function studentListBuild() {
+  // Define new resources specific to this view
+  const newScripts = [
+    "vendor/sweetalert/lib/sweet-alert.min.js",
+    "scripts/subscripts/studentList.js",
+  ];
+  const newLinks = [
+    "vendor/sweetalert/lib/sweet-alert.css",
+    "vendor/metisMenu/dist/metisMenu.css",
+    "vendor/animate.css/animate.css",
+    "vendor/datatables.net-bs/css/dataTables.bootstrap.min.css",
+    "styles/switch.css",
+  ];
+
+  // Remove previous non-default scripts/links
+  removeUnwantedResources("script", activeScripts);
+  removeUnwantedResources("link", activeLinks);
+
+  // Add new resources
+  addNewResources("script", newScripts);
+  addNewResources("link", newLinks);
+
+  // Update the active state with new resources
+  newScripts.forEach((src) => activeScripts.add(src));
+
+  newLinks.forEach((href) => activeLinks.add(href));
+}
+
+function classListBuild() {
+  // Define new resources specific to this view
+  const newScripts = [
+    "vendor/sweetalert/lib/sweet-alert.min.js",
+    "scripts/subscripts/studentBulkUpload.js",
+  ];
+  const newLinks = [
+    "vendor/sweetalert/lib/sweet-alert.css",
+    "vendor/metisMenu/dist/metisMenu.css",
+    "vendor/animate.css/animate.css",
+    "vendor/datatables.net-bs/css/dataTables.bootstrap.min.css",
+    "styles/switch.css",
+  ];
+
+  // Remove previous non-default scripts/links
+  removeUnwantedResources("script", activeScripts);
+  removeUnwantedResources("link", activeLinks);
+
+  // Add new resources
+  addNewResources("script", newScripts);
+  addNewResources("link", newLinks);
+
+  // Update the active state with new resources
+  newScripts.forEach((src) => activeScripts.add(src));
+
+  newLinks.forEach((href) => activeLinks.add(href));
+}
+
+function academicTimeTableBuild() {
+  // Define new resources specific to this view
+  const newScripts = [
+    "vendor/sweetalert/lib/sweet-alert.min.js",
+    "scripts/subscripts/studentBulkUpload.js",
+  ];
+  const newLinks = [
+    "vendor/sweetalert/lib/sweet-alert.css",
+    "vendor/metisMenu/dist/metisMenu.css",
+    "vendor/animate.css/animate.css",
+    "vendor/datatables.net-bs/css/dataTables.bootstrap.min.css",
+    "styles/switch.css",
+  ];
+
+  // Remove previous non-default scripts/links
+  removeUnwantedResources("script", activeScripts);
+  removeUnwantedResources("link", activeLinks);
+
+  // Add new resources
+  addNewResources("script", newScripts);
+  addNewResources("link", newLinks);
+
+  // Update the active state with new resources
+  newScripts.forEach((src) => activeScripts.add(src));
+
+  newLinks.forEach((href) => activeLinks.add(href));
+}
+
+function idCardGenerationBuild() {
   // Define new resources specific to this view
   const newScripts = [
     "vendor/sweetalert/lib/sweet-alert.min.js",

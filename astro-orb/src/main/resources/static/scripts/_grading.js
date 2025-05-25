@@ -5,12 +5,14 @@ fetchInstitutionGrading(instId.split(",")[0]);
 window.copyrights();
 
 $(".saveGrading").click(async function () {
+$('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
   var jso = postdata();
   return HttpPost("addGradingSetting", jso).then(function (result) {
     $("#gradingTable").DataTable().destroy();
     $("#gradingTable2").DataTable().destroy();
     $(".dismissSubject").click();
     populateTable(result);
+    $('.splash').css('display', 'none')
     swal({
       title: "Thank you!",
       text: "Your application is being submitted",

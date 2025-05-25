@@ -7,6 +7,7 @@ import com.astromyllc.shootingstar.setup.dto.response.GradingSettingResponse;
 import com.astromyllc.shootingstar.setup.model.Grading;
 import com.astromyllc.shootingstar.setup.model.GradingSetting;
 import com.astromyllc.shootingstar.setup.repository.GradingSettingRepository;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -24,7 +25,7 @@ public class GradingSettingUtil {
     public static List<GradingSetting> gradingSettingsGlobalList = null;
 
 
-    @Bean
+    @PostConstruct
     private void getAllGradingSettings() {
         gradingSettingsGlobalList = gradingSettingRepository.findAll();
         log.info("Global Grading Setting List Populated with {} records", (long) gradingSettingsGlobalList.size());

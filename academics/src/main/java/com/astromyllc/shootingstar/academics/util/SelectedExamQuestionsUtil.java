@@ -3,6 +3,7 @@ package com.astromyllc.shootingstar.academics.util;
 import com.astromyllc.shootingstar.academics.dto.response.SelectedExamQuestionsResponse;
 import com.astromyllc.shootingstar.academics.model.SelectedExamQuestions;
 import com.astromyllc.shootingstar.academics.repository.SelectedExamsQuestionsRepository;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -22,7 +23,7 @@ public class SelectedExamQuestionsUtil {
 
     static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    @Bean
+    @PostConstruct
     private void fetAllSelectedExamQuestions() {
         selectedExamQuestionsGlobalList = selectedExamsQuestionsRepository.findAll();
         log.info("Global SelectedExamQuestionAnswers List populated with {} records", selectedExamQuestionsGlobalList.size());

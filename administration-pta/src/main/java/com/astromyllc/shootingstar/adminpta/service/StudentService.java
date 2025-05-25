@@ -15,8 +15,8 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 public class StudentService implements StudentServiceInterface {
     private final StudentRepository studentRepository;
     private final StudentUtil studentUtil;
+
 
     @Override
     public void fetchCurrentApplications(AdmissionRequest admissionRequest) {
@@ -92,10 +93,27 @@ public class StudentService implements StudentServiceInterface {
 
     @Override
     public Optional<List<ClassListResponse>> fetchAssessmentList(ClassListRequest request) {
-        return Optional.of(StudentUtil.studentsGlobalList.stream().filter(x->x.getStudentClass().equalsIgnoreCase(request.getStudentClass()) &&
+        String key = request.getInstitutionCode().toLowerCase() + ":" + request.getStudentClass().toLowerCase();
+        List<Students> students = StudentUtil.indexedStudents.getOrDefault(key, Collections.emptyList());
+
+        if (students.isEmpty()) return Optional.empty();
+
+        List<ClassListResponse> responses = students.stream()
+                .map(studentUtil::mapStudent_ToClassListResponse)
+                .toList();
+
+        return Optional.of(responses);
+    }
+
+    /*public Optional<List<ClassListResponse>> fetchAssessmentList(ClassListRequest request) {
+        return Optional.of(StudentUtil.studentsGlobalList.stream()
+                .filter(x->
+                        x.getStudentClass().equalsIgnoreCase(request.getStudentClass()) &&
                         x.getInstitutionCode().equalsIgnoreCase(request.getInstitutionCode()))
                 .map(studentUtil::mapStudent_ToClassListResponse).toList());
-    }
+    }*/
+
+
 
     @Override
     public Optional<List<StudentsResponse>> fetchStudentsByStatus(SingleStringRequest status) {

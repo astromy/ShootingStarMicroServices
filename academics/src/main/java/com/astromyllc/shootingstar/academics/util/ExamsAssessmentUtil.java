@@ -8,6 +8,7 @@ import com.astromyllc.shootingstar.academics.dto.response.ClassListResponse;
 import com.astromyllc.shootingstar.academics.dto.response.ExamsAssessmentResponse;
 import com.astromyllc.shootingstar.academics.model.ExamsAssessment;
 import com.astromyllc.shootingstar.academics.repository.ExamsAssessmentRepository;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,7 +41,7 @@ public class ExamsAssessmentUtil {
     @Value("${gateway.host}")
     private String host;
 
-    @Bean
+    @PostConstruct
     private void fetAllExamsAssessment() {
         examsAssessmentGlobalList = assessmentRepository.findAll();
         log.info("Global ExamsAssessment List populated with {} records", examsAssessmentGlobalList.size());

@@ -5,6 +5,7 @@ import com.astromyllc.shootingstar.setup.dto.request.ClassesRequest;
 import com.astromyllc.shootingstar.setup.dto.response.ClassesResponse;
 import com.astromyllc.shootingstar.setup.model.Classes;
 import com.astromyllc.shootingstar.setup.repository.ClassesRepository;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -19,7 +20,7 @@ import java.util.Optional;
 public class ClassesUtil {
     private final ClassesRepository classesRepository;
     public static List<Classes> classesGlobalList=null;
-    @Bean
+    @PostConstruct
     private void getAllClasses(){
        classesGlobalList=classesRepository.findAll();
         log.info("Global List of Classes Populated with {} records",classesGlobalList.stream().count());

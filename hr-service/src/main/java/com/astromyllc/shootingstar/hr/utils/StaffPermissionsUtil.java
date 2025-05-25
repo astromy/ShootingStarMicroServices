@@ -7,7 +7,6 @@ import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
@@ -18,11 +17,10 @@ import org.keycloak.representations.idm.GroupRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
+import java.security.SecureRandom;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -51,8 +49,10 @@ public class StaffPermissionsUtil {
     public final MailUtil mailUtil;
     public final StaffUtil staffUtil;
     static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final String CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    private String generatedPass=null;
 
-    @Bean
+    @PostConstruct
     private void fetchAllPermissions() {
 
         staffPermissionsGlobalList = staffPermissionsRepository.findAll();
@@ -136,10 +136,11 @@ public class StaffPermissionsUtil {
             }
 
 
+            generatedPass=passwordGen();
             String mailBody = "<html><body>" +
                     "Please find herein, your credentials to the Orb School Application.<br>" +
                     "Username: " + staffCode + "<br>" +
-                    "Password: " + staffCode + "!23<br>" +
+                    "Password: " + generatedPass + "<br>" +
                     "Link to the app: <a href='https://orb.astromyllc.com'>https://orb.astromyllc.com</a>" +
                     "</body></html>";
                     //"Please find herein, your credentials to the Orb School Application.\n\nUsername: " + staffCode + "\n\nPassword: " + staffCode + "!23\n\nLink to the app: https://orb.astromyllc.com";
@@ -180,7 +181,7 @@ public class StaffPermissionsUtil {
 
     private UserRepresentation findOrCreateUser(UsersResource usersResource, String staffCode, String staffEmail) {
         // Try to find existing user first
-        List<UserRepresentation> users = usersResource.search(staffCode);
+        List<UserRepresentation> users = usersResource.search(staffCode, true);
         if (!users.isEmpty()) {
             return users.get(0);
         }
@@ -225,7 +226,7 @@ public class StaffPermissionsUtil {
         CredentialRepresentation password = new CredentialRepresentation();
         password.setTemporary(true);
         password.setType(CredentialRepresentation.PASSWORD);
-        password.setValue(staffCode + "!23");
+        password.setValue(generatedPass);
 
         usersResource.get(userId).resetPassword(password);
         log.info("Password set successfully for user: {}", staffCode);
@@ -279,4 +280,16 @@ public class StaffPermissionsUtil {
                 .orElse(null);
     }
 
+    private String passwordGen(){
+
+        SecureRandom random = new SecureRandom();
+        StringBuilder password = new StringBuilder(8);
+
+        for (int i = 0; i < 8; i++) {
+            int index = random.nextInt(CHARS.length());
+            password.append(CHARS.charAt(index));
+        }
+
+        return password.toString();
+    }
 }

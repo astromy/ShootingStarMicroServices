@@ -8,12 +8,14 @@ fetchInstitution(instId.split(",")[0]);
 window.copyrights();
 
 $(".saveClassGroup").click(async function () {
+$('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
   //postdata();
   var jso = postdata();
   return HttpPost("addLookUps", jso).then(function (result) {
     $("#example1").DataTable().destroy();
     $(".dismissClassGroup").click();
     populateTable(result);
+    $('.splash').css('display', 'none')
     swal({
       title: "Thank you!",
       text: "Data Saved Successfully",

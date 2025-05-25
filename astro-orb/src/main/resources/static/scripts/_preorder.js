@@ -51,6 +51,7 @@ $(".next").click(function () {
 });
 
 $("#submitRequest").click(async function () {
+$('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
   var approve = $(".approveCheck").is(":checked");
   if (approve) {
     // Got to step 1
@@ -65,6 +66,7 @@ $("#submitRequest").click(async function () {
 
     return HttpPost("preRequestInstitution", jso).then(function (result) {
       displayFetchInstitution(result);
+    $('.splash').css('display', 'none')
       swal({
         title: "Thank you!",
         text: "Operation processed successfully",

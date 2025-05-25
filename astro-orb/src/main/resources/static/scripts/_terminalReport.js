@@ -129,11 +129,13 @@ document
 url = "generateStudentTerminalReport";
 
 $("#reportGenerateBtn").click(async function () {
+$('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
   var jso = postdata();
   return HttpPost(url, jso).then(function (result) {
     $("#reportTable").DataTable().destroy();
     reportDataJSON = result;
     displayReport(result);
+    $('.splash').css('display', 'none')
     swal({
       title: "Thank you!",
       text: "Operation Successfully",
@@ -206,6 +208,7 @@ document
 document
   .querySelector(".classGroupSelect")
   .addEventListener("change", async function () {
+$('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
     var vg = document.getElementsByClassName("classGroupSelect")[0].value;
 
     var instRequest = {
@@ -232,6 +235,7 @@ document
     } catch (error) {
       console.error("Error in fetchInstitutionSubject:", error);
     }
+    $('.splash').css('display', 'none')
   });
 
 /*async function fetchInstitutionSubject(instId){
@@ -259,6 +263,7 @@ function populateClasses(data) {
 }
 
 async function fetchLookup(instId) {
+$('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
   v = instId.replace(/[\[\]']+/g, "");
   v = v.replace(/\//g, "");
   var instRequest = { val: "ClassGroup" };
@@ -266,6 +271,7 @@ async function fetchLookup(instId) {
     populateClassGroup(result);
     generateAcademicYears();
     fetchInstitutionGrading();
+    $('.splash').css('display', 'none')
   });
 }
 

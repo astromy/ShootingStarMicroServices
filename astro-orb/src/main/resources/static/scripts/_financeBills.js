@@ -6,10 +6,12 @@ window.copyrights();
 var instCode;
 
 $(".saveBill").click(async function () {
+$('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
   var jso = postdata();
   return HttpPost("create-bills", jso).then(function (result) {
     $(".dismissBill").click();
     populateBills(result);
+    $('.splash').css('display', 'none')
     swal({
       title: "Thank you!",
       text: "Your application is being submitted",

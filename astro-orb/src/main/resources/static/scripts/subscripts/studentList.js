@@ -28,40 +28,21 @@ $(function () {
                     </div>
 
                     <div class="row">
-                        <div class="col-lg-12 pull-left">
-                            <div class="form-group col-lg-2 ">
+                        <div class="col-lg-4 pull-left">
+                            <div class="form-group col-lg-4 ">
                                 <select class="form-control classGroupSelect">
                                     <option>Select Class Group</option>
                                  </select>
                             </div>
-                            <div class="form-group col-lg-2 ">
+                            <div class="form-group col-lg-4 ">
                                 <select class="form-control classSelect">
                                     <option>Select Class</option>
                                  </select>
                             </div>
-                            <div class="form-group col-lg-2">
-                                <select class="form-control subjectSelect">
-                                    <option>Select Subject</option>
+                            <div class="form-group col-lg-4">
+                                <select class="form-control studentStatus">
+                                    <option>Select Status</option>
                                  </select>
-                            </div>
-                            <div class="form-group col-lg-2">
-                                <select class="form-control termSelect">
-                                    <option value="0">Select Term</option>
-                                    <option value="First Term">First Term</option>
-                                    <option value="Second Term">Second Term</option>
-                                    <option value="Third Term">Third Term</option>
-                                 </select>
-                            </div>
-                            <div class="form-group col-lg-2">
-                                <select class="form-control academicYearSelect" >
-                                    <option>Select Academic Year</option>
-                                </select>
-                            </div>
-                            <div class="form-group col-sm-2">
-                                <div class="form-check form-switch">
-                                   <input class="form-check-input" id="scoreTypeControl" value="Teaching score_type" type="checkbox" />
-                                   <label class="check-label" for="scoreTypeControl">Class Score</label>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -83,13 +64,22 @@ $(function () {
             Student List
         </div>
         <div class="panel-body">
-            <table id="studentsListTable" class="table table-striped table-bordered table-hover" width="100%">
+            <table id="studentsListTable" class="table table-striped table-bordered table-hover" width="150%">
                 <thead>
                 <tr id="studentsTableHead">
                     <th>Student ID</th>
                     <th>Student Last Name</th>
-                    <th>Student First Names</th>
-                    <th>Score</th>
+                    <th>Student First Name</th>
+                    <th>Student Other Names</th>
+                    <th>Student Date of Birth</th>
+                    <th>Student Date of Admission</th>
+                    <th>Student Place of Birth</th>
+                    <th>Student Gender</th>
+                    <th>Student Country of Birth</th>
+                    <th>Student Nationality</th>
+                    <th>Student Denomination</th>
+                    <th>Student Status</th>
+                    <th>Student Class</th>
                 </tr>
                 </thead>
                 <tbody id="studentsTableBody"></tbody>
@@ -120,7 +110,7 @@ $(function () {
 
     var script14 = document.createElement("script");
     script14.setAttribute("type", "text/javascript");
-    script14.setAttribute("src", "scripts/_studentBulkUpload.js");
+    script14.setAttribute("src", "scripts/_studentList.js");
 
     var script15 = document.createElement("script");
     script15.setAttribute("type", "text/javascript");

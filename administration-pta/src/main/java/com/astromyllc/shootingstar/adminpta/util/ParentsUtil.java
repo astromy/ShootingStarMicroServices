@@ -6,6 +6,7 @@ import com.astromyllc.shootingstar.adminpta.dto.response.ParentsResponse;
 import com.astromyllc.shootingstar.adminpta.model.Parents;
 import com.astromyllc.shootingstar.adminpta.model.StudentSubjects;
 import com.astromyllc.shootingstar.adminpta.repository.ParentRepository;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -57,7 +58,7 @@ public class ParentsUtil {
         parentGlobalList.addAll(p);
     }
 
-    @Bean
+    @PostConstruct
     private void fetAllParents() {
         parentGlobalList = parentRepository.findAll();
         log.info("Global Parents List populated with {} records", parentGlobalList.size());

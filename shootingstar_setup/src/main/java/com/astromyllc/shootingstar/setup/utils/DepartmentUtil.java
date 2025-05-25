@@ -4,6 +4,7 @@ import com.astromyllc.shootingstar.setup.dto.request.DepartmentDetails;
 import com.astromyllc.shootingstar.setup.dto.response.DepartmentResponse;
 import com.astromyllc.shootingstar.setup.model.Department;
 import com.astromyllc.shootingstar.setup.repository.DepartmentRepository;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -19,7 +20,7 @@ public class DepartmentUtil {
 
     private final DepartmentRepository departmentRepository;
     public static List<Department> departmentGlobalList=null;
-    @Bean
+    @PostConstruct
     private void fetAllDepartment(){
         departmentGlobalList=departmentRepository.findAll();
         log.info("Global Department List populated with {} records", (long) departmentGlobalList.size());

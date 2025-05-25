@@ -6,6 +6,7 @@ import com.astromyllc.shootingstar.finance.dto.response.BillingsResponse;
 import com.astromyllc.shootingstar.finance.model.Billings;
 import com.astromyllc.shootingstar.finance.model.Student_Bill;
 import com.astromyllc.shootingstar.finance.repositoy.BillingsRepository;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,7 +27,7 @@ public class BillingsUtil {
     @Value("${gateway.host}")
     private String host;
 
-    @Bean
+    @PostConstruct
     private void fetAllBillings() {
         billingGlobalList = billingsRepository.findAll();
         log.info("Global Billing List populated with {} records", billingGlobalList.size());

@@ -4,6 +4,7 @@ import com.astromyllc.shootingstar.finance.dto.request.Student_BillRequest;
 import com.astromyllc.shootingstar.finance.dto.response.Student_BillResponse;
 import com.astromyllc.shootingstar.finance.model.Student_Bill;
 import com.astromyllc.shootingstar.finance.repositoy.Student_BillRepository;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -22,7 +23,7 @@ public class Student_BillUtil {
     static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
 
-    @Bean
+    @PostConstruct
     private void fetAllStudentBill() {
         studentBillsGlobalList = studentBillRepository.findAll();
         log.info("Global StudentBill List populated with {} records", studentBillsGlobalList.size());

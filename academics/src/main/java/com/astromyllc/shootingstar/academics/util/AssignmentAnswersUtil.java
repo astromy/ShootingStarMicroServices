@@ -4,6 +4,7 @@ import com.astromyllc.shootingstar.academics.dto.request.AssignmentAnswersReques
 import com.astromyllc.shootingstar.academics.dto.response.AssignmentAnswersResponse;
 import com.astromyllc.shootingstar.academics.model.AssignmentAnswers;
 import com.astromyllc.shootingstar.academics.repository.AssignmentAnswerRepository;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -36,7 +37,7 @@ public class AssignmentAnswersUtil {
               .build();
     }
 
-    @Bean
+    @PostConstruct
     private void fetAllAssignmentAnswers() {
         assignmentAnswersGlobalList = assignmentAnswerRepository.findAll();
         log.info("Global Diagnosis List populated with {} records", assignmentAnswersGlobalList.size());

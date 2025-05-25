@@ -107,11 +107,13 @@ document
 url = "generateStudentTranscript";
 
 $("#reportGenerateBtn").click(async function () {
+$('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
   var instRequest = { val: $("#studentID").val() };
   return HttpPost(url, instRequest).then(function (result) {
     $("#reportTable").DataTable().destroy();
     reportDataJSON = result;
     displayReport(result);
+    $('.splash').css('display', 'none')
     swal({
       title: "Thank you!",
       text: "Operation Successfully",

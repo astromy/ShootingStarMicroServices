@@ -8,6 +8,7 @@ import com.astromyllc.shootingstar.hr.model.ProfessionalRecords;
 import com.astromyllc.shootingstar.hr.model.StaffDesignation;
 import com.astromyllc.shootingstar.hr.model.StaffDocuments;
 import com.astromyllc.shootingstar.hr.repository.StaffDocumentsRepository;
+import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import jakarta.xml.bind.DatatypeConverter;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +31,7 @@ public class StaffDocumentsUtil {
     private final StaffDocumentsRepository staffDocumentsRepository;
     public static List<StaffDocuments> staffDocumentsGlobalList;
 
-    @Bean
+    @PostConstruct
     private void fetchAllStaffDocs() {
         staffDocumentsGlobalList = staffDocumentsRepository.findAll();
         log.info("{} RECORDS OF STAFF DOCUMENTS FETCHED",staffDocumentsGlobalList.size());

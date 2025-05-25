@@ -8,6 +8,7 @@ import com.astromyllc.shootingstar.adminpta.model.StudentSubjects;
 import com.astromyllc.shootingstar.adminpta.model.Students;
 import com.astromyllc.shootingstar.adminpta.repository.ParentRepository;
 import com.astromyllc.shootingstar.adminpta.repository.StudentRepository;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
@@ -24,10 +25,8 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
@@ -53,11 +52,22 @@ public class StudentUtil {
     @Value("${gateway.host}")
     private String host;
 
-    @Bean
+    // Key format: institutionCode:studentClass
+    public static final Map<String, List<Students>> indexedStudents = new ConcurrentHashMap<>();
+
+    @PostConstruct
     private void fetAllStudents() {
         studentsGlobalList = studentRepository.findAll();
         parentsGlobalList=parentRepository.findAll();
         log.info("Global Students List populated with {} records", studentsGlobalList.size());
+        indexStudents(StudentUtil.studentsGlobalList);
+    }
+
+    public void indexStudents(List<Students> students) {
+        students.forEach(student -> {
+            String key = student.getInstitutionCode().toLowerCase() + ":" + student.getStudentClass().toLowerCase();
+            indexedStudents.computeIfAbsent(key, k -> new ArrayList<>()).add(student);
+        });
     }
 
     private List<ApplicationRequest> fetchStudents(AdmissionRequest admissionRequest) {

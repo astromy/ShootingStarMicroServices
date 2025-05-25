@@ -2,6 +2,7 @@ package com.astromyllc.shootingstar.adminpta.util;
 
 import com.astromyllc.shootingstar.adminpta.model.Portfolio;
 import com.astromyllc.shootingstar.adminpta.repository.PortfolioRepository;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -20,7 +21,7 @@ public class PortfolioUtil {
 
     static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    @Bean
+    @PostConstruct
     private void fetAllPortfolio() {
         portfolioGlobalList = portfolioRepository.findAll();
         log.info("Global Portfolio List populated with {} records", portfolioGlobalList.size());

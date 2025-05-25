@@ -4,6 +4,7 @@ import com.astromyllc.shootingstar.hr.dto.request.DependantsRequest;
 import com.astromyllc.shootingstar.hr.dto.response.DependantsResponse;
 import com.astromyllc.shootingstar.hr.model.Dependants;
 import com.astromyllc.shootingstar.hr.repository.DependantRepository;
+import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +23,7 @@ public class DependantsUtil {
     private final DependantRepository dependantRepository;
     public static List<Dependants> dependantsGlobalList;
     static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    @Bean
+    @PostConstruct
     private void fetchAllDependant() {
 
         dependantsGlobalList = dependantRepository.findAll();

@@ -5,14 +5,16 @@ fetchDepartment(instId.split(",")[0]);
 window.copyrights();
 
 $(".saveDesignation").click(async function () {
+$('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
   var jso = postdata();
   return HttpPost("addDesignation", jso).then(function (result) {
     $("#designationTable").DataTable().destroy();
     $(".dismissDesignation").click();
     populateDesignationTable(result);
+    $('.splash').css('display', 'none')
     swal({
       title: "Thank you!",
-      text: "Settings Save Successfully",
+      text: "Operation Completed Successfully",
       type: "success",
     });
   });

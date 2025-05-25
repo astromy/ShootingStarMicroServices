@@ -5,6 +5,7 @@ import com.astromyllc.shootingstar.finance.dto.response.BillResponse;
 import com.astromyllc.shootingstar.finance.dto.response.BillingsResponse;
 import com.astromyllc.shootingstar.finance.model.Bill;
 import com.astromyllc.shootingstar.finance.repositoy.BillRepository;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -23,8 +24,8 @@ public class BillUtil {
 
     static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    @Bean
-    private void fetAllBills() {
+    @PostConstruct
+    private void AllBills() {
         billGlobalList = billRepository.findAll();
         log.info("Global Bill List populated with {} records", billGlobalList.size());
     }

@@ -5,6 +5,7 @@ import com.astromyllc.shootingstar.hr.dto.response.AcademicRecordsResponse;
 import com.astromyllc.shootingstar.hr.model.AcademicRecords;
 import com.astromyllc.shootingstar.hr.model.StaffDocuments;
 import com.astromyllc.shootingstar.hr.repository.AcademicRecordsRepository;
+import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +26,7 @@ public class AcademicRecordsUtil {
     public static List<AcademicRecords> academicRecordsGlobalList;
     @Value("${gateway.host}")
     private String host;
-    @Bean
+    @PostConstruct
     private void fetchAllAcademicRecords() {
         academicRecordsGlobalList = academicRecordsRepository.findAll();
         log.info("{} ACADEMIC RECORDS FETCHED",academicRecordsGlobalList.size());

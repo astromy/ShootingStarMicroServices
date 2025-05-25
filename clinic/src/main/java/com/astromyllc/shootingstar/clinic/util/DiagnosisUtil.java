@@ -4,6 +4,7 @@ import com.astromyllc.shootingstar.clinic.dto.request.DiagnosisRequest;
 import com.astromyllc.shootingstar.clinic.dto.response.DiagnosisResponse;
 import com.astromyllc.shootingstar.clinic.model.Diagnosis;
 import com.astromyllc.shootingstar.clinic.repository.DiagnosisRepository;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,7 +26,7 @@ public class DiagnosisUtil {
     @Value("${gateway.host}")
     private String host;
 
-    @Bean
+    @PostConstruct
     private void fetAllDaiagnosis() {
         diagnosisGlobalList = diagnosisRepository.findAll();
         log.info("Global Diagnosis List populated with {} records", diagnosisGlobalList.size());

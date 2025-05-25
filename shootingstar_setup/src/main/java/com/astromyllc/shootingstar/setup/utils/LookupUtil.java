@@ -5,6 +5,7 @@ import com.astromyllc.shootingstar.setup.dto.response.LookupResponse;
 import com.astromyllc.shootingstar.setup.model.Lookup;
 import com.astromyllc.shootingstar.setup.repository.InstitutionRepository;
 import com.astromyllc.shootingstar.setup.repository.LookUpRepository;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
@@ -20,7 +21,7 @@ public class LookupUtil {
     private final LookUpRepository lookUpRepository;
     public static List<Lookup> lookupGlobalList = null;
 
-    @Bean
+    @PostConstruct
     private void findAllLookups() {
         lookupGlobalList = lookUpRepository.findAll();
         log.info("Global list of Lookups populated with {} records", lookupGlobalList.stream().count());
