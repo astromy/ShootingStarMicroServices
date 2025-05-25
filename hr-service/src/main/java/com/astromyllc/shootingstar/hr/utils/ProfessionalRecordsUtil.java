@@ -4,6 +4,7 @@ import com.astromyllc.shootingstar.hr.dto.request.ProfessionalRecordsRequest;
 import com.astromyllc.shootingstar.hr.dto.response.ProfessionalRecordsResponse;
 import com.astromyllc.shootingstar.hr.model.ProfessionalRecords;
 import com.astromyllc.shootingstar.hr.repository.ProfessionalRecordsRepository;
+import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +22,7 @@ import java.util.List;
 public class ProfessionalRecordsUtil {
     private final ProfessionalRecordsRepository professionalRecordsRepository;
     public static List<ProfessionalRecords> professionalRecordsGlobalList;
-    @Bean
+    @PostConstruct
     private void fetchAllProfessionalRecords() {
         professionalRecordsGlobalList = professionalRecordsRepository.findAll();
         log.info("{} PROFESSIONAL RECORDS FETCHED",professionalRecordsGlobalList.size());

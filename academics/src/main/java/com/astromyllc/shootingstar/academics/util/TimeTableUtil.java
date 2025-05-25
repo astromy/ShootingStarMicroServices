@@ -2,6 +2,7 @@ package com.astromyllc.shootingstar.academics.util;
 
 import com.astromyllc.shootingstar.academics.model.TimeTable;
 import com.astromyllc.shootingstar.academics.repository.TimeTableRepository;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -20,7 +21,7 @@ public class TimeTableUtil {
 
     static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    @Bean
+    @PostConstruct
     private void fetAllTimeTable() {
         timeTablesGlobalList = timeTableRepository.findAll();
         log.info("Global TimeTable List populated with {} records", timeTablesGlobalList.size());

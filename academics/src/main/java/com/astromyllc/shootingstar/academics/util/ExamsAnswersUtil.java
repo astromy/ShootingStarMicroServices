@@ -4,6 +4,7 @@ import com.astromyllc.shootingstar.academics.dto.request.ExamsAnswersRequest;
 import com.astromyllc.shootingstar.academics.dto.response.ExamsAnswersResponse;
 import com.astromyllc.shootingstar.academics.model.ExamsAnswers;
 import com.astromyllc.shootingstar.academics.repository.ExamsAnswersRepository;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -23,7 +24,7 @@ public class ExamsAnswersUtil {
     static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
 
-    @Bean
+    @PostConstruct
     private void fetAllExamsAnswers() {
         examsAnswersGlobalList = examsAnswersRepository.findAll();
         log.info("Global ExamsAnswers List populated with {} records", examsAnswersGlobalList.size());

@@ -11,19 +11,29 @@ elm.addEventListener("click", function () {
 document
   .querySelector("#classListExport")
   .addEventListener("click", async function () {
+$('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
     var jso = {
       institutionCode: v,
       studentClass: document.querySelector(".classSelect").value,
     };
     return HttpPost("getAssessmentList", jso).then(function (result) {
+    if(result.length>0){
       $("#subjectScoreTable").DataTable().destroy();
       result && generateExcel(result);
+      }
+    $('.splash').css('display', 'none')
+    swal({
+      title: "Thank you!",
+      text: "Operation Completed Successfully",
+      type: "success",
+    });
     });
   });
 
 document
   .querySelector("#scoreInput")
   .addEventListener("change", async function () {
+$('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
     try {
       var doc = await uploadFileAsJSON(
         document.querySelector("#scoreInput"),
@@ -52,6 +62,7 @@ document
     } catch (error) {
       console.error("Error uploading file:", error);
     }
+    $('.splash').css('display', 'none')
   });
 
 document
@@ -83,13 +94,15 @@ if (selectedValue == "Class Score") {
 }
 
 $("#scoreSubmitExport").click(async function () {
+$('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
   var jso = postdata();
   return HttpPost(url, jso).then(function (result) {
     $("#subjectScoreTable").DataTable().destroy();
     //populateTable(result)
+    $('.splash').css('display', 'none')
     swal({
       title: "Thank you!",
-      text: "Settings Save Successfully",
+      text: "Operation Completed Successfully",
       type: "success",
     });
   });
@@ -143,6 +156,7 @@ async function fetchInstitutionClasses(v) {
 document
   .querySelector(".classGroupSelect")
   .addEventListener("change", async function () {
+$('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
     var vg = document.getElementsByClassName("classGroupSelect")[0].value;
 
     var instRequest = {
@@ -170,6 +184,7 @@ document
     } catch (error) {
       console.error("Error in fetchInstitutionSubject:", error);
     }
+    $('.splash').css('display', 'none')
   });
 
 function populateClasses(data) {
@@ -183,12 +198,14 @@ function populateClasses(data) {
 }
 
 async function fetchLookup(instId) {
+$('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
   v = instId.replace(/[\[\]']+/g, "");
   v = v.replace(/\//g, "");
   var instRequest = { val: "ClassGroup" };
   return HttpPost("getLookUpByType", instRequest).then(function (result) {
     populateClassGroup(result);
     generateAcademicYears();
+    $('.splash').css('display', 'none')
   });
 }
 

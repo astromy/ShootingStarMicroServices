@@ -2,6 +2,7 @@ package com.astromyllc.shootingstar.academics.util;
 
 import com.astromyllc.shootingstar.academics.model.SelectedAssignmentQuestions;
 import com.astromyllc.shootingstar.academics.repository.SelectedAssignmentQuestionsRepository;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -20,7 +21,7 @@ public class SelectedAssignmentQuestionsUtil {
 
     static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    @Bean
+    @PostConstruct
     private void fetAllSelectedAssignmentQuestions() {
         selectedAssignmentQuestionsGlobalList = selectedAssignmentQuestionsRepository.findAll();
         log.info("Global SelectedAssignmentQuestions List populated with {} records", selectedAssignmentQuestionsGlobalList.size());

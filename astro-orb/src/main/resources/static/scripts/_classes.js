@@ -4,11 +4,13 @@ fetchLookup(instId.split(",")[0]);
 window.copyrights();
 
 $(".saveClass").click(async function () {
+$('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
   var jso = postdata();
   return HttpPost("addClasses", jso).then(function (result) {
     $("#classTable").DataTable().destroy();
     $(".dismissClass").click();
     populateTable(result);
+    $('.splash').css('display', 'none')
     swal({
       title: "Thank you!",
       text: "Classes Saved Successfully",
@@ -41,11 +43,13 @@ function postdata() {
 }
 
 function fetchLookup(instId) {
+$('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
   var v = instId.replace(/[\[\]']+/g, "");
   v = v.replace(/\//g, "");
   var instRequest = { val: "ClassGroup" };
   return HttpPost("getLookUpByType", instRequest).then((result) =>
     fetchInstitutionClasses(result, v)
+    $('.splash').css('display', 'none')
   );
 }
 

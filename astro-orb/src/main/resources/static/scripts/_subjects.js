@@ -8,11 +8,13 @@ fetchInstitutionSubject(instId.split(",")[0]);
 window.copyrights();
 
 $(".saveSubjects").click(async function () {
+$('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
   var jso = postdata();
   return HttpPost("addSubjects", jso).then(function (result) {
     $("#subjectTable").DataTable().destroy();
     $(".dismissSubject").click();
     populateTable(result);
+    $('.splash').css('display', 'none')
     swal({
       title: "Thank you!",
       text: "Subject Saved Successfully",

@@ -10,6 +10,7 @@ import com.astromyllc.shootingstar.setup.model.Subject;
 import com.astromyllc.shootingstar.setup.repository.SubjectRepository;
 import com.astromyllc.shootingstar.setup.service.LookUpService;
 import com.astromyllc.shootingstar.setup.serviceInterface.LookupServiceInterface;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +29,7 @@ public class SubjectUtil {
     private final LookUpService l;
     public static List<Subject> subjectGlobalList = null;
 
-    @Bean
+    @PostConstruct
     private void findAllSubjects() {
         subjectGlobalList = subjectRepository.findAll();
         log.info("Global list of Subjects Populated with {} Record", subjectGlobalList.stream().count());

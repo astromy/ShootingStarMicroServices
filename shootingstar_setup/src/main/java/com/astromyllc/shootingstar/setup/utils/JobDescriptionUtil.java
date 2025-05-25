@@ -5,6 +5,7 @@ import com.astromyllc.shootingstar.setup.dto.request.JobDescriptionRequestDetail
 import com.astromyllc.shootingstar.setup.dto.response.JobDescriptionResponse;
 import com.astromyllc.shootingstar.setup.model.JobDescription;
 import com.astromyllc.shootingstar.setup.repository.JobDescriptionRepository;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -22,7 +23,7 @@ public class JobDescriptionUtil {
     private final JobDescriptionRepository jobDescriptionRepository;
     public static List<JobDescription> jobDescriptionGlobalList=new ArrayList<>();
 
-    @Bean
+    @PostConstruct
     private void fetAllJobDescription(){
         jobDescriptionGlobalList=jobDescriptionRepository.findAll();
         log.info("Global JobDescription List populated with {} records",jobDescriptionGlobalList.stream().count());

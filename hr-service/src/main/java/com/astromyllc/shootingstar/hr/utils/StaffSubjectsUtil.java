@@ -10,6 +10,7 @@ import com.astromyllc.shootingstar.hr.model.AcademicRecords;
 import com.astromyllc.shootingstar.hr.model.DesignationList;
 import com.astromyllc.shootingstar.hr.model.StaffSubjects;
 import com.astromyllc.shootingstar.hr.repository.StaffSubjectsRepository;
+import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,7 +42,7 @@ public class StaffSubjectsUtil {
     private String host;
 
 
-    @Bean
+    @PostConstruct
     private void fetchStaffSubjects() {
         staffSubjectsGlobalList = staffSubjectsRepository.findAll();
         log.info("{} staff subjects RECORDS FETCHED", staffSubjectsGlobalList.size());

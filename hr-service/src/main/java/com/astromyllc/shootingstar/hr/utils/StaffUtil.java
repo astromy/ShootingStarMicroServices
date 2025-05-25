@@ -8,6 +8,7 @@ import com.astromyllc.shootingstar.hr.dto.request.alien.InstitutionRequest;
 import com.astromyllc.shootingstar.hr.dto.response.*;
 import com.astromyllc.shootingstar.hr.model.*;
 import com.astromyllc.shootingstar.hr.repository.StaffRepository;
+import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import jakarta.xml.bind.DatatypeConverter;
 import lombok.RequiredArgsConstructor;
@@ -57,7 +58,7 @@ public class StaffUtil {
     private final StaffDesignationUtil staffDesignationUtil;
     private final StaffSubjectsUtil staffSubjectsUtil;
 
-    @Bean
+    @PostConstruct
     private void fetchAllStaff() {
         staffGlobalList = staffRepository.findAll();
         log.info("{} staff RECORDS FETCHED", staffGlobalList.size());

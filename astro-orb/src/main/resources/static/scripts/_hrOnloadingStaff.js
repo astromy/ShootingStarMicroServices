@@ -351,8 +351,10 @@ async function fetchDepartment(instId) {
 }
 
 $("#submitRequest").click(async function () {
+$('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
   console.log(JSON.stringify(staffList));
   return HttpPost("create-staff", staffList).then(function (result) {
+    $('.splash').css('display', 'none')
     swal({
       title: "Thank you!",
       text: "Staff Saved Successfully",
@@ -362,6 +364,7 @@ $("#submitRequest").click(async function () {
 });
 
 $(".saveStaffDetails").click(async function () {
+$('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
   if (document.querySelector(".dependants")) {
     const elm = document.querySelectorAll(".dependants");
     var cnt = elm.length;
@@ -524,6 +527,7 @@ $(".saveStaffDetails").click(async function () {
   }
 
   passdetails();
+    $('.splash').css('display', 'none')
   $(".dismissModal").click();
 });
 

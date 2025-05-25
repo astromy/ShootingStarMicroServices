@@ -8,6 +8,7 @@ import com.astromyllc.shootingstar.adminpta.model.StudentSubjects;
 import com.astromyllc.shootingstar.adminpta.model.Students;
 import com.astromyllc.shootingstar.adminpta.repository.ParentRepository;
 import com.astromyllc.shootingstar.adminpta.repository.StudentSubjectRepository;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -41,7 +42,7 @@ public class StudentSubjectUtil {
         studentSubjectRepository.saveAll(ss);
         studentSubjectGlobalList.addAll(ss);
     }
-    @Bean
+    @PostConstruct
     private void fetchAllStudentSubject() {
         studentSubjectGlobalList = studentSubjectRepository.findAll();
         log.info("Global Student Subjects List populated with {} records", studentSubjectGlobalList.size());

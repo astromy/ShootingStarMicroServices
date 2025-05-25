@@ -62,7 +62,8 @@ public class AdministrationController {
     @RequestMapping(value = "/getAssessmentList", method = RequestMethod.POST)
     public ResponseEntity<String> getAssessmentList(@RequestBody ClassListRequest jso) throws IOException {
 
-        return BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/administration-pta/getAssessmentList");
+         ResponseEntity<String> result= BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/administration-pta/getAssessmentList");
+        return result;
     }
 
     @ResponseBody

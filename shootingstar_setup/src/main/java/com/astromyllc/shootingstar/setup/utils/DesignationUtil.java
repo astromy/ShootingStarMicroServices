@@ -4,6 +4,7 @@ import com.astromyllc.shootingstar.setup.dto.request.DesignationRequestDetails;
 import com.astromyllc.shootingstar.setup.dto.response.DesignationResponse;
 import com.astromyllc.shootingstar.setup.model.Designation;
 import com.astromyllc.shootingstar.setup.repository.DesignationRepository;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -20,7 +21,7 @@ public class DesignationUtil {
     private final DesignationRepository designationRepository;
     public static List<Designation> designationGlobalList=null;
 
-    @Bean
+    @PostConstruct
     private void fetAllDesignation(){
         designationGlobalList=designationRepository.findAll();
         log.info("Global Designation List populated with {} records", (long) designationGlobalList.size());

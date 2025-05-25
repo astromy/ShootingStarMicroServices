@@ -8,6 +8,7 @@ import com.astromyllc.shootingstar.setup.model.Institution;
 import com.astromyllc.shootingstar.setup.model.PreOrderInstitution;
 import com.astromyllc.shootingstar.setup.repository.InstitutionRepository;
 import com.astromyllc.shootingstar.setup.repository.PreOrderInstitutionRepository;
+import jakarta.annotation.PostConstruct;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -49,7 +50,7 @@ public class InstitutionUtils {
     @Value("${keycloak.address}")
     private String keycloakURL;
 
-    @Bean
+    @PostConstruct
     public void fetAllInstitutions() {
         institutionGlobalList = institutionRepository.findAll();
         preOrderInstitutionGlobalList = preOrderInstitutionRepository.findAll();

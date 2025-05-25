@@ -5,6 +5,7 @@ import com.astromyllc.shootingstar.academics.dto.request.ContinuousAssessmentReq
 import com.astromyllc.shootingstar.academics.dto.response.ContinuousAssessmentResponse;
 import com.astromyllc.shootingstar.academics.model.ContinuousAssessment;
 import com.astromyllc.shootingstar.academics.repository.ContinuousAssessmentRepository;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -30,7 +31,7 @@ public class ContinuousAssessmentUtil {
 
     static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    @Bean
+    @PostConstruct
     private void fetAllContinuousAssessment() {
         continuousAssessmentGlobalList = assessmentRepository.findAll();
         log.info("Global ContinuousAssessment List populated with {} records", continuousAssessmentGlobalList.size());

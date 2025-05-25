@@ -13,11 +13,13 @@ id = null;
 window.copyrights();
 
 $(".savePermissions").click(async function () {
+$('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
   return HttpPost("addStaffPermissions", staffPermissionList).then(function (
     result
   ) {
     staffPermissionList = [];
     $(".dismissPermissions").click();
+    $('.splash').css('display', 'none')
     swal({
       title: "Thank you!",
       text: "Your application is being submitted",

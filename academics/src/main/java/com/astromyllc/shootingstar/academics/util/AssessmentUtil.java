@@ -6,6 +6,7 @@ import com.astromyllc.shootingstar.academics.dto.request.SingleStringRequest;
 import com.astromyllc.shootingstar.academics.dto.response.*;
 import com.astromyllc.shootingstar.academics.model.Assessment;
 import com.astromyllc.shootingstar.academics.repository.AssessmentRepository;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -59,7 +60,7 @@ public class AssessmentUtil {
     private String cg;
     private List<Double> classAvrage=new ArrayList<>();
 
-    @Bean
+    @PostConstruct
     private void fetAllAssessment() {
         assessmentsGlobalList = assessmentRepository.findAll();
         log.info("Global Assessment List populated with {} records", assessmentsGlobalList.size());

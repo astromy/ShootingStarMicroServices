@@ -10,6 +10,7 @@ import com.astromyllc.shootingstar.setup.model.AdmissionCriteria;
 import com.astromyllc.shootingstar.setup.model.Admissions;
 import com.astromyllc.shootingstar.setup.model.ApplicationCategory;
 import com.astromyllc.shootingstar.setup.repository.AdmissionsRepository;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -28,7 +29,7 @@ public class AdmissionUtil {
     public static List<Admissions> admissionsGlobalList =null;
 
 
-    @Bean
+    @PostConstruct
     private void getAllAdmissions(){
         admissionsGlobalList =admissionsRepository.findAll();
         log.info("Global Admission setting List populated with {} records", admissionsGlobalList.stream().count());

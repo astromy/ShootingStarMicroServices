@@ -7,12 +7,14 @@ fetchLookup(instId.split(",")[0]);
 window.copyrights();
 
 async function fetchLookup(instId) {
+$('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
   v = instId.replace(/[\[\]']+/g, "");
   v = v.replace(/\//g, "");
   var instRequest = { val: "ClassGroup" };
   return HttpPost("getLookUpByType", instRequest).then(function (result) {
     fetchInstitutionBills(v);
     populateClassGroup(result);
+    $('.splash').css('display', 'none')
   });
 }
 
@@ -25,9 +27,11 @@ function populateClassGroup(data) {
 }
 
 $(".saveBilling").click(async function () {
+$('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
   var jso = postdata();
   return HttpPost("bill-students-by-institution", jso).then(function (result) {
     $(".dismissBilling").click();
+    $('.splash').css('display', 'none')
     swal({
       title: "Thank you!",
       text: "Your application is being submitted",
@@ -74,12 +78,15 @@ async function fetchInstitutionBills(v) {
 document
   .querySelector("#submitBtn")
   .addEventListener("click", async function () {
+$('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
     fetchBillings();
+    $('.splash').css('display', 'none')
   });
 
 document
   .querySelector(".classGroupSelect")
   .addEventListener("change", async function () {
+$('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
     var vg = document.getElementsByClassName("classGroupSelect")[0].value;
 
     var instRequest2 = {
@@ -96,6 +103,7 @@ document
     } catch (error) {
       console.error("Error in fetchInstitutionSubject:", error);
     }
+    $('.splash').css('display', 'none')
   });
 
 function populateSelectClasses(data) {

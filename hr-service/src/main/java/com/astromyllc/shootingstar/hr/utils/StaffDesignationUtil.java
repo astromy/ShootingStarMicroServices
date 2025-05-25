@@ -12,6 +12,7 @@ import com.astromyllc.shootingstar.hr.model.DesignationList;
 import com.astromyllc.shootingstar.hr.model.StaffDesignation;
 import com.astromyllc.shootingstar.hr.repository.DesignationListRepository;
 import com.astromyllc.shootingstar.hr.repository.StaffDesignationRepository;
+import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -45,7 +46,7 @@ public class StaffDesignationUtil {
     private final StaffDesignationUnitUtil staffDesignationUnitUtil;
 
 
-    @Bean
+    @PostConstruct
     private void fetchStaffDesignationList() {
         staffDesignationListGlobalList = staffDesignationListRepository.findAll();
         log.info("{} staff RECORDS FETCHED", staffDesignationListGlobalList.size());

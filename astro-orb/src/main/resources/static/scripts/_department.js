@@ -8,10 +8,12 @@ fetchInstitutionDepartment(instId.split(",")[0]);
 window.copyrights();
 
 $(".saveDepartment").click(async function () {
+$('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
   var jso = postdata();
   return HttpPost("addDepartment", jso).then(function (result) {
     $("#departmentTable").DataTable().destroy();
     $(".dismissDepartment").click();
+    $('.splash').css('display', 'none')
     swal({
       title: "Thank you!",
       text: "Your application is being submitted",

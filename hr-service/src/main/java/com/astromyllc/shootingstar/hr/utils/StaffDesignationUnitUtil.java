@@ -9,6 +9,7 @@ import com.astromyllc.shootingstar.hr.model.AcademicRecords;
 import com.astromyllc.shootingstar.hr.model.DesignationUnit;
 import com.astromyllc.shootingstar.hr.model.StaffDesignation;
 import com.astromyllc.shootingstar.hr.repository.StaffDesignationRepository;
+import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,7 +45,7 @@ public class StaffDesignationUnitUtil {
     private final AcademicRecordsUtil academicRecordsUtil;
 
 
-    @Bean
+    @PostConstruct
     private void fetchStaffDesignationUnit() {
         staffDesignationsGlobalList = staffDesignationRepository.findAll();
         log.info("{} staff RECORDS FETCHED", staffDesignationsGlobalList.size());

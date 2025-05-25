@@ -2,9 +2,11 @@ var instId = $("meta[name='institutionId']").attr("content").split("/")[1];
 fetchInstitutionClasses(instId.split(",")[0]);
 
 $(".saveClassGroup").click(async function () {
+$('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
   postdata();
   var jso = buildJson();
   return HttpPost("addLookUps", jso).then(function (result) {
+    $('.splash').css('display', 'none')
     swal({
       title: "Thank you!",
       text: "Your application is being submitted",
