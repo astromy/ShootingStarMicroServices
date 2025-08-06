@@ -4,19 +4,13 @@ $(function () {
                 <div class=" panel-body row">
                     <div class="pull-right col-lg-8">
 
-                            <div class="form-group col-lg-3">
-                                <select class="form-control gradingSettingSelect">
-                                    <option value="0">Select Grading Setting</option>
-                                 </select>
+                            <div id="reportExport" class="col-lg-4">
+                                <button class="btn btn-primary col-lg-12" type="button" id="reportExportBtn">Download Class List</button>
                             </div>
-
-                            <div id="reportExport" class="col-lg-3">
-                                <button class="btn btn-primary col-lg-12" type="button" id="reportExportBtn">Export Class List</button>
-                            </div>
-                            <div id="hbreadcrumb" class="col-lg-3">
+                            <div id="hbreadcrumb" class="col-lg-4">
                                 <button class="btn btn-info reportPublishBtn col-lg-12" type="button" id="reportPublishBtn">Publish Report</button>
                             </div>
-                            <div id="reportGenerate" class="col-lg-3">
+                            <div id="reportGenerate" class="col-lg-4">
                                     <button class="btn btn-success col-lg-12" type="button" id="reportGenerateBtn">Generate</button>
                             </div>
 
@@ -48,10 +42,9 @@ $(function () {
                                 </select>
                             </div>
                             <div class="form-group col-sm-2">
-                                <div class="form-check form-switch">
-                                   <input class="form-check-input" id="scoreTypeControl" value="Teaching score_type" type="checkbox" />
-                                   <label class="check-label" for="scoreTypeControl">Class Score</label>
-                                </div>
+                                <select class="form-control gradingSettingSelect">
+                                    <option value="0">Select Grading Setting</option>
+                                 </select>
                             </div>
                         </div>
                     </div>
@@ -70,7 +63,7 @@ $(function () {
                 <a class="showhide"><i class="fa fa-chevron-up"></i></a>
                 <a class="closebox"><i class="fa fa-times"></i></a>
             </div>
-            Subject Scores
+            Academics -> Terminal Report
         </div>
         <div class="panel-body">
             <table id="reportTable" class="table table-striped table-bordered table-hover" width="100%">
@@ -79,7 +72,7 @@ $(function () {
                     <th>No</th>
                     <th>Student ID</th>
                     <th>Name</th>
-                    <th>Class/th>
+                    <th>Class</th>
                     <th>Subject</th>
                     <th>Class Score</th>
                     <th>Exams Score</th>

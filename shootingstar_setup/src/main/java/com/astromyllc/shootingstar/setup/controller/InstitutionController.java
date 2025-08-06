@@ -24,6 +24,7 @@ public class InstitutionController {
     private final DesignationServiceInterface designationServiceInterface;
     private final JobDescriptionServiceInterface jobDescriptionServiceInterface;
     private final AdmissionsServiceInterface admissionsServiceInterface;
+    private final PromotionsServiceInterface promotionsServiceInterface;
 
 //=============================== INSTITUTION ========================================================
     /**
@@ -252,6 +253,23 @@ public class InstitutionController {
     @ResponseStatus(HttpStatus.OK)
     public Optional<AdmissionsResponse> getInstitutionAdmissionSetup(@RequestBody SingleStringRequest beceCode) {
         return admissionsServiceInterface.getAllAdmissionSetupByInstitution(beceCode);
+    }
+
+
+
+
+//================================== PROMOTIONS ========================================================================
+
+    @PostMapping("/api/setup/addPromotionSetup")
+    @ResponseStatus(HttpStatus.CREATED)
+    public List<Optional<PromotionsResponse>> AddPromotions(@RequestBody PromotionsRequest promotionsRequest) {
+        return  promotionsServiceInterface.createPromotions(promotionsRequest);
+    }
+
+    @PostMapping("/api/setup/getInstitutionPromotionSetup")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Optional<PromotionsResponse>> getInstitutionPromotionSetup(@RequestBody SingleStringRequest beceCode) {
+        return promotionsServiceInterface.getInstitutionPromotionSetup(beceCode);
     }
 
 

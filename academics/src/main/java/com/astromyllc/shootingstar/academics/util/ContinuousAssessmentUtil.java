@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static com.astromyllc.shootingstar.academics.util.AssessmentUtil.institutionGlobalRequest;
@@ -30,10 +31,28 @@ public class ContinuousAssessmentUtil {
     public static List<ContinuousAssessment> continuousAssessmentGlobalList;
 
     static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    public static final Map<String, ContinuousAssessment> continuousAssessmentLatestMap = new ConcurrentHashMap<>();
+
+
+    public String buildCAKey(ContinuousAssessment ca) {
+        return ca.getStudentId() + "|" +
+                ca.getInstitutionCode() + "|" +
+                ca.getTerm() + "|" +
+                ca.getSubject() + "|" +
+                ca.getAcademicYear();
+    }
 
     @PostConstruct
     private void fetAllContinuousAssessment() {
         continuousAssessmentGlobalList = assessmentRepository.findAll();
+        continuousAssessmentLatestMap.clear();
+
+        for (ContinuousAssessment ca : continuousAssessmentGlobalList) {
+            String key = buildCAKey(ca);
+            continuousAssessmentLatestMap.merge(key, ca, (existing, incoming) ->
+                    incoming.getDateTime().isAfter(existing.getDateTime()) ? incoming : existing
+            );
+        }
         log.info("Global ContinuousAssessment List populated with {} records", continuousAssessmentGlobalList.size());
     }
 

@@ -10,7 +10,7 @@ window.copyrights();
 $(".saveDepartment").click(async function () {
 $('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
   var jso = postdata();
-  return HttpPost("addDepartment", jso).then(function (result) {
+  return fetchPost("addDepartment", jso).then(function (result) {
     $("#departmentTable").DataTable().destroy();
     $(".dismissDepartment").click();
     $('.splash').css('display', 'none')
@@ -60,7 +60,7 @@ async function fetchInstitutionDepartment(instId) {
   var v = instId.replace(/[\[\]']+/g, "");
   v = v.replace(/\//g, "");
   var instRequest = { val: v };
-  return HttpPost("getInstitutionDepartment", instRequest).then(function (
+  return fetchPost("getInstitutionDepartment", instRequest).then(function (
     result
   ) {
     populateTable(result);
@@ -69,7 +69,7 @@ async function fetchInstitutionDepartment(instId) {
 
 async function fetchLookup() {
   var instRequest = { val: "ClassGroup" };
-  return HttpPost("getLookUpByType", instRequest).then(function (result) {
+  return fetchPost("getLookUpByType", instRequest).then(function (result) {
     populateClassGroup(result);
   });
 }

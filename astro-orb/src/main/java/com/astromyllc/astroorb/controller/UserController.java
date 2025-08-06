@@ -9,11 +9,13 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.List;
+import java.util.Map;
 
 @Controller
 public class UserController {
@@ -41,6 +43,12 @@ public class UserController {
             model.addAttribute("cd4", realmRoles);
 
             return "index";
+    }
+
+    @GetMapping("/api/token")
+    public Map<String, String> getToken(JwtAuthenticationToken authentication) {
+        String tokenValue = authentication.getToken().getTokenValue();
+        return Map.of("token", tokenValue);
     }
 
 

@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -17,6 +18,7 @@ import java.util.Optional;
 @AllArgsConstructor
 @Builder
 @Data
+@Accessors(chain = true)
 public class ReportInstitutionResponse {
         private Long id;
         private String name;

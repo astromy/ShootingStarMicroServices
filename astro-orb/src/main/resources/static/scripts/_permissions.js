@@ -14,7 +14,7 @@ window.copyrights();
 
 $(".savePermissions").click(async function () {
 $('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
-  return HttpPost("addStaffPermissions", staffPermissionList).then(function (
+  return fetchPost("addStaffPermissions", staffPermissionList).then(function (
     result
   ) {
     staffPermissionList = [];
@@ -32,14 +32,14 @@ async function fetchInstitutionClasses(instId) {
   var v = instId.replace(/[\[\]']+/g, "");
   v = v.replace(/\//g, "");
   var instRequest = { val: v };
-  return HttpPost("getInstitutionClasses", instRequest).then(function (result) {
+  return fetchPost("getInstitutionClasses", instRequest).then(function (result) {
     fetchLookup(result);
   });
 }
 
 async function fetchLookup(result1) {
   var instRequest = { val: "ClassGroup" };
-  return HttpPost("getLookUpByType", instRequest).then(function (result) {
+  return fetchPost("getLookUpByType", instRequest).then(function (result) {
     populateTable(result1);
     populateClassGroup(result);
   });
@@ -80,7 +80,7 @@ document.querySelector("#StaffList").addEventListener("change", (event) => {
 
 async function fetchStaffList(instId) {
   var instRequest = { val: instId };
-  return HttpPost("get-staff-by-institution", instRequest).then(function (
+  return fetchPost("get-staff-by-institution", instRequest).then(function (
     result
   ) {
     exisitingstaff = result;

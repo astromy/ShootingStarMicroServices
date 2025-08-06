@@ -11,7 +11,7 @@ $(function () {
                             </div>
 
                             <div id="reportExport" class="col-lg-4">
-                                <button class="btn btn-primary col-lg-12" type="button" id="reportExportBtn">Export Class List</button>
+                                <button class="btn btn-primary col-lg-12" type="button" id="reportExportBtn">Download Class List</button>
                             </div>
                             <div id="reportGenerate" class="col-lg-4">
                                     <button class="btn btn-success col-lg-12" type="button" id="reportGenerateBtn">Generate</button>

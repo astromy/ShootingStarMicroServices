@@ -6,7 +6,7 @@ window.copyrights();
 $(".saveAdmissions").click(async function () {
 $('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
   var jso = postdata();
-  return HttpPost("addAdmissions", jso).then(function (result) {
+  return fetchPost("addAdmissions", jso).then(function (result) {
     $("#admissionsTable").DataTable().destroy();
     $(".dismissAdmission").click();
     populateTable(result);
@@ -110,7 +110,7 @@ async function fetchInstitutionAdmissionsSettings(instId) {
   var v = instId.replace(/[\[\]']+/g, "");
   v = v.replace(/\//g, "");
   var instRequest = { val: v };
-  return HttpPost("getInstitutionAdmissionSetup", instRequest).then(function (
+  return fetchPost("getInstitutionAdmissionSetup", instRequest).then(function (
     result
   ) {
     fetchLookup(result);
@@ -119,7 +119,7 @@ async function fetchInstitutionAdmissionsSettings(instId) {
 
 async function fetchLookup(result1) {
   var instRequest = { val: "AdmissionSetttings" };
-  return HttpPost("getLookUpByType", instRequest).then(function (result) {
+  return fetchPost("getLookUpByType", instRequest).then(function (result) {
     populateTable(result1);
     populateClassGroup(result);
   });

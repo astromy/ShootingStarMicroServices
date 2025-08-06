@@ -5,9 +5,65 @@ var v, reportDataJSON;
 fetchLookup(instId.split(",")[0]);
 
 var keys, scoreJson, url;
-
+/*
 var elm = document.querySelector(".reportPublishBtn");
-elm.addEventListener("click", function () {});
+elm.addEventListener("click", function () {});*/
+
+$("#reportPublishBtn").click(async function () {
+  try {
+    $(".splash")
+      .css({ display: "block", background: "#ffffff3d" })
+      .find("h1, p")
+      .remove();
+
+    const jso = postdata();
+    const result = await fetchPost("generateUnconvertedBroadsheet", jso);
+
+    if (result?.studentReportResponseList?.length) {
+      // Clean up existing DataTable
+      if ($.fn.DataTable.isDataTable("#reportTable")) {
+        $("#reportTable").DataTable().destroy();
+      }
+
+      reportDataJSON = result;
+      await displayReport(result);
+
+      // Initialize DataTable
+      setTimeout(() => {
+        $("#reportTable").DataTable({
+          dom: "<'row'<'col-sm-4'l><'col-sm-4 text-center'B><'col-sm-4'f>>tp",
+          scrollX: true,
+          pageLength: 25,
+          buttons: ["copy", "csv", "excel", "pdf", "print"]
+        });
+      }, 100);
+
+      $(".splash").css("display", "none");
+      Swal.fire({
+        title: 'Success!',
+        text: 'Report generated successfully',
+        icon: 'success'
+      });
+    } else {
+      $(".splash").css("display", "none");
+      Swal.fire({
+        title: 'No Data',
+        text: 'No student reports were generated',
+        icon: 'info'
+      });
+    }
+  } catch (error) {
+    $(".splash").css("display", "none");
+    Swal.fire({
+      title: 'Error!',
+      text: error.message || 'Failed to generate report',
+      icon: 'error'
+    });
+    console.error("Report generation error:", error);
+  }
+});
+
+
 
 async function displayReport(data) {
   try {
@@ -20,7 +76,9 @@ async function displayReport(data) {
 
     const studentList = scoreJson.studentReportResponseList || [];
     if (studentList.length === 0) {
-      tbody.append("<tr><td colspan='100%'>No student reports available</td></tr>");
+      tbody.append(
+        "<tr><td colspan='100%'>No student reports available</td></tr>"
+      );
       return;
     }
 
@@ -28,8 +86,8 @@ async function displayReport(data) {
     const allSubjects = [];
     const subjectSet = new Set();
 
-    studentList.forEach(student => {
-      student.studentAssessment?.forEach(assessment => {
+    studentList.forEach((student) => {
+      student.studentAssessment?.forEach((assessment) => {
         if (!subjectSet.has(assessment.subject)) {
           subjectSet.add(assessment.subject);
           allSubjects.push(assessment.subject);
@@ -44,12 +102,12 @@ async function displayReport(data) {
         <th rowspan="2">Student ID</th>
         <th rowspan="2">Name</th>
     `;
-    allSubjects.forEach(subject => {
+    allSubjects.forEach((subject) => {
       headerRow1 += `<th colspan="3">${subject}</th>`;
     });
-    headerRow1 += '</tr>';
+    headerRow1 += "</tr>";
 
-    let headerRow2 = '<tr>';
+    let headerRow2 = "<tr>";
     allSubjects.forEach(() => {
       headerRow2 += `
         <th>Class Score</th>
@@ -57,7 +115,7 @@ async function displayReport(data) {
         <th>Total Score</th>
       `;
     });
-    headerRow2 += '</tr>';
+    headerRow2 += "</tr>";
 
     thead.html(headerRow1 + headerRow2);
 
@@ -65,24 +123,28 @@ async function displayReport(data) {
     const rows = [];
     let counter = 1;
 
-    studentList.forEach(student => {
-      const fullName = [student.firstName, student.otherName, student.lastName].filter(Boolean).join(" ");
+    studentList.forEach((student) => {
+      const fullName = [student.firstName, student.otherName, student.lastName]
+        .filter(Boolean)
+        .join(" ");
       let row = `
         <td>${counter++}</td>
         <td>${student.studentId || ""}</td>
         <td>${fullName}</td>
       `;
 
-      allSubjects.forEach(subject => {
-        const assessment = student.studentAssessment?.find(a => a.subject === subject);
+      allSubjects.forEach((subject) => {
+        const assessment = student.studentAssessment?.find(
+          (a) => a.subject === subject
+        );
         if (assessment) {
           row += `
-            <td>${assessment.classScore ?? '-'}</td>
-            <td>${assessment.examsScore ?? '-'}</td>
-            <td>${assessment.totalScore ?? '-'}</td>
+            <td>${assessment.classScore ?? "-"}</td>
+            <td>${assessment.examsScore ?? "-"}</td>
+            <td>${assessment.totalScore ?? "-"}</td>
           `;
         } else {
-          row += '<td>-</td><td>-</td><td>-</td>';
+          row += "<td>-</td><td>-</td><td>-</td>";
         }
       });
 
@@ -90,13 +152,11 @@ async function displayReport(data) {
     });
 
     tbody.append(rows.join(""));
-
   } catch (error) {
     console.error("Error building report:", error);
     tbody.html(`<tr><td colspan='100%'>Error: ${error.message}</td></tr>`);
   }
 }
-
 
 /*
 document
@@ -125,34 +185,45 @@ document
 url = "generateBroadsheet";
 
 $("#reportGenerateBtn").click(async function () {
-$('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
+  $(".splash")
+    .css({ display: "block", background: "#ffffff3d" })
+    .find("h1, p")
+    .remove();
   const jso = postdata();
-  return HttpPost(url, jso).then(function (result) {
-    if ($.fn.DataTable.isDataTable("#reportTable")) {
-      $("#reportTable").DataTable().destroy();
+  return fetchPost(url, jso).then(function (result) {
+    if (result.studentReportResponseList?.length) {
+      if ($.fn.DataTable.isDataTable("#reportTable")) {
+        $("#reportTable").DataTable().destroy();
+      }
+
+      reportDataJSON = result;
+      displayReport(result); // build headers + rows
+
+      // Reinitialize DataTable AFTER DOM is ready
+      setTimeout(() => {
+        $("#reportTable").DataTable({
+          dom: "<'row'<'col-sm-4'l><'col-sm-4 text-center'B><'col-sm-4'f>>tp",
+          scrollX: true,
+          pageLength: 25,
+          buttons: ["copy", "csv", "excel", "pdf", "print"],
+        });
+      }, 100);
+      $(".splash").css("display", "none");
+      swal({
+        title: "Thank you!",
+        text: "Operation Successfully",
+        type: "success",
+      });
+    } else {
+      $(".splash").css("display", "none");
+      swal({
+        title: "Sorry!",
+        text: "No Data Returned",
+        type: "info",
+      });
     }
-
-    reportDataJSON = result;
-    displayReport(result); // build headers + rows
-
-    // Reinitialize DataTable AFTER DOM is ready
-  setTimeout(() => {
-    $('#reportTable').DataTable({
-      dom: "<'row'<'col-sm-4'l><'col-sm-4 text-center'B><'col-sm-4'f>>tp",
-      scrollX: true,
-      pageLength: 25,
-      buttons: ['copy', 'csv', 'excel', 'pdf', 'print']
-    });
-  }, 100);
-    $('.splash').css('display', 'none')
-    swal({
-      title: "Thank you!",
-      text: "Operation Successfully",
-      type: "success"
-    });
   });
 });
-
 
 function postdata() {
   var jsonObject = {
@@ -162,7 +233,9 @@ function postdata() {
     academicYear:
       document.getElementsByClassName("academicYearSelect")[0].value,
     institutionCode: v,
-    gradingSetting:Number(document.getElementsByClassName("gradingSettingSelect")[0].value)
+    gradingSetting: Number(
+      document.getElementsByClassName("gradingSettingSelect")[0].value
+    ),
   };
   return jsonObject;
 }
@@ -183,7 +256,7 @@ function convertToISO(dateStr) {
 
 async function fetchInstitutionClasses(v) {
   var instRequest = { val: v };
-  return HttpPost("getInstitutionClasses", instRequest).then(function (result) {
+  return fetchPost("getInstitutionClasses", instRequest).then(function (result) {
     populateClasses(result);
   });
 }
@@ -194,7 +267,7 @@ document
     url = "postStudentReports";
 
     var jso = postdata();
-    return HttpPost(url, jso).then(function (result) {
+    return fetchPost(url, jso).then(function (result) {
       $("#reportTable").DataTable().destroy();
       reportDataJSON = result;
       generatePDF(reportDataJSON);
@@ -218,7 +291,10 @@ document
 document
   .querySelector(".classGroupSelect")
   .addEventListener("change", async function () {
-$('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
+    $(".splash")
+      .css({ display: "block", background: "#ffffff3d" })
+      .find("h1, p")
+      .remove();
     var vg = document.getElementsByClassName("classGroupSelect")[0].value;
 
     var instRequest = {
@@ -233,11 +309,11 @@ $('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').
     };
     try {
       // Await the result of the HTTP request
-      const result = await HttpPost(
+      const result = await fetchPost(
         "getInstitutionSubjectsAndClassGroup",
         instRequest
       );
-      const result2 = await HttpPost(
+      const result2 = await fetchPost(
         "getInstitutionClassesByClassGroup",
         instRequest2
       );
@@ -245,9 +321,8 @@ $('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').
     } catch (error) {
       console.error("Error in fetchInstitutionSubject:", error);
     }
-    $('.splash').css('display', 'none')
+    $(".splash").css("display", "none");
   });
-
 
 function populateClasses(data) {
   $(".classSelect option:not(:eq(0))").remove();
@@ -259,29 +334,33 @@ function populateClasses(data) {
 }
 
 async function fetchLookup(instId) {
-$('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
+  $(".splash")
+    .css({ display: "block", background: "#ffffff3d" })
+    .find("h1, p")
+    .remove();
   v = instId.replace(/[\[\]']+/g, "");
   v = v.replace(/\//g, "");
   var instRequest = { val: "ClassGroup" };
-  return HttpPost("getLookUpByType", instRequest).then(function (result) {
+  return fetchPost("getLookUpByType", instRequest).then(function (result) {
     populateClassGroup(result);
     generateAcademicYears();
     fetchInstitutionGrading();
-    $('.splash').css('display', 'none')
+    $(".splash").css("display", "none");
   });
 }
 
-
 async function fetchInstitutionGrading() {
   var instRequest = { val: v };
-  return HttpPost("getInstitutionGradingSetting", instRequest).then(function (
+  return fetchPost("getInstitutionGradingSetting", instRequest).then(function (
     result
   ) {
-  $(".gradingSettingSelect option:not(:eq(0))").remove();
-  result.forEach(function (d) {
-    var details = $("<option>").val(d.id).text(d.classPercentage + " / "+ d.examsPercentage);
-    $(".gradingSettingSelect").append(details);
-  });
+    $(".gradingSettingSelect option:not(:eq(0))").remove();
+    result.forEach(function (d) {
+      var details = $("<option>")
+        .val(d.id)
+        .text(d.classPercentage + " / " + d.examsPercentage);
+      $(".gradingSettingSelect").append(details);
+    });
   });
 }
 

@@ -5,7 +5,7 @@ $(".saveClassGroup").click(async function () {
 $('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
   postdata();
   var jso = buildJson();
-  return HttpPost("addLookUps", jso).then(function (result) {
+  return fetchPost("addLookUps", jso).then(function (result) {
     $('.splash').css('display', 'none')
     swal({
       title: "Thank you!",
@@ -40,14 +40,14 @@ async function fetchInstitutionClasses(instId) {
   var v = instId.replace(/[\[\]']+/g, "");
   v = v.replace(/\//g, "");
   var instRequest = { val: v };
-  return HttpPost("getInstitutionClasses", instRequest).then(function (result) {
+  return fetchPost("getInstitutionClasses", instRequest).then(function (result) {
     fetchLookup(result);
   });
 }
 
 async function fetchLookup(result1) {
   var instRequest = { val: "ClassGroup" };
-  return HttpPost("getLookUpByType", instRequest).then(function (result) {
+  return fetchPost("getLookUpByType", instRequest).then(function (result) {
     populateTable(result1);
     populateClassGroup(result);
   });

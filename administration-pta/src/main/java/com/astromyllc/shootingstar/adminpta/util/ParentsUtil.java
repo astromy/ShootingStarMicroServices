@@ -1,15 +1,12 @@
 package com.astromyllc.shootingstar.adminpta.util;
 
 import com.astromyllc.shootingstar.adminpta.dto.request.ParentsRequest;
-import com.astromyllc.shootingstar.adminpta.dto.request.StudentSubjectsRequest;
 import com.astromyllc.shootingstar.adminpta.dto.response.ParentsResponse;
 import com.astromyllc.shootingstar.adminpta.model.Parents;
-import com.astromyllc.shootingstar.adminpta.model.StudentSubjects;
 import com.astromyllc.shootingstar.adminpta.repository.ParentRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 import java.time.format.DateTimeFormatter;
@@ -22,6 +19,7 @@ public class ParentsUtil {
 
     private final ParentRepository parentRepository;
     public static List<Parents> parentGlobalList;
+    private final MailUtil mailUtil;
 
     static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
@@ -36,7 +34,7 @@ public class ParentsUtil {
               .firstNames(r.getFirstNames())
               .contact1(r.getContact1())
               .contact2(r.getContact2())
-              .studentId(r.getStudentId())
+              .studentId(studentId)
               .build();
     }
 
@@ -77,5 +75,19 @@ public class ParentsUtil {
                 .contact2(parents.getContact2())
                 .studentId(parents.getStudentId())
                 .build();
+    }
+
+    public boolean sendmail(String recipient, String mailBody) {
+        try {
+            return mailUtil.sendTransactionalEmail(
+                    recipient,
+                    "Reactivation of Account",
+                    mailBody,
+                    "support"
+            );
+        } catch (Exception e) {
+            log.error("Failed to send reactivation email to {}", recipient, e);
+            return false;
+        }
     }
 }

@@ -3,6 +3,7 @@ package com.astromyllc.shootingstar.adminpta.service;
 import com.astromyllc.shootingstar.adminpta.dto.request.*;
 import com.astromyllc.shootingstar.adminpta.dto.response.ClassListResponse;
 import com.astromyllc.shootingstar.adminpta.dto.response.StudentSkimResponse;
+import com.astromyllc.shootingstar.adminpta.dto.response.StudentSkimWithParentResponse;
 import com.astromyllc.shootingstar.adminpta.dto.response.StudentsResponse;
 import com.astromyllc.shootingstar.adminpta.model.Students;
 import com.astromyllc.shootingstar.adminpta.repository.StudentRepository;
@@ -15,8 +16,11 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiPredicate;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,32 +42,41 @@ public class StudentService implements StudentServiceInterface {
         return Optional.of(StudentUtil.studentsGlobalList.stream()
                 .map(studentUtil::mapStudent_ToStudentResponse).toList());
     }
+
     @Override
     public Optional<List<StudentsResponse>> fetchStudentsByClass(ClassListRequest request) {
         return Optional.of(StudentUtil.studentsGlobalList.stream()
                 .filter(st->st.getStudentClass().equalsIgnoreCase(request.getStudentClass()))
                 .map(studentUtil::mapStudent_ToStudentResponse).toList());
     }
+
     @Override
     public Optional<List<StudentSkimResponse>> fetchSkimpStudentsByClass(ClassListRequest request) {
         return Optional.of(StudentUtil.studentsGlobalList.stream()
                 .filter(st->st.getStudentClass().equalsIgnoreCase(request.getStudentClass()))
                 .map(studentUtil::mapStudent_ToSkimpStudentResponse).toList());
     }
+    @Override
+    public Optional<List<StudentSkimWithParentResponse>> getSkimpStudentsByParentContact(SingleStringRequest request) {
+        List<Students> matches = StudentUtil.findStudentsByContact(request.getVal());
+        return Optional.of(
+                matches.stream()
+                        .map(studentUtil::mapStudent_ToStudentSkimWithParentResponse)
+                        .collect(Collectors.toList())
+        );
+    }
 
     @Override
     public Optional<List<StudentsResponse>> postBulkStudentList(List<StudentsImportRequest> request) {
-     /* List<Students> studentsList=  request.stream().map(studentUtil::mapStudentsRequest_To_Students).toList();
-        studentRepository.saveAll(studentsList);
-        StudentUtil.studentsGlobalList.addAll(studentsList);
-        log.info("{} New records have been persited into the Database",studentsList.size());*/
-       // return Optional.of(studentsList.stream().map(studentUtil::mapStudent_ToStudentResponse).toList());
 
         Optional<List<StudentsResponse>> studentsResponse = request.stream()
                 .map(studentRequest -> {
                     Optional<Students> existingStudent = StudentUtil.studentsGlobalList.stream()
                             .filter(s -> s.getInstitutionCode().equalsIgnoreCase(studentRequest.getInstitutionCode()) &&
-                                    s.getStudentId().equalsIgnoreCase(studentRequest.getStudentId()))
+                                    s.getFirstName().equalsIgnoreCase(studentRequest.getFirstName()) &&
+                                    s.getLastName().equalsIgnoreCase(studentRequest.getLastName()) &&
+                                    s.getDateOfBirth().equals(studentRequest.getDateOfBirth())
+                            )
                             .findFirst();
 
                     return existingStudent
@@ -77,6 +90,8 @@ public class StudentService implements StudentServiceInterface {
                             .orElseGet(() -> {
                                 try {
                                     return studentUtil.createNewStudents(studentRequest);
+
+
                                 } catch (URISyntaxException | IOException e) {
                                     throw new RuntimeException(e);
                                 }
@@ -127,5 +142,85 @@ public class StudentService implements StudentServiceInterface {
         return Optional.of(StudentUtil.studentsGlobalList.stream().filter(x->x.getInstitutionCode().equalsIgnoreCase(institution.getVal()))
                 .map(studentUtil::mapStudent_ToStudentResponse).toList()
         );
+    }
+
+    @Override
+    public Optional<List<StudentsResponse>> fetchStudentsByDynamicData(DynamicStringRequest institution) {
+        if (institution == null || institution.getKey() == null || institution.getVal() == null) {
+            return Optional.empty();
+        }
+
+        // Pre-process field types
+        Map<String, Function<Students, Object>> fieldGetters = Map.of(
+                "institutionCode", Students::getInstitutionCode,
+                "studentClass", Students::getStudentClass,
+                "dateOfBirth", Students::getDateOfBirth,
+                "status", Students::getStatus
+                // Add all other fields here
+        );
+
+        // Type handlers
+        Map<Class<?>, BiPredicate<Object, Object>> typeHandlers = Map.of(
+                String.class, (expected, actual) ->
+                        actual != null && ((String) actual).equalsIgnoreCase((String) expected),
+                LocalDate.class, Objects::equals,
+                Boolean.class, Objects::equals
+                // Add other types as needed
+        );
+
+        List<StudentsResponse> result = StudentUtil.studentsGlobalList.stream()
+                .filter(student -> {
+                    for (int i = 0; i < institution.getKey().size(); i++) {
+                        String key = institution.getKey().get(i);
+                        String stringValue = institution.getVal().get(i);
+
+                        // Skip if value is null or empty
+                        if (stringValue == null || stringValue.trim().isEmpty()) {
+                            continue;
+                        }
+
+                        if (!fieldGetters.containsKey(key)) {
+                            return false;
+                        }
+
+                        try {
+                            Object actualValue = fieldGetters.get(key).apply(student);
+                            Class<?> fieldType = actualValue != null ? actualValue.getClass() : String.class;
+
+                            Object expectedValue = convertValue(stringValue, fieldType);
+                            if (!typeHandlers.getOrDefault(fieldType, Objects::equals)
+                                    .test(expectedValue, actualValue)) {
+                                return false;
+                            }
+                        } catch (Exception e) {
+                            return false;
+                        }
+                    }
+                    return true;
+                })
+                .map(studentUtil::mapStudent_ToStudentResponse)
+                .toList();
+
+        return result.isEmpty() ? Optional.empty() : Optional.of(result);
+    }
+
+    @Override
+    public Optional<StudentSkimResponse> getStudentByID(SingleStringRequest request) {
+        return Optional.ofNullable(request.getVal())
+                .flatMap(val -> StudentUtil.studentsGlobalList.parallelStream()
+                        .filter(x -> x.getStudentId().equalsIgnoreCase(val))
+                        .findFirst()
+                        .map(studentUtil::mapStudent_ToSkimpStudentResponse)
+                );
+    }
+
+    private Object convertValue(String stringValue, Class<?> targetType) {
+        if (stringValue == null || stringValue.trim().isEmpty()) {
+            return null;
+        }
+        if (targetType == String.class) return stringValue;
+        if (targetType == LocalDate.class) return LocalDate.parse(stringValue);
+        if (targetType == Boolean.class) return Boolean.parseBoolean(stringValue);
+        return stringValue;
     }
 }

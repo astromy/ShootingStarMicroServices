@@ -16,7 +16,7 @@ $(function () {
                     <div class="panel-heading">
                         <div class="panel-tools">
                         </div>
-                        Class Groups
+                        Classes
                     </div>
                     <div class="panel-body">
                         <table id="classTable" class="table table-striped table-bordered table-hover" width="100%">

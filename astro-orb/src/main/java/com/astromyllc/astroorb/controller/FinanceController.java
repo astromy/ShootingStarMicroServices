@@ -1,6 +1,7 @@
 package com.astromyllc.astroorb.controller;
 
 import com.astromyllc.astroorb.dto.request.*;
+import com.astromyllc.astroorb.dto.response.PaystackPaymentResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import lombok.RequiredArgsConstructor;
@@ -62,6 +63,14 @@ public class FinanceController {
     @RequestMapping(value = "/bill-students-by-institution", method = RequestMethod.POST)
     public ResponseEntity<String> billStudents(@RequestBody BillingsRequest jso) {
         ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/finance/create-billings");
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/paystackWebhookResponse ", method = RequestMethod.POST)
+    public ResponseEntity<String> receivePaystackWebhook(@RequestBody PaystackPaymentResponse webhookData) {
+        log.info("Paystack Response -> {}",webhookData);
+        ResponseEntity<String> response = BACKENDCOMMPOST(webhookData, "http://" + backendserve + "/api/setup/paystackWebhookResponse");
         return response;
     }
 

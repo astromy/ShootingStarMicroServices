@@ -7,7 +7,7 @@ window.copyrights();
 $(".saveDesignation").click(async function () {
 $('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
   var jso = postdata();
-  return HttpPost("addDesignation", jso).then(function (result) {
+  return fetchPost("addDesignation", jso).then(function (result) {
     $("#designationTable").DataTable().destroy();
     $(".dismissDesignation").click();
     populateDesignationTable(result);
@@ -65,7 +65,7 @@ function postdata() {
     var v= instId.replace(/[\[\]']+/g,'')
     v=v.replace(/\//g, '')
     var instRequest={"val":v}
-    return  HttpPost("getDesignation",instRequest)
+    return  fetchPost("getDesignation",instRequest)
      .then(function (result) {
      fetchDepartment(result);
   })
@@ -75,7 +75,7 @@ async function fetchDepartment(instId) {
   var v = instId.split(",")[0].replace(/[\[\]']+/g, "");
   v = v.replace(/\//g, "");
   var instRequest = { val: v };
-  return HttpPost("getInstitutionDepartment", instRequest).then(function (
+  return fetchPost("getInstitutionDepartment", instRequest).then(function (
     result
   ) {
     populateDepartment(result);

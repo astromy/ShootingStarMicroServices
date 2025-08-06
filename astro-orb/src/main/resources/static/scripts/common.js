@@ -1,15 +1,15 @@
-window.type;
-window.id;
-window.clonable;
-window.clonable1b;
-window.clonable2;
+window.type = '';
+window.id = '';
+window.clonable = null;
+window.clonable1b = null;
+window.clonable2 = null;
 window.name = [];
 window.resultlist = [];
 window.resultlist2 = [];
-cd4 = [];
-window.tabs;
-window.specificTab;
-window.specificStudentsTab;
+var cd4 = [];
+window.tabs = null;
+window.specificTab = null;
+window.specificStudentsTab = null;
 
 window.instId = $("meta[name='institutionId']").attr("content").split("/")[1];
 window.type = $('[name="type"]').val();
@@ -186,6 +186,9 @@ function trackExistingResources(tagName, defaultArray, activeSet) {
 }
 
 function addEventListeners() {
+  document
+    .getElementById("dashboard")
+    .addEventListener("click", dashboardBuild);
 //SETUP FUNCTIONS
   document
     .getElementById("institution")
@@ -269,6 +272,9 @@ function addEventListeners() {
   document
     .getElementById("broadSheet")
     .addEventListener("click", broadSheetBuild);
+  document
+    .getElementById("promotionSettings")
+    .addEventListener("click", promotionsBuild);
 
 //ADMINISTRATION FUNCTIONS
   document
@@ -348,18 +354,70 @@ function removeUnwantedResources(tagName) {
 function addNewResources(tagName, newResources) {
   const parentTag = tagName === "script" ? "body" : "head";
   newResources.forEach((srcOrHref) => {
+    // Ensure all URLs use HTTPS and are relative to current protocol
+    const secureUrl = srcOrHref.startsWith("http://")
+      ? srcOrHref.replace("http://", "https://")
+      : srcOrHref.startsWith("//")
+        ? window.location.protocol + srcOrHref
+        : srcOrHref;
+
     const newElement = document.createElement(tagName);
     if (tagName === "script") {
-      newElement.src = srcOrHref;
+      newElement.src = secureUrl;
       newElement.type = "text/javascript";
+      newElement.onload = () => console.log(`${secureUrl} loaded successfully`);
+      newElement.onerror = () => {
+        console.error(`${secureUrl} failed to load`);
+        // Use protocol-relative URL for redirect
+        window.location.href = "/oauth2/authorization/ShootingStar?sessionExpired=true";
+      };
     } else {
-      newElement.href = srcOrHref;
+      newElement.href = secureUrl;
       newElement.rel = "stylesheet";
     }
-    newElement.setAttribute("data-dynamic", "true"); // Mark as dynamically added
+    newElement.setAttribute("data-dynamic", "true");
     document.querySelector(parentTag).appendChild(newElement);
   });
 }
+
+function dashboardBuild() {
+  const newScripts = [
+    "scripts/subscripts/dashboard.js"  // Your dashboard code
+  ];
+  const newLinks = [ /* CSS files */ ];
+
+  // Clear old resources
+  //removeUnwantedResources("script", activeScripts);
+ // removeUnwantedResources("link", activeLinks);
+
+  // Key Difference 1: Sequential loading with callbacks
+  loadScript(newScripts[0], () => {          // First load Chart.js
+    loadScript(newScripts[1], () => {        // Then load dashboard.js
+      console.log("All scripts loaded");
+    });
+  });
+
+  // Key Difference 2: Simpler CSS loading
+  newLinks.forEach(href => {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = href;
+    document.head.appendChild(link);
+    activeLinks.add(href);
+  });
+}
+
+// New helper function for reliable script loading
+function loadScript(src, callback) {
+  const script = document.createElement('script');
+  script.src = src;
+  script.onload = callback;
+  script.onerror = () => console.error(`Failed to load ${src}`);
+  document.head.appendChild(script);
+  activeScripts.add(src);
+}
+//-------------------------------------------------------------------------------------------------------
+
 
 function institutionBuild() {
   // Define new resources specific to this view
@@ -678,6 +736,26 @@ function onloadingBuild() {
 //-------------------------------------------------------------------------------------------------------
 
 function recordsBuild() {
+  const newScripts = [
+    "vendor/sparkline/index.js",
+    "vendor/ladda/dist/spin.min.js",
+    "vendor/ladda/dist/ladda.min.js",
+    "vendor/ladda/dist/ladda.jquery.min.js",
+    "vendor/sweetalert/lib/sweet-alert.min.js",
+    "scripts/subscripts/hrStaffRecords.js",
+  ];
+
+  const newLinks = [
+    "vendor/sweetalert/lib/sweet-alert.css",
+    "vendor/fontawesome/css/font-awesome.css",
+    "vendor/metisMenu/dist/metisMenu.css",
+    "vendor/animate.css/animate.css",
+    "vendor/bootstrap/dist/css/bootstrap.css",
+    "vendor/ladda/dist/ladda-themeless.min.css",
+    "styles/daterangepicker.css",
+    "vendor/datatables.net-bs/css/dataTables.bootstrap.min.css",
+  ];
+
   // Remove previous non-default scripts/links
   removeUnwantedResources("script", activeScripts);
   removeUnwantedResources("link", activeLinks);
@@ -1312,6 +1390,34 @@ function idCardGenerationBuild() {
   newLinks.forEach((href) => activeLinks.add(href));
 }
 
+
+function promotionsBuild() {
+  // Define new resources specific to this view
+  const newScripts = [
+    "vendor/sweetalert/lib/sweet-alert.min.js",
+    "scripts/subscripts/promotions.js",
+  ];
+  const newLinks = [
+    "vendor/sweetalert/lib/sweet-alert.css",
+    "vendor/metisMenu/dist/metisMenu.css",
+    "vendor/animate.css/animate.css",
+    "vendor/datatables.net-bs/css/dataTables.bootstrap.min.css",
+  ];
+
+  // Remove previous non-default scripts/links
+  removeUnwantedResources("script", activeScripts);
+  removeUnwantedResources("link", activeLinks);
+
+  // Add new resources
+  addNewResources("script", newScripts);
+  addNewResources("link", newLinks);
+
+  // Update the active state with new resources
+  newScripts.forEach((src) => activeScripts.add(src));
+
+  newLinks.forEach((href) => activeLinks.add(href));
+}
+
 //----------------STAFF FUNCTIONS----------------------------------
 
 function staffQuestionUpload() {
@@ -1458,23 +1564,23 @@ function staffAssignmentReview() {
 //-------------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------------
 
+
 function HttpPost(url, data) {
-  var header = $("meta[name='_csrf_header']").attr("content");
-  var token = $("meta[name='_csrf']").attr("content");
   var access_token = $("meta[name='scope']").attr("content");
 
   return new Promise((resolve) => {
     $.ajax({
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + access_token,
-      },
       url: url,
       type: "POST",
       data: JSON.stringify(data),
-      beforeSend: function (xhr) {
-        xhr.setRequestHeader(header, token);
+      contentType: "application/json",
+      dataType: "json",
+      headers: {
+        Accept: "application/json",
+        Authorization: "Bearer " + access_token,
+      },
+      xhrFields: {
+        withCredentials: false, // 👈 PREVENT sending cookies like JSESSIONID
       },
       success: function (data) {
         resolve(data);
@@ -1489,6 +1595,42 @@ function HttpPost(url, data) {
       },
     });
   });
+}
+
+
+/**
+ * Makes a POST request using fetch with Bearer token.
+ *
+ * @param {string} url - The API endpoint.
+ * @param {object} data - The JSON payload to send.
+ * @returns {Promise<any>} - The parsed JSON response.
+ */
+async function fetchPost(url, data) {
+  const token = document.querySelector("meta[name='scope']")?.getAttribute("content");
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+        "Accept": "application/json",
+      },
+      body: JSON.stringify(data),
+      credentials: "omit", // 🔒 Prevents cookies like JSESSIONID from being sent
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`HTTP ${response.status}: ${errorText}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("POST Error:", error);
+    alert("Request failed: " + error.message);
+    throw error;
+  }
 }
 
 //=========================================IMG UTIL =============================================
@@ -1600,7 +1742,7 @@ async function setFileInputFromByteArray(
         const mimeType =
           base64String.match(/data:([^;]+);base64/)?.[1] ||
           "application/octet-stream";
-        extension = "application/pdf";
+        extension = mimeType === "application/pdf" ? ".pdf" : "";
 
         // Remove the Base64 metadata (if present)
         const base64Content = base64String;

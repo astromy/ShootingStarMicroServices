@@ -3,19 +3,20 @@ package com.astromyllc.shootingstar.adminpta.controller;
 import com.astromyllc.shootingstar.adminpta.dto.request.*;
 import com.astromyllc.shootingstar.adminpta.dto.response.ClassListResponse;
 import com.astromyllc.shootingstar.adminpta.dto.response.StudentSkimResponse;
+import com.astromyllc.shootingstar.adminpta.dto.response.StudentSkimWithParentResponse;
 import com.astromyllc.shootingstar.adminpta.dto.response.StudentsResponse;
+import com.astromyllc.shootingstar.adminpta.model.Parents;
+import com.astromyllc.shootingstar.adminpta.model.Students;
 import com.astromyllc.shootingstar.adminpta.serviceInterface.StudentServiceInterface;
+import com.astromyllc.shootingstar.adminpta.util.StudentUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -39,6 +40,12 @@ public class StudentsController {
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Optional<List<StudentsResponse>>> getStudentsByInstitution(@RequestBody SingleStringRequest institution) {
         return ResponseEntity.ok(studentServiceInterface.fetchStudentsByInstitution(institution));
+    }
+
+    @PostMapping("/api/administration-pta/getStudentsByDynamicData")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<Optional<List<StudentsResponse>>> getStudentsByDynamicData(@RequestBody DynamicStringRequest institution) {
+        return ResponseEntity.ok(studentServiceInterface.fetchStudentsByDynamicData(institution));
     }
 
     @PostMapping("/api/administration-pta/getStudentsByStatus")
@@ -69,5 +76,17 @@ public class StudentsController {
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Optional<List<StudentsResponse>>> postBulkStudentList(@RequestBody List<StudentsImportRequest> request) {
         return ResponseEntity.ok(studentServiceInterface.postBulkStudentList(request));
+    }
+
+    @PostMapping("/api/administration-pta/getSkimpStudentsByParentContact")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<Optional<List<StudentSkimWithParentResponse>>> getSkimpStudentsByParentContact(@RequestBody SingleStringRequest request) {
+        return ResponseEntity.ok(studentServiceInterface.getSkimpStudentsByParentContact(request));
+    }
+
+    @PostMapping("/api/administration-pta/getStudentByID")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<Optional<StudentSkimResponse>> getStudentByID(@RequestBody SingleStringRequest request) {
+        return ResponseEntity.ok(studentServiceInterface.getStudentByID(request));
     }
 }

@@ -11,6 +11,13 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
+    <pluginRepositories>
+        <pluginRepository>
+            <id>google-maven-central</id>
+            <url>https://plugins.gradle.org/m2/</url>
+        </pluginRepository>
+    </pluginRepositories>
+
     <groupId>com.astromyllc.shootingstar</groupId>
     <artifactId>ParentShootingStar</artifactId>
     <version>1.0-SNAPSHOT</version>
@@ -63,6 +70,17 @@
     </dependencyManagement>
 
     <build>
+        <pluginManagement>
+            <plugins>
+                <!-- Fix invalid maven-site-plugin:3.3 resolution -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-site-plugin</artifactId>
+                    <version>3.12.1</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -94,7 +112,7 @@
                     <to>
                         <image>registry.hub.docker.com/astromyllc/${project.artifactId}</image>
                         <tags>
-                            <tag>0.010</tag>
+                            <tag>0.012b</tag>
                         </tags>
                         <auth>
                             <username>astromyllc</username>

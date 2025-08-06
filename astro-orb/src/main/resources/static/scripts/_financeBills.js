@@ -8,7 +8,7 @@ var instCode;
 $(".saveBill").click(async function () {
 $('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
   var jso = postdata();
-  return HttpPost("create-bills", jso).then(function (result) {
+  return fetchPost("create-bills", jso).then(function (result) {
     $(".dismissBill").click();
     populateBills(result);
     $('.splash').css('display', 'none')
@@ -59,7 +59,7 @@ async function fetchInstitutionBills(instId) {
   v = v.replace(/\//g, "");
   instCode = v;
   var instRequest = { val: v };
-  return HttpPost("get-bills-by-institution", instRequest).then(function (
+  return fetchPost("get-bills-by-institution", instRequest).then(function (
     result
   ) {
     populateBills(result);

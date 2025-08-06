@@ -3,6 +3,8 @@ package com.astromyllc.astroorb.controller;
 import com.astromyllc.astroorb.dto.request.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,11 +13,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -25,14 +25,23 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 @Controller
 @Slf4j
 @ResponseBody
 @RequiredArgsConstructor
 public class AdministrationController {
+
+    @GetMapping("/csrf-token")
+    public ResponseEntity<Map<String, String>> getCsrfToken(HttpServletRequest request) {
+        CsrfToken token = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+        Map<String, String> body = new HashMap<>();
+        body.put("csrfToken", token.getToken());
+        return ResponseEntity.ok()
+                .header("X-XSRF-TOKEN", token.getToken())
+                .body(body);
+    }
 
     @Value("${gateway.host}")
     private String backendserve;
@@ -59,6 +68,13 @@ public class AdministrationController {
     }
 
     @ResponseBody
+    @RequestMapping(value = "/getStudentsByDynamicData", method = RequestMethod.POST)
+    public ResponseEntity<String> getAllStudentsByDynamic(@RequestBody DynamicStringRequest jso) throws IOException {
+
+        return BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/administration-pta/getStudentsByDynamicData");
+    }
+
+    @ResponseBody
     @RequestMapping(value = "/getAssessmentList", method = RequestMethod.POST)
     public ResponseEntity<String> getAssessmentList(@RequestBody ClassListRequest jso) throws IOException {
 
@@ -82,6 +98,18 @@ public class AdministrationController {
     @RequestMapping(value = "/postBulkStudentList", method = RequestMethod.POST)
     public ResponseEntity<String> submitBulkStudentList(@RequestBody List<StudentsImportRequest> jso) {
         return BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/administration-pta/postBulkStudentList");
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "api/mobile/getSkimpStudentsByParentContact", method = RequestMethod.POST)
+    public ResponseEntity<String> getSkimpStudentsByParentContact(@RequestBody SingleStringRequest jso) {
+        return BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/administration-pta/getSkimpStudentsByParentContact");
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "api/mobile/sendReactivationEmail", method = RequestMethod.POST)
+    public ResponseEntity<String> sendReactivationEmail(@RequestBody DynamicStringRequest jso) {
+        return BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/administration-pta/sendReactivationEmail");
     }
 
 

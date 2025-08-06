@@ -108,31 +108,15 @@ document
   .querySelector("#reportTable_wrapper")
   .setAttribute("style", "overflow: auto;");
 
-var selectedValue = document
-  .querySelector("#scoreTypeControl")
-  .parentElement.querySelector("label").innerHTML;
-
-document
-  .querySelector("#scoreTypeControl")
-  .addEventListener("change", function () {
-    var selectedValue = this.parentElement.querySelector("label").innerHTML;
-
-    if (selectedValue == "Class Score") {
-      this.parentElement.querySelector("label").innerHTML = "Exams Score";
-      url = "uploadExamsScores";
-    } else {
-      this.parentElement.querySelector("label").innerHTML = "Class Score";
-      url = "uploadAssesmentScores";
-    }
-  });
-
 url = "generateStudentTerminalReport";
 
 $("#reportGenerateBtn").click(async function () {
 $('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
   var jso = postdata();
-  return HttpPost(url, jso).then(function (result) {
-    $("#reportTable").DataTable().destroy();
+  return fetchPost(url, jso).then(function (result) {
+   if ($.fn.DataTable.isDataTable("#reportTable")) {
+         $("#reportTable").DataTable().destroy();
+       }
     reportDataJSON = result;
     displayReport(result);
     $('.splash').css('display', 'none')
@@ -173,7 +157,7 @@ function convertToISO(dateStr) {
 
 async function fetchInstitutionClasses(v) {
   var instRequest = { val: v };
-  return HttpPost("getInstitutionClasses", instRequest).then(function (result) {
+  return fetchPost("getInstitutionClasses", instRequest).then(function (result) {
     populateClasses(result);
   });
 }
@@ -184,7 +168,7 @@ document
     url = "postStudentReports";
 
     var jso = postdata();
-    return HttpPost(url, jso).then(function (result) {
+    return fetchPost(url, jso).then(function (result) {
       $("#reportTable").DataTable().destroy();
       reportDataJSON = result;
       generatePDF(reportDataJSON);
@@ -223,11 +207,11 @@ $('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').
     };
     try {
       // Await the result of the HTTP request
-      const result = await HttpPost(
+      const result = await fetchPost(
         "getInstitutionSubjectsAndClassGroup",
         instRequest
       );
-      const result2 = await HttpPost(
+      const result2 = await fetchPost(
         "getInstitutionClassesByClassGroup",
         instRequest2
       );
@@ -244,7 +228,7 @@ $('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').
       var instRequest={"val":v}
        try {
               // Await the result of the HTTP request
-              const result = await HttpPost("getInstitutionSubjects", instRequest);
+              const result = await fetchPost("getInstitutionSubjects", instRequest);
               await fetchInstitutionClasses(v);
               // Pass the result to fetchLookup and await it
               return await fetchLookup(result);
@@ -267,7 +251,7 @@ $('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').
   v = instId.replace(/[\[\]']+/g, "");
   v = v.replace(/\//g, "");
   var instRequest = { val: "ClassGroup" };
-  return HttpPost("getLookUpByType", instRequest).then(function (result) {
+  return fetchPost("getLookUpByType", instRequest).then(function (result) {
     populateClassGroup(result);
     generateAcademicYears();
     fetchInstitutionGrading();
@@ -278,7 +262,7 @@ $('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').
 
 async function fetchInstitutionGrading() {
   var instRequest = { val: v };
-  return HttpPost("getInstitutionGradingSetting", instRequest).then(function (
+  return fetchPost("getInstitutionGradingSetting", instRequest).then(function (
     result
   ) {
   $(".gradingSettingSelect option:not(:eq(0))").remove();
@@ -427,8 +411,8 @@ function generatePDF(assessments) {
     var name = `${student.firstName} ${student.otherName || ""} ${
       student.lastName
     }`;
-    wrappedText = terminalReport.splitTextToSize(name, 53);
-    terminalReport.text(wrappedText, 32, ycord + 4 * 2);
+    wrappedText = terminalReport.splitTextToSize(name, 43);
+    terminalReport.text(wrappedText[0], 32, ycord + 4 * 2);
     terminalReport.text(`Gender: ${student.gender}`, xcord, ycord + 4 * 3);
     terminalReport.text(
       `Class: ${student.studentAssessment[0]?.studentClass || "N/A"}`,
@@ -491,7 +475,7 @@ function generatePDF(assessments) {
       ycord + 4 * 3
     );
     terminalReport.text(
-      `Student Average Position: ${student.averageScore || "N/A"}`,
+      `Student Average Position: ${student.averagePosition || "N/A"}`,
       xcord + 65 * 2,
       ycord + 4 * 4
     );

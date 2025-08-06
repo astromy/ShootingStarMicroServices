@@ -65,4 +65,8 @@ public class Institution {
     @ToString.Exclude
     @OneToMany(mappedBy = "institution",cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Department> departmentList;
+
+    @ToString.Exclude
+    @OneToMany(mappedBy = "institution",cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<Promotions> promotions;
 }

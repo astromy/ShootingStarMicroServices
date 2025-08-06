@@ -14,6 +14,7 @@ public interface AssessmentServiceInterface {
 /*    public AssessmentResponse generateTerminalReport(AcademicReportRequest terminalReportRequest);*/
     public Optional<TerminalReportResponse> generateTerminalReports(AcademicReportRequest terminalReportRequest);
     public Optional<TerminalReportResponse> generateBroadsheet(AcademicReportRequest terminalReportRequest);
+    public Optional<TerminalReportResponse> generateUnconvertedBroadsheet(AcademicReportRequest terminalReportRequest);
 
     Optional<TerminalReportResponse>  fetchStudentTerminalReport(AcademicReportRequest terminalReportRequest);
 
@@ -22,4 +23,6 @@ public interface AssessmentServiceInterface {
     Optional<TerminalReportResponse> fetchStudentTranscript(SingleStringRequest terminalReportRequest);
 
     Optional<List<ExistingUploadedScoreResponse>> getExistingClassSubjectScores(AcademicReportRequest terminalReportRequest);
+
+    public Optional<TerminalReportResponse>  getStudentAcademicYearReport(SingleStringRequest studentID);
 }

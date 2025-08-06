@@ -39,6 +39,7 @@ spring:
   application:
     name: orb_frontend
 
+
   security:
     oauth2:
       client:
@@ -53,9 +54,17 @@ spring:
               - profile
               - email
               - roles
+
         provider:
           ShootingStar:
             issuer-uri: "https://keycloak.astromyllc.com/realms/ShootingStar"
+
+      resource-server:
+        jwt:
+          issuer-uri: "https://keycloak.astromyllc.com/realms/ShootingStar"
+          audiences:
+            - orb_frontend
+            - astroauthauth
 
 
   jackson:

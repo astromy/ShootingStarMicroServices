@@ -248,6 +248,7 @@ public class InstitutionUtils {
         permissions.add("setup permissions");
         permissions.add("setup institution");
         permissions.add("setup classgroup");
+        permissions.add("setup promotion");
 
         permissions.add("Human_Resource onboarding");
         permissions.add("Human_Resource records");
@@ -479,6 +480,7 @@ public class InstitutionUtils {
         permissions.add("setup institution");
         permissions.add("setup classgroup");
         permissions.add("setup accommodation");
+        permissions.add("setup promotion");
 
         permissions.add("Human_Resource onboarding");
         permissions.add("Human_Resource records");

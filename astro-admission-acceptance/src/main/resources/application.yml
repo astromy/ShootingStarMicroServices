@@ -1,5 +1,5 @@
 server:
-  port: 3017
+  port: 7310
 
 
 gateway:
@@ -26,4 +26,4 @@ spring:
     cache: false
 
   application:
-    name: astro-preorder
+    name: astro-admissions

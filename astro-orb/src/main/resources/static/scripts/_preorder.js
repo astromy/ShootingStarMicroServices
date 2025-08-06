@@ -64,7 +64,7 @@ $('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').
     // Show notification
     //        Example code for post form
 
-    return HttpPost("preRequestInstitution", jso).then(function (result) {
+    return fetchPost("preRequestInstitution", jso).then(function (result) {
       displayFetchInstitution(result);
     $('.splash').css('display', 'none')
       swal({
@@ -326,7 +326,7 @@ async function fetchInstitution(instId) {
   var v = instId.replace(/[\[\]']+/g, "");
   v = v.replace(/\//g, "");
   var instRequest = { val: v };
-  return HttpPost("getInstitutionByCode", instRequest).then(function (result) {
+  return fetchPost("getInstitutionByCode", instRequest).then(function (result) {
     displayFetchInstitution(result);
   });
 }

@@ -109,7 +109,7 @@ url = "generateStudentTranscript";
 $("#reportGenerateBtn").click(async function () {
 $('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
   var instRequest = { val: $("#studentID").val() };
-  return HttpPost(url, instRequest).then(function (result) {
+  return fetchPost(url, instRequest).then(function (result) {
     $("#reportTable").DataTable().destroy();
     reportDataJSON = result;
     displayReport(result);
@@ -157,7 +157,7 @@ document
       url = "fetchStudentTerminalReport";
 
       var jso = postdata();
-      return HttpPost(url, jso).then(function (result) {
+      return fetchPost(url, jso).then(function (result) {
         $("#reportTable").DataTable().destroy();
         reportDataJSON = result;
         generatePDF(reportDataJSON);

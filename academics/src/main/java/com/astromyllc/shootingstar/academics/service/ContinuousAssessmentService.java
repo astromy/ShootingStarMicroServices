@@ -1,8 +1,6 @@
 package com.astromyllc.shootingstar.academics.service;
 
-import com.astromyllc.shootingstar.academics.dto.alien.Students;
 import com.astromyllc.shootingstar.academics.dto.request.ContinuousAssessmentRequest;
-import com.astromyllc.shootingstar.academics.dto.request.ExamsAssessmentRequest;
 import com.astromyllc.shootingstar.academics.dto.response.ClassListResponse;
 import com.astromyllc.shootingstar.academics.dto.response.ContinuousAssessmentResponse;
 import com.astromyllc.shootingstar.academics.model.ContinuousAssessment;
@@ -15,11 +13,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,11 +23,10 @@ import java.util.stream.Collectors;
 @Slf4j
 @Transactional
 public class ContinuousAssessmentService implements ContinuousAssessmentServiceInterface {
+    static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private final ContinuousAssessmentRepository continuousAssessmentRepository;
     private final ContinuousAssessmentUtil continuousAssessmentUtil;
     private final ExamsAssessmentUtil examsAssessmentUtil;
-
-    static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Override
     public Optional<ContinuousAssessmentResponse> submitContinuousAssessment(ContinuousAssessmentRequest continuousAssessmentRequest) {
@@ -43,35 +38,55 @@ public class ContinuousAssessmentService implements ContinuousAssessmentServiceI
 
     @Override
     public Optional<ContinuousAssessmentResponse> submitContinuousAssessments(List<ContinuousAssessmentRequest> continuousAssessmentRequest) {
+        // Fast empty check
+        if (continuousAssessmentRequest == null || continuousAssessmentRequest.isEmpty()) {
+            return Optional.empty();
+        }
 
-        List<ClassListResponse> studentsList=examsAssessmentUtil.fetchStudentsByClass(continuousAssessmentRequest.get(0).getStudentClass(),continuousAssessmentRequest.get(0).getInstitutionCode());
+        // Extract first request parameters for batch query
+        ContinuousAssessmentRequest firstRequest = continuousAssessmentRequest.get(0);
+        String institutionCode = firstRequest.getInstitutionCode();
+        String studentClass = firstRequest.getStudentClass();
 
-        // Create a Set of student IDs for faster lookup
-        Set<String> validStudentIds = studentsList.stream()
+        // Batch fetch students using parallel stream
+        Set<String> validStudentIds = examsAssessmentUtil.fetchStudentsByClass(studentClass, institutionCode)
+                .parallelStream()
                 .map(ClassListResponse::getStudentID)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toCollection(HashSet::new));
 
-        // Filter requests to only include those with valid student IDs
-        List<ContinuousAssessmentRequest> validRequests = continuousAssessmentRequest.stream()
+        // Parallel processing of valid requests
+        List<ContinuousAssessment> newAssessments = continuousAssessmentRequest.parallelStream()
                 .filter(request -> validStudentIds.contains(request.getStudentId()))
-                .toList();
-
-
-        Map<Boolean, List<ContinuousAssessment>> partitioned = validRequests.stream()
                 .map(continuousAssessmentUtil::mapContinuousAssessmentRequest_ToContinuousAssessment)
-                .collect(Collectors.partitioningBy(ca -> ContinuousAssessmentUtil.continuousAssessmentGlobalList.stream()
-                        .anyMatch(existingCa -> existingCa.getStudentId().equalsIgnoreCase(ca.getStudentId()) &&
-                                existingCa.getInstitutionCode().equalsIgnoreCase(ca.getInstitutionCode()) &&
-                                existingCa.getTerm().equalsIgnoreCase(ca.getTerm()) &&
-                                existingCa.getSubject().equals(ca.getSubject()) &&
-                                existingCa.getAcademicYear().equalsIgnoreCase(ca.getAcademicYear()))));
+                .collect(Collectors.toList());
 
-        List<ContinuousAssessment> existingRecords = partitioned.get(true);  // Existing records
-        List<ContinuousAssessment> newRecords = partitioned.get(false);     // New records
+        // Batch save with size optimization
+        List<ContinuousAssessment> savedAssessments = continuousAssessmentRepository.saveAll(newAssessments);
 
-        continuousAssessmentRepository.saveAll(existingRecords);
-        continuousAssessmentRepository.saveAll(newRecords);
-        ContinuousAssessmentUtil.continuousAssessmentGlobalList.addAll(newRecords);
+        // Get current timestamp once
+        LocalDateTime now = LocalDateTime.now();
+
+        // Optimized map update with batching
+        Map<String, ContinuousAssessment> latestMap = ContinuousAssessmentUtil.continuousAssessmentLatestMap;
+        List<ContinuousAssessment> latestRecords = new ArrayList<>(savedAssessments.size());
+
+        for (ContinuousAssessment newCA : savedAssessments) {
+            String key = continuousAssessmentUtil.buildCAKey(newCA);
+            ContinuousAssessment existing = latestMap.get(key);
+
+            if (existing == null || newCA.getDateTime().isAfter(existing.getDateTime())) {
+                latestMap.put(key, newCA);
+                latestRecords.add(newCA);
+            }
+        }
+
+        // Atomic global list update (minimize synchronization)
+        if (!latestRecords.isEmpty()) {
+            synchronized (ContinuousAssessmentUtil.class) {
+                ContinuousAssessmentUtil.continuousAssessmentGlobalList.addAll(latestRecords);
+            }
+        }
+
         return Optional.empty();
     }
 

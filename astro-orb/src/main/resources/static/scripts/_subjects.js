@@ -10,7 +10,7 @@ window.copyrights();
 $(".saveSubjects").click(async function () {
 $('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
   var jso = postdata();
-  return HttpPost("addSubjects", jso).then(function (result) {
+  return fetchPost("addSubjects", jso).then(function (result) {
     $("#subjectTable").DataTable().destroy();
     $(".dismissSubject").click();
     populateTable(result);
@@ -52,7 +52,7 @@ async function fetchInstitutionSubject(instId) {
   var instRequest = { val: v };
   try {
     // Await the result of the HTTP request
-    const result = await HttpPost("getInstitutionSubjects", instRequest);
+    const result = await fetchPost("getInstitutionSubjects", instRequest);
 
     // Pass the result to fetchLookup and await it
     return await fetchLookup(result);
@@ -63,7 +63,7 @@ async function fetchInstitutionSubject(instId) {
 
 async function fetchLookup(result1) {
   var instRequest = { val: "ClassGroup" };
-  return HttpPost("getLookUpByType", instRequest).then(function (result) {
+  return fetchPost("getLookUpByType", instRequest).then(function (result) {
     populateTable(result1);
     populateClassGroup(result);
   });

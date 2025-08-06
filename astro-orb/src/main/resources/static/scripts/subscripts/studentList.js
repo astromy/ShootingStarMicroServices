@@ -6,7 +6,7 @@ $(function () {
                     <div class="pull-right col-lg-5">
 
                             <div id="classStudentListExport" class="col-lg-4">
-                                <button class="btn btn-primary col-lg-12" type="button" id="classStudentListExportBtn">Export Class List</button>
+                                <button class="btn btn-primary col-lg-12" type="button" id="classStudentListExportBtn">Download Class List</button>
                             </div>
                             <div id="hbreadcrumb" class="col-lg-4">
                                     <div class="row"  style="display: none;">
@@ -28,7 +28,7 @@ $(function () {
                     </div>
 
                     <div class="row">
-                        <div class="col-lg-4 pull-left">
+                        <div class="col-lg-6 pull-left">
                             <div class="form-group col-lg-4 ">
                                 <select class="form-control classGroupSelect">
                                     <option>Select Class Group</option>
@@ -42,6 +42,10 @@ $(function () {
                             <div class="form-group col-lg-4">
                                 <select class="form-control studentStatus">
                                     <option>Select Status</option>
+                                    <option>Active</option>
+                                    <option>Completed</option>
+                                    <option>Suspended</option>
+                                    <option>Dismissed</option>
                                  </select>
                             </div>
                         </div>
@@ -49,10 +53,7 @@ $(function () {
             </div>
     `
 
-    //function institutionBuild() {
     let scoreUpload = `
-    
-    
     <div class="content animate-panel" id="pagecontent">
     <div class="hpanel">
 
@@ -71,15 +72,16 @@ $(function () {
                     <th>Student Last Name</th>
                     <th>Student First Name</th>
                     <th>Student Other Names</th>
+                    <th>Student Gender</th>
+                    <th>Student Class</th>
                     <th>Student Date of Birth</th>
                     <th>Student Date of Admission</th>
                     <th>Student Place of Birth</th>
-                    <th>Student Gender</th>
                     <th>Student Country of Birth</th>
                     <th>Student Nationality</th>
                     <th>Student Denomination</th>
                     <th>Student Status</th>
-                    <th>Student Class</th>
+                    <th>Actions</th>
                 </tr>
                 </thead>
                 <tbody id="studentsTableBody"></tbody>
@@ -89,6 +91,34 @@ $(function () {
     </div>
  </div>
 
+ <!-- Parent Information Modal -->
+<div class="modal fade" id="parentModal" tabindex="-1" role="dialog" aria-labelledby="parentModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="parentModalLabel">Parent Information</h4>
+      </div>
+      <div class="modal-body" id="parentModalBody">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Contact</th>
+              <th>Email</th>
+              <th>Type</th>
+            </tr>
+          </thead>
+          <tbody id="parentInfoTable">
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
 
   <!-- Footer-->
     <footer class="footer">
@@ -100,13 +130,8 @@ $(function () {
     </footer>
     `
 
-
-
-
     document.getElementById("wrapper").innerHTML = header;
     document.getElementById("wrapper").insertAdjacentHTML('beforeend', scoreUpload);
-  /*  document.getElementsByClassName("test")[0].addEventListener("click", scoreUploadIndut);
-    document.getElementById("modalopn").addEventListener("click", modalopn);*/
 
     var script14 = document.createElement("script");
     script14.setAttribute("type", "text/javascript");
@@ -119,7 +144,6 @@ $(function () {
     document.getElementsByTagName("body")[0].appendChild(script14);
 });
 
-//document.getElementById("institution").addEventListener("click", institutionBuild);
 function modalopn(){
     document.getElementsByClassName("modalbody")[0].innerHTML="";
     scoreUploadIndut();
@@ -137,4 +161,3 @@ function scoreUploadIndut() {
     <div class="hr-line-dashed"></div>`
     document.getElementsByClassName("modalbody")[0].insertAdjacentHTML('beforeend', div);
 }
-

@@ -225,6 +225,24 @@ public class SetupController {
         return response;
     }
 
+    @ResponseBody
+    @RequestMapping(value = "/getInstitutionPromotionSettings", method = RequestMethod.POST)
+    public ResponseEntity<String> getInstitutionPromotionSettings(@RequestBody SingleStringRequest jso) throws IOException, InterruptedException {
+        log.error("REQUEST GET DESIGNATION OF..... {}", jso);
+        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/getInstitutionPromotionSetup");
+        //log.error("Designation Feed from Setup==>  \n {}", response);
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/addPromotionSetting", method = RequestMethod.POST)
+    public ResponseEntity<String> addPromotionSetting(@RequestBody PromotionsRequest jso) throws IOException, InterruptedException {
+        log.error("Persisting Promotion Settings OF..... {}", jso);
+        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/addPromotionSetup");
+        //log.error("Designation Feed from Setup==>  \n {}", response);
+        return response;
+    }
+
 
     private ResponseEntity<String> BACKENDCOMMPOSTLIST(List<Object> jso, String url) {
 

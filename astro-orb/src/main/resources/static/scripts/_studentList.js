@@ -3,7 +3,8 @@ id = "";
 var keys, studentsJson, url;
 var studentsSheet;
 var v;
-//fetchLookup(instId.split(",")[0])
+fetchLookup(instId.split(",")[0]);
+
 var elm = document.querySelector(".studentsUploadBtn");
 elm.addEventListener("click", function () {
   document.querySelector("#studentsInput").click();
@@ -12,16 +13,14 @@ elm.addEventListener("click", function () {
 document
   .querySelector("#studentsInput")
   .addEventListener("change", async function () {
-$('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
+    $('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
     try {
       var doc = await uploadFileAsJSON(
         document.querySelector("#studentsInput"),
         document.querySelectorAll(".fileError")[0]
       );
-      studentsJson = await processStudentFile(doc.fileContent);
-      debugger;
+      window.studentsJson = await processStudentFile(doc.fileContent);
       var scoreJson = await base64ToJson(doc.fileContent);
-      //studentsJson= formatStudentData(studentsSheet)
       keys = Object.keys(scoreJson[0]);
 
       $("#studentsTableHead").empty();
@@ -32,9 +31,8 @@ $('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').
       });
 
       let tbody = $("#studentsTableBody");
-      tbody.empty(); // Clear existing rows
+      tbody.empty();
 
-      // Create a hidden file input for capturing images from the camera
       let imageInput = $(
         '<input type="file" accept="image/*" capture="environment" style="display: none;">'
       );
@@ -42,9 +40,8 @@ $('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').
         '<input type="file" accept="application/pdf" style="display: none;">'
       );
 
-      $("body").append(imageInput, pdfInput); // Append inputs to the body
+      $("body").append(imageInput, pdfInput);
 
-      // Handle image input changes (Camera capture)
       imageInput.on("change", function (event) {
         let file = event.target.files[0];
         if (file) {
@@ -58,7 +55,6 @@ $('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').
         }
       });
 
-      // Handle PDF upload
       pdfInput.on("change", function (event) {
         let file = event.target.files[0];
         if (file) {
@@ -68,16 +64,16 @@ $('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').
             )}')">View PDF</a>`
           );
         }
-    $('.splash').css('display', 'none')
+        $('.splash').css('display', 'none')
       });
 
-      // Modify table generation to allow click-based image capture
       scoreJson.forEach((row) => {
-        let tr = $("<tr></tr>");
+        let studentId = row.studentId || row['Student ID'];
+        let tr = $("<tr></tr>").addClass('student-row').data('student-id', studentId);
+        
         keys.forEach((key, index) => {
           let td = $("<td></td>").text(row[key] || "");
 
-          // Column 10 (Image Capture)
           if (index === 10) {
             td.text("Tap to capture image")
               .css("cursor", "pointer")
@@ -86,7 +82,6 @@ $('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').
                 imageInput.click();
               });
           }
-          // Column 11 (PDF Upload)
           else if (index === 11) {
             td.text("Tap to upload PDF")
               .css("cursor", "pointer")
@@ -107,7 +102,6 @@ $('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').
   });
 
 function intTable() {
-  // Initialize Example 1
   $("#studentsListTable").dataTable({
     dom: "<'row'<'col-sm-4'l><'col-sm-4 text-center'B><'col-sm-4'f>>tp",
     lengthMenu: [
@@ -116,8 +110,8 @@ function intTable() {
     ],
     buttons: [
       { extend: "copy", className: "btn-sm" },
-      { extend: "csv", title: "ExampleFile", className: "btn-sm" },
-      { extend: "pdf", title: "ExampleFile", className: "btn-sm" },
+      { extend: "csv", title: "Students List", className: "btn-sm" },
+      { extend: "pdf", title: "Students List", className: "btn-sm" },
       { extend: "print", className: "btn-sm" },
     ],
   });
@@ -127,32 +121,17 @@ function intTable() {
     .setAttribute("style", "overflow: auto;");
 }
 
-var selectedValue = document
-  .querySelector("#scoreTypeControl")
-  .parentElement.querySelector("label").innerHTML;
-
-document
-  .querySelector("#scoreTypeControl")
-  .addEventListener("change", function () {
-    var selectedValue = this.parentElement.querySelector("label").innerHTML;
-
-    if (selectedValue == "Class Score") {
-      this.parentElement.querySelector("label").innerHTML = "Exams Score";
-      url = "uploadExamsScores";
-    } else {
-      this.parentElement.querySelector("label").innerHTML = "Class Score";
-      url = "uploadAssesmentScores";
-    }
-  });
 
 $("#studentsSubmitBtn").click(async function () {
-$('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
-  url = "postBulkStudentList";
-  var jso = studentsJson;
-  return HttpPost(url, jso).then(function (result) {
+  $('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
+  url = "getStudentsByDynamicData";
+  var jso = postdata();
+  return fetchPost(url, jso).then(function (result) {
     $("#studentsListTable").DataTable().destroy();
-    //populateTable(result)
+    $("#studentsTableBody").empty();
     $('.splash').css('display', 'none')
+    buildTable(result);
+    window.studentsJson=result;
     swal({
       title: "Thank you!",
       text: "Operation Completed Successfully",
@@ -161,47 +140,90 @@ $('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').
   });
 });
 
-function postdata() {
-  resultlist = [];
 
-  for (var i = 0; i < scoreJson.length; i++) {
+function buildTable(result){
+
+if (result && result.length > 0) {
+            result.forEach(student => {
+                const row = `
+                    <tr class="student-row" data-student-id="${student.studentId}">
+                        <td>${student.studentId || ''}</td>
+                        <td>${student.lastName || ''}</td>
+                        <td>${student.firstName || ''}</td>
+                        <td>${student.otherName || ''}</td>
+                        <td>${student.gender || ''}</td>
+                        <td>${student.studentClass || ''}</td>
+                        <td>${student.dateOfBirth || ''}</td>
+                        <td>${student.dateOfAdmission || ''}</td>
+                        <td>${student.placeOfBirth || ''}</td>
+                        <td>${student.countryOfBirth || ''}</td>
+                        <td>${student.nationality || ''}</td>
+                        <td>${student.denomination || ''}</td>
+                        <td>${student.status || ''}</td>
+                        <td>
+                            <button class="btn btn-xs btn-info view-parents"
+                                    data-student-id="${student.studentId}">
+                                View Parents
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                $("#studentsTableBody").append(row);
+            });
+
+            // Initialize DataTable
+            intTable();
+
+            // Add click handler for view parents buttons
+            $('.view-parents').click(function() {
+                const studentId = $(this).data('student-id');
+                showParentInfo(studentId);
+            });
+        } else {
+            swal({
+                title: "No Students Found",
+                text: "No student records were found for this institution",
+                type: "info"
+            });
+        }
+
+}
+
+
+function postdata() {
+var studentClass,studentStatus,institutionCode;
+
+ studentClass= document.getElementsByClassName("classSelect")[0].value;
+ if (studentClass && studentClass.toLowerCase().includes("select")) {
+     studentClass = null;  // Set to null if it's a default/unselected value
+ }
+ studentStatus= document.getElementsByClassName("studentStatus")[0].value;
+ if (studentStatus && studentStatus.toLowerCase().includes("select")) {
+     studentStatus = null;  // Set to null if it's a default/unselected value
+ }
+ institutionCode= v;
+
+ var key = ["studentClass","status","institutionCode"];
+ var val = [studentClass,studentStatus,institutionCode];
+
+
     var jsonObject = {
-      id: Number(id),
-      score: Number(scoreJson[i].Score),
-      totalScore: Number(scoreJson[i].TotalScore),
-      subject: Number(
-        document.getElementsByClassName(" subjectSelect")[0].value
-      ),
-      term: document.getElementsByClassName("termSelect")[0].value,
-      studentClass: document.getElementsByClassName("classSelect")[0].value,
-      academicYear:
-        document.getElementsByClassName("academicYearSelect")[0].value,
-      studentId: scoreJson[i].StudentId,
-      dateTime: new Date().toString(),
-      institutionCode: v,
-    };
-    resultlist.push(jsonObject);
-  }
-  return resultlist;
+    key:key,
+    val:val
+    }
+  return jsonObject;
 }
 
 function convertToISO(dateStr) {
-  // Split the input string into date and time
   const [datePart, timePart] = dateStr.split(" ");
-
-  // Split the date into components (month/day/year)
   const [month, day, year] = datePart.split("/");
-
-  // Combine the components into an ISO format date string
   const isoDate = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
-
-  // Return the final ISO string with time (timePart already in HH:mm format)
   return `${isoDate} ${timePart}:00`;
 }
 
 async function fetchInstitutionClasses(v) {
   var instRequest = { val: v };
-  return HttpPost("getInstitutionClasses", instRequest).then(function (result) {
+  return fetchPost("getInstitutionClasses", instRequest).then(function (result) {
     populateClasses(result);
   });
 }
@@ -209,7 +231,7 @@ async function fetchInstitutionClasses(v) {
 document
   .querySelector(".classGroupSelect")
   .addEventListener("change", async function () {
-$('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
+    $('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
     var vg = document.getElementsByClassName("classGroupSelect")[0].value;
 
     var instRequest = {
@@ -223,12 +245,11 @@ $('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').
       classGroup: document.getElementsByClassName("classGroupSelect")[0].value,
     };
     try {
-      // Await the result of the HTTP request
-      const result = await HttpPost(
+      const result = await fetchPost(
         "getInstitutionSubjectsAndClassGroup",
         instRequest
       );
-      const result2 = await HttpPost(
+      const result2 = await fetchPost(
         "getInstitutionClassesByClassGroup",
         instRequest2
       );
@@ -249,13 +270,12 @@ function populateClasses(data) {
 }
 
 async function fetchLookup(instId) {
-$('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
+  $('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
   v = instId.replace(/[\[\]']+/g, "");
   v = v.replace(/\//g, "");
   var instRequest = { val: "ClassGroup" };
-  return HttpPost("getLookUpByType", instRequest).then(function (result) {
+  return fetchPost("getLookUpByType", instRequest).then(function (result) {
     populateClassGroup(result);
-    generateAcademicYears();
     $('.splash').css('display', 'none')
   });
 }
@@ -276,7 +296,7 @@ function populateSubjectsOptions(data) {
 
 function generateAcademicYears() {
   const select = document.querySelector(".academicYearSelect");
-  select.innerHTML = ""; // Clear existing options
+  select.innerHTML = "";
 
   const currentYear = new Date().getFullYear();
 
@@ -300,12 +320,10 @@ async function processStudentFile(base64String) {
 
   const workbook = XLSX.read(bytes, { type: "array" });
 
-  // Ensure the workbook contains at least two sheets
   if (workbook.SheetNames.length < 2) {
     throw new Error("The Excel file must contain at least two sheets.");
   }
 
-  // Read the two sheets
   studentsSheet = XLSX.utils.sheet_to_json(
     workbook.Sheets[workbook.SheetNames[0]]
   );
@@ -319,7 +337,6 @@ async function processStudentFile(base64String) {
 function formatStudentImportRequest(studentsSheet, parentsSheet) {
   let studentsMap = {};
 
-  // Process Students Sheet
   studentsSheet.forEach((row) => {
     let studentId = row.studentId;
 
@@ -327,7 +344,7 @@ function formatStudentImportRequest(studentsSheet, parentsSheet) {
       var dob = excelDateToJSDate(row.dateOfBirth);
       var doa = excelDateToJSDate(row.dateOfAdmission);
       studentsMap[studentId] = {
-        id: id, // Set this if needed
+        id: id,
         studentId: id,
         firstName: row.firstName,
         otherName: row.otherName || "",
@@ -344,18 +361,17 @@ function formatStudentImportRequest(studentsSheet, parentsSheet) {
         institutionCode: row.institutionCode,
         studentClass: row.studentClass || "",
         status: row.status,
-        parentsRequests: [], // Initialize parent list
+        parentsRequests: [],
       };
     }
   });
 
-  // Process Parents Sheet
   parentsSheet.forEach((row) => {
     let studentId = row.studentId;
 
     if (studentsMap[studentId]) {
       let parent = {
-        id: id, // Set this if needed
+        id: id,
         firstNames: row.firstNames || "",
         lastName: row.lastName || "",
         email: row.email || "",
@@ -373,4 +389,45 @@ function formatStudentImportRequest(studentsSheet, parentsSheet) {
   });
 
   return Object.values(studentsMap);
+}
+
+// Parent Modal Functionality
+$(document).on('click', '.student-row', function() {
+    const studentId = $(this).data('student-id');
+    showParentInfo(studentId);
+});
+
+function showParentInfo(studentId) {
+;
+    $('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
+    
+    const student = window.studentsJson.find(s => s.studentId === studentId);
+    
+    if (student && student.studentParents && student.studentParents.length > 0) {
+        const parentTable = $('#parentInfoTable');
+        parentTable.empty();
+        
+        student.studentParents.forEach(parent => {
+            const parentRow = $(`
+                <tr>
+                    <td>${parent.firstNames || ''} ${parent.lastName || ''}</td>
+                    <td>${parent.contact1 || ''} ${parent.contact2 ? '<br/>' + parent.contact2 : ''}</td>
+                    <td>${parent.email || ''}</td>
+                    <td>${parent.parentType || ''}</td>
+                </tr>
+            `);
+            parentTable.append(parentRow);
+        });
+        
+        $('#parentModalLabel').text(`Parents of ${student.firstName} ${student.lastName}`);
+        $('#parentModal').modal('show');
+    } else {
+        swal({
+            title: "No Parents Found",
+            text: "No parent information available for this student",
+            type: "info"
+        });
+    }
+    
+    $('.splash').css('display', 'none');
 }

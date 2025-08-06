@@ -3,6 +3,7 @@ package com.astromyllc.shootingstar.adminpta.serviceInterface;
 import com.astromyllc.shootingstar.adminpta.dto.request.*;
 import com.astromyllc.shootingstar.adminpta.dto.response.ClassListResponse;
 import com.astromyllc.shootingstar.adminpta.dto.response.StudentSkimResponse;
+import com.astromyllc.shootingstar.adminpta.dto.response.StudentSkimWithParentResponse;
 import com.astromyllc.shootingstar.adminpta.dto.response.StudentsResponse;
 
 import java.util.List;
@@ -25,4 +26,10 @@ public interface StudentServiceInterface {
     Optional<List<StudentsResponse>>  fetchStudentsByStatus(SingleStringRequest status);
 
     Optional<List<StudentsResponse>>  fetchStudentsByInstitution(SingleStringRequest institution);
+
+    Optional<List<StudentSkimWithParentResponse>>  getSkimpStudentsByParentContact(SingleStringRequest request);
+
+    Optional<List<StudentsResponse>>   fetchStudentsByDynamicData(DynamicStringRequest institution);
+
+    Optional<StudentSkimResponse>   getStudentByID(SingleStringRequest request);
 }

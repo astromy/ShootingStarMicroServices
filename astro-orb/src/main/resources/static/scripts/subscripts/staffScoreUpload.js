@@ -6,7 +6,7 @@ $(function () {
                     <div class="pull-right col-lg-5">
 
                             <div id="classListExport" class="col-lg-4">
-                                <button class="btn btn-primary col-lg-12" type="button" id="classListExport">Export Class List</button>
+                                <button class="btn btn-primary col-lg-12" type="button" id="classListExport">Download Class List</button>
                             </div>
                             <div id="hbreadcrumb" class="col-lg-4">
                                     <div class="row"  style="display: none;">

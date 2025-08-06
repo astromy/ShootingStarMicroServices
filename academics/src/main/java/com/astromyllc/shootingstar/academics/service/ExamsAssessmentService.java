@@ -1,14 +1,11 @@
 package com.astromyllc.shootingstar.academics.service;
 
-import com.astromyllc.shootingstar.academics.dto.alien.Students;
 import com.astromyllc.shootingstar.academics.dto.request.ExamsAssessmentRequest;
 import com.astromyllc.shootingstar.academics.dto.response.ClassListResponse;
 import com.astromyllc.shootingstar.academics.dto.response.ExamsAssessmentResponse;
-import com.astromyllc.shootingstar.academics.model.ContinuousAssessment;
 import com.astromyllc.shootingstar.academics.model.ExamsAssessment;
 import com.astromyllc.shootingstar.academics.repository.ExamsAssessmentRepository;
 import com.astromyllc.shootingstar.academics.serviceInterface.ExamsAssessmentServiceInterface;
-import com.astromyllc.shootingstar.academics.util.ContinuousAssessmentUtil;
 import com.astromyllc.shootingstar.academics.util.ExamsAssessmentUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -17,10 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -43,36 +37,59 @@ public class ExamsAssessmentService implements ExamsAssessmentServiceInterface {
 
     @Override
     public Optional<ExamsAssessmentResponse> submitExamsAssessments(List<ExamsAssessmentRequest> examsAssessmentRequests) {
-      List<ClassListResponse> studentsList=examsAssessmentUtil.fetchStudentsByClass(examsAssessmentRequests.get(0).getStudentClass(),examsAssessmentRequests.get(0).getInstitutionCode());
+        // Fast empty check
+        if (examsAssessmentRequests == null || examsAssessmentRequests.isEmpty()) {
+            return Optional.empty();
+        }
 
-        // Create a Set of student IDs for faster lookup
-        Set<String> validStudentIds = studentsList.stream()
+        // Extract first request parameters for batch query
+        ExamsAssessmentRequest firstRequest = examsAssessmentRequests.get(0);
+        String institutionCode = firstRequest.getInstitutionCode();
+        String studentClass = firstRequest.getStudentClass();
+
+        // Batch fetch students using parallel stream
+        Set<String> validStudentIds = examsAssessmentUtil.fetchStudentsByClass(studentClass, institutionCode)
+                .parallelStream()
                 .map(ClassListResponse::getStudentID)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toCollection(HashSet::new));
 
-        // Filter requests to only include those with valid student IDs
-        List<ExamsAssessmentRequest> validRequests = examsAssessmentRequests.stream()
+        // Parallel processing of valid requests
+        List<ExamsAssessment> newAssessments = examsAssessmentRequests.parallelStream()
                 .filter(request -> validStudentIds.contains(request.getStudentId()))
-                .toList();
-
-        Map<Boolean, List<ExamsAssessment>> partitioned = validRequests.stream()
                 .map(examsAssessmentUtil::mapExamsAssessmentRequest_ToExamsAssessment)
-                .collect(Collectors.partitioningBy(ca -> ExamsAssessmentUtil.examsAssessmentGlobalList.stream()
-                        .anyMatch(existingCa -> existingCa.getStudentId().equalsIgnoreCase(ca.getStudentId()) &&
-                                existingCa.getInstitutionCode().equalsIgnoreCase(ca.getInstitutionCode()) &&
-                                existingCa.getTerm().equalsIgnoreCase(ca.getTerm()) &&
-                                existingCa.getSubject().equals(ca.getSubject()) &&
-                                existingCa.getAcademicYear().equalsIgnoreCase(ca.getAcademicYear()))));
+                .collect(Collectors.toList());
 
-        List<ExamsAssessment> existingRecords = partitioned.get(true);  // Existing records
-        List<ExamsAssessment> newRecords = partitioned.get(false);     // New records
+        // Batch save with size optimization
+        List<ExamsAssessment> savedAssessments = examsAssessmentRepository.saveAll(newAssessments);
 
-        examsAssessmentRepository.saveAll(existingRecords);
-        examsAssessmentRepository.saveAll(newRecords);
-        ExamsAssessmentUtil.examsAssessmentGlobalList.addAll(newRecords);
+        // Get current timestamp once
+        LocalDateTime now = LocalDateTime.now();
+
+        // Optimized map update with batching
+        Map<String, ExamsAssessment> latestMap = ExamsAssessmentUtil.examsAssessmentLatestMap;
+        List<ExamsAssessment> latestRecords = new ArrayList<>(savedAssessments.size());
+
+        for (ExamsAssessment newCA : savedAssessments) {
+            String key = examsAssessmentUtil.buildCAKey(newCA);
+            ExamsAssessment existing = latestMap.get(key);
+
+            if (existing == null || newCA.getDateTime().isAfter(existing.getDateTime())) {
+                latestMap.put(key, newCA);
+                latestRecords.add(newCA);
+            }
+        }
+
+        // Atomic global list update (minimize synchronization)
+        if (!latestRecords.isEmpty()) {
+            synchronized (ExamsAssessmentUtil.class) {
+                ExamsAssessmentUtil.examsAssessmentGlobalList.addAll(latestRecords);
+            }
+        }
 
         return Optional.empty();
     }
+    
+
 
     @Override
     public List<Optional<ExamsAssessmentResponse>> getExamsAssessmentByStudent(ExamsAssessmentRequest examsAssessmentRequest) {

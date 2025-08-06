@@ -301,7 +301,7 @@ $(".next").click(function () {
 
 async function fetchStaffList(instId) {
   var instRequest = { val: instId };
-  return HttpPost("get-staff-by-institution", instRequest).then(function (
+  return fetchPost("get-staff-by-institution", instRequest).then(function (
     result
   ) {
     exisitingstaff = result;
@@ -311,7 +311,7 @@ async function fetchStaffList(instId) {
 //Populates the Designation Select Field
 async function fetchDepartment(instId) {
   var instRequest = { val: instId };
-  return HttpPost("getInstitutionDepartment", instRequest).then(function (
+  return fetchPost("getInstitutionDepartment", instRequest).then(function (
     result
   ) {
     var el = $("#staffDesignation");
@@ -353,7 +353,7 @@ async function fetchDepartment(instId) {
 $("#submitRequest").click(async function () {
 $('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
   console.log(JSON.stringify(staffList));
-  return HttpPost("create-staff", staffList).then(function (result) {
+  return fetchPost("create-staff", staffList).then(function (result) {
     $('.splash').css('display', 'none')
     swal({
       title: "Thank you!",

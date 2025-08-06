@@ -61,6 +61,11 @@ public class Students {
     private List<StudentSubjects> studentSubjects;
 
     @DBRef
+    @OneToMany(fetch = FetchType.EAGER,targetEntity = StudentAccount.class, cascade = CascadeType.ALL)
+    @JoinColumn(name = "studentAccount",referencedColumnName = "id")
+    private List<StudentAccount> studentAccount;
+
+    @DBRef
     @OneToMany(fetch = FetchType.EAGER,targetEntity = Parents.class, cascade = CascadeType.ALL)
     @JoinColumn(name = "parentsList",referencedColumnName = "id")
     private List<Parents> parentsList;

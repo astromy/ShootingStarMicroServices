@@ -11,7 +11,7 @@ $(".saveClassGroup").click(async function () {
 $('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
   //postdata();
   var jso = postdata();
-  return HttpPost("addLookUps", jso).then(function (result) {
+  return fetchPost("addLookUps", jso).then(function (result) {
     $("#example1").DataTable().destroy();
     $(".dismissClassGroup").click();
     populateTable(result);
@@ -57,7 +57,7 @@ async function fetchInstitution(instId) {
   var v = instId.replace(/[\[\]']+/g, "");
   v = v.replace(/\//g, "");
   var instRequest = { val: type };
-  return HttpPost("getLookUpByType", instRequest).then(function (result) {
+  return fetchPost("getLookUpByType", instRequest).then(function (result) {
     populateTable(result);
     console.log(result);
   });

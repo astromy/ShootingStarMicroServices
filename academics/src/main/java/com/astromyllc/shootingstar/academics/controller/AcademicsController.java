@@ -83,4 +83,20 @@ public class AcademicsController {
         return ResponseEntity.ok( assessmentServiceInterface.generateBroadsheet(terminalReportRequest));
 
     }
+
+    @PostMapping("/api/academics/generateUnconvertedBroadsheet")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<Optional<TerminalReportResponse>> generateUnconvertedBroadsheet(@RequestBody AcademicReportRequest terminalReportRequest) {
+        log.info("Assessment  Received");
+        return ResponseEntity.ok( assessmentServiceInterface.generateUnconvertedBroadsheet(terminalReportRequest));
+
+    }
+
+    @PostMapping("/api/academics/getStudentAcademicYearReport")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<Optional<TerminalReportResponse>> getStudentAcademicYearReport(@RequestBody SingleStringRequest studentID) {
+        log.info("Student Academic Year Report Request Received");
+        return ResponseEntity.ok( assessmentServiceInterface.getStudentAcademicYearReport(studentID));
+
+    }
 }

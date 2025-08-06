@@ -6,6 +6,7 @@ import com.astromyllc.shootingstar.academics.dto.alien.Students;
 import com.astromyllc.shootingstar.academics.dto.request.ExamsAssessmentRequest;
 import com.astromyllc.shootingstar.academics.dto.response.ClassListResponse;
 import com.astromyllc.shootingstar.academics.dto.response.ExamsAssessmentResponse;
+import com.astromyllc.shootingstar.academics.model.ContinuousAssessment;
 import com.astromyllc.shootingstar.academics.model.ExamsAssessment;
 import com.astromyllc.shootingstar.academics.repository.ExamsAssessmentRepository;
 import jakarta.annotation.PostConstruct;
@@ -24,6 +25,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static com.astromyllc.shootingstar.academics.util.AssessmentUtil.institutionGlobalRequest;
@@ -38,12 +40,32 @@ public class ExamsAssessmentUtil {
 
     private final WebClient.Builder webClientBuilder;
     static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+    public static final Map<String, ExamsAssessment> examsAssessmentLatestMap = new ConcurrentHashMap<>();
+
+
+    public String buildCAKey(ExamsAssessment ea) {
+        return ea.getStudentId() + "|" +
+                ea.getInstitutionCode() + "|" +
+                ea.getTerm() + "|" +
+                ea.getSubject() + "|" +
+                ea.getAcademicYear();
+    }
+
     @Value("${gateway.host}")
     private String host;
 
     @PostConstruct
     private void fetAllExamsAssessment() {
         examsAssessmentGlobalList = assessmentRepository.findAll();
+        examsAssessmentLatestMap.clear();
+
+        for (ExamsAssessment ea : examsAssessmentGlobalList) {
+            String key = buildCAKey(ea);
+            examsAssessmentLatestMap.merge(key, ea, (existing, incoming) ->
+                    incoming.getDateTime().isAfter(existing.getDateTime()) ? incoming : existing
+            );
+        }
         log.info("Global ExamsAssessment List populated with {} records", examsAssessmentGlobalList.size());
     }
 

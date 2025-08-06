@@ -7,7 +7,7 @@ window.copyrights();
 $(".saveGrading").click(async function () {
 $('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
   var jso = postdata();
-  return HttpPost("addGradingSetting", jso).then(function (result) {
+  return fetchPost("addGradingSetting", jso).then(function (result) {
     $("#gradingTable").DataTable().destroy();
     $("#gradingTable2").DataTable().destroy();
     $(".dismissSubject").click();
@@ -66,7 +66,7 @@ async function fetchInstitutionGrading(instId) {
   var v = instId.replace(/[\[\]']+/g, "");
   v = v.replace(/\//g, "");
   var instRequest = { val: v };
-  return HttpPost("getInstitutionGradingSetting", instRequest).then(function (
+  return fetchPost("getInstitutionGradingSetting", instRequest).then(function (
     result
   ) {
     result && populateTable(result);

@@ -87,6 +87,14 @@ public class AcademicsController {
     }
 
     @ResponseBody
+    @RequestMapping(value = "/generateUnconvertedBroadsheet", method = RequestMethod.POST)
+    public ResponseEntity<String> generateUnconvertedBroadsheet(@RequestBody AcademicReportRequest jso) throws IOException {
+
+        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/academics/generateUnconvertedBroadsheet");
+        return response;
+    }
+
+    @ResponseBody
     @RequestMapping(value = "/getExistingClassSubjectScores", method = RequestMethod.POST)
     public ResponseEntity<String> getExistingClassSubjectScores(@RequestBody AcademicReportRequest jso) throws IOException {
 
@@ -121,6 +129,13 @@ public class AcademicsController {
     @RequestMapping(value = "/generateClassTimetable", method = RequestMethod.POST)
     public ResponseEntity<String> generateClassTimetable(@RequestBody BillingFetchRequest jso) {
         ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/academics/get-billings-by-institution");
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "api/mobile/resultsData", method = RequestMethod.POST)
+    public ResponseEntity<String> getStudentResults(@RequestBody SingleStringRequest jso) {
+        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/academics/getStudentAcademicYearReport");
         return response;
     }
 

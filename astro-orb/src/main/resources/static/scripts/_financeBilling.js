@@ -11,7 +11,7 @@ $('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').
   v = instId.replace(/[\[\]']+/g, "");
   v = v.replace(/\//g, "");
   var instRequest = { val: "ClassGroup" };
-  return HttpPost("getLookUpByType", instRequest).then(function (result) {
+  return fetchPost("getLookUpByType", instRequest).then(function (result) {
     fetchInstitutionBills(v);
     populateClassGroup(result);
     $('.splash').css('display', 'none')
@@ -29,7 +29,7 @@ function populateClassGroup(data) {
 $(".saveBilling").click(async function () {
 $('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
   var jso = postdata();
-  return HttpPost("bill-students-by-institution", jso).then(function (result) {
+  return fetchPost("bill-students-by-institution", jso).then(function (result) {
     $(".dismissBilling").click();
     $('.splash').css('display', 'none')
     swal({
@@ -59,7 +59,7 @@ async function fetchBillings() {
     studentClass: document.querySelector(".classSelect").value,
     term: document.querySelector(".termSelect").value,
   };
-  return HttpPost("get-billing-by-institutionClass", instRequest).then(
+  return fetchPost("get-billing-by-institutionClass", instRequest).then(
     function (result) {
       populateTable(result);
     }
@@ -68,7 +68,7 @@ async function fetchBillings() {
 
 async function fetchInstitutionBills(v) {
   var instRequest = { val: v };
-  return HttpPost("get-bills-by-institution", instRequest).then(function (
+  return fetchPost("get-bills-by-institution", instRequest).then(function (
     result
   ) {
     fetchInstitutionClasses(result, v);
@@ -95,7 +95,7 @@ $('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').
     };
     try {
       // Await the result of the HTTP request
-      const result2 = await HttpPost(
+      const result2 = await fetchPost(
         "getInstitutionClassesByClassGroup",
         instRequest2
       );
@@ -117,7 +117,7 @@ function populateSelectClasses(data) {
 
 async function fetchInstitutionClasses(bills, v) {
   var instRequest = { val: v };
-  return HttpPost("getInstitutionClasses", instRequest).then(function (result) {
+  return fetchPost("getInstitutionClasses", instRequest).then(function (result) {
     populateClasses(result);
     createGeneralBills(bills);
   });
@@ -138,7 +138,7 @@ async function fetchStudentsByClass(studClass) {
     gender: "",
     status: "",
   };
-  return HttpPost("getSkimpStudentsByClass", instRequest).then(function (
+  return fetchPost("getSkimpStudentsByClass", instRequest).then(function (
     result
   ) {
     studentList = result.map((student) => student.studentId);

@@ -6,7 +6,7 @@ window.copyrights();
 $(".saveClass").click(async function () {
 $('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
   var jso = postdata();
-  return HttpPost("addClasses", jso).then(function (result) {
+  return fetchPost("addClasses", jso).then(function (result) {
     $("#classTable").DataTable().destroy();
     $(".dismissClass").click();
     populateTable(result);
@@ -47,14 +47,14 @@ $('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').
   var v = instId.replace(/[\[\]']+/g, "");
   v = v.replace(/\//g, "");
   var instRequest = { val: "ClassGroup" };
-  return HttpPost("getLookUpByType", instRequest).then((result) =>
+  return fetchPost("getLookUpByType", instRequest).then((result) =>{
     fetchInstitutionClasses(result, v)
     $('.splash').css('display', 'none')
-  );
+    });
 }
 
 function fetchInstitutionClasses(result1, v) {
-  return HttpPost("getInstitutionClasses", v).then(function (result) {
+  return fetchPost("getInstitutionClasses", v).then(function (result) {
     populateTable(result);
     populateClassGroup(result1);
   });
