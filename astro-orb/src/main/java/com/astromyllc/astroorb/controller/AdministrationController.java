@@ -1,22 +1,21 @@
 package com.astromyllc.astroorb.controller;
 
+import com.astromyllc.astroorb.dto.paystack.PaystackPaymentResponse;
 import com.astromyllc.astroorb.dto.request.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URI;
@@ -25,13 +24,28 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 @Slf4j
 @ResponseBody
 @RequiredArgsConstructor
 public class AdministrationController {
+    private final ObjectMapper objectMapper;
+    @Value("${gateway.host}")
+    private String backendserve;
+
+    private static String bytesToHex(byte[] bytes) {
+        StringBuilder result = new StringBuilder();
+        for (byte b : bytes) {
+            result.append(String.format("%02x", b));
+        }
+        return result.toString();
+    }
 
     @GetMapping("/csrf-token")
     public ResponseEntity<Map<String, String>> getCsrfToken(HttpServletRequest request) {
@@ -43,12 +57,9 @@ public class AdministrationController {
                 .body(body);
     }
 
-    @Value("${gateway.host}")
-    private String backendserve;
-
     @ResponseBody
     @RequestMapping(value = "/conduct-admissions", method = RequestMethod.POST)
-    public ResponseEntity<String>conductAdmissions (@RequestBody List<BillRequest> jso) throws IOException {
+    public ResponseEntity<String> conductAdmissions(@RequestBody List<BillRequest> jso) throws IOException {
 
         return BACKENDCOMMPOSTLIST(Collections.singletonList(jso), "http://" + backendserve + "/api/administration-pta/conduct-admissions");
     }
@@ -78,7 +89,7 @@ public class AdministrationController {
     @RequestMapping(value = "/getAssessmentList", method = RequestMethod.POST)
     public ResponseEntity<String> getAssessmentList(@RequestBody ClassListRequest jso) throws IOException {
 
-         ResponseEntity<String> result= BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/administration-pta/getAssessmentList");
+        ResponseEntity<String> result = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/administration-pta/getAssessmentList");
         return result;
     }
 
@@ -103,7 +114,8 @@ public class AdministrationController {
     @ResponseBody
     @RequestMapping(value = "api/mobile/getSkimpStudentsByParentContact", method = RequestMethod.POST)
     public ResponseEntity<String> getSkimpStudentsByParentContact(@RequestBody SingleStringRequest jso) {
-        return BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/administration-pta/getSkimpStudentsByParentContact");
+        ResponseEntity<String> response= BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/administration-pta/getSkimpStudentsByParentContact");
+        return response;
     }
 
     @ResponseBody
@@ -112,8 +124,51 @@ public class AdministrationController {
         return BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/administration-pta/sendReactivationEmail");
     }
 
+    @ResponseBody
+    @PostMapping(value = "webhook/subscriptionPaymentStatus")
+    public ResponseEntity<String> subscriptionPaymentStatus(HttpServletRequest request, @RequestHeader("x-paystack-signature") String paystackSignature) throws IOException {
+        String requestBody = request.getReader().lines().collect(Collectors.joining());
 
+        if (!verifyPaystackSignature(requestBody, paystackSignature)) {
+            log.error("Invalid webhook signature. Potential malicious request.");
+            return ResponseEntity.status(401).body("Invalid signature");
+        }
 
+        PaystackPaymentResponse jso;
+        try {
+            jso = objectMapper.readValue(requestBody, PaystackPaymentResponse.class);
+            log.info("Paystack Response  === {}", jso);
+            if (jso.getEvent().equalsIgnoreCase("charge.success")) {
+                ResponseEntity<String> serviceResponse=null;
+                if (jso.getData().getMetadata().getCustomFields().get(0).getDisplayName().toLowerCase().contains("student id")) {
+                    serviceResponse = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/administration-pta/subscriptionPaymentStatus");
+                } else {
+                    serviceResponse = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/reactivateInstitutionalAccount");
+                }
+                return serviceResponse;
+            }else{
+                return ResponseEntity.status(601).body("Failed Transaction");
+            }
+        } catch (Exception e) {
+            log.error("Error parsing webhook JSON", e);
+            return ResponseEntity.badRequest().body("Bad JSON");
+        }
+    }
+
+    private boolean verifyPaystackSignature(String requestBody, String signature) {
+        ;
+        try {
+            Mac mac = Mac.getInstance("HmacSHA512");
+            SecretKeySpec secretKeySpec = new SecretKeySpec(PAYSTACK_SECRET_KEY.getBytes(StandardCharsets.UTF_8), "HmacSHA512");
+            mac.init(secretKeySpec);
+            byte[] hex = mac.doFinal(requestBody.getBytes(StandardCharsets.UTF_8));
+            String computedSignature = bytesToHex(hex);
+            return computedSignature.equals(signature);
+        } catch (Exception e) {
+            log.error("Error verifying signature", e);
+        }
+        return false;
+    }
 
     private ResponseEntity<String> BACKENDCOMMPOSTLIST(List<Object> jso, String url) {
 
@@ -178,7 +233,7 @@ public class AdministrationController {
 
     private ResponseEntity<String> BACKENDCOMMPOST(Object jso, String url) {
 
-        log.info("Calling API: {}", url);
+        log.info("Calling API: {} ", url);
 
         try {
 
@@ -186,7 +241,7 @@ public class AdministrationController {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
                     .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(new ObjectMapper().writeValueAsString(jso)))
+                    .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(jso)))
                     .build();
             log.info("Calling API With REQUEST: {}", request);
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());

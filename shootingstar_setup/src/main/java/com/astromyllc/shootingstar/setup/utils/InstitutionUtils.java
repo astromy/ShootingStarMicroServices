@@ -2,8 +2,10 @@ package com.astromyllc.shootingstar.setup.utils;
 
 import com.astromyllc.shootingstar.setup.dto.request.InstitutionRequest;
 import com.astromyllc.shootingstar.setup.dto.request.PreOrderInstitutionRequest;
+import com.astromyllc.shootingstar.setup.dto.request.SingleStringRequest;
 import com.astromyllc.shootingstar.setup.dto.response.InstitutionResponse;
 import com.astromyllc.shootingstar.setup.dto.response.PreOrderInstitutionResponse;
+import com.astromyllc.shootingstar.setup.dto.response.SkimpInstitutionResponse;
 import com.astromyllc.shootingstar.setup.model.Institution;
 import com.astromyllc.shootingstar.setup.model.PreOrderInstitution;
 import com.astromyllc.shootingstar.setup.repository.InstitutionRepository;
@@ -23,7 +25,12 @@ import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -40,15 +47,19 @@ public class InstitutionUtils {
     public static List<Institution> institutionGlobalList = null;
     public static List<PreOrderInstitution> preOrderInstitutionGlobalList = null;
     public static List<String> permissions = null;
+    public static Long studentsCount = null;
     static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private final InstitutionRepository institutionRepository;
     private final PreOrderInstitutionRepository preOrderInstitutionRepository;
     private final SubjectUtil subjectUtil;
     private final MailUtil mailUtil;
-    @Value("${gateway.host}")
-    private String keycloakSecrete;
+    private final WebClient.Builder webClientBuilder;
+  /*  @Value("${gateway.host}")
+    private String keycloakSecrete;*/
     @Value("${keycloak.address}")
     private String keycloakURL;
+    @Value("${gateway.host}")
+    private String host;
 
     @PostConstruct
     public void fetAllInstitutions() {
@@ -56,6 +67,36 @@ public class InstitutionUtils {
         preOrderInstitutionGlobalList = preOrderInstitutionRepository.findAll();
         log.info("Global Institution List populated with {} records", (long) institutionGlobalList.size());
         log.info("Global Pre-Ordered Institution List populated with {} records", (long) preOrderInstitutionGlobalList.size());
+    }
+
+
+    public Long getPopulation(String institutionCode) {
+        SingleStringRequest request = SingleStringRequest.builder()
+                .val(institutionCode)
+                .build();
+        studentsCount =
+
+                webClientBuilder
+                        .baseUrl("http://" + host)
+                        .filter(ExchangeFilterFunction.ofRequestProcessor(clientRequest -> {
+                            System.out.println("Request: " + clientRequest);
+                            return Mono.just(clientRequest);
+                        }))
+                        .filter(ExchangeFilterFunction.ofResponseProcessor(clientResponse -> {
+                            System.out.println("Response: " + clientResponse);
+                            return Mono.just(clientResponse);
+                        }))
+                        .build()
+                        .post()
+                        .uri("/api/administration-pta/getInstitutionPopulationByCode")
+                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                        .bodyValue(request)
+                        .retrieve()
+                        .bodyToMono(Long.class)
+                        .block();
+
+        return studentsCount;
+
     }
 
     public Institution mapInstitutionRequest_ToInstitution(InstitutionRequest institutionRequest) {
@@ -141,6 +182,34 @@ public class InstitutionUtils {
                         .map(DepartmentUtil::mapDepartment_ToDepartmentResponse)
                         .toList()
                         : Collections.emptyList())
+                .build();
+    }
+
+    public SkimpInstitutionResponse mapInstitutionToSkimpInstitutionResponse(Institution institution) {
+        return SkimpInstitutionResponse.builder()
+                .id(institution.getIdInstitution())
+                .name(institution.getName())
+                .slogan(institution.getSlogan())
+                .country(institution.getCountry())
+                .region(institution.getRegion())
+                .city(institution.getCity())
+                .email(institution.getEmail())
+                .website(institution.getWebsite())
+                .contact1(institution.getContact1())
+                .contact2(institution.getContact2())
+                .status(institution.getStatus())
+                .bececode(institution.getBececode())
+                .creationDate(institution.getCreationDate())
+                .postalAddress(institution.getPostalAddress())
+                .streams(institution.getStreams())
+                .subscription(institution.getSubscription())
+                .population(getPopulation(institution.getBececode()))
+                .pendingBill(getPopulation(institution.getBececode()) *
+                        (institution.getSubscription().contains("Free") ? 0.0 :
+                                institution.getSubscription().contains("Basic") ? 20.0 :
+                                        institution.getSubscription().contains("Standard") ? 40.0 :
+                                                institution.getSubscription().contains("Professional") ? 60.0 : 0.0)
+                )
                 .build();
     }
 
@@ -301,8 +370,6 @@ public class InstitutionUtils {
         permissions.add("Teaching score_upload");
         permissions.add("Teaching assignment_review");
 
-        String clientSecret = keycloakSecrete;
-
         Keycloak kc = KeycloakBuilder.builder()
                 .serverUrl(keycloakURL)
                 .realm("ShootingStar")
@@ -389,8 +456,8 @@ public class InstitutionUtils {
                 log.info("Roles added to user: " + rolesToAdd);
             }
 
-            sendmail(institution,client,institution.getBececode(),institution.getEmail());
-            alertMail(institution,"astromyllc@gmail.com");
+            sendmail(institution, client, institution.getBececode(), institution.getEmail());
+            alertMail(institution, "astromyllc@gmail.com");
 
 
         } catch (Exception e) {
@@ -421,7 +488,7 @@ public class InstitutionUtils {
     private void sendmail(PreOrderInstitution inst, String userName, String passCode, String reciepient) {
         String mailBody = "<html><body>" +
 
-                "Hi "+ inst.getName() +" Team,.<br>" +
+                "Hi " + inst.getName() + " Team,.<br>" +
 
                 "Welcome aboard! We’re thrilled to have you as part of our growing community. Your subscription is now active, and we’re excited to support your journey every step of the way..<br>" +
 
@@ -441,7 +508,7 @@ public class InstitutionUtils {
                 "</body></html>";
 
 
-        mailUtil.sendTransactionalEmail(reciepient, "Welcome to the Astromy ORB application", mailBody,"support");
+        mailUtil.sendTransactionalEmail(reciepient, "Welcome to the Astromy ORB application", mailBody, "support");
     }
 
     private void alertMail(PreOrderInstitution inst, String reciepient) {
@@ -465,7 +532,7 @@ public class InstitutionUtils {
                 "</body></html>";
 
 
-        mailUtil.sendTransactionalEmail(reciepient, "NEW ORB SUBSCRIPTION", mailBody,"support");
+        mailUtil.sendTransactionalEmail(reciepient, "NEW ORB SUBSCRIPTION", mailBody, "support");
     }
 
     @Bean

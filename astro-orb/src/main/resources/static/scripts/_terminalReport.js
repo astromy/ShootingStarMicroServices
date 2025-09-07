@@ -359,7 +359,7 @@ function generatePDF(assessments) {
     }
 
     // ** Add Institution Name & Slogan **
-    terminalReport.setFontSize(16);
+    terminalReport.setFontSize(14);
     terminalReport.setFont("helvetica", "bold");
     terminalReport.setTextColor("#058709");
     terminalReport.text(
@@ -367,7 +367,7 @@ function generatePDF(assessments) {
       offset + logoWidth + 22.5,
       offset + 20
     );
-    terminalReport.setFontSize(9);
+    terminalReport.setFontSize(8);
     terminalReport.setFont("helvetica", "normal");
     terminalReport.setTextColor("#058709");
     terminalReport.text(
@@ -377,25 +377,25 @@ function generatePDF(assessments) {
     );
 
     // ** Institution Contact Details **
-    terminalReport.setFontSize(9);
+    terminalReport.setFontSize(8);
     terminalReport.text(
       institution.postalAddress,
       offset + xcord + 65 * 2,
       offset + 32
     );
-    terminalReport.setFontSize(9);
+    terminalReport.setFontSize(8);
     terminalReport.text(
       "Email: " + institution.email,
       offset + xcord + 65 * 2,
       offset + 36
     );
-    terminalReport.setFontSize(9);
+    terminalReport.setFontSize(8);
     terminalReport.text(
       "Website: " + institution.website,
       offset + xcord + 65 * 2,
       offset + 40
     );
-    terminalReport.setFontSize(9);
+    terminalReport.setFontSize(8);
     terminalReport.text(
       institution.city + " " + institution.region + " " + institution.country,
       offset + xcord + 65 * 2,
@@ -403,15 +403,15 @@ function generatePDF(assessments) {
     );
 
     // ** Add Student Details **
-    terminalReport.setFontSize(9);
+    terminalReport.setFontSize(8.5);
     terminalReport.setTextColor("#000");
     terminalReport.text(`Student ID: ${student.studentId}`, xcord, ycord + 4);
-    terminalReport.text("Student Name: ", xcord, ycord + 4 * 2);
+    terminalReport.text("Student Name:", xcord, ycord + 4 * 2);
 
     var name = `${student.firstName} ${student.otherName || ""} ${
       student.lastName
     }`;
-    wrappedText = terminalReport.splitTextToSize(name, 43);
+    wrappedText = terminalReport.splitTextToSize(name, 63);
     terminalReport.text(wrappedText[0], 32, ycord + 4 * 2);
     terminalReport.text(`Gender: ${student.gender}`, xcord, ycord + 4 * 3);
     terminalReport.text(
@@ -431,33 +431,33 @@ function generatePDF(assessments) {
     );
 
     // ** Add Class Details **
-    terminalReport.setFontSize(9);
+    terminalReport.setFontSize(8.5);
     terminalReport.setTextColor("#000");
     terminalReport.text(
       "Program of Study:" + institution.classGroup,
-      xcord + 65,
+      xcord + 80,
       ycord + 4 * 1
     );
     terminalReport.text(
       `Student Class: ${student.studentAssessment[0]?.studentClass || "N/A"}`,
-      xcord + 65,
+      xcord + 80,
       ycord + 4 * 2
     );
     terminalReport.text(
       `Class Size: ${studentReports.length}`,
-      xcord + 65,
+      xcord + 80,
       ycord + 4 * 3
     );
     terminalReport.text(
       "Class Average Mark:" + institution.classAverage,
-      xcord + 65,
+      xcord + 80,
       ycord + 4 * 4
     );
-    terminalReport.text("", xcord + 65, ycord + 4 * 5); //Empty field waiting for information
-    terminalReport.text("", xcord + 65, ycord + 4 * 6); //Empty field waiting for information
+    terminalReport.text("", xcord + 80, ycord + 4 * 5); //Empty field waiting for information
+    terminalReport.text("", xcord + 80, ycord + 4 * 6); //Empty field waiting for information
 
     // ** Add Performance Details **
-    terminalReport.setFontSize(9);
+    terminalReport.setFontSize(8);
     terminalReport.setTextColor("#000");
     terminalReport.text(
       `Student Average Grade: ${student.averageGrade || "N/A"}`,

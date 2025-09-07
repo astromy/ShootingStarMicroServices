@@ -19,7 +19,8 @@ public class StudentAccount {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private ObjectId id;
-    private String studentID;
+    @NonNull
+    private String studentId;
     private String activationState;
     private String activationDate;
 }

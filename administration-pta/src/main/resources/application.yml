@@ -100,3 +100,10 @@ logging:
         boot:
           autoconfigure: INFO
       springframework.web.client.RestTemplate: INFO
+
+
+keycloak:
+  address: ${KeycloakURL:https://keycloak.astromyllc.com}
+
+paystack:
+  secrete: ${PAYSTACK_SECRET_KEY}

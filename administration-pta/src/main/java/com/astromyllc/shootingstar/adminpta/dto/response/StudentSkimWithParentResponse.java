@@ -24,4 +24,5 @@ public class StudentSkimWithParentResponse {
     private String picture;
     private String status;
     private List<ParentsResponse> parents;
+    private List<StudentAccountResponse> studentAccount;
 }

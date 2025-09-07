@@ -12,6 +12,7 @@ import java.util.Optional;
 public interface StudentServiceInterface {
 
     void fetchCurrentApplications(AdmissionRequest admissionRequest);
+    void fetchCurrentApplications(Students2Request admissionRequest);
 
     Optional<List<StudentsResponse>> fetchAllStudents();
 
@@ -32,4 +33,6 @@ public interface StudentServiceInterface {
     Optional<List<StudentsResponse>>   fetchStudentsByDynamicData(DynamicStringRequest institution);
 
     Optional<StudentSkimResponse>   getStudentByID(SingleStringRequest request);
+
+    Optional<Long> getStudentsPopulationByInstitution(SingleStringRequest request);
 }

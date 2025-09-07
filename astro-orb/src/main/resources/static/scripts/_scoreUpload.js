@@ -73,6 +73,9 @@ var selectedValue = document
   .querySelector("#scoreTypeControl")
   .parentElement.querySelector("label").innerHTML;
 
+/**
+Switches between the Class Upload and Exams Upload
+*/
 document
   .querySelector("#scoreTypeControl")
   .addEventListener("change", function () {

@@ -1,565 +1,2101 @@
-var selectPlan,institution,slogan,country,region,city,email,contact1,contact2,bececode,postalAddress,streams,population,website;
+var selectPlan,
+  institution,
+  slogan,
+  country,
+  region,
+  city,
+  email,
+  contact1,
+  contact2,
+  bececode,
+  postalAddress,
+  streams,
+  population,
+  website;
+var subjectJsonData = null;
+let selectedProgram = null;
+let currentStudentData = null
 
-    $(".selectPlan").on('click', function(event){
-         event.preventDefault();
-         $('.subscriptionOption').removeClass('active');
-         $(this).closest(".subscriptionOption").addClass("active");
-         var x=$(this).closest('.subscriptionOption').find('.subscriptionPlan');
-         selectPlan=x.text();
-    });
-
-    $('.prev').click(function () {
-        var tabs= $('.tab-pane');
-        var tbs= $('.tab-pane.active');
-        tabs.removeClass('active');
-        var prevLi = tbs.prev().addClass("active");
-
-        var header=$('.wizardTabs');
-        var header1=$('.wizardTabs.btn-primary');
-        header.removeClass('btn-primary');
-        header.addClass('btn-default');
-        header1.prev().removeClass('btn-default').addClass('btn-primary');
-    });
-
-    $('.next').click(function () {
-        
-       var tabs= $('.tab-pane');
-       var tbs= $('.tab-pane.active');
-       tabs.removeClass('active');
-       var nextLi = tbs.next().addClass("active");  
-
-       var header=$('.wizardTabs')
-       var header1=$('.wizardTabs.btn-primary');
-       header.removeClass('btn-primary');
-       header.addClass('btn-default');
-       header1.next().removeClass('btn-default').addClass('btn-primary');
-       document.getElementById('client').innerHTML=document.getElementsByName('clientName')[0].value;
-       confdata();
-    });
-
-    $('.tnc').click(function(){
-    document.getElementById('modb').innerHTML=contract;
-    document.getElementById('contractClient').innerHTML=$('[name="clientName"]').val();
-    document.getElementById('dtime').innerHTML=datetime();
-    })
-
-    $('#submitRequest').click(function() {
-            var approve = $(".approveCheck").is(':checked');
-            if(approve) {
-               var c= validateForm();
-               if(c===true){
-                // Got to step 1
-              //  $('[href=#step1]').tab('show');
-                postdata();
-                var jso= buildJson();
-                // Serialize data to post method
-                var datastring = $("#simpleForm").serialize();
-
-                // Show notification
-    //        Example code for post form
-
-;
-	var header = $("meta[name='_csrf_header']").attr("content");
-	var token = $("meta[name='_csrf']").attr("content");
-
-        $.ajax({
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-            url : "preRequestInstitution",
-            type : 'POST',
-            data : JSON.stringify(jso),
-            beforeSend : function(xhr) {
-                xhr.setRequestHeader(header, token);
-            },
-            cache : false,
-            contentType : false,
-            processData : false,
-            xhr : function() {
-                var myXhr = $.ajaxSettings.xhr();
-                if (myXhr.upload) {
-                    myXhr.upload.addEventListener('progress', function(
-                            e) {
-                        if (e.lengthComputable) {
-                            $('progress').attr({
-                                value : e.loaded,
-                                max : e.total,
-                            });
-                        }
-                    }, false);
-                }
-                return myXhr;
-            },
-            success : function(data) {
-                    swal({
-                           title: "Thank you!",
-                           text: "Your application is being submitted",
-                           type: "success"
-                      });
-            },
-            error : function(errMsg) {
-                swal({
-                       title: "Sorry!",
-                       text:  "Operation Failed",
-                       type: "error"
-                  });
-            }
-        });
+const countries = ["Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Côte d'Ivoire", "Cabo Verde", "Cambodia", "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo (Congo-Brazzaville)", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czechia (Czech Republic)", "Democratic Republic of the Congo", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia", "Fiji", "Finland", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Holy See", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar (Burma)", "Namibia", "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Korea", "North Macedonia", "Norway", "Oman", "Pakistan", "Palau", "Palestine State", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Korea", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Tajikistan", "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States of America", "Uruguay", "Uzbekistan", "Vanuatu", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe"];
 
 
-	/*$.post("preRequestInstitution", jso, function(data) {
 
-	})*/
+$(".prev").click(function(){
+previous();
+})
 
-            }
-            } else {
-                // Show notification
-                swal({
-                    title: "Error!",
-                    text: "You have to first approve to the Terms and Conditions.",
-                    type: "error"
-                });
-            }
-});
+function previous() {
+  var tabs = $(".tab-pane");
+  var tbs = $(".tab-pane.active");
+  tabs.removeClass("active");
+  var prevLi = tbs.prev().addClass("active");
 
-$('#copyrightYear').text(getYear());
-
-    function confdata(){
-
-    $('[name="clientName_"]').text( $('[name="clientName"]').val());
-    $('[name="slogan_"]').text($('[name="slogan"]').val());
-    $('[name="country_"]').text($('[name="country"]').val());
-    $('[name="region_"]').text($('[name="region"]').val());
-    $('[name="city_"]').text($('[name="city"]').val());
-    $('[name="email_"]').text($('[name="email"]').val());
-    $('[name="contact1_"]').text($('[name="contact1"]').val());
-    $('[name="contact2_"]').text($('[name="contact2"]').val());
-    $('[name="bececode_"]').text($('[name="bececode"]').val());
-    $('[name="postalAddress_"]').text($('[name="postalAddress"]').val());
-    $('[name="streams_"]').text($('[name="streams"]').val());
-    $('[name="population_"]').text($('[name="population"]').val());
-    $('[name="website_"]').text($('[name="website"]').val());
-    $('[name="subscription_"]').text(selectPlan);
-    //crest=getBase64Image(document.getElementById("crestImage"));
-    }
-     
-    function postdata(){
-
-    institution= $('[name="clientName"]').val();
-    slogan= $('[name="slogan"]').val();
-    country=$('[name="country"]').val();
-    region=$('[name="region"]').val();
-    city= $('[name="city"]').val();
-    email= $('[name="email"]').val();
-    contact1= $('[name="contact1"]').val();
-    contact2= $('[name="contact2"]').val();
-    bececode=$('[name="bececode"]').val();
-    postalAddress= $('[name="postalAddress"]').val();
-    streams= $('[name="streams"]').val();
-    population=$('[name="population"]').val();
-    website=$('[name="website"]').val();
-    crest=getBase64Image(document.getElementById("crestImage"));
-    }
-
-    function buildJson(){
-        var jsonObject={
-            "name":institution,
-            "slogan":slogan,
-            "country":country,
-            "region":region,
-            "city":city,
-            "email":email,
-            "contact1":contact1,
-            "contact2":contact2,
-            "bececode":bececode,
-            "postalAddress":postalAddress,
-            "streams":streams,
-            "population":population,
-            "website":website,
-            "subscription":selectPlan,
-            "status":"Pre-Order",
-            "creationDate":"",
-            "crest":crest
-        };
-
-        return jsonObject
-    }
-
-    function getBase64Image(img) {
-        var canvas = document.createElement("canvas");
-        canvas.width = img.width;
-        canvas.height = img.height;
-        var ctx = canvas.getContext("2d");
-        ctx.drawImage(img, 0, 0);
-        var dataURL = canvas.toDataURL("image/png");
-        return dataURL.split(",")[1].replace('"',"");
-      }
-
-    function validateForm(){
-    $("#institutionForm").validate({
-        rules: {
-            clientName: {
-                required: true,
-                minlength: 3
-            },
-            slogan: {
-                required: true,
-                minlength: 5
-            },
-            country: {
-                required: true,
-                minlength: 2
-            },
-            region: {
-                required: true,
-                minlength: 3
-            },
-            city: {
-                required: true,
-                minlength: 5
-            },
-            email: {
-                required: true,
-                email: true
-            },
-            contact1: {
-                required: true,
-                minlength: 10
-            },
-            bececode: {
-                required: true,
-                minlength: 5
-            },
-            postalAddress: {
-                required: true,
-                minlength: 3
-            },
-            streams: {
-                required: true,
-                number: true
-            },
-            population: {
-                required: true,
-                number: true
-            }
-        },
-        messages: {
-
-            institution: {
-                required: "Please enter the name of your Institution",
-                minlength: "Please enter valid institutional Name"
-            },
-            slogan: {
-                required: "Please enter your slogan or motto",
-                minlength: "Slogan can't be less that 5 characters in lenght"
-            },
-            country: {
-                required: "Please enter the country you operate from",
-                minlength: "Please enter valid country"
-            },
-            region: {
-                required: "Please enter the region or province you operate from",
-                minlength: "Please enter valid region"
-            },
-            city: {
-                required: "Please enter the city you operate from",
-                minlength: "Please enter valid city"
-            },
-            email: {
-                required: "Please enter your email",
-                email: "Please enter valid email"
-            },
-            contact1: {
-                required: "Please enter your phone number",
-                minlength: "Please enter valid phone number"
-            },
-            bececode: {
-                required: "Please enter your BECE code",
-                minlength: "Please enter valid code"
-            },
-            postalAddress: {
-                required: "Please enter your postal address",
-                minlength: "Please enter valid address"
-            },
-            streams: {
-                required: "Please enter the number of streams you run",
-                number: "Please enter valid number"
-            },
-            population: {
-                required: "Please enter your institutional population",
-                number: "Please enter valid number"
-            }
-        },
-        submitHandler: function(form) {
-            form.submit();
-        },
-        errorPlacement: function(error, element) {
-            $( element )
-                    .closest( "form" )
-                    .find( "label[for='" + element.attr( "id" ) + "']" )
-                    .append( error );
-        },
-        errorElement: "span",
-    });
-
-return true;
+  var header = $(".wizardTabs");
+  var header1 = $(".wizardTabs.btn-primary");
+  header.removeClass("btn-primary");
+  header.addClass("btn-default");
+  header1.prev().removeClass("btn-default").addClass("btn-primary");
 };
 
+$(".next").click(function () {
+if (!validateForm()) {
+    //previous();
+    return;
+    }
+  var tabs = $(".tab-pane");
+  var tbs = $(".tab-pane.active");
+  tabs.removeClass("active");
+  var nextLi = tbs.next().addClass("active");
 
-const input = document.querySelector(".imageInput")
-const output = document.querySelector(".imageOutput")
-var verfyOutput=document.querySelector("#crest_")
-let imagesArray = []
+  var header = $(".wizardTabs");
+  var header1 = $(".wizardTabs.btn-primary");
+  header.removeClass("btn-primary");
+  header.addClass("btn-default");
+  header1.next().removeClass("btn-default").addClass("btn-primary");
+  /*document.getElementById('client').innerHTML=document.getElementsByName('clientName')[0].value;
+       confdata();*/
+});
+
+
+    // Initialize country select
+    const countrySelect = document.getElementById('cob');
+    countries.forEach(country => {
+        const option = document.createElement('option');
+        option.value = country;
+        option.textContent = country;
+        countrySelect.appendChild(option);
+    });
+
+    // Set copyright year
+    document.getElementById('copyrightYear').textContent = new Date().getFullYear();
+
+//TERMS AND CONDITIONS
+$(".tnc").click(function () {
+  document.getElementById("modb").innerHTML = contract;
+  /*document.getElementById('contractClient').innerHTML=$('[name="clientName"]').val();*/
+  document.getElementById("dtime").innerHTML = datetime();
+});
+
+$("#submitRequest").click(async function () {
+  var approve = $(".approveCheck").is(":checked");
+ // if (approve) {
+    var c = validateForm();
+    if (c === true) {
+      // Got to step 1
+      //  $('[href=#step1]').tab('show');
+      //buildStudentPayload();
+      var jso = await buildStudentPayload();
+      // Serialize data to post method
+      var datastring = $("#simpleForm").serialize();
+
+      // Show notification
+      //        Example code for post form
+
+      var header = $("meta[name='_csrf_header']").attr("content");
+      var token = $("meta[name='_csrf']").attr("content");
+
+      $.ajax({
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        url: "postedStudentRegistration",
+        type: "POST",
+        data: JSON.stringify(jso),
+        beforeSend: function (xhr) {
+          xhr.setRequestHeader(header, token);
+        },
+        cache: false,
+        contentType: false,
+        processData: false,
+        xhr: function () {
+          var myXhr = $.ajaxSettings.xhr();
+          if (myXhr.upload) {
+            myXhr.upload.addEventListener(
+              "progress",
+              function (e) {
+                if (e.lengthComputable) {
+                  $("progress").attr({
+                    value: e.loaded,
+                    max: e.total,
+                  });
+                }
+              },
+              false
+            );
+          }
+          return myXhr;
+        },
+        success: function (data) {
+          swal({
+            title: "Thank you!",
+            text: "Your application is being submitted",
+            type: "success",
+          });
+        },
+        error: function (errMsg) {
+          swal({
+            title: "Sorry!",
+            text: "Operation Failed",
+            type: "error",
+          });
+        },
+      });
+
+      /*$.post("preRequestInstitution", jso, function(data) {
+
+	})*/
+    }
+ /* } else {
+    // Show notification
+    swal({
+      title: "Error!",
+      text: "You have to first approve to the Terms and Conditions.",
+      type: "error",
+    });
+  }*/
+});
+
+$("#copyrightYear").text(getYear());
+
+
+function getBase64Image(img) {
+  var canvas = document.createElement("canvas");
+  canvas.width = img.width;
+  canvas.height = img.height;
+  var ctx = canvas.getContext("2d");
+  ctx.drawImage(img, 0, 0);
+  var dataURL = canvas.toDataURL("image/png");
+  return dataURL.split(",")[1].replace('"', "");
+}
+
+
+const input = document.querySelector(".imageInput");
+const output = document.querySelector(".imageOutput");
+var verfyOutput = document.querySelector("#studentPicture");
+let imagesArray = [];
 
 input.addEventListener("change", () => {
-    const file = input.files
-    imagesArray=[];
-    imagesArray.push(file[0])
-    displayImages()
-  })
+  const file = input.files;
+  imagesArray = [];
+  imagesArray.push(file[0]);
+  displayImages();
+});
 
-  function displayImages() {
-    let images = ""
-    imagesArray.forEach((image, index) => {
-      images += `<div class="crest">
-                  <img src="${URL.createObjectURL(image)}" alt="image" id="crestImage" class="crest">
+function displayImages() {
+  let images = "";
+  imagesArray.forEach((image, index) => {
+    images += `<div class="studPic">
+                  <img src="${URL.createObjectURL(
+                    image
+                  )}" alt="image" id="studentPicture" class="studPic">
                   <span onclick="deleteImage(${index})">&times;</span>
-                </div>`
-    })
-    output.innerHTML = images
-    verfyOutput=images
-  }
-
-  function deleteImage(index) {
-    imagesArray.splice(index, 1)
-    imagesArray=[];
-    displayImages()
-  }
-
-function datetime(){
-
-var objToday = new Date(),
-	weekday = new Array('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'),
-	dayOfWeek = weekday[objToday.getDay()],
-	domEnder = function() { var a = objToday; if (/1/.test(parseInt((a + "").charAt(0)))) return "th"; a = parseInt((a + "").charAt(1)); return 1 == a ? "st" : 2 == a ? "nd" : 3 == a ? "rd" : "th" }(),
-	dayOfMonth = today + ( objToday.getDate() < 10) ? '0' + objToday.getDate() + domEnder : objToday.getDate() + domEnder,
-	months = new Array('January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'),
-	curMonth = months[objToday.getMonth()],
-	curYear = objToday.getFullYear(),
-	curHour = objToday.getHours() > 12 ? objToday.getHours() - 12 : (objToday.getHours() < 10 ? "0" + objToday.getHours() : objToday.getHours()),
-	curMinute = objToday.getMinutes() < 10 ? "0" + objToday.getMinutes() : objToday.getMinutes(),
-	curSeconds = objToday.getSeconds() < 10 ? "0" + objToday.getSeconds() : objToday.getSeconds(),
-	curMeridiem = objToday.getHours() > 12 ? "PM" : "AM";
-var today = curHour + ":" + curMinute + "." + curSeconds + curMeridiem + " " + dayOfWeek + " " + dayOfMonth + " of " + curMonth + ", " + curYear;
-return objToday
+                </div>`;
+  });
+  output.innerHTML = images;
+  verfyOutput = images;
 }
 
-function getYear(){
-var objToday = new Date();
-curYear = objToday.getFullYear();
-return curYear;
+function deleteImage(index) {
+  imagesArray.splice(index, 1);
+  imagesArray = [];
+  displayImages();
 }
 
-$("#printToPdf").click(function() {
-            var divContents = document.getElementById("modb").innerHTML;
-            var printWindow = window.open('', '', 'height=400,width=800');
-            printWindow.document.write('<html><head><title>DIV Contents</title>');
-            printWindow.document.write('</head><body >');
-            printWindow.document.write(divContents);
-            printWindow.document.write('</body></html>');
-            printWindow.document.close();
-            printWindow.print();
-            printWindow.close();
-            $("#dismiss").click();
+function datetime() {
+  var objToday = new Date(),
+    weekday = new Array(
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday"
+    ),
+    dayOfWeek = weekday[objToday.getDay()],
+    domEnder = (function () {
+      var a = objToday;
+      if (/1/.test(parseInt((a + "").charAt(0)))) return "th";
+      a = parseInt((a + "").charAt(1));
+      return 1 == a ? "st" : 2 == a ? "nd" : 3 == a ? "rd" : "th";
+    })(),
+    dayOfMonth =
+      today + (objToday.getDate() < 10)
+        ? "0" + objToday.getDate() + domEnder
+        : objToday.getDate() + domEnder,
+    months = new Array(
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December"
+    ),
+    curMonth = months[objToday.getMonth()],
+    curYear = objToday.getFullYear(),
+    curHour =
+      objToday.getHours() > 12
+        ? objToday.getHours() - 12
+        : objToday.getHours() < 10
+        ? "0" + objToday.getHours()
+        : objToday.getHours(),
+    curMinute =
+      objToday.getMinutes() < 10
+        ? "0" + objToday.getMinutes()
+        : objToday.getMinutes(),
+    curSeconds =
+      objToday.getSeconds() < 10
+        ? "0" + objToday.getSeconds()
+        : objToday.getSeconds(),
+    curMeridiem = objToday.getHours() > 12 ? "PM" : "AM";
+  var today =
+    curHour +
+    ":" +
+    curMinute +
+    "." +
+    curSeconds +
+    curMeridiem +
+    " " +
+    dayOfWeek +
+    " " +
+    dayOfMonth +
+    " of " +
+    curMonth +
+    ", " +
+    curYear;
+  return objToday;
+}
+
+function getYear() {
+  var objToday = new Date();
+  curYear = objToday.getFullYear();
+  return curYear;
+}
+
+async function fetchAllInstitutions() {
+  try {
+    const response = await fetchPost("/fetchAllInstitutions", {});
+    const formattedSchools = formatSchoolsData(response);
+    return formattedSchools;
+  } catch (error) {
+    console.error("Error fetching and formatting schools:", error);
+    return [];
+  }
+}
+
+async function fetchStudent(studentID, institutionId, institutionName) {
+  try {
+  if(studentID.length<3){
+    document.querySelector("#studentID").focus();
+    return
+  }
+    const requestData = {
+      key: ["studentId", "institutionCode"],
+      val: [studentID, institutionId],
+    };
+    const response = await fetchPost("/fetchStudent", requestData);
+
+    // If response is null (404 or empty response), student not found
+    if (response === null) {
+      swal({
+        title: "Sorry!",
+        text:
+          "No record of student ID " +
+          studentID +
+          " found with Selected Institution " +
+          institutionName +
+          "\nPlease check and try again",
+        type: "info",
+      });
+      return null;
+    }
+
+    // Handle other empty responses
+    if (
+      response &&
+      typeof response === "object" &&
+      Object.keys(response).length === 0
+    ) {
+      swal({
+        title: "Sorry!",
+        text:
+          "No record of student ID " +
+          studentID +
+          " found with Selected Institution " +
+          institutionName +
+          "\nPlease check and try again",
+        type: "info",
+      });
+      return null;
+    }
+
+    if (Array.isArray(response) && response.length === 0) {
+      swal({
+        title: "Sorry!",
+        text:
+          "No record of student ID " +
+          studentID +
+          " found with Selected Institution " +
+          institutionName +
+          "\nPlease check and try again",
+        type: "info",
+      });
+      return null;
+    }
+
+ currentStudentData = response;
+    // If we get here, we have valid student data
+    populateStudentForm(response);
+
+    document.querySelector(".next").click();
+
+  } catch (error) {
+    // This will now catch only genuine errors (network issues, server errors, etc.)
+    console.error("Error fetching student data:", error.message);
+    return null;
+  }
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  // Get all program cards and their checkboxes
+  const programCards = document.querySelectorAll(".program-card");
+  const resetBtn = document.getElementById("reset-btn");
+
+  // Get all subject groups
+  const subjectGroups = {
+    arts: document.querySelectorAll(".arts-subject"),
+    science: document.querySelectorAll(".science-subject"),
+    business: document.querySelectorAll(".business-subject"),
+    "visual-arts": document.querySelectorAll(".visual-arts-subject"),
+    "home-economics": document.querySelectorAll(".home-economics-subject"),
+    technical: document.querySelectorAll(".technical-subject"),
+    agriculture: document.querySelectorAll(".agriculture-subject"),
+  };
+
+  // Track total selected subjects
+  let totalSelected = 0;
+  const MAX_SELECTION = 4;
+  let selectedProg = null;
+  var selectedCount1 = null;
+
+  // Function to disable all subjects in all programs
+  function disableAllSubjects() {
+    debugger;
+    for (const program in subjectGroups) {
+      disableSubjects(subjectGroups[program]);
+    }
+  }
+
+  // Function to disable subjects in a program
+  function disableSubjects(subjects) {
+    subjects.forEach((subject) => {
+      subject.disabled = true;
+      subject.parentElement.classList.add("disabled");
+    });
+  }
+
+  // Function to enable subjects in a program
+  function enableSubjects(subjects) {
+    subjects.forEach((subject) => {
+      subject.disabled = false;
+      subject.parentElement.classList.remove("disabled");
+    });
+  }
+
+  // Function to update selection count
+  function updateSelectionCount(subjects, countElementId) {
+    const selectedCount = Array.from(subjects).filter(
+      (subject) => subject.checked
+    ).length;
+    document.getElementById(countElementId).textContent = selectedCount;
+    selectedProg = countElementId;
+    selectedCount1 = selectedCount;
+
+    // Update total selected count
+    totalSelected = Array.from(
+      document.querySelectorAll('input[type="checkbox"]')
+    ).filter((cb) => cb.checked).length;
+
+    // Enable/disable submit button based on selection
+    const anySelected = Array.from(
+      document.querySelectorAll('input[type="checkbox"]')
+    ).some((cb) => cb.checked);
+  }
+
+  // Function to reset all selections
+  function resetAllSelections() {
+    // Uncheck all checkboxes
+    document.querySelectorAll('input[type="checkbox"]').forEach((checkbox) => {
+      checkbox.checked = false;
+    });
+
+    // Enable all subjects
+    for (const program in subjectGroups) {
+      enableSubjects(subjectGroups[program]);
+    }
+
+    // Remove selected style from all cards
+    programCards.forEach((card) => {
+      card.classList.remove("selected-program");
+    });
+
+    // Reset counters
+    document.querySelectorAll('[id$="-count"]').forEach((el) => {
+      el.textContent = "0";
+    });
+
+    // Reset selected program
+    selectedProgram = null;
+  }
+
+  // Function to handle program selection
+  function selectProgram(programId, subjects) {
+    // If clicking the same program again, do nothing
+    if (selectedProgram === programId) return;
+
+    // Reset all selections first
+    resetAllSelections();
+
+    // Set the new selected program
+    selectedProgram = programId;
+
+    // Add selected style to this card
+    //document.getElementById(programId + '-card').classList.add('selected-program');
+
+    // Enable only the subjects in this program
+    enableSubjects(subjects);
+
+    // Disable all other subjects
+    for (const program in subjectGroups) {
+      if (program !== programId) {
+        disableSubjects(subjectGroups[program]);
+      }
+    }
+  }
+
+  // Add event listeners to checkboxes to handle program selection
+  for (const program in subjectGroups) {
+    subjectGroups[program].forEach((subject) => {
+      subject.addEventListener("click", function () {
+        if (!selectedProgram) {
+          selectProgram(program, subjectGroups[program]);
+        }
+        updateSelectionCount(subjectGroups[program], program + "-count");
+      });
+    });
+  }
+
+  // Function to create JSON output of selected subjects
+  function createSelectedSubjectsJSON() {
+    const selectedSubjects = [];
+
+    // Get all checked checkboxes
+    document
+      .querySelectorAll('input[type="checkbox"]:checked')
+      .forEach((checkbox) => {
+        selectedSubjects.push({
+          subject: checkbox.nextElementSibling.textContent.split("\n")[0],
+        });
+      });
+
+    return {
+      selectedSubjects: selectedSubjects,
+    };
+  }
+
+  // Add event listeners to checkboxes to handle program selection and limit
+  for (const program in subjectGroups) {
+    subjectGroups[program].forEach((subject) => {
+      subject.addEventListener("click", function () {
+        if (!selectedProgram) {
+          selectProgram(program, subjectGroups[program]);
+        }
+
+        // Enforce the 4 subject limit
+        if (totalSelected > MAX_SELECTION && this.checked) {
+          this.checked = false;
+          document.getElementById(selectedProg).textContent =
+            selectedCount1 - 1;
+          alert(`You can only select up to ${MAX_SELECTION} subjects.`);
+          return;
+        }
+
+        updateSelectionCount(subjectGroups[program], program + "-count");
+        exportJSON(); // Update JSON output on change
+      });
+    });
+  }
+
+  // Function to export JSON
+  function exportJSON() {
+    subjectJsonData = createSelectedSubjectsJSON();
+    //jsonResult.textContent = JSON.stringify(jsonData, null, 2);
+  }
+
+  // Reset button event listener
+  resetBtn.addEventListener("click", resetAllSelections);
+});
+
+//**************************************************************
+
+document.addEventListener("DOMContentLoaded", async function () {
+  const schoolsContainer = document.getElementById("schools-container");
+  const selectedSchoolElement = document.getElementById("selected-school");
+  const compareBtn = document.getElementById("compare-btn");
+  const viewBtn = document.getElementById("view-btn");
+  const searchInput = document.getElementById("search-input");
+  const regionFilter = document.getElementById("region-filter");
+  const programFilter = document.getElementById("program-filter");
+
+  let selectedSchool = null;
+
+  const schools = await fetchAllInstitutions();
+
+  // Function to generate school cards
+  function generateSchoolCards(schoolsArray) {
+    schoolsContainer.innerHTML = "";
+
+    if (schoolsArray.length === 0) {
+      schoolsContainer.innerHTML = `
+                           <div class="no-results">
+                               <i class="fas fa-search fa-3x mb-3"></i>
+                               <h4>No schools found</h4>
+                               <p>Try adjusting your search or filters</p>
+                           </div>
+                       `;
+      return;
+    }
+
+    schoolsArray.forEach((school) => {
+      const programTags = school.programs
+        .map((program) => `<span class="program-tag">${program}</span>`)
+        .join("");
+
+      const schoolCard = document.createElement("div");
+      schoolCard.className = "school-card";
+      schoolCard.dataset.id = school.id;
+      schoolCard.innerHTML = `
+                           <div class="school-image" style="background-color: ${school.color};">
+                               <img src="${school.logo}" alt="${school.name} Logo" class="school-logo">
+                           </div>
+                           <div class="school-content">
+                               <h3 class="school-name">${school.name}</h3>
+                               <div class="school-location">
+                                   <i class="fas fa-map-marker-alt"></i> ${school.location}
+                               </div>
+                               <span class="school-type">${school.type}</span>
+                               <div class="school-programs">
+                                   ${programTags}
+                               </div>
+                           </div>
+                       `;
+
+      schoolsContainer.appendChild(schoolCard);
+    });
+
+    // Add click event to all school cards
+    document.querySelectorAll(".school-card").forEach((card) => {
+      card.addEventListener("click", async function () {
+        // Remove selected class from all cards
+        document
+          .querySelectorAll(".school-card")
+          .forEach((c) => c.classList.remove("selected"));
+
+        // Add selected class to clicked card
+        this.classList.add("selected");
+
+        // Update selected school
+        const schoolId = this.dataset.id;
+        selectedSchool = schools.find((school) => school.id == schoolId);
+        institution = selectedSchool.bececode;
+
+        const student = await fetchStudent(
+          document.querySelector("#studentID").value,
+          selectedSchool.bececode,
+          selectedSchool.name
+        );
+
+        // Enable buttons
+        /*compareBtn.disabled = false;
+                           viewBtn.disabled = false;*/
+      });
+    });
+  }
+
+  // Initial rendering of all schools
+  generateSchoolCards(schools);
+
+  // Search functionality
+  searchInput.addEventListener("input", filterSchools);
+
+  // Filter functionality
+  regionFilter.addEventListener("change", filterSchools);
+  programFilter.addEventListener("change", filterSchools);
+
+  function filterSchools() {
+    const searchTerm = searchInput.value.toLowerCase();
+    const regionValue = regionFilter.value;
+    const programValue = programFilter.value;
+
+    const filteredSchools = schools.filter((school) => {
+      const matchesSearch =
+        school.name.toLowerCase().includes(searchTerm) ||
+        school.location.toLowerCase().includes(searchTerm);
+
+      const matchesRegion =
+        regionValue === "" || school.location.includes(regionValue);
+
+      const matchesProgram =
+        programValue === "" ||
+        school.programs.some((program) => program === programValue);
+
+      return matchesSearch && matchesRegion && matchesProgram;
+    });
+
+    generateSchoolCards(filteredSchools);
+  }
+});
+
+/**
+ * Makes a POST request using fetch with Bearer token.
+ *
+ * @param {string} url - The API endpoint.
+ * @param {object} data - The JSON payload to send.
+ * @returns {Promise<any>} - The parsed JSON response.
+ */
+async function fetchPost(url, data) {
+  const csrfToken = document.querySelector("meta[name='_csrf']")?.content;
+  const csrfHeader = document.querySelector(
+    "meta[name='_csrf_header']"
+  )?.content;
+
+  try {
+    const headers = {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    };
+
+    if (csrfToken && csrfHeader) {
+      headers[csrfHeader] = csrfToken;
+    }
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: headers,
+      body: JSON.stringify(data),
+      credentials: "include",
+    });
+
+    // Handle 404 specifically - it's not an error, just "not found"
+    if (response.status === 404) {
+      return null;
+    }
+
+    // Still throw error for other non-2xx status codes (500, 400, etc.)
+    if (!response.ok) {
+      let errorText;
+      try {
+        errorText = await response.text();
+      } catch (e) {
+        errorText = "No error message available";
+      }
+      throw new Error(`HTTP ${response.status}: ${errorText}`);
+    }
+
+    // Handle empty responses
+    const contentLength = response.headers.get("content-length");
+    const contentType = response.headers.get("content-type");
+
+    if (
+      contentLength === "0" ||
+      !contentType ||
+      !contentType.includes("application/json")
+    ) {
+      return null;
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("POST Error:", error.message || error);
+    // Re-throw the error with a proper message
+    throw new Error(error.message || "Network request failed");
+  }
+}
+
+function formatSchoolsData(originalData) {
+  return originalData.map((school) => {
+    // Extract unique program names from class groups
+    const programs = [
+      ...new Set(
+        school.classList.map((cls) => {
+          const classGroup = cls.classGroup;
+          // Map classGroup numbers to program names
+          const programMap = {
+            1: "General Science",
+            2: "General Arts",
+            3: "Business",
+            4: "Visual Arts",
+            5: "Home Economics",
+            6: "Agriculture",
+            7: "Technical",
+          };
+          return programMap[classGroup] || `Program ${classGroup}`;
+        })
+      ),
+    ];
+
+    // Determine school type based on name and available data
+    const schoolName = school.name.toLowerCase();
+    let type = "Public • Mixed"; // Default
+
+    if (
+      schoolName.includes("girls") ||
+      schoolName.includes("girls'") ||
+      schoolName.includes("female")
+    ) {
+      type = "Public • Girls";
+    } else if (
+      schoolName.includes("boys") ||
+      schoolName.includes("boys'") ||
+      schoolName.includes("male")
+    ) {
+      type = "Public • Boys";
+    }
+
+    // Create location string
+    const location = `${school.city}, ${school.region}`;
+
+    const bececode=`${school.bececode}`
+
+    // Convert base64 crest to data URL if exists, otherwise use placeholder
+    let logo =
+      "https://via.placeholder.com/100x100/3498db/ffffff?text=" +
+      encodeURIComponent(school.name.charAt(0));
+    if (school.crest) {
+      logo = `data:image/png;base64,${school.crest}`;
+    }
+
+    // Predefined color palette for consistent colors
+    const colorPalette = [
+      "#3498db",
+      "#2ecc71",
+      "#9b59b6",
+      "#e74c3c",
+      "#f39c12",
+      "#1abc9c",
+      "#d35400",
+      "#27ae60",
+      "#8e44ad",
+      "#c0392b",
+      "#16a085",
+      "#2980b9",
+      "#f1c40f",
+      "#e67e22",
+      "#2c3e50",
+    ];
+
+    const color = colorPalette[school.id % colorPalette.length];
+
+    return {
+      id: school.id,
+      name: school.name,
+      location: location,
+      type: type,
+      programs: programs,
+      logo: logo,
+      color: color,
+      bececode:bececode,
+    };
+  });
+}
+
+function populateStudentForm(studentData) {
+  if (!studentData) return;
+
+  // Populate Basic Student Information
+  document.getElementById("studFName").value = studentData.firstName.trim();
+  document.getElementById("studSurName").value = studentData.lastName.trim();
+  document.getElementById("studOtherName").value = studentData.otherName.trim();
+
+  // Set gender
+  if (studentData.gender) {
+    const genderSelect = document.getElementById("studGender");
+    const options = genderSelect.options;
+    for (let i = 0; i < options.length; i++) {
+      if (
+        options[i].text.toLowerCase().includes(studentData.gender.toLowerCase())
+      ) {
+        genderSelect.selectedIndex = i;
+        break;
+      }
+    }
+  }
+
+  // Populate dates
+  document.getElementById("studDOB").value = studentData.dateOfBirth.trim();
+  document.getElementById("studDOA").value = studentData.dateOfAdmission.trim();
+
+  // Populate place of birth and residence
+  document.getElementById("placeOfBirth").value =
+    studentData.placeOfBirth.trim();
+  document.getElementById("studResidence").value =
+    studentData.residentialLocality.trim();
+
+  // Set country of birth
+  if (studentData.countryOfBirth) {
+    const countrySelect = document.getElementById("cob");
+    const options = countrySelect.options;
+    for (let i = 0; i < options.length; i++) {
+      if (
+        options[i].text
+          .toLowerCase()
+          .includes(studentData.countryOfBirth.toLowerCase())
+      ) {
+        countrySelect.selectedIndex = i;
+        break;
+      }
+    }
+  }
+
+  // Populate denomination
+  document.getElementById("denomination").value =
+    studentData.denomination.trim();
+
+  // Populate Parent Information if available
+  if (studentData.studentParents && studentData.studentParents.length > 0) {
+    const parents = studentData.studentParents;
+
+    // Find father (assuming first parent with contact is father)
+    const father =
+      parents.find((p) => p.contact1 && p.contact1.trim()) || parents[0];
+    if (father) {
+      document.getElementById("fatherFirstName").value =
+        father.firstNames.trim();
+      document.getElementById("fatherLastName").value = father.lastName.trim();
+      document.getElementById("fatherEmail").value = father.email.trim();
+      document.getElementById("fatherContact1").value = father.contact1.trim();
+      document.getElementById("fatherContact2").value = father.contact2.trim();
+      document.getElementById("fatherOccupation").value =
+        father.occupation.trim();
+      document.getElementById("fatherPlaceOfWork").value =
+        father.placeOfWork.trim();
+
+      if (father.parentType) {
+        const fatherTypeSelect = document.getElementById("fatherType");
+        const options = fatherTypeSelect.options;
+        for (let i = 0; i < options.length; i++) {
+          if (
+            options[i].text
+              .toLowerCase()
+              .includes(father.parentType.toLowerCase())
+          ) {
+            fatherTypeSelect.selectedIndex = i;
+            break;
+          }
+        }
+      }
+    }
+
+    // Find mother (assuming second parent or different type)
+    const mother =
+      parents.find((p) => p !== father) || parents[1] || parents[0];
+    if (mother && mother !== father) {
+      document.getElementById("motherFirstName").value =
+        mother.firstNames.trim();
+      document.getElementById("motherLastName").value = mother.lastName.trim();
+      document.getElementById("motherEmail").value = mother.email.trim();
+      document.getElementById("motherContact1").value = mother.contact1.trim();
+      document.getElementById("motherContact2").value = mother.contact2.trim();
+      document.getElementById("motherOccupation").value =
+        mother.occupation.trim();
+      document.getElementById("motherPlaceOfWork").value =
+        mother.placeOfWork.trim();
+
+      if (mother.parentType) {
+        const motherTypeSelect = document.getElementById("motherType");
+        const options = motherTypeSelect.options;
+        for (let i = 0; i < options.length; i++) {
+          if (
+            options[i].text
+              .toLowerCase()
+              .includes(mother.parentType.toLowerCase())
+          ) {
+            motherTypeSelect.selectedIndex = i;
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  // Auto-select program based on student class
+ if (studentData.studentClass) {
+     const studentClass = studentData.studentClass.toLowerCase();
+     let programCard = null;
+     let programType = null;
+
+     if (studentClass.includes("arts")) {
+       programCard = document.getElementById("arts-card");
+       programType = "arts";
+     } else if (studentClass.includes("science")) {
+       programCard = document.getElementById("science-card");
+       programType = "science";
+     } else if (studentClass.includes("business")) {
+       programCard = document.getElementById("business-card");
+       programType = "business";
+     } else if (studentClass.includes("visual") || studentClass.includes("art")) {
+       programCard = document.getElementById("visual-arts-card");
+       programType = "visual-arts";
+     } else if (studentClass.includes("home") || studentClass.includes("economics")) {
+       programCard = document.getElementById("home-economics-card");
+       programType = "home-economics";
+     } else if (studentClass.includes("technical") || studentClass.includes("tech")) {
+       programCard = document.getElementById("technical-card");
+       programType = "technical";
+     } else if (studentClass.includes("agriculture") || studentClass.includes("agri")) {
+       programCard = document.getElementById("agriculture-card");
+       programType = "agriculture";
+     }
+
+     if (programCard) {
+       programCard.click();
+
+       // Select subjects based on the student's subject data
+       if (studentData.studentSubjectsResponse && studentData.studentSubjectsResponse.length > 0) {
+         selectSubjectsBasedOnData(studentData.studentSubjectsResponse, programType);
+       } else {
+         selectFirstSubjectInProgram(programType);
+       }
+     }
+   }
+
+   if (studentData.picture) {
+     displayStudentPicture(studentData.picture);
+   }
+
+   console.log("Student data populated successfully");
+}
+
+function selectSubjectsBasedOnData(subjectsData, programType) {
+  // Get all subject checkboxes for the program
+  let subjectCheckboxes;
+  const subjectSelector = `.${programType}-subject`;
+  subjectCheckboxes = document.querySelectorAll(subjectSelector);
+
+  // Clear any previously selected subjects in this program
+  subjectCheckboxes.forEach(checkbox => {
+    checkbox.checked = false;
+  });
+
+  // Select subjects that match the backend data
+    subjectsData.forEach(subject => {
+      // Clean the subject name more thoroughly
+      const subjectName = subject.subjectName
+        .replace(/\s+/g, ' ')  // Replace multiple whitespace with single space
+        .replace(/\n/g, ' ')   // Remove newlines
+        .trim()                // Trim leading/trailing spaces
+        .toLowerCase();
+
+      // Find the checkbox that matches this subject
+      const matchingCheckbox = Array.from(subjectCheckboxes).find(checkbox => {
+        // Find the parent div and then the label within it
+        const parentDiv = checkbox.closest('.subject-item');
+        if (parentDiv) {
+          const label = parentDiv.querySelector('label');
+          if (label) {
+            // Clean up the label text
+            const labelText = label.textContent
+              .replace(/\s+/g, ' ')
+              .replace(/\n/g, ' ')
+              .trim()
+              .toLowerCase();
+
+            console.log(`Comparing: "${labelText}" vs "${subjectName}"`);
+
+            // Use exact match instead of includes for better accuracy
+            return labelText === subjectName;
+          }
+        }
+        return false;
+      });
+
+    if (matchingCheckbox) {
+     console.log("Found matching checkbox for:", subjectName, matchingCheckbox);
+
+         // Check if checkbox is disabled or readonly
+         if (matchingCheckbox.disabled) {
+           console.log("Checkbox is disabled:", matchingCheckbox);
+         }
+         if (matchingCheckbox.readOnly) {
+           console.log("Checkbox is readOnly:", matchingCheckbox);
+         }
+
+         // Try different approaches to select the checkbox
+         matchingCheckbox.checked = true;
+
+         console.log("Selected subject:", subjectName, "Checkbox state:", matchingCheckbox.checked);
+         if(matchingCheckbox.checked==false){
+          matchingCheckbox.checked = true;
+         console.log("Selected subject:", subjectName, "Checkbox state:", matchingCheckbox.checked);
+         }
+
+        } else {
+          console.log("Could not find checkbox for subject:", subjectName);
+          console.log("Available labels:", Array.from(subjectCheckboxes).map(cb => {
+            const parentDiv = cb.closest('.subject-item');
+            const label = parentDiv ? parentDiv.querySelector('label') : null;
+            return label ? `"${label.textContent.replace(/\s+/g, ' ').trim()}"` : 'no label';
+          }));
+        }
+  });
+}
+
+
+// Function to display base64 image
+function displayStudentPicture(base64Data) {
+  try {
+    // Create the image URL from base64 data
+    const imageUrl = `data:image/png;base64,${base64Data}`;
+
+    // Get the image element
+    const imgElement = document.getElementById('studentPicture');
+    const imageOutput = document.querySelector('.imageOutput');
+
+    if (imgElement) {
+      // Set the image source
+      imgElement.src = imageUrl;
+
+      // If you want to update the preview container too
+      if (imageOutput) {
+        imageOutput.innerHTML = `
+          <div class="studPic">
+            <img src="${imageUrl}" alt="Student Picture" id="studentPicture" class="studPic">
+            <span onclick="deleteImage(0)">&times;</span>
+          </div>
+        `;
+      }
+    }
+  } catch (error) {
+    console.error('Error displaying student picture:', error);
+  }
+}
+
+function selectFirstSubjectInProgram(programType) {
+  let subjectCheckboxes;
+  const subjectSelector = `.${programType}-subject`;
+  subjectCheckboxes = document.querySelectorAll(subjectSelector);
+
+  // Select the first available checkbox that isn't already checked
+  if (subjectCheckboxes.length > 0) {
+    const firstAvailableCheckbox = Array.from(subjectCheckboxes).find(
+      (checkbox) => !checkbox.checked
+    );
+    if (firstAvailableCheckbox) {
+      firstAvailableCheckbox.checked = true;
+      firstAvailableCheckbox.dispatchEvent(new Event("change", { bubbles: true }));
+      firstAvailableCheckbox.dispatchEvent(new Event("click", { bubbles: true }));
+    }
+  }
+}
+
+function convertFileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result.split(',')[1]);
+        reader.onerror = error => reject(error);
+    });
+}
+
+/*async function buildStudentPayload() {
+     // Get form values
+     const studentId = document.getElementById('studentID').value;
+     const firstName = document.getElementById('studFName').value;
+     const otherName = document.getElementById('studOtherName').value;
+     const lastName = document.getElementById('studSurName').value;
+     const dateOfBirth = document.getElementById('studDOB').value;
+     const dateOfAdmission = document.getElementById('studDOA').value;
+     const placeOfBirth = document.getElementById('placeOfBirth').value;
+     const gender = document.getElementById('studGender').value;
+     const countryOfBirth = document.getElementById('cob').value;
+     const residentialLocality = document.getElementById('studResidence').value;
+     const denomination = document.getElementById('denomination').value;
+
+     // Get selected school (institution code) - you'll need to track this from school selection
+     const institutionCode = institution;
+
+     // Get picture data (convert to base64 or store file path)
+     const pictureInput = document.querySelector('#studentPicture');
+      *//* if (pictureInput) {
+             studPic = getBase64Image(studentPicture);
+         }*//*
+
+         const pictureInput1 = document.querySelector('.imageInput');
+         const existingPicture = document.getElementById('studentPicture');
+
+         if (pictureInput1 && pictureInput1.files.length > 0) {
+           // New file - convert to base64
+           studPic = await convertFileToBase64(pictureInput1.files[0]);
+         } else if (existingPicture && existingPicture.src && existingPicture.src.startsWith('data:image')) {
+           // Existing base64 image - extract data part
+           studPic = existingPicture.src.split(',')[1];
+         }
+
+     //const picture =
+
+     // Build parents data
+     const studentParents = buildParentsData(studentId);
+
+     // Build subjects data
+     const studentSubjectsList = buildSubjectsData();
+
+     // Construct the payload
+     const payload = {
+         studentId: studentId,
+         firstName: firstName,
+         otherName: otherName,
+         lastName: lastName,
+         dateOfBirth: dateOfBirth,
+         dateOfAdmission: dateOfAdmission,
+         placeOfBirth: placeOfBirth,
+         gender: gender,
+         countryOfBirth: countryOfBirth,
+         nationality: countryOfBirth, // Assuming same as country of birth
+         picture: studPic,
+         birthCert: "", // You'll need to add a field for birth certificate
+         denomination: denomination,
+         institutionCode: institutionCode,
+         status: "ACTIVE", // Default status
+         studentClass: "", // You'll need to add class selection
+         residentialLocality: residentialLocality,
+         studentParents: studentParents,
+         studentSubjectsList: studentSubjectsList
+     };
+
+     return payload;
+ }*/
+
+ async function buildStudentPayload() {
+   if (!currentStudentData) {
+     throw new Error("No student data loaded. Please fetch student first.");
+   }
+
+   // Start with the complete existing data
+   const payload = {...currentStudentData};
+
+   // Only update fields that have values in the UI
+   const studentId = document.getElementById('studentID').value.trim();
+   if (studentId) payload.studentId = studentId;
+
+   const firstName = document.getElementById('studFName').value.trim();
+   if (firstName) payload.firstName = firstName;
+
+   const otherName = document.getElementById('studOtherName').value.trim();
+   if (otherName) payload.otherName = otherName;
+
+   const lastName = document.getElementById('studSurName').value.trim();
+   if (lastName) payload.lastName = lastName;
+
+   const dateOfBirth = document.getElementById('studDOB').value.trim();
+   if (dateOfBirth) payload.dateOfBirth = dateOfBirth;
+
+   const dateOfAdmission = document.getElementById('studDOA').value.trim();
+   if (dateOfAdmission) payload.dateOfAdmission = dateOfAdmission;
+
+   const placeOfBirth = document.getElementById('placeOfBirth').value.trim();
+   if (placeOfBirth) payload.placeOfBirth = placeOfBirth;
+
+   const genderSelect = document.getElementById('studGender');
+   if (genderSelect.value) payload.gender = genderSelect.value;
+
+   const countryOfBirthSelect = document.getElementById('cob');
+   if (countryOfBirthSelect.value) payload.countryOfBirth = countryOfBirthSelect.value;
+
+   const residentialLocality = document.getElementById('studResidence').value.trim();
+   if (residentialLocality) payload.residentialLocality = residentialLocality;
+
+   const denomination = document.getElementById('denomination').value.trim();
+   if (denomination) payload.denomination = denomination;
+
+   // Handle picture - only update if changed
+   const pictureInput = document.querySelector('.imageInput');
+   const existingPicture = document.getElementById('studentPicture');
+
+  /* if (pictureInput && pictureInput.files.length > 0) {
+     // New file uploaded
+     const file = pictureInput.files[0];
+     payload.picture = await convertFileToBase64(file);
+   } else if (existingPicture && existingPicture.src &&
+              existingPicture.src.startsWith('data:image') &&
+              existingPicture.src !== `data:image/png;base64,${currentStudentData.picture}`) {
+     // Picture was changed (different from original)
+     payload.picture = existingPicture.src.split(',')[1];
+   }*/
+
+  if (pictureInput && pictureInput.files.length > 0) {
+      const file = pictureInput.files[0];
+
+      const optimizedDataURL = await optimizeImage(file, {
+          maxSize: 400,
+          quality: 0.7,
+          outputFormat: 'jpeg'
+      }).catch(error => {
+          console.error("Image optimization failed", error);
+          throw error; // Re-throw the error to be caught by your outer error handling
+      });
+
+      // 3. Split the result to get the raw base64 string (without the data URL prefix)
+      payload.picture = optimizedDataURL.split(',')[1];
+  }
+
+   // If picture wasn't changed, keep the original value
+
+   // Update institution code if selected
+   if (institution) payload.institutionCode = institution;
+
+   // Build parents data from UI (only if parents were modified)
+   const uiParents = buildParentsData(payload.studentId);
+   if (uiParents && uiParents.length > 0) {
+     // Merge parents data - this is more complex, see next step
+     payload.studentParents = mergeParentsData(currentStudentData.studentParents, uiParents);
+   }
+
+   // Build subjects data from UI
+   const uiSubjects = buildSubjectsData();
+   if (uiSubjects && uiSubjects.length > 0) {
+     payload.studentSubjectsResponse = uiSubjects;
+   }
+
+   return payload;
+ }
+
+ function mergeParentsData(existingParents, uiParents) {
+   if (!existingParents || existingParents.length === 0) {
+     return uiParents;
+   }
+
+   if (!uiParents || uiParents.length === 0) {
+     return existingParents;
+   }
+
+   // Create a map of existing parents by type for easy lookup
+   const existingParentsMap = {};
+   existingParents.forEach(parent => {
+     if (parent.parentType) {
+       existingParentsMap[parent.parentType.toLowerCase()] = parent;
+     }
+   });
+
+   // Merge UI parents with existing parents
+   const mergedParents = uiParents.map(uiParent => {
+     const parentType = uiParent.parentType?.toLowerCase() || '';
+
+     if (existingParentsMap[parentType]) {
+       // Merge UI fields with existing parent data
+       return {
+         ...existingParentsMap[parentType], // Keep all existing fields
+         ...uiParent // Override with UI fields
+       };
+     }
+
+     // New parent from UI
+     return uiParent;
+   });
+
+   // Add any existing parents that weren't modified in UI
+   Object.values(existingParentsMap).forEach(existingParent => {
+     const parentType = existingParent.parentType?.toLowerCase() || '';
+     const existsInUI = uiParents.some(uiParent =>
+       (uiParent.parentType?.toLowerCase() || '') === parentType
+     );
+
+     if (!existsInUI) {
+       mergedParents.push(existingParent);
+     }
+   });
+
+   return mergedParents;
+ }
+
+ // Function to build parents data
+ /*function buildParentsData(studentId) {
+     const parents = [];
+
+     // Father's data
+     const fatherData = {
+         firstNames: document.getElementById('fatherFirstName').value,
+         lastName: document.getElementById('fatherLastName').value,
+         email: document.getElementById('fatherEmail').value,
+         contact1: document.getElementById('fatherContact1').value,
+         contact2: document.getElementById('fatherContact2').value,
+         occupation: document.getElementById('fatherOccupation').value,
+         placeOfWork: document.getElementById('fatherPlaceOfWork').value,
+         parentType: document.getElementById('fatherType').value,
+         institutionCode: institution,
+         studentId:studentId
+     };
+
+     if (fatherData.firstNames && fatherData.lastName) {
+         parents.push(fatherData);
+     }
+
+     // Mother's data
+     const motherData = {
+         firstNames: document.getElementById('motherFirstName').value,
+         lastName: document.getElementById('motherLastName').value,
+         email: document.getElementById('motherEmail').value,
+         contact1: document.getElementById('motherContact1').value,
+         contact2: document.getElementById('motherContact2').value,
+         occupation: document.getElementById('motherOccupation').value,
+         placeOfWork: document.getElementById('motherPlaceOfWork').value,
+         parentType: document.getElementById('motherType').value,
+         institutionCode: institution,
+         studentId:studentId
+     };
+
+     if (motherData.firstNames && motherData.lastName) {
+         parents.push(motherData);
+     }
+
+     return parents;
+ }*/
+
+ function buildParentsData(studentId) {
+   const parents = [];
+
+   // Father's data - only include if fields have values
+   const fatherData = buildParentData('father', studentId);
+   if (hasParentData(fatherData)) {
+     parents.push(fatherData);
+   }
+
+   // Mother's data - only include if fields have values
+   const motherData = buildParentData('mother', studentId);
+   if (hasParentData(motherData)) {
+     parents.push(motherData);
+   }
+
+   return parents;
+ }
+
+ function buildParentData(prefix, studentId) {
+   const firstName = document.getElementById(`${prefix}FirstName`).value.trim();
+   const lastName = document.getElementById(`${prefix}LastName`).value.trim();
+   const email = document.getElementById(`${prefix}Email`).value.trim();
+   const contact1 = document.getElementById(`${prefix}Contact1`).value.trim();
+   const contact2 = document.getElementById(`${prefix}Contact2`).value.trim();
+   const occupation = document.getElementById(`${prefix}Occupation`).value.trim();
+   const placeOfWork = document.getElementById(`${prefix}PlaceOfWork`).value.trim();
+   const parentType = document.getElementById(`${prefix}Type`).value.trim();
+
+   // Only include fields that have values
+   const parentData = {
+     institutionCode: institution,
+     studentId: studentId
+   };
+
+   if (firstName) parentData.firstNames = firstName;
+   if (lastName) parentData.lastName = lastName;
+   if (email) parentData.email = email;
+   if (contact1) parentData.contact1 = contact1;
+   if (contact2) parentData.contact2 = contact2;
+   if (occupation) parentData.occupation = occupation;
+   if (placeOfWork) parentData.placeOfWork = placeOfWork;
+   if (parentType) parentData.parentType = parentType;
+
+   return parentData;
+ }
+
+ function hasParentData(parentData) {
+   // Check if any field (except institutionCode and studentId) has data
+   const { institutionCode, studentId, ...rest } = parentData;
+   return Object.values(rest).some(value => value && value.trim() !== '');
+ }
+
+ // Function to build subjects data
+ function buildSubjectsData() {
+     const subjects = [];
+
+     // Get all checked subject checkboxes
+     const checkedSubjects = document.querySelectorAll('input[type="checkbox"]:checked');
+
+     checkedSubjects.forEach(checkbox => {
+         const subjectName = checkbox.nextElementSibling.textContent.trim();
+         subjects.push({
+             subjectName: subjectName
+         });
+     });
+
+     return subjects;
+ }
+
+
+//============================= VALIDATION ==============================
+
+// Form validation for the student data capturing form
+function validateForm() {
+    // Track validation status
+    let isValid = true;
+    let errorMessages = [];
+
+    // Get current active tab
+    const activeTab = document.querySelector('.tab-pane.active');
+    const tabIndex = Array.from(document.querySelectorAll('.tab-pane')).indexOf(activeTab);
+
+    // Validate based on current step
+    switch(tabIndex) {
+        case 0: // School Selection
+            if (!validateSchoolSelection()) {
+                isValid = false;
+                errorMessages.push("Please select a school and provide a Student ID");
+            }
+            break;
+
+        case 1: // Student Bio Data
+            if (!validateStudentBioData()) {
+                isValid = false;
+                errorMessages.push("Please complete all required student information");
+            }
+            break;
+
+        case 2: // Parent Bio Data
+            if (!validateParentData()) {
+                isValid = false;
+                errorMessages.push("Please complete all required parent information");
+            }
+            break;
+
+        case 3: // Subject Selection
+            if (!validateSubjectSelection()) {
+                isValid = false;
+                errorMessages.push("Please select a program and appropriate subjects");
+            }
+            break;
+
+        case 4: // Approval
+            // No validation needed for approval step
+            break;
+    }
+
+    // Show error messages if any
+    if (!isValid) {
+        showValidationErrors(errorMessages);
+    }
+
+    return isValid;
+}
+
+// Validate School Selection (Step 1)
+function validateSchoolSelection() {
+    let isValid = true;
+
+    // Check if a school is selected
+    const selectedSchool = document.querySelector('.school-card.selected');
+    if (!selectedSchool) {
+        isValid = false;
+        highlightError('Please select a school', 'schools-container');
+    }
+
+    // Validate Student ID
+    const studentId = document.getElementById('studentID').value.trim();
+    if (!studentId) {
+        isValid = false;
+        highlightFieldError('studentID', 'Student ID is required');
+    } else if (studentId.length < 3) {
+        isValid = false;
+        highlightFieldError('studentID', 'Student ID must be at least 3 characters');
+    }
+
+    return isValid;
+}
+
+// Validate Student Bio Data (Step 2)
+function validateStudentBioData() {
+    let isValid = true;
+
+    // Required fields
+    const requiredFields = [
+        'studFName', 'studSurName', 'studGender',
+        'studDOB', 'studDOA', 'placeOfBirth',
+        'cob', 'studResidence', 'denomination'
+    ];
+
+    requiredFields.forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        if (!field.value.trim()) {
+            isValid = false;
+            highlightFieldError(fieldId, `${field.labels[0].textContent} is required`);
+        }
+    });
+
+    // Validate names
+    const firstName = document.getElementById('studFName').value.trim();
+    const surName = document.getElementById('studSurName').value.trim();
+
+    if (firstName && firstName.length < 2) {
+        isValid = false;
+        highlightFieldError('studFName', 'First name must be at least 2 characters');
+    }
+
+    if (surName && surName.length < 2) {
+        isValid = false;
+        highlightFieldError('studSurName', 'Surname must be at least 2 characters');
+    }
+
+    // Validate dates
+    const dob = document.getElementById('studDOB').value;
+    const doa = document.getElementById('studDOA').value;
+
+    if (dob) {
+        const dobDate = new Date(dob);
+        const today = new Date();
+        const minAgeDate = new Date();
+        minAgeDate.setFullYear(today.getFullYear() - 4); // At least 4 years old
+
+        if (dobDate > minAgeDate) {
+            isValid = false;
+            highlightFieldError('studDOB', 'Student must be at least 4 years old');
+        }
+    }
+
+    if (doa && dob) {
+        const doaDate = new Date(doa);
+        const dobDate = new Date(dob);
+
+        if (doaDate < dobDate) {
+            isValid = false;
+            highlightFieldError('studDOA', 'Date of admission cannot be before date of birth');
+        }
+    }
+
+    // Validate picture (if uploaded)
+    const pictureInput = document.querySelector('.imageInput');
+    if (pictureInput.files.length > 0) {
+        const file = pictureInput.files[0];
+        const validTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+        const maxSize = 2 * 1024 * 1024; // 2MB
+
+        if (!validTypes.includes(file.type)) {
+            isValid = false;
+            highlightError('Please upload a valid image (JPEG, PNG, JPG)', 'studPic');
+        }
+
+        if (file.size > maxSize) {
+            isValid = false;
+            highlightError('Image size must be less than 2MB', 'studPic');
+        }
+    }
+
+    return isValid;
+}
+
+// Validate Parent Data (Step 3)
+function validateParentData() {
+    let isValid = true;
+    let hasAtLeastOneParent = false;
+
+    // Father validation
+    const fatherFirstName = document.getElementById('fatherFirstName').value.trim();
+    const fatherLastName = document.getElementById('fatherLastName').value.trim();
+
+    if (fatherFirstName || fatherLastName) {
+        hasAtLeastOneParent = true;
+
+        const fatherRequired = [
+            'fatherFirstName', 'fatherLastName', 'fatherEmail',
+            'fatherContact1', 'fatherOccupation', 'fatherPlaceOfWork', 'fatherType'
+        ];
+
+        fatherRequired.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (!field.value.trim()) {
+                isValid = false;
+                highlightFieldError(fieldId, `${field.labels[0].textContent} is required for father`);
+            }
         });
 
+        // Validate father email
+        const fatherEmail = document.getElementById('fatherEmail').value.trim();
+        if (fatherEmail && !isValidEmail(fatherEmail)) {
+            isValid = false;
+            highlightFieldError('fatherEmail', 'Please enter a valid email address for father');
+        }
+
+        // Validate father contact
+        const fatherContact = document.getElementById('fatherContact1').value.trim();
+        if (fatherContact && !isValidPhone(fatherContact)) {
+            isValid = false;
+            highlightFieldError('fatherContact1', 'Please enter a valid phone number for father');
+        }
+    }
+
+    // Mother validation
+    const motherFirstName = document.getElementById('motherFirstName').value.trim();
+    const motherLastName = document.getElementById('motherLastName').value.trim();
+
+    if (motherFirstName || motherLastName) {
+        hasAtLeastOneParent = true;
+
+        const motherRequired = [
+            'motherFirstName', 'motherLastName', 'motherEmail',
+            'motherContact1', 'motherOccupation', 'motherPlaceOfWork', 'motherType'
+        ];
+
+        motherRequired.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (!field.value.trim()) {
+                isValid = false;
+                highlightFieldError(fieldId, `${field.labels[0].textContent} is required for mother`);
+            }
+        });
+
+        // Validate mother email
+        const motherEmail = document.getElementById('motherEmail').value.trim();
+        if (motherEmail && !isValidEmail(motherEmail)) {
+            isValid = false;
+            highlightFieldError('motherEmail', 'Please enter a valid email address for mother');
+        }
+
+        // Validate mother contact
+        const motherContact = document.getElementById('motherContact1').value.trim();
+        if (motherContact && !isValidPhone(motherContact)) {
+            isValid = false;
+            highlightFieldError('motherContact1', 'Please enter a valid phone number for mother');
+        }
+    }
+
+    // Check if at least one parent is provided
+    if (!hasAtLeastOneParent) {
+        isValid = false;
+        highlightError('Please provide information for at least one parent', 'parentsDetailForm');
+    }
+
+    return isValid;
+}
+
+// Validate Subject Selection (Step 4)
+function validateSubjectSelection() {
+    let isValid = true;
+    let selectedProgram = null;
+    let selectedSubjects = 0;
+
+    // Check which program has selected subjects
+    const programCards = document.querySelectorAll('.program-card');
+    programCards.forEach(card => {
+        const subjectCheckboxes = card.querySelectorAll('input[type="checkbox"]:checked');
+        if (subjectCheckboxes.length > 0) {
+            selectedProgram = card.id.replace('-card', '');
+            selectedSubjects = subjectCheckboxes.length;
+        }
+    });
+
+    // Validate program selection
+    if (!selectedProgram) {
+        isValid = false;
+        highlightError('Please select at least one subject from a program', 'subject-selection-container');
+        return isValid;
+    }
+
+    // Validate subject count (must be exactly 4 for most programs)
+    if (selectedSubjects !== 4) {
+        isValid = false;
+        highlightError(`Please select exactly 4 subjects from the ${formatProgramName(selectedProgram)} program`, selectedProgram + '-card');
+    }
+
+    return isValid;
+}
+
+// Helper functions
+function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+
+function isValidPhone(phone) {
+    const phoneRegex = /^[+]?[\d\s\-()]{10,}$/;
+    return phoneRegex.test(phone);
+}
+
+function highlightFieldError(fieldId, message) {
+    const field = document.getElementById(fieldId);
+    if (field) {
+        field.classList.add('is-invalid');
+
+        // Add error message if not already exists
+        if (!field.nextElementSibling || !field.nextElementSibling.classList.contains('invalid-feedback')) {
+            const errorDiv = document.createElement('div');
+            errorDiv.style.setProperty('color', 'red', 'important');
+            errorDiv.className = 'invalid-feedback';
+            errorDiv.textContent = message;
+            field.parentNode.appendChild(errorDiv);
+        }
+
+        // Scroll to field
+        field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+}
+
+function highlightError(message, containerId) {
+    const container = document.getElementById(containerId);
+    if (container) {
+        // Create error alert
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-danger';
+        alertDiv.textContent = message;
+
+        // Prepend to container
+        container.prepend(alertDiv);
+
+        // Scroll to error
+        alertDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+        // Remove after 5 seconds
+        setTimeout(() => {
+            alertDiv.remove();
+        }, 5000);
+    }
+}
+
+function showValidationErrors(messages) {
+    // Create error alert at the top of the form
+    const errorAlert = document.createElement('div');
+    errorAlert.className = 'alert alert-danger';
+    errorAlert.innerHTML = '<strong>Please fix the following errors:</strong><ul>' +
+        messages.map(msg => `<li>${msg}</li>`).join('') + '</ul>';
+
+    // Add to the top of the form
+    const formContainer = document.querySelector('.panel-body');
+    formContainer.prepend(errorAlert);
+
+    // Scroll to errors
+    errorAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    // Remove after 5 seconds
+    setTimeout(() => {
+        errorAlert.remove();
+    }, 5000);
+}
+
+function formatProgramName(programId) {
+    const names = {
+        'arts': 'General Arts',
+        'science': 'General Science',
+        'business': 'Business',
+        'visual-arts': 'Visual Arts',
+        'home-economics': 'Home Economics',
+        'technical': 'Technical',
+        'agriculture': 'Agriculture'
+    };
+    return names[programId] || programId;
+}
+
+// Clear validation errors
+function clearValidationErrors() {
+    // Remove field errors
+    document.querySelectorAll('.is-invalid').forEach(el => {
+        el.classList.remove('is-invalid');
+    });
+
+    // Remove error messages
+    document.querySelectorAll('.invalid-feedback').forEach(el => {
+        el.remove();
+    });
+
+    // Remove alert errors
+    document.querySelectorAll('.alert-danger').forEach(el => {
+        el.remove();
+    });
+}
+
+// Add event listeners for real-time validation
+document.addEventListener('DOMContentLoaded', function() {
+    // Add input event listeners to clear validation on change
+    const allInputs = document.querySelectorAll('input, select, textarea');
+    allInputs.forEach(input => {
+        input.addEventListener('input', function() {
+            if (this.classList.contains('is-invalid')) {
+                this.classList.remove('is-invalid');
+                const errorMsg = this.nextElementSibling;
+                if (errorMsg && errorMsg.classList.contains('invalid-feedback')) {
+                    errorMsg.remove();
+                }
+            }
+        });
+    });
+
+    // Validate on form submission
+    const submitButton = document.getElementById('submitRequest');
+    if (submitButton) {
+        submitButton.addEventListener('click', function(e) {
+            // Validate all steps before submission
+            let allValid = true;
+            const tabPanes = document.querySelectorAll('.tab-pane');
+
+            for (let i = 1; i < tabPanes.length - 1; i++) { // Skip approval tab
+                // Activate each tab and validate
+                document.querySelectorAll('.wizardTabs')[i].click();
+                if (!validateForm()) {
+                    allValid = false;
+                }
+            }
+
+            // If any step is invalid, prevent submission
+            if (!allValid) {
+                e.preventDefault();
+                // Go back to first invalid step
+                for (let i = 0; i < tabPanes.length; i++) {
+                    document.querySelectorAll('.wizardTabs')[i].click();
+                    if (!validateForm()) {
+                        break;
+                    }
+                }
+            }
+        });
+    }
+
+});
+
+//========================== PROGRAMS ======================================
+/*
+        // Program data structure
+        const programsData = [
+            {
+                id: "arts",
+                title: "General Arts",
+                icon: "fas fa-paint-brush",
+                maxElectives: 4,
+                coreSubjects: ["English", "Mathematics", "Integrated Science", "Social Studies"],
+                electiveSubjects: [
+                    "Literature in English",
+                    "Ghanaian Language",
+                    "French",
+                    "Music",
+                    "Economics",
+                    "Geography",
+                    "History",
+                    "Government"
+                ]
+            },
+            {
+                id: "science",
+                title: "General Science",
+                icon: "fas fa-flask",
+                maxElectives: 4,
+                coreSubjects: ["English", "Mathematics", "Integrated Science", "Social Studies"],
+                electiveSubjects: [
+                    "Physics",
+                    "Chemistry",
+                    "Biology",
+                    "Elective Mathematics",
+                    "Agriculture Science",
+                    "Animal Husbandry",
+                    "Fisheries"
+                ]
+            },
+            {
+                id: "business",
+                title: "Business",
+                icon: "fas fa-chart-line",
+                maxElectives: 4,
+                coreSubjects: ["English", "Mathematics", "Integrated Science", "Social Studies"],
+                electiveSubjects: [
+                    "Financial Accounting",
+                    "Cost Accounting",
+                    "Business Management",
+                    "Economics",
+                    "Elective Mathematics",
+                    "Office Practice"
+                ]
+            },
+            {
+                id: "visual-arts",
+                title: "Visual Arts",
+                icon: "fas fa-palette",
+                maxElectives: 4,
+                coreSubjects: ["English", "Mathematics", "Integrated Science", "Social Studies"],
+                electiveSubjects: [
+                    "General Knowledge in Art",
+                    "Graphic Design",
+                    "Picture Making",
+                    "Sculpture",
+                    "Textiles",
+                    "Basketry"
+                ]
+            },
+            {
+                id: "home-economics",
+                title: "Home Economics",
+                icon: "fas fa-utensils",
+                maxElectives: 4,
+                coreSubjects: ["English", "Mathematics", "Integrated Science", "Social Studies"],
+                electiveSubjects: [
+                    "Management in Living",
+                    "Food and Nutrition",
+                    "Clothing and Textiles",
+                    "General Knowledge in Art",
+                    "Biology",
+                    "Chemistry"
+                ]
+            },
+            {
+                id: "technical",
+                title: "Technical",
+                icon: "fas fa-tools",
+                maxElectives: 4,
+                coreSubjects: ["English", "Mathematics", "Integrated Science", "Social Studies"],
+                electiveSubjects: [
+                    "Technical Drawing",
+                    "Metalwork",
+                    "Woodwork",
+                    "Applied Electricity",
+                    "Electronics",
+                    "Auto Mechanics"
+                ]
+            },
+            {
+                id: "agriculture",
+                title: "Agriculture",
+                icon: "fas fa-leaf",
+                maxElectives: 4,
+                coreSubjects: ["English", "Mathematics", "Integrated Science", "Social Studies"],
+                electiveSubjects: [
+                    "Crop Husbandry",
+                    "Horticulture",
+                    "Animal Husbandry",
+                    "Fisheries",
+                    "Forestry",
+                    "Agricultural Economics"
+                ]
+            }
+        ];
+
+        function generateProgramCards() {
+                    const container = document.getElementById('programs-container');
+
+                    programsData.forEach(program => {
+                        const programCard = document.createElement('div');
+                        programCard.className = 'col-lg-6 col-md-6 mb-4';
+                        programCard.innerHTML = `
+                            <div class="program-card card" id="${program.id}-card">
+                                <div class="card-header">
+                                    <span class="program-title"><i class="${program.icon} me-2"></i>${program.title}</span>
+                                    <span class="badge program-badge bg-light text-dark">Selected: <span id="${program.id}-count">0</span>/${program.maxElectives}</span>
+                                </div>
+                                <div class="card-body">
+                                    <h5 class="card-title">Elective Subjects (Select up to ${program.maxElectives}):</h5>
+                                    <div class="subject-grid">
+                                        ${program.electiveSubjects.map((subject, index) => `
+                                            <div class="subject-item">
+                                                <input type="checkbox" class="form-check-input ${program.id}-subject"
+                                                       id="${program.id}${index + 1}" name="${program.id}-subject">
+                                                <label class="form-check-label ms-2" for="${program.id}${index + 1}">${subject}</label>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                                <div class="core-subjects">
+                                    <div class="core-title">Core Subjects:</div>
+                                    <div>${program.coreSubjects.join(', ')}</div>
+                                </div>
+                            </div>
+                        `;
+
+                        container.appendChild(programCard);
+                    });
+
+                    // Add event listeners after generating the cards
+                    addCheckboxListeners();
+                }
+
+                // Function to add event listeners to checkboxes
+                function addCheckboxListeners() {
+                    programsData.forEach(program => {
+                        const checkboxes = document.querySelectorAll(`.${program.id}-subject`);
+                        const countElement = document.getElementById(`${program.id}-count`);
+
+                        checkboxes.forEach(checkbox => {
+                            checkbox.addEventListener('change', () => {
+                                const checkedCount = document.querySelectorAll(`.${program.id}-subject:checked`).length;
+
+                                if (checkedCount > program.maxElectives) {
+                                    checkbox.checked = false;
+                                    return;
+                                }
+
+                                countElement.textContent = checkedCount;
+                            });
+                        });
+                    });
+                }
+
+                // Generate the program cards when the page loads
+                document.addEventListener('DOMContentLoaded', generateProgramCards);*/
 
 
 
+ /**
+  * Optimizes an image file using canvas
+  * @param {File} file - The original image file
+  * @param {Object} options - Compression options
+  * @returns {Promise<String>} - A promise that resolves with a Base64 data URI
+  */
+ function optimizeImage(file, options) {
+     return new Promise((resolve, reject) => {
+         const img = new Image();
+         const reader = new FileReader();
 
+         reader.onload = function(e) {
+             img.src = e.target.result;
+         };
 
+         reader.onerror = reject;
+         reader.readAsDataURL(file);
 
+         img.onload = function() {
+             // Calculate new dimensions while maintaining aspect ratio
+             const maxDimension = options.maxSize;
+             let width = img.width;
+             let height = img.height;
 
+             if (width > height) {
+                 if (width > maxDimension) {
+                     height = Math.round((height * maxDimension) / width);
+                     width = maxDimension;
+                 }
+             } else {
+                 if (height > maxDimension) {
+                     width = Math.round((width * maxDimension) / height);
+                     height = maxDimension;
+                 }
+             }
 
+             // Create a canvas and draw the resized image on it
+             const canvas = document.createElement('canvas');
+             canvas.width = width;
+             canvas.height = height;
 
+             const ctx = canvas.getContext('2d');
+             ctx.drawImage(img, 0, 0, width, height);
 
+             // Convert the canvas to a compressed Blob, then to a Data URL
+             canvas.toBlob(
+                 (blob) => {
+                     const newReader = new FileReader();
+                     newReader.onload = () => resolve(newReader.result); // This is the Base64 string
+                     newReader.readAsDataURL(blob);
+                 },
+                 options.outputFormat === 'png' ? 'image/png' : 'image/jpeg', // Mime type
+                 options.quality // Quality for JPEG
+             );
+         };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-var contract=`
-
-            <div class="col-lg-12">
-                <div class="hpanel blog-article-box">
-                    <div class="panel-heading">
-                        <h4>Astromy ORB Client Contract </h4>
-                        <small>This shall be a binding legal document between <b><span id="contractClient"></span> and Astromy LLC Company Limited</b></small>
-                        <div class="text-muted small">
-                            Created by: <span class="font-bold">Astromy LLC Company Ltd on </span><span id="dtime"></span>
-                        </div>
-                    </div>
-                    <div class="panel-body">
-
-                        <p class="agreement">
-                             1. INTRODUCTION
-                        </p>
-
-                        <p class="agreement">
-                            Welcome to the ORB! We start every new subscriber relationship with a contract.
-                            The following contract spells out what you can expect from us, and what we expect from you.
-                            If you agree to what you read below, you should click "Yes" at the end of the contract to acknowledge that you have agreed.
-                            We intend this to be the legal equivalent of your signature on a written contract, and equally binding.
-                            Only by agreeing to this contract will you be able to access and use the services available on this Web Site.
-                        </p>
-                        <br/>
-                        <p class="agreement">
-                            2.	ACCESS AND SERVICES
-                        </p>
-
-                        <p class="agreement">
-                            Your access to the various services available on this system depends on the level of access you select.
-                            You may change or discontinue your account at any time.
-                            We reserve the right to modify, suspend or terminate access to the service on our system at any time for
-                            any reason without notice or refund, including the right to require you to change your login identification code or password.
-                        </p>
-                        <br/>
-                        <p class="agreement">
-                            3.	FEES AND PAYMENT
-                        </p>
-
-                        <p class="agreement">
-                            Depending on the type of subscription chosen, we may charge you an annual fee for using our system which shall be depending on your school’s population.
-                            You will be given the opportunity to pay by credit card or by check when you sign up.
-                            You can cancel your account at any time, but you will remain liable for all charges accrued up to that time, including full annual charges for the year for which you discontinued service.
-                            We reserve the right to change our fees at any time for any reason, but, whenever possible, we will give you at least one month's advance notice of such change.
-                        </p>
-                        <br/>
-                        <p class="agreement">
-                            4.	SYSTEM RULES
-                        </p>
-
-                        <p class="agreement">
-                            You agree to be bound by certain rules which are important for the proper use of this service.
-                            Your failure to follow these rules, whether listed below in the contract or in bulletins posted at various points in the system, may result in termination of your service.
-                            First, do not tell others your password or let your account be used by anyone except yourself.
-                            Third, while you should feel free to express yourself, you should respect other users of the system and not do anything to attack or injure others.
-                            Fourth, do not use our system to commit a crime, or to plan, encourage or help others commit a crime, including crimes relating to computers.
-                        </p>
-                        <br/>
-                        <p class="agreement">
-                            5.	PROPRIETARY RIGHTS
-                        </p>
-
-                        <p class="agreement">
-                            By uploading questions and their corresponding answers on our system, you are hereby granting to the us an unrestricted
-                            license to use, copy, modify, adapt, or document in any form any set of questions and their corresponding answers,
-                            information, or any underlying work in which you may possess proprietary rights, including but not limited to copyright rights.
-                            All users of the system are therefore deemed to have disclaimed or waived all copyright ownership rights in
-                            their uploaded questions and their corresponding answers, even if they contain copyright notices. You shall have absolutely no
-                            recourse against us as the system provider for any alleged or actual infringement of any proprietary rights to which you may claim ownership.
-
-                            <br/>
-                            Your use of our system affords you access to many of the features of our system, but some aspects of our system remain within
-                            our exclusive proprietary control. We or our suppliers own the intellectual property rights to any and all protectable
-                            components of our system, including but not limited to the computer software, the related documentation, the end-user interfaces,
-                            the name of our system, many of the individual features, and the collective works consisting of sequences of all public messages
-                            on our system. You may not reproduce any sequence of messages from our system, either electronically or in print, without our
-                            permission. In addition; you may not copy, modify, adapt, reproduce, translate, distribute, reverse engineer, decompile or
-                            dissemble any aspect of the system which we or our suppliers own.
-                        </p>
-                        <br/>
-                        <p class="agreement">
-                            6.	LIMITATION OF LIABILITY
-                        </p>
-
-                        <p class="agreement">
-                            You must bear the risk of any liability relating to your use of our system. We would not be able to afford to operate this
-                            system if we were held accountable for every wrongful action by every Online subscriber. ACCORDINGLY, YOUR USE OF THE ONLINE
-                            SYSTEM IS ENTIRELY AT YOUR SOLE RISK. WE WILL NOT BE RESPONSIBLE TO YOU OR ANY THIRD PARTIES FOR ANY DIRECT OR INDIRECT,
-                            CONSEQUENTIAL, SPECIAL OR PUNITIVE DAMAGES OR LOSSES YOU MAY INCUR IN CONNECTION WITH OUR SYSTEM, YOUR USE THEREOF OR ANY OF
-                            THE DATA OR OTHER MATERIALS TRANSMITTED THROUGH OR RESIDING ON OUR SYSTEM, REGARDLESS OF THE TYPE OF CLAIM OR THE NATURE OF THE
-                            CAUSE OF ACTION, EVEN IF WE HAVE ADVISED OF THE POSSIBILITY OF SUCH DAMAGE OR LOSS.
-                        </p>
-                        <br/>
-                        <p class="agreement">
-                            7.	INDEMNITY
-                        </p>
-
-                        <p class="agreement">
-                            You shall defend and indemnify us and hold us harmless from and against any and all claims, proceedings, damages, injuries,
-                            liabilities, losses, costs and expenses (including reasonable attorneys' fees), relating to any acts by you or materials or
-                            information transmitted by you in connection with our system, leading wholly or partially to claims against us or our
-                            system by other subscribers or third parties, regardless of the type of claim or the nature of the cause of action.
-                        </p>
-                        <br/>
-                        <p class="agreement">
-                            8.	DISCLAIMERS OF WARRANTY
-                        </p>
-
-                        <p class="agreement">
-                            THE SYSTEM IS PROVIDED "AS IS" AND WE MAKE NO WARRANTIES, EXPRESS OR IMPLIED, AS TO THE MERCHANTABILITY, FITNESS FOR A
-                            PARTICULAR USE OR PURPOSE, TITLE, NON-INFRINGEMENT OR ANY OTHER WARRANTY, CONDITION, GUARANTY, OR REPRESENTATION,
-                            WHETHER ORAL, IN WRITING OR IN ELECTRONIC FORM, INCLUDING BUT NOT LIMITED TO THE ACCURACY OR COMPLETENESS OF ANY INFORMATION
-                            CONTAINED THEREIN OR PROVIDED BY THE SERVICE.
-                        </p>
-                        <br/>
-                        <p class="agreement">
-                            9.	CHOICE OF LAW
-                        </p>
-
-                        <p class="agreement">
-                            You agree that this Agreement shall for all purposes be governed by and construed in accordance with the laws of Ghana,
-                            and that any action arising out of this Agreement shall be litigated and enforced under the laws of Ghana. In addition,
-                            you agree to submit to the jurisdiction of the courts of Ghana, and that any legal action pursued by you shall be within
-                            the exclusive jurisdiction of the courts of Ghana.
-                        </p>
-                        <br/>
-                        <p class="agreement">
-                            10.	ACKNOWLEDGMENT
-                        </p>
-
-                        <p class="agreement">
-                            This Agreement represents the entire understanding between you and us regarding your relationship to Online and
-                            supersedes any prior statements or representations. IF YOU AGREE TO BE BOUND BY THE TERMS OF THIS ONLINE SUBSCRIBER AGREEMENT,
-                            please check the checkbox below. If you do not agree to the terms of the Subscriber Agreement, please log off the system.
-                        </p>
-
-                    </div>
-                    <div class="panel-footer">
-                        <div class="checkbox" style="margin-left: 10px">
-                            <input type="checkbox" class="i-checks approveCheck" placeholder="approve"
-                                   title="approve" name="approve">
-                            Having read and Understand the terms and conditions, approve to this contract
-                        </div>
-                    </div>
-                </div>
-            </div>
-`
+         img.onerror = reject;
+     });
+ }

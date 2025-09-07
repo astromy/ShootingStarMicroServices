@@ -1,12 +1,13 @@
 package com.astromyllc.shootingstar.adminpta.service;
 
+import com.astromyllc.shootingstar.adminpta.dto.paystack.PaystackPaymentResponse;
 import com.astromyllc.shootingstar.adminpta.dto.request.DynamicStringRequest;
+import com.astromyllc.shootingstar.adminpta.dto.request.StudentAccountRequest;
 import com.astromyllc.shootingstar.adminpta.dto.request.alien.DynamicStringRequestUtil;
-import com.astromyllc.shootingstar.adminpta.dto.response.StudentsResponse;
-import com.astromyllc.shootingstar.adminpta.model.Students;
+import com.astromyllc.shootingstar.adminpta.model.StudentAccount;
 import com.astromyllc.shootingstar.adminpta.serviceInterface.ParentServiceInterface;
 import com.astromyllc.shootingstar.adminpta.util.ParentsUtil;
-import com.astromyllc.shootingstar.adminpta.util.StudentUtil;
+import com.astromyllc.shootingstar.adminpta.util.StudentAccountUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,13 +15,9 @@ import org.springframework.stereotype.Service;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.function.BiPredicate;
-import java.util.function.Function;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +25,7 @@ import java.util.function.Function;
 @Transactional
 public class ParentService implements ParentServiceInterface {
  private final ParentsUtil parentsUtil;
+    private final StudentAccountUtil studentAccountUtil;
 
 
     @Override
@@ -77,6 +75,21 @@ public class ParentService implements ParentServiceInterface {
         }
     }
 
+    @Override
+    public Optional<String> subscriptionPaymentStatus(PaystackPaymentResponse request) {
+        String paymentStatus=request.getData().getStatus();
+        Double paymentAmount=request.getData().getAmount();
+        if(paymentStatus.equalsIgnoreCase("success") && paymentAmount==(5000)){
+           String studentID= request.getData().getMetadata().getCustomFields().get(0).getValue();
+           String status="active";
+            List<StudentAccount> sa= new ArrayList<>();
+            sa.add(StudentAccountUtil.mapStudentAccountRequest_ToStudentAccount(new StudentAccountRequest(studentID,status),studentID));
+            studentAccountUtil.saveAll(sa);
+
+            return Optional.of("Account Reactivated for "+ studentID);
+        }
+        return Optional.empty();
+    }
 
 
 }

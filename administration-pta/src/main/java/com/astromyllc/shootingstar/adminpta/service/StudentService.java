@@ -6,7 +6,6 @@ import com.astromyllc.shootingstar.adminpta.dto.response.StudentSkimResponse;
 import com.astromyllc.shootingstar.adminpta.dto.response.StudentSkimWithParentResponse;
 import com.astromyllc.shootingstar.adminpta.dto.response.StudentsResponse;
 import com.astromyllc.shootingstar.adminpta.model.Students;
-import com.astromyllc.shootingstar.adminpta.repository.StudentRepository;
 import com.astromyllc.shootingstar.adminpta.serviceInterface.StudentServiceInterface;
 import com.astromyllc.shootingstar.adminpta.util.StudentUtil;
 import jakarta.transaction.Transactional;
@@ -18,7 +17,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -28,13 +26,36 @@ import java.util.stream.Collectors;
 @Slf4j
 @Transactional
 public class StudentService implements StudentServiceInterface {
-    private final StudentRepository studentRepository;
     private final StudentUtil studentUtil;
 
 
     @Override
     public void fetchCurrentApplications(AdmissionRequest admissionRequest) {
         studentUtil.getCurrentApplications(admissionRequest);
+    }
+    @Override
+    public void fetchCurrentApplications(Students2Request admissionRequest) {
+        StudentUtil.studentsGlobalList.stream()
+                .filter(x -> x.getStudentId().equalsIgnoreCase(admissionRequest.getStudentId()))
+                .findFirst()
+                .ifPresentOrElse(
+                        existingStudent -> {
+                            // Student exists - handle duplicate case
+                            try {
+                                studentUtil.updateExistingStudents(admissionRequest,existingStudent);
+                            } catch (URISyntaxException | IOException e) {
+                                throw new RuntimeException(e);
+                            }
+                        },
+                        () -> {
+                            // Student doesn't exist - process new application
+                            try {
+                                studentUtil.createNewStudents(admissionRequest);
+                            } catch (URISyntaxException | IOException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                );
     }
 
     @Override
@@ -120,16 +141,6 @@ public class StudentService implements StudentServiceInterface {
         return Optional.of(responses);
     }
 
-    /*public Optional<List<ClassListResponse>> fetchAssessmentList(ClassListRequest request) {
-        return Optional.of(StudentUtil.studentsGlobalList.stream()
-                .filter(x->
-                        x.getStudentClass().equalsIgnoreCase(request.getStudentClass()) &&
-                        x.getInstitutionCode().equalsIgnoreCase(request.getInstitutionCode()))
-                .map(studentUtil::mapStudent_ToClassListResponse).toList());
-    }*/
-
-
-
     @Override
     public Optional<List<StudentsResponse>> fetchStudentsByStatus(SingleStringRequest status) {
         return Optional.of(StudentUtil.studentsGlobalList.stream().filter(x->x.getStatus().equalsIgnoreCase(status.getVal()))
@@ -155,7 +166,8 @@ public class StudentService implements StudentServiceInterface {
                 "institutionCode", Students::getInstitutionCode,
                 "studentClass", Students::getStudentClass,
                 "dateOfBirth", Students::getDateOfBirth,
-                "status", Students::getStatus
+                "status", Students::getStatus,
+                "studentId", Students::getStudentId
                 // Add all other fields here
         );
 
@@ -188,6 +200,7 @@ public class StudentService implements StudentServiceInterface {
                             Class<?> fieldType = actualValue != null ? actualValue.getClass() : String.class;
 
                             Object expectedValue = convertValue(stringValue, fieldType);
+
                             if (!typeHandlers.getOrDefault(fieldType, Objects::equals)
                                     .test(expectedValue, actualValue)) {
                                 return false;
@@ -212,6 +225,13 @@ public class StudentService implements StudentServiceInterface {
                         .findFirst()
                         .map(studentUtil::mapStudent_ToSkimpStudentResponse)
                 );
+    }
+
+    @Override
+    public Optional<Long> getStudentsPopulationByInstitution(SingleStringRequest request) {
+        return Optional.of(StudentUtil.studentsGlobalList.stream()
+                .filter(st->st.getInstitutionCode().equalsIgnoreCase(request.getVal())
+                && !st.getStatus().equalsIgnoreCase("completed")).count());
     }
 
     private Object convertValue(String stringValue, Class<?> targetType) {

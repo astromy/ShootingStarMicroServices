@@ -13,5 +13,6 @@ public class SubjectResponse {
     private Long id;
     private String name;
     private String classGroup;
+    private String classGroupName;
     private int preference;
 }

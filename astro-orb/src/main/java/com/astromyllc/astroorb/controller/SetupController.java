@@ -136,6 +136,14 @@ public class SetupController {
 
     //=======================================================================================================================
     @ResponseBody
+    @RequestMapping(value = "/getInstitutionStatus", method = RequestMethod.POST)
+    public ResponseEntity<String> checkActivationStatus(@RequestBody SingleStringRequest jso) throws IOException, InterruptedException {
+        log.error("REQUEST GET INSTITUTION BY CODE OF..... {}", jso);
+        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/getInstitutionStatus");
+        //log.error("Institution Feed from Setup  \n ==> {}", response);
+        return response;
+    }
+    @ResponseBody
     @RequestMapping(value = "/getInstitutionByCode", method = RequestMethod.POST)
     public ResponseEntity<String> fetchInstitution(@RequestBody SingleStringRequest jso) throws IOException, InterruptedException {
         log.error("REQUEST GET INSTITUTION BY CODE OF..... {}", jso);

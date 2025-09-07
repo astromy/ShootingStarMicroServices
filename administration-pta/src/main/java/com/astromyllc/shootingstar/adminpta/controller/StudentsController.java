@@ -30,6 +30,12 @@ public class StudentsController {
         studentServiceInterface.fetchCurrentApplications(admissionRequest);
     }
 
+    @PostMapping("/api/administration-pta/accept-admissions")
+    @ResponseStatus(HttpStatus.OK)
+    public void conductAdmissions(@RequestBody Students2Request admissionRequest) {
+        studentServiceInterface.fetchCurrentApplications(admissionRequest);
+    }
+
     @PostMapping("/api/administration-pta/getAllStudents")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Optional<List<StudentsResponse>>> getAllStudents() {
@@ -81,12 +87,19 @@ public class StudentsController {
     @PostMapping("/api/administration-pta/getSkimpStudentsByParentContact")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Optional<List<StudentSkimWithParentResponse>>> getSkimpStudentsByParentContact(@RequestBody SingleStringRequest request) {
-        return ResponseEntity.ok(studentServiceInterface.getSkimpStudentsByParentContact(request));
+        Optional<List<StudentSkimWithParentResponse>> responseList=studentServiceInterface.getSkimpStudentsByParentContact(request);
+        return ResponseEntity.ok(responseList);
     }
 
     @PostMapping("/api/administration-pta/getStudentByID")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Optional<StudentSkimResponse>> getStudentByID(@RequestBody SingleStringRequest request) {
         return ResponseEntity.ok(studentServiceInterface.getStudentByID(request));
+    }
+
+    @PostMapping("/api/administration-pta/getInstitutionPopulationByCode")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<Optional<Long>> getInstitutionPopulationByCode(@RequestBody SingleStringRequest request) {
+        return ResponseEntity.ok(studentServiceInterface.getStudentsPopulationByInstitution(request));
     }
 }

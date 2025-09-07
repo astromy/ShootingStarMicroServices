@@ -1,5 +1,6 @@
 package com.astromyllc.shootingstar.setup.controller;
 
+import com.astromyllc.shootingstar.setup.dto.paystack.PaystackPaymentResponse;
 import com.astromyllc.shootingstar.setup.dto.request.*;
 import com.astromyllc.shootingstar.setup.dto.response.*;
 import com.astromyllc.shootingstar.setup.serviceInterface.*;
@@ -50,6 +51,18 @@ public class InstitutionController {
     @ResponseStatus(HttpStatus.OK)
     public Optional<InstitutionResponse> getInstitutionByBeceCode(@RequestBody SingleStringRequest beceCode) {
         return institutionService.getInstitutionByBeceCode(beceCode);
+    }
+
+    @PostMapping("/api/setup/getInstitutionStatus")
+    @ResponseStatus(HttpStatus.OK)
+    public Optional<SkimpInstitutionResponse> getInstitutionStatus(@RequestBody SingleStringRequest beceCode) {
+        return institutionService.getInstitutionStatus(beceCode);
+    }
+
+    @PostMapping("/api/setup/reactivateInstitutionalAccount")
+    @ResponseStatus(HttpStatus.OK)
+    public Optional<String> reactivateInstitutionalAccount(@RequestBody PaystackPaymentResponse paystack) {
+        return institutionService.reactivateInstitutionalAccount(paystack);
     }
 
     @GetMapping("/api/setup/getInstitutionByCode?institutionCode")

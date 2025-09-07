@@ -1,8 +1,6 @@
 package com.astromyllc.shootingstar.adminpta.config;
 
-import com.astromyllc.shootingstar.adminpta.model.Parents;
-import com.astromyllc.shootingstar.adminpta.model.Portfolio;
-import com.astromyllc.shootingstar.adminpta.model.Students;
+import com.astromyllc.shootingstar.adminpta.model.*;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,6 +27,8 @@ public class MongoDBSchemaInitializer implements CommandLineRunner {
         ensureCollectionExists(Students.class);
         ensureCollectionExists(Portfolio.class);
         ensureCollectionExists(Parents.class);
+        ensureCollectionExists(StudentAccount.class);
+        ensureCollectionExists(StudentSubjects.class);
     }
 
     private void ensureCollectionExists(Class<?> entityClass) {

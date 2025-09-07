@@ -28,8 +28,10 @@ public class StudentsResponse {
     private String birthCert;
     private String denomination;
     private String institutionCode;
+    private String residentialLocality;
     private String status;
     private String studentClass;
     private List<ParentsResponse> studentParents;
+    private List<StudentAccountResponse> studentAccountResponse;
     private List<StudentSubjectsResponse> studentSubjectsResponse;
 }

@@ -10,7 +10,7 @@ public class UserController {
 
     @GetMapping({"/","index"})
     public String getIndex(Model model) {
-        return "orbsPreOrder";
+        return "newAdmissionAcceptance";
 
     }
 

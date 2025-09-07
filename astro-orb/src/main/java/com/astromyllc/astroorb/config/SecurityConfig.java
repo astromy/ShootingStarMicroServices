@@ -1,6 +1,7 @@
 package com.astromyllc.astroorb.config;
 
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.ws.rs.HttpMethod;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -30,12 +31,13 @@ public class SecurityConfig {
                 // Require authentication for all requests
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/public/**", "/resources/**", "/error").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/webhook/subscriptionPaymentStatus").permitAll()
                         .anyRequest().authenticated()
                 )
                 // Enable CSRF with Cookie-based token storage
                 .csrf(csrf -> csrf
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                        .ignoringRequestMatchers("/public/**")
+                        .ignoringRequestMatchers("/webhook/subscriptionPaymentStatus", "/public/**")
                 )
                 // OAuth2 Login configuration using Keycloak
                 .oauth2Login(oauth2 -> oauth2

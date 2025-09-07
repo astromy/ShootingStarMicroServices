@@ -1,5 +1,6 @@
 package com.astromyllc.shootingstar.adminpta.controller;
 
+import com.astromyllc.shootingstar.adminpta.dto.paystack.PaystackPaymentResponse;
 import com.astromyllc.shootingstar.adminpta.dto.request.*;
 import com.astromyllc.shootingstar.adminpta.dto.response.ClassListResponse;
 import com.astromyllc.shootingstar.adminpta.dto.response.StudentSkimResponse;
@@ -29,6 +30,12 @@ public class ParentController {
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Optional<String>> sendReactivationEmail(@RequestBody DynamicStringRequest request) {
         return ResponseEntity.ok(parentServiceInterface.activateStudentAccount(request));
+    }
+
+    @PostMapping("/api/administration-pta/subscriptionPaymentStatus")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<Optional<String>> subscriptionPaymentStatus(@RequestBody PaystackPaymentResponse request) {
+        return ResponseEntity.ok(parentServiceInterface.subscriptionPaymentStatus(request));
     }
 
 }
