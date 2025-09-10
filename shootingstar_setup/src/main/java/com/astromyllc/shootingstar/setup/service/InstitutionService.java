@@ -21,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -38,7 +39,7 @@ public class InstitutionService implements InstitutionServiceInterface {
     private final InstitutionAccountUtil institutionAccountUtil;
 
     @Override
-    public InstitutionResponse createInstitution(InstitutionRequest institutionRequest) {
+    public InstitutionResponse createInstitution(InstitutionRequest institutionRequest) throws IOException {
         Optional<Institution> institution = InstitutionUtils.institutionGlobalList.stream().filter(x -> x.getBececode().equalsIgnoreCase(institutionRequest.getBececode())).findFirst();
         Institution institution1 = new Institution();
         if (institution.isEmpty()) {
@@ -50,14 +51,13 @@ public class InstitutionService implements InstitutionServiceInterface {
         } else {
             Institution institution2 = institutionUtils.mapInstitutionRequestToInstitution(institution.get(), institutionRequest);
             institutionRepository.save(institution2);
-            InstitutionUtils.institutionGlobalList.add(institution2);
             return institutionUtils.mapInstitutionToInstitutionResponse(institution2);
         }
         return institutionUtils.mapInstitutionToInstitutionResponse(institution1);
     }
 
     @Override
-    public InstitutionResponse migratePreOrder(String institutionCode) {
+    public InstitutionResponse migratePreOrder(String institutionCode) throws IOException {
         Optional<PreOrderInstitution> institution = InstitutionUtils.preOrderInstitutionGlobalList.stream().filter(x -> x.getBececode().equalsIgnoreCase(institutionCode)).findFirst();
         Institution institution1 = new Institution();
         if (institution.isPresent()) {
@@ -70,7 +70,7 @@ public class InstitutionService implements InstitutionServiceInterface {
     }
 
     @Override
-    public String createPreOrderInstitution(PreOrderInstitutionRequest institutionRequest) {
+    public String createPreOrderInstitution(PreOrderInstitutionRequest institutionRequest) throws IOException {
         // Optional <PreOrderInstitution> institution = institutionUtils.institutionGlobalList.stream().filter(x -> x.getBececode().equalsIgnoreCase(institutionRequest.getBececode())).findFirst();
         PreOrderInstitution institution1 = new PreOrderInstitution();
         institution1 = institutionUtils.mapPreOrderInstitutionRequest_ToPreOrderInstitution(institutionRequest);
@@ -83,7 +83,7 @@ public class InstitutionService implements InstitutionServiceInterface {
     }
 
     @Override
-    public Optional<InstitutionResponse> getInstitutionByBeceCode(SingleStringRequest beceCode) {
+    public Optional<InstitutionResponse> getInstitutionByBeceCode(SingleStringRequest beceCode) throws IOException {
         String finalBeceCode = beceCode.getVal();
         List<Institution> ii = InstitutionUtils.institutionGlobalList.stream().filter(x -> x.getBececode().equalsIgnoreCase(finalBeceCode)).toList();
         if (ii.size() == 0) {
@@ -95,7 +95,48 @@ public class InstitutionService implements InstitutionServiceInterface {
 
     @Override
     public Optional<List<InstitutionResponse>> getAllInstitution() {
-        return Optional.of(InstitutionUtils.institutionGlobalList.stream().filter(i -> i.getGradingSetting() != null && i.getClassList() != null && i.getSubjectList() != null && i.getDepartmentList() != null).map(institutionUtils::mapInstitutionToInstitutionResponse).toList());
+        try {
+            return Optional.of(InstitutionUtils.institutionGlobalList.stream()
+                    .filter(i -> i.getGradingSetting() != null && i.getClassList() != null && i.getSubjectList() != null && i.getDepartmentList() != null)
+                    .map(institution -> {
+                        try {
+                            return institutionUtils.mapInstitutionToInstitutionResponse(institution);
+                        } catch (IOException e) {
+                            throw new RuntimeException("Failed to map institution: " + institution.getIdInstitution(), e);
+                        }
+                    })
+                    .toList());
+        } catch (RuntimeException e) {
+            if (e.getCause() instanceof IOException) {
+                // Handle the IOException case specifically
+                log.error("IO error processing institutions: {}", e.getMessage());
+                return Optional.empty(); // or return some default value
+            }
+            throw e; // Re-throw if it's a different RuntimeException
+        }
+    }
+
+    @Override
+    public Optional<List<InstitutionResponse>> getAllSubscribedInstitution() {
+        try {
+            return Optional.of(InstitutionUtils.institutionGlobalList.stream()
+                    .filter(i -> i.getGradingSetting() != null && i.getClassList() != null && i.getSubjectList() != null && i.getDepartmentList() != null)
+                    .map(institution -> {
+                        try {
+                            return institutionUtils.mapInstitutionToInstitutionResponse(institution," ");
+                        } catch (IOException e) {
+                            throw new RuntimeException("Failed to map institution: " + institution.getIdInstitution(), e);
+                        }
+                    })
+                    .toList());
+        } catch (RuntimeException e) {
+            if (e.getCause() instanceof IOException) {
+                // Handle the IOException case specifically
+                log.error("IO error processing institutions: {}", e.getMessage());
+                return Optional.empty(); // or return some default value
+            }
+            throw e; // Re-throw if it's a different RuntimeException
+        }
     }
 
     @Override
@@ -130,7 +171,18 @@ public class InstitutionService implements InstitutionServiceInterface {
 
     @Override
     public Optional<List<PreOrderInstitutionResponse>> getAllPreOrderedInstitution() {
-        return Optional.of(InstitutionUtils.preOrderInstitutionGlobalList.stream().map(institutionUtils::mapPreOrderInstitutionToPreOrderInstitutionResponse).toList());
+        return Optional.of(InstitutionUtils.preOrderInstitutionGlobalList.stream()
+                .map(institution -> {
+                    try {
+                        return institutionUtils.mapPreOrderInstitutionToPreOrderInstitutionResponse(institution);
+                    } catch (IOException e) {
+                        // Log and return null for failed mappings
+                        log.warn("Skipping pre-order institution {} due to IO error: {}", institution.getIdInstitution(), e.getMessage());
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull) // Remove null values from the stream
+                .toList());
     }
 
     @Override

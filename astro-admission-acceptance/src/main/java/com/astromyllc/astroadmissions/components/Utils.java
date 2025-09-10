@@ -29,7 +29,7 @@ public class Utils {
 
     public List<InstitutionResponse> fetchAllInstitutions() {
         return webClientBuilder.build().post()
-                .uri("http://" + host + "/api/setup/getAllinstitution")
+                .uri("http://" + host + "/api/setup/getAllSubscribedInstitution")
                 .contentType(MediaType.APPLICATION_JSON)
                 //.body(Mono.just(json), JSONObject.class)
                 .retrieve()

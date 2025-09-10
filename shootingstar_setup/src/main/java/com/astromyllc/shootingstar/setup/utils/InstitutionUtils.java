@@ -11,9 +11,11 @@ import com.astromyllc.shootingstar.setup.model.PreOrderInstitution;
 import com.astromyllc.shootingstar.setup.repository.InstitutionRepository;
 import com.astromyllc.shootingstar.setup.repository.PreOrderInstitutionRepository;
 import jakarta.annotation.PostConstruct;
+import jakarta.validation.ValidationException;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.coobird.thumbnailator.Thumbnails;
 import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
@@ -32,6 +34,11 @@ import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -99,7 +106,7 @@ public class InstitutionUtils {
 
     }
 
-    public Institution mapInstitutionRequest_ToInstitution(InstitutionRequest institutionRequest) {
+    public Institution mapInstitutionRequest_ToInstitution(InstitutionRequest institutionRequest) throws IOException {
         return Institution.builder()
                 .name(institutionRequest.getName())
                 .slogan(institutionRequest.getSlogan())
@@ -116,8 +123,8 @@ public class InstitutionUtils {
                 .postalAddress(institutionRequest.getPostalAddress())
                 .streams(institutionRequest.getStreams())
                 .subscription(institutionRequest.getSubscription())
-                .crest(institutionRequest.getCrest())
-                .headSignature(institutionRequest.getHeadSignature())
+                .crest(Base64.getEncoder().encodeToString(processAndValidateImage(institutionRequest.getCrest(), 200, 512,"PNG")))
+                .headSignature(Base64.getEncoder().encodeToString(processAndValidateImage(institutionRequest.getHeadSignature(), 200, 512,"PNG")))
                 .admissions(AdmissionUtil.mapAdmissionRequestToAdmission(institutionRequest.getAdmissions()))
                 .classList(institutionRequest.getClassList().stream().map(ClassesUtil::mapClassRequestToClass).toList())
                 .gradingSetting(institutionRequest.getGradingSetting().stream().map(GradingSettingUtil::mapGradeSettingRequest_ToGradeSetting).toList())
@@ -126,7 +133,7 @@ public class InstitutionUtils {
                 .build();
     }
 
-    public InstitutionResponse mapInstitutionToInstitutionResponse(Institution institution) {
+    public InstitutionResponse mapInstitutionToInstitutionResponse(Institution institution) throws IOException {
         return InstitutionResponse.builder()
                 .id(institution.getIdInstitution())
                 .name(institution.getName())
@@ -144,8 +151,8 @@ public class InstitutionUtils {
                 .postalAddress(institution.getPostalAddress())
                 .streams(institution.getStreams())
                 .subscription(institution.getSubscription())
-                .crest(institution.getCrest())
-                .headSignature(institution.getHeadSignature())
+                .crest(Base64.getEncoder().encodeToString(processAndValidateImage(institution.getCrest(), 200, 512,"PNG")))
+                .headSignature(Base64.getEncoder().encodeToString(processAndValidateImage(institution.getHeadSignature(), 200, 512,"PNG")))
                 .admissions(institution.getAdmissions() != null
                         ? AdmissionUtil.mapAdmissionToAdmissionResponse(institution.getAdmissions())
                         : null)
@@ -170,16 +177,40 @@ public class InstitutionUtils {
                         .map(subjectUtil::mapSubject_ToSubjectResponse)
                         .toList()
                         : Collections.emptyList())
+                .departmentList(institution.getDepartmentList() != null
+                        ? institution.getDepartmentList().stream()
+                        .filter(Objects::nonNull)
+                        .map(DepartmentUtil::mapDepartment_ToDepartmentResponse)
+                        .toList()
+                        : Collections.emptyList())
+                .build();
+    }
+
+    public InstitutionResponse mapInstitutionToInstitutionResponse(Institution institution, String inst) throws IOException {
+        return InstitutionResponse.builder()
+                .id(institution.getIdInstitution())
+                .name(institution.getName())
+                .slogan(institution.getSlogan())
+                .country(institution.getCountry())
+                .region(institution.getRegion())
+                .city(institution.getCity())
+                .email(institution.getEmail())
+                .website(institution.getWebsite())
+                .contact1(institution.getContact1())
+                .bececode(institution.getBececode())
+                .postalAddress(institution.getPostalAddress())
+                .crest(Base64.getEncoder().encodeToString(processAndValidateImage(institution.getCrest(), 200, 512,"PNG")))
                 .classList(institution.getClassList() != null
                         ? institution.getClassList().stream()
                         .filter(Objects::nonNull)
                         .map(ClassesUtil::mapClassToClassResponse)
                         .toList()
                         : Collections.emptyList())
-                .departmentList(institution.getDepartmentList() != null
-                        ? institution.getDepartmentList().stream()
+
+                .subjectList(institution.getSubjectList() != null
+                        ? institution.getSubjectList().stream()
                         .filter(Objects::nonNull)
-                        .map(DepartmentUtil::mapDepartment_ToDepartmentResponse)
+                        .map(subjectUtil::mapSubject_ToSubjectResponse)
                         .toList()
                         : Collections.emptyList())
                 .build();
@@ -205,15 +236,15 @@ public class InstitutionUtils {
                 .subscription(institution.getSubscription())
                 .population(getPopulation(institution.getBececode()))
                 .pendingBill(getPopulation(institution.getBececode()) *
-                        (institution.getSubscription().contains("Free") ? 0.0 :
-                                institution.getSubscription().contains("Basic") ? 20.0 :
-                                        institution.getSubscription().contains("Standard") ? 40.0 :
-                                                institution.getSubscription().contains("Professional") ? 60.0 : 0.0)
+                        (institution.getSubscription().toLowerCase().contains("free") ? 0.0 :
+                                institution.getSubscription().toLowerCase().contains("basic") ? 20.0 :
+                                        institution.getSubscription().toLowerCase().contains("standard") ? 40.0 :
+                                                institution.getSubscription().toLowerCase().contains("professional") ? 60.0 : 0.0)
                 )
                 .build();
     }
 
-    public Institution mapInstitutionRequestToInstitution(Institution institution, InstitutionRequest institutionRequest) {
+    public Institution mapInstitutionRequestToInstitution(Institution institution, InstitutionRequest institutionRequest) throws IOException {
         institution.setName(institutionRequest.getName());
         institution.setSlogan(institutionRequest.getSlogan());
         institution.setCity(institutionRequest.getCity());
@@ -228,8 +259,8 @@ public class InstitutionUtils {
         institution.setStreams(institutionRequest.getStreams());
         institution.setWebsite(institutionRequest.getWebsite());
         institution.setSubscription(institutionRequest.getSubscription());
-        institution.setCrest(institutionRequest.getCrest());
-        institution.setHeadSignature(institutionRequest.getHeadSignature());
+        institution.setCrest(Base64.getEncoder().encodeToString(processAndValidateImage(institutionRequest.getCrest(), 200, 512,"PNG")));
+        institution.setHeadSignature(Base64.getEncoder().encodeToString(processAndValidateImage(institutionRequest.getHeadSignature(), 200, 512,"PNG")));
         //institution.setCreationDate(LocalDate.parse(institutionRequest.getCreationDate().replace("T", " "), formatter));
         //institution.setAdmissions(AdmissionUtil.mapAdmissionRequestToAdmission(institutionRequest.getAdmissions(), institution.getAdmissions()));
         //institution.setClassList(institutionRequest.getClassList().stream().map((cr) -> ClassesUtil.mapClassRequestToClass(cr, institution.getClassList().stream().filter(c -> cr.getId().equalsIgnoreCase(c.getIdClasses())).findFirst().get())).toList());
@@ -240,7 +271,7 @@ public class InstitutionUtils {
         return institution;
     }
 
-    public Institution mapPreorderInstitutionToInstitution(PreOrderInstitution preOrderInstitution) {
+    public Institution mapPreorderInstitutionToInstitution(PreOrderInstitution preOrderInstitution) throws IOException {
         return Institution.builder()
                 .name(preOrderInstitution.getName())
                 .slogan(preOrderInstitution.getSlogan())
@@ -257,11 +288,11 @@ public class InstitutionUtils {
                 .website(preOrderInstitution.getWebsite())
                 .subscription(preOrderInstitution.getSubscription())
                 .creationDate(preOrderInstitution.getCreationDate())
-                .crest(preOrderInstitution.getCrest())
+                .crest(Base64.getEncoder().encodeToString(processAndValidateImage(preOrderInstitution.getCrest(), 200, 512,"PNG")))
                 .build();
     }
 
-    public PreOrderInstitution mapPreOrderInstitutionRequest_ToPreOrderInstitution(PreOrderInstitutionRequest institutionRequest) {
+    public PreOrderInstitution mapPreOrderInstitutionRequest_ToPreOrderInstitution(PreOrderInstitutionRequest institutionRequest) throws IOException {
         return PreOrderInstitution.builder()
                 .name(institutionRequest.getName())
                 .slogan(institutionRequest.getSlogan())
@@ -279,11 +310,11 @@ public class InstitutionUtils {
                 .streams(institutionRequest.getStreams())
                 .subscription(institutionRequest.getSubscription())
                 .population(institutionRequest.getPopulation())
-                .crest(institutionRequest.getCrest())
+                .crest(Base64.getEncoder().encodeToString(processAndValidateImage(institutionRequest.getCrest(), 200, 512,"PNG")))
                 .build();
     }
 
-    public PreOrderInstitutionResponse mapPreOrderInstitutionToPreOrderInstitutionResponse(PreOrderInstitution institution) {
+    public PreOrderInstitutionResponse mapPreOrderInstitutionToPreOrderInstitutionResponse(PreOrderInstitution institution) throws IOException {
         return PreOrderInstitutionResponse.builder()
                 .id(institution.getIdInstitution())
                 .name(institution.getName())
@@ -302,7 +333,7 @@ public class InstitutionUtils {
                 .streams(institution.getStreams())
                 .subscription(institution.getSubscription())
                 .population(institution.getPopulation())
-                .crest(institution.getCrest())
+                .crest(Base64.getEncoder().encodeToString(processAndValidateImage(institution.getCrest(), 200, 512,"PNG")))
                 .build();
     }
 
@@ -636,6 +667,52 @@ public class InstitutionUtils {
                 System.out.println("Error processing role " + role + ": " + e.getMessage());
             }
         }
+    }
+
+
+
+
+    public byte[] processAndValidateImage(String clientSideBase64, int maxFileSizeKB, int maxWidth,String outputFormat) throws IOException, ValidationException {
+
+        // 1. Decode the client-supplied data
+        String base64Data = clientSideBase64.substring(clientSideBase64.indexOf(",") + 1);
+        byte[] clientImageBytes = Base64.getDecoder().decode(base64Data);
+
+        // 2. VALIDATE: Basic sanity check on the decoded size
+       /* if (clientImageBytes.length > (maxFileSizeKB * 1024)) {
+            throw new ValidationException("Uploaded image is too large after client-side processing.");
+        }*/
+
+        // 3. Read the image into a BufferedImage for inspection
+        ByteArrayInputStream bais = new ByteArrayInputStream(clientImageBytes);
+        BufferedImage image = ImageIO.read(bais);
+        if (image == null) {
+            throw new ValidationException("Uploaded data is not a valid image.");
+        }
+
+        // 4. VALIDATE: Check dimensions (e.g., prevent a 1x1 pixel image)
+        if (image.getWidth() < 50 || image.getHeight() < 50) {
+            throw new ValidationException("Image is too small.");
+        }
+
+        // 5. Re-optimize to ensure server standards (even if client already did)
+        // This ensures all profiles pics are exactly 400px and 80% quality.
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        // Use Thumbnailator for simple, robust resizing
+        Thumbnails.of(image)
+                .size(maxWidth, maxWidth)
+                .outputFormat(outputFormat)
+                .outputQuality(0.8) // Your app's standard quality
+                .toOutputStream(baos);
+
+        // 6. Final validation on the server-processed image
+        byte[] finalImageBytes = baos.toByteArray();
+        /*if (finalImageBytes.length > (maxFileSizeKB * 1024)) {
+            throw new ValidationException("Image is too large.");
+        }*/
+
+        return finalImageBytes; // Now safe to save to the DB
     }
 
 }

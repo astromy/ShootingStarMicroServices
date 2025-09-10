@@ -274,36 +274,106 @@ function validateImageUpload() {
 }
 
 function initImageUpload() {
-    const input = document.querySelector(".imageInput");
-    const output = document.querySelector(".imageOutput");
-    const verifyOutput = document.querySelector("#crest_");
+    const parts = dataURL.split(';base64,');
+        const contentType = parts[0].split(':')[1];
+        const raw = window.atob(parts[1]);
+        const uInt8Array = new Uint8Array(raw.length);
 
-    input.addEventListener("change", () => {
-        const file = input.files;
-        imagesArray = [];
-        if (file && file[0]) {
-            imagesArray.push(file[0]);
-            displayImages();
+        for (let i = 0; i < raw.length; ++i) {
+            uInt8Array[i] = raw.charCodeAt(i);
         }
-    });
 
-    function displayImages() {
-        let images = "";
-        imagesArray.forEach((image, index) => {
-            images += `<div class="crest">
-                        <img src="${URL.createObjectURL(image)}" alt="image" id="crestImage" class="crest">
-                        <span onclick="deleteImage(${index})">&times;</span>
-                      </div>`;
-        });
-        output.innerHTML = images;
-        verifyOutput.innerHTML = images;
+        return new Blob([uInt8Array], { type: contentType });
     }
 
-    window.deleteImage = function(index) {
-        imagesArray.splice(index, 1);
-        displayImages();
-        document.querySelector('.imageInput').value = '';
-    };
+    // 3. The main initialization function for LOGOS
+    function initImageUpload() {
+        const input = document.querySelector(".imageInput");
+        const output = document.querySelector(".imageOutput");
+        const verifyOutput = document.querySelector("#crest_");
+
+        let imagesArray = [];
+
+        input.addEventListener("change", async () => {
+            if (!input.files || !input.files[0]) return;
+
+            const originalFile = input.files[0];
+
+            try {
+                output.innerHTML = "<p>Processing logo...</p>";
+
+                // OPTIMIZE THE LOGO WITH PNG FORMAT
+                const optimizedDataURL = await optimizeImage(originalFile, {
+                    maxSize: 400,
+                });
+
+                const optimizedBlob = dataURLToBlob(optimizedDataURL);
+                const optimizedFileName = `logo-${originalFile.name.split('.')[0]}.png`;
+                const optimizedFile = new File([optimizedBlob], optimizedFileName, {
+                    type: 'image/png'
+                });
+
+                imagesArray = [optimizedFile];
+                displayImages();
+
+            } catch (error) {
+                console.error("Logo optimization failed:", error);
+                // Fallback: use the original file
+                imagesArray = [originalFile];
+                displayImages();
+            }
+        });
+
+        function displayImages() {
+            let images = "";
+            imagesArray.forEach((image, index) => {
+                images += `<div class="crest">
+                            <img src="${URL.createObjectURL(image)}" alt="logo" id="crestImage" class="crest">
+                            <span onclick="deleteImage(${index})">&times;</span>
+                          </div>`;
+            });
+            output.innerHTML = images;
+            if(verifyOutput) verifyOutput.innerHTML = images;
+        }
+
+        window.deleteImage = function(index) {
+            imagesArray.splice(index, 1);
+            displayImages();
+            input.value = '';
+        };
+}
+
+// 6. Helper function to convert a Data URL back to a Blob
+// (Needed for creating the preview)
+function dataURLToBlob(dataURL) {
+    const parts = dataURL.split(';base64,');
+    const contentType = parts[0].split(':')[1];
+    const raw = window.atob(parts[1]);
+    const uInt8Array = new Uint8Array(raw.length);
+
+    for (let i = 0; i < raw.length; ++i) {
+        uInt8Array[i] = raw.charCodeAt(i);
+    }
+
+    return new Blob([uInt8Array], { type: contentType });
+}
+
+// 7. Function to get the optimized base64 for the server
+// Call this when you're ready to submit the form
+function getOptimizedImageData() {
+    if (imagesArray.length === 0) return null;
+
+    // We need to read the optimized file back to base64
+    // Since we already have it optimized, we can convert it directly
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+            // Return only the base64 part (without the data URL prefix)
+            const fullDataURL = reader.result;
+            resolve(fullDataURL.split(',')[1]);
+        };
+        reader.readAsDataURL(imagesArray[0]);
+    });
 }
 
 function initTermsAndConditions() {
@@ -414,7 +484,7 @@ function postdata() {
     // Get base64 image if available
     const crestImage = document.getElementById("crestImage");
     if (crestImage) {
-        crest = getBase64Image(crestImage);
+        crest = getOptimizedImageData();
     }
 }
 
@@ -634,3 +704,72 @@ var contract=`
                 </div>
             </div>
 `
+
+
+
+
+
+ /**
+  * Optimizes an image file using canvas
+  * @param {File} file - The original image file
+  * @param {Object} options - Compression options
+  * @returns {Promise<String>} - A promise that resolves with a Base64 data URI
+  */
+ async function optimizeImage(file, options) {
+     return new Promise((resolve, reject) => {
+         const img = new Image();
+         const reader = new FileReader();
+
+         reader.onload = function(e) {
+             img.src = e.target.result;
+         };
+         reader.onerror = reject;
+         reader.readAsDataURL(file);
+
+         img.onload = function() {
+             const maxDimension = options.maxSize;
+             let width = img.width;
+             let height = img.height;
+
+             // Calculate new dimensions to fit within maxDimension while preserving aspect ratio
+             if (width > height) {
+                 if (width > maxDimension) {
+                     height = Math.round((height * maxDimension) / width);
+                     width = maxDimension;
+                 }
+             } else {
+                 if (height > maxDimension) {
+                     width = Math.round((width * maxDimension) / height);
+                     height = maxDimension;
+                 }
+             }
+
+             const canvas = document.createElement('canvas');
+             canvas.width = width;
+             canvas.height = height;
+
+             const ctx = canvas.getContext('2d');
+
+             // Optional: Set a white background if the logo doesn't have transparency
+             // ctx.fillStyle = '#FFFFFF';
+             // ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+             // Draw the resized image
+             ctx.drawImage(img, 0, 0, width, height);
+
+             // For logos, we convert to PNG for clarity, ignoring the 'quality' parameter
+             canvas.toBlob(
+                 (blob) => {
+                     const newReader = new FileReader();
+                     newReader.onload = () => resolve(newReader.result);
+                     newReader.onerror = reject;
+                     newReader.readAsDataURL(blob);
+                 },
+                 'image/png' // Force PNG format for logos
+             );
+         };
+         img.onerror = reject;
+     });
+ }
+
+

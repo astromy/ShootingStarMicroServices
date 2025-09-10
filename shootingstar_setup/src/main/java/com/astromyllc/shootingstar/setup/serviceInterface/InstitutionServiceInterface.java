@@ -8,13 +8,14 @@ import com.astromyllc.shootingstar.setup.dto.response.InstitutionResponse;
 import com.astromyllc.shootingstar.setup.dto.response.PreOrderInstitutionResponse;
 import com.astromyllc.shootingstar.setup.dto.response.SkimpInstitutionResponse;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
 public interface InstitutionServiceInterface {
-    public InstitutionResponse createInstitution(InstitutionRequest institutionRequest);
-    public String createPreOrderInstitution(PreOrderInstitutionRequest institutionRequest);
-    public Optional<InstitutionResponse> getInstitutionByBeceCode(SingleStringRequest beceCode);
+    public InstitutionResponse createInstitution(InstitutionRequest institutionRequest) throws IOException;
+    public String createPreOrderInstitution(PreOrderInstitutionRequest institutionRequest) throws IOException;
+    public Optional<InstitutionResponse> getInstitutionByBeceCode(SingleStringRequest beceCode) throws IOException;
     public Optional<List<InstitutionResponse>> getAllInstitution();
     public Optional<List<InstitutionResponse>> getAllInstitutionByPopulation(int population);
     public Optional<List<InstitutionResponse>> getAllInstitutionByCountry(String country);
@@ -22,11 +23,13 @@ public interface InstitutionServiceInterface {
     public Optional<List<InstitutionResponse>> getAllInstitutionByCity(String city);
     public Optional<List<InstitutionResponse>> getAllInstitutionByRegion(String region);
     public  Optional<List<InstitutionResponse>> getAllInstitutionByPackage(String subscription);
-    public InstitutionResponse migratePreOrder(String institutionCode);
+    public InstitutionResponse migratePreOrder(String institutionCode) throws IOException;
 
     Optional<List<PreOrderInstitutionResponse>> getAllPreOrderedInstitution();
 
     Optional<SkimpInstitutionResponse> getInstitutionStatus(SingleStringRequest beceCode);
 
     Optional<String> reactivateInstitutionalAccount(PaystackPaymentResponse paystack);
+
+    Optional<List<InstitutionResponse>> getAllSubscribedInstitution();
 }

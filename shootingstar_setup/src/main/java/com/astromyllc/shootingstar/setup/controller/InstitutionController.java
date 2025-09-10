@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,7 +36,7 @@ public class InstitutionController {
     @PostMapping("/api/setup/signupInstitution")
     @ResponseStatus(HttpStatus.CREATED)
     //@CircuitBreaker(name = "Institution",fallbackMethod = "fallBack0")
-    public InstitutionResponse SubmitApplication(@RequestBody InstitutionRequest institutionRequest) {
+    public InstitutionResponse SubmitApplication(@RequestBody InstitutionRequest institutionRequest) throws IOException {
         log.error("REQUEST INSTITUTION CREATION OF..... {}",institutionRequest);
         return institutionService.createInstitution(institutionRequest);
     }
@@ -47,9 +48,15 @@ public class InstitutionController {
         return institutionService.getAllInstitution();
     }
 
+    @PostMapping("/api/setup/getAllSubscribedInstitution")
+    @ResponseStatus(HttpStatus.OK)
+    public Optional<List<InstitutionResponse>> getAllSubscribedInstitution() {
+        return institutionService.getAllSubscribedInstitution();
+    }
+
     @PostMapping("/api/setup/getInstitutionByCode")
     @ResponseStatus(HttpStatus.OK)
-    public Optional<InstitutionResponse> getInstitutionByBeceCode(@RequestBody SingleStringRequest beceCode) {
+    public Optional<InstitutionResponse> getInstitutionByBeceCode(@RequestBody SingleStringRequest beceCode) throws IOException {
         return institutionService.getInstitutionByBeceCode(beceCode);
     }
 
@@ -67,7 +74,7 @@ public class InstitutionController {
 
     @GetMapping("/api/setup/getInstitutionByCode?institutionCode")
     @ResponseStatus(HttpStatus.OK)
-    public Optional<InstitutionResponse> getInstitutionByBeceCodePath(@PathVariable ("institutionCode") SingleStringRequest beceCode) {
+    public Optional<InstitutionResponse> getInstitutionByBeceCodePath(@PathVariable ("institutionCode") SingleStringRequest beceCode) throws IOException {
         log.error("REQUEST getInstitutionByBeceCodePath OF..... {}", beceCode);
         return institutionService.getInstitutionByBeceCode(beceCode);
     }
@@ -78,7 +85,7 @@ public class InstitutionController {
  //========================== PRE-REQUEST ===============================================
     @PostMapping("/api/setup/preRequestInstitution")
     @ResponseStatus(HttpStatus.CREATED)
-    public String SubmitPreOrderApplication(@RequestBody PreOrderInstitutionRequest institutionRequest) {
+    public String SubmitPreOrderApplication(@RequestBody PreOrderInstitutionRequest institutionRequest) throws IOException {
         log.error("REQUEST SubmitPreOrderApplication OF..... {}", institutionRequest);
       return institutionService.createPreOrderInstitution(institutionRequest);
     }
@@ -92,7 +99,7 @@ public class InstitutionController {
 
     @PostMapping("/api/setup/migratePreOrder")
     @ResponseStatus(HttpStatus.CREATED)
-    public InstitutionResponse migratePreOrder(@RequestBody SingleStringRequest beceCode) {
+    public InstitutionResponse migratePreOrder(@RequestBody SingleStringRequest beceCode) throws IOException {
         log.error("REQUEST migratePreOrder OF..... {}", beceCode);
         return institutionService.migratePreOrder(beceCode.getVal());
     }

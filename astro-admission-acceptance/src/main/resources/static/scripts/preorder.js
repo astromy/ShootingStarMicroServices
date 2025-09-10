@@ -294,6 +294,7 @@ async function fetchStudent(studentID, institutionId, institutionName) {
   try {
   if(studentID.length<3){
     document.querySelector("#studentID").focus();
+    document.querySelector("#studentID").style.border = "1px solid red";
     return
   }
     const requestData = {
@@ -1105,82 +1106,7 @@ function selectFirstSubjectInProgram(programType) {
   }
 }
 
-function convertFileToBase64(file) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result.split(',')[1]);
-        reader.onerror = error => reject(error);
-    });
-}
 
-/*async function buildStudentPayload() {
-     // Get form values
-     const studentId = document.getElementById('studentID').value;
-     const firstName = document.getElementById('studFName').value;
-     const otherName = document.getElementById('studOtherName').value;
-     const lastName = document.getElementById('studSurName').value;
-     const dateOfBirth = document.getElementById('studDOB').value;
-     const dateOfAdmission = document.getElementById('studDOA').value;
-     const placeOfBirth = document.getElementById('placeOfBirth').value;
-     const gender = document.getElementById('studGender').value;
-     const countryOfBirth = document.getElementById('cob').value;
-     const residentialLocality = document.getElementById('studResidence').value;
-     const denomination = document.getElementById('denomination').value;
-
-     // Get selected school (institution code) - you'll need to track this from school selection
-     const institutionCode = institution;
-
-     // Get picture data (convert to base64 or store file path)
-     const pictureInput = document.querySelector('#studentPicture');
-      *//* if (pictureInput) {
-             studPic = getBase64Image(studentPicture);
-         }*//*
-
-         const pictureInput1 = document.querySelector('.imageInput');
-         const existingPicture = document.getElementById('studentPicture');
-
-         if (pictureInput1 && pictureInput1.files.length > 0) {
-           // New file - convert to base64
-           studPic = await convertFileToBase64(pictureInput1.files[0]);
-         } else if (existingPicture && existingPicture.src && existingPicture.src.startsWith('data:image')) {
-           // Existing base64 image - extract data part
-           studPic = existingPicture.src.split(',')[1];
-         }
-
-     //const picture =
-
-     // Build parents data
-     const studentParents = buildParentsData(studentId);
-
-     // Build subjects data
-     const studentSubjectsList = buildSubjectsData();
-
-     // Construct the payload
-     const payload = {
-         studentId: studentId,
-         firstName: firstName,
-         otherName: otherName,
-         lastName: lastName,
-         dateOfBirth: dateOfBirth,
-         dateOfAdmission: dateOfAdmission,
-         placeOfBirth: placeOfBirth,
-         gender: gender,
-         countryOfBirth: countryOfBirth,
-         nationality: countryOfBirth, // Assuming same as country of birth
-         picture: studPic,
-         birthCert: "", // You'll need to add a field for birth certificate
-         denomination: denomination,
-         institutionCode: institutionCode,
-         status: "ACTIVE", // Default status
-         studentClass: "", // You'll need to add class selection
-         residentialLocality: residentialLocality,
-         studentParents: studentParents,
-         studentSubjectsList: studentSubjectsList
-     };
-
-     return payload;
- }*/
 
  async function buildStudentPayload() {
    if (!currentStudentData) {
@@ -1228,16 +1154,6 @@ function convertFileToBase64(file) {
    const pictureInput = document.querySelector('.imageInput');
    const existingPicture = document.getElementById('studentPicture');
 
-  /* if (pictureInput && pictureInput.files.length > 0) {
-     // New file uploaded
-     const file = pictureInput.files[0];
-     payload.picture = await convertFileToBase64(file);
-   } else if (existingPicture && existingPicture.src &&
-              existingPicture.src.startsWith('data:image') &&
-              existingPicture.src !== `data:image/png;base64,${currentStudentData.picture}`) {
-     // Picture was changed (different from original)
-     payload.picture = existingPicture.src.split(',')[1];
-   }*/
 
   if (pictureInput && pictureInput.files.length > 0) {
       const file = pictureInput.files[0];
@@ -1248,10 +1164,9 @@ function convertFileToBase64(file) {
           outputFormat: 'jpeg'
       }).catch(error => {
           console.error("Image optimization failed", error);
-          throw error; // Re-throw the error to be caught by your outer error handling
+          throw error;
       });
 
-      // 3. Split the result to get the raw base64 string (without the data URL prefix)
       payload.picture = optimizedDataURL.split(',')[1];
   }
 
@@ -1324,48 +1239,6 @@ function convertFileToBase64(file) {
    return mergedParents;
  }
 
- // Function to build parents data
- /*function buildParentsData(studentId) {
-     const parents = [];
-
-     // Father's data
-     const fatherData = {
-         firstNames: document.getElementById('fatherFirstName').value,
-         lastName: document.getElementById('fatherLastName').value,
-         email: document.getElementById('fatherEmail').value,
-         contact1: document.getElementById('fatherContact1').value,
-         contact2: document.getElementById('fatherContact2').value,
-         occupation: document.getElementById('fatherOccupation').value,
-         placeOfWork: document.getElementById('fatherPlaceOfWork').value,
-         parentType: document.getElementById('fatherType').value,
-         institutionCode: institution,
-         studentId:studentId
-     };
-
-     if (fatherData.firstNames && fatherData.lastName) {
-         parents.push(fatherData);
-     }
-
-     // Mother's data
-     const motherData = {
-         firstNames: document.getElementById('motherFirstName').value,
-         lastName: document.getElementById('motherLastName').value,
-         email: document.getElementById('motherEmail').value,
-         contact1: document.getElementById('motherContact1').value,
-         contact2: document.getElementById('motherContact2').value,
-         occupation: document.getElementById('motherOccupation').value,
-         placeOfWork: document.getElementById('motherPlaceOfWork').value,
-         parentType: document.getElementById('motherType').value,
-         institutionCode: institution,
-         studentId:studentId
-     };
-
-     if (motherData.firstNames && motherData.lastName) {
-         parents.push(motherData);
-     }
-
-     return parents;
- }*/
 
  function buildParentsData(studentId) {
    const parents = [];
@@ -1862,182 +1735,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 });
 
-//========================== PROGRAMS ======================================
-/*
-        // Program data structure
-        const programsData = [
-            {
-                id: "arts",
-                title: "General Arts",
-                icon: "fas fa-paint-brush",
-                maxElectives: 4,
-                coreSubjects: ["English", "Mathematics", "Integrated Science", "Social Studies"],
-                electiveSubjects: [
-                    "Literature in English",
-                    "Ghanaian Language",
-                    "French",
-                    "Music",
-                    "Economics",
-                    "Geography",
-                    "History",
-                    "Government"
-                ]
-            },
-            {
-                id: "science",
-                title: "General Science",
-                icon: "fas fa-flask",
-                maxElectives: 4,
-                coreSubjects: ["English", "Mathematics", "Integrated Science", "Social Studies"],
-                electiveSubjects: [
-                    "Physics",
-                    "Chemistry",
-                    "Biology",
-                    "Elective Mathematics",
-                    "Agriculture Science",
-                    "Animal Husbandry",
-                    "Fisheries"
-                ]
-            },
-            {
-                id: "business",
-                title: "Business",
-                icon: "fas fa-chart-line",
-                maxElectives: 4,
-                coreSubjects: ["English", "Mathematics", "Integrated Science", "Social Studies"],
-                electiveSubjects: [
-                    "Financial Accounting",
-                    "Cost Accounting",
-                    "Business Management",
-                    "Economics",
-                    "Elective Mathematics",
-                    "Office Practice"
-                ]
-            },
-            {
-                id: "visual-arts",
-                title: "Visual Arts",
-                icon: "fas fa-palette",
-                maxElectives: 4,
-                coreSubjects: ["English", "Mathematics", "Integrated Science", "Social Studies"],
-                electiveSubjects: [
-                    "General Knowledge in Art",
-                    "Graphic Design",
-                    "Picture Making",
-                    "Sculpture",
-                    "Textiles",
-                    "Basketry"
-                ]
-            },
-            {
-                id: "home-economics",
-                title: "Home Economics",
-                icon: "fas fa-utensils",
-                maxElectives: 4,
-                coreSubjects: ["English", "Mathematics", "Integrated Science", "Social Studies"],
-                electiveSubjects: [
-                    "Management in Living",
-                    "Food and Nutrition",
-                    "Clothing and Textiles",
-                    "General Knowledge in Art",
-                    "Biology",
-                    "Chemistry"
-                ]
-            },
-            {
-                id: "technical",
-                title: "Technical",
-                icon: "fas fa-tools",
-                maxElectives: 4,
-                coreSubjects: ["English", "Mathematics", "Integrated Science", "Social Studies"],
-                electiveSubjects: [
-                    "Technical Drawing",
-                    "Metalwork",
-                    "Woodwork",
-                    "Applied Electricity",
-                    "Electronics",
-                    "Auto Mechanics"
-                ]
-            },
-            {
-                id: "agriculture",
-                title: "Agriculture",
-                icon: "fas fa-leaf",
-                maxElectives: 4,
-                coreSubjects: ["English", "Mathematics", "Integrated Science", "Social Studies"],
-                electiveSubjects: [
-                    "Crop Husbandry",
-                    "Horticulture",
-                    "Animal Husbandry",
-                    "Fisheries",
-                    "Forestry",
-                    "Agricultural Economics"
-                ]
-            }
-        ];
-
-        function generateProgramCards() {
-                    const container = document.getElementById('programs-container');
-
-                    programsData.forEach(program => {
-                        const programCard = document.createElement('div');
-                        programCard.className = 'col-lg-6 col-md-6 mb-4';
-                        programCard.innerHTML = `
-                            <div class="program-card card" id="${program.id}-card">
-                                <div class="card-header">
-                                    <span class="program-title"><i class="${program.icon} me-2"></i>${program.title}</span>
-                                    <span class="badge program-badge bg-light text-dark">Selected: <span id="${program.id}-count">0</span>/${program.maxElectives}</span>
-                                </div>
-                                <div class="card-body">
-                                    <h5 class="card-title">Elective Subjects (Select up to ${program.maxElectives}):</h5>
-                                    <div class="subject-grid">
-                                        ${program.electiveSubjects.map((subject, index) => `
-                                            <div class="subject-item">
-                                                <input type="checkbox" class="form-check-input ${program.id}-subject"
-                                                       id="${program.id}${index + 1}" name="${program.id}-subject">
-                                                <label class="form-check-label ms-2" for="${program.id}${index + 1}">${subject}</label>
-                                            </div>
-                                        `).join('')}
-                                    </div>
-                                </div>
-                                <div class="core-subjects">
-                                    <div class="core-title">Core Subjects:</div>
-                                    <div>${program.coreSubjects.join(', ')}</div>
-                                </div>
-                            </div>
-                        `;
-
-                        container.appendChild(programCard);
-                    });
-
-                    // Add event listeners after generating the cards
-                    addCheckboxListeners();
-                }
-
-                // Function to add event listeners to checkboxes
-                function addCheckboxListeners() {
-                    programsData.forEach(program => {
-                        const checkboxes = document.querySelectorAll(`.${program.id}-subject`);
-                        const countElement = document.getElementById(`${program.id}-count`);
-
-                        checkboxes.forEach(checkbox => {
-                            checkbox.addEventListener('change', () => {
-                                const checkedCount = document.querySelectorAll(`.${program.id}-subject:checked`).length;
-
-                                if (checkedCount > program.maxElectives) {
-                                    checkbox.checked = false;
-                                    return;
-                                }
-
-                                countElement.textContent = checkedCount;
-                            });
-                        });
-                    });
-                }
-
-                // Generate the program cards when the page loads
-                document.addEventListener('DOMContentLoaded', generateProgramCards);*/
-
 
 
  /**
@@ -2099,3 +1796,50 @@ document.addEventListener('DOMContentLoaded', function() {
          img.onerror = reject;
      });
  }
+
+
+
+
+
+
+
+
+
+$(function () {
+
+// Bind normal buttons
+$( '.ladda-button' ).ladda( 'bind', { timeout: 2000 } );
+
+// Bind progress buttons and simulate loading progress
+Ladda.bind( '.progress-demo .ladda-button',{
+    callback: function( instance ){
+        var progress = 0;
+        var interval = setInterval( function(){
+            progress = Math.min( progress + Math.random() * 0.1, 1 );
+            instance.setProgress( progress );
+
+            if( progress === 1 ){
+                instance.stop();
+                clearInterval( interval );
+            }
+        }, 200 );
+    }
+});
+
+
+var l = $( '.ladda-button-demo' ).ladda();
+
+l.click(function(){
+    // Start loading
+    l.ladda( 'start' );
+
+    // Timeout example
+    // Do something in backend and then stop ladda
+    setTimeout(function(){
+        l.ladda('stop');
+    },12000)
+
+
+});
+
+});

@@ -10,8 +10,10 @@ import com.astromyllc.shootingstar.adminpta.model.Students;
 import com.astromyllc.shootingstar.adminpta.repository.ParentRepository;
 import com.astromyllc.shootingstar.adminpta.repository.StudentRepository;
 import jakarta.annotation.PostConstruct;
+import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.coobird.thumbnailator.Thumbnails;
 import net.minidev.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,6 +23,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
@@ -411,7 +417,7 @@ public class StudentUtil {
         }
     }
 
-    public Students mapStudentsRequest_To_Students(Students2Request s, Students es) {
+    public Students mapStudentsRequest_To_Students(Students2Request s, Students es) throws IOException {
         if (es.getStudentId().trim().isEmpty()) {
             String studentId = s.getStudentId().trim().isEmpty() ? generateStudentId(s.getInstitutionCode(), Integer.toString(s.getDateOfAdmission().getYear()).substring(2)) : s.getStudentId();
 
@@ -447,7 +453,7 @@ public class StudentUtil {
                     .countryOfBirth(s.getCountryOfBirth())
                     .residentialLocality(s.getResidentialLocality())
                     .institutionCode(s.getInstitutionCode())
-                    .picture(s.getPicture())
+                    .picture(Base64.getEncoder().encodeToString(processAndValidateImage(s.getPicture(),150,256)))
                     .birthCert(s.getBirthCert())
                     .build();
 
@@ -647,6 +653,50 @@ public class StudentUtil {
     @FunctionalInterface
     interface TriConsumer<T, U, V> {
         void accept(T t, U u, V v);
+    }
+
+    public byte[] processAndValidateImage(String clientSideBase64, int maxFileSizeKB, int maxWidth) throws IOException, ValidationException {
+
+        // 1. Decode the client-supplied data
+        String base64Data = clientSideBase64.substring(clientSideBase64.indexOf(",") + 1);
+        byte[] clientImageBytes = Base64.getDecoder().decode(base64Data);
+
+        // 2. VALIDATE: Basic sanity check on the decoded size
+        if (clientImageBytes.length > (maxFileSizeKB * 1024)) {
+            throw new ValidationException("Uploaded image is too large after client-side processing.");
+        }
+
+        // 3. Read the image into a BufferedImage for inspection
+        ByteArrayInputStream bais = new ByteArrayInputStream(clientImageBytes);
+        BufferedImage image = ImageIO.read(bais);
+        if (image == null) {
+            throw new ValidationException("Uploaded data is not a valid image.");
+        }
+
+        // 4. VALIDATE: Check dimensions (e.g., prevent a 1x1 pixel image)
+        if (image.getWidth() < 50 || image.getHeight() < 50) {
+            throw new ValidationException("Image is too small.");
+        }
+
+        // 5. Re-optimize to ensure server standards (even if client already did)
+        // This ensures all profiles pics are exactly 400px and 80% quality.
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        // Use Thumbnailator for simple, robust resizing
+        Thumbnails.of(image)
+                .size(maxWidth, maxWidth) // e.g., 400x400
+                .keepAspectRatio(true)
+                .outputFormat("JPEG")
+                .outputQuality(0.7) // Your app's standard quality
+                .toOutputStream(baos);
+
+        // 6. Final validation on the server-processed image
+        byte[] finalImageBytes = baos.toByteArray();
+        if (finalImageBytes.length > (maxFileSizeKB * 1024)) {
+            throw new ValidationException("Image is too large.");
+        }
+
+        return finalImageBytes; // Now safe to save to the DB
     }
 
 }
