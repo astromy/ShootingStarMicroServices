@@ -13,5 +13,6 @@ public class SubjectDetails {
     private String name;
     @NonNull
     private String classGroup;
+    private String subjectType;
     private int preference;
 }

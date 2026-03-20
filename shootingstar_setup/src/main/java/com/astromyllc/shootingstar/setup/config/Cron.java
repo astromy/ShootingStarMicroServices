@@ -15,7 +15,6 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Component
@@ -27,10 +26,10 @@ public class Cron {
     private final InstitutionAccountUtil institutionAccountUtils;
     private final InstitutionRepository institutionRepository;
 
-   // @Scheduled(cron = "0 */5 * * * ?")
+    // @Scheduled(cron = "0 */5 * * * ?")
     @Scheduled(cron = "0 1 0 * * ?")
     public void updateInstitutionStatus() {
-        LocalDate currentDate= LocalDate.now();
+        LocalDate currentDate = LocalDate.now();
         // Pre-compute the payment period (Sept previous year to Aug current year)
         LocalDate paymentStart = LocalDate.of(currentDate.getYear() - 1, Month.SEPTEMBER, 1);
         LocalDate paymentEnd = LocalDate.of(currentDate.getYear(), Month.AUGUST, 31);
@@ -65,9 +64,11 @@ public class Cron {
     private boolean shouldSuspend(Institution institution, LocalDate currentDate) {
         LocalDate creationDate = institution.getCreationDate();
         Month currentMonth = currentDate.getMonth();
+        String subscription = institution.getSubscription();
 
-        return (currentMonth == Month.SEPTEMBER && creationDate.isBefore(currentDate.minusMonths(5)))
-                || (currentMonth == Month.MARCH);
+        return (!subscription.contains("Free") &&
+                ((currentMonth == Month.SEPTEMBER && creationDate.isBefore(currentDate.minusMonths(5)))
+                        || (currentMonth == Month.MARCH)));
     }
 
 }

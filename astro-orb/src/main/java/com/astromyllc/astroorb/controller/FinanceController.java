@@ -1,7 +1,10 @@
 package com.astromyllc.astroorb.controller;
 
-import com.astromyllc.astroorb.dto.request.*;
 import com.astromyllc.astroorb.dto.paystack.PaystackPaymentResponse;
+import com.astromyllc.astroorb.dto.request.BillRequest;
+import com.astromyllc.astroorb.dto.request.BillingFetchRequest;
+import com.astromyllc.astroorb.dto.request.BillingsRequest;
+import com.astromyllc.astroorb.dto.request.SingleStringRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +13,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -34,44 +40,42 @@ public class FinanceController {
 
 
     @ResponseBody
-    @RequestMapping(value = "/create-bills", method = RequestMethod.POST)
-    public ResponseEntity<String>addfinance (@RequestBody List<BillRequest> jso) throws IOException {
+    @RequestMapping(value = "create-bills", method = RequestMethod.POST)
+    public ResponseEntity<String> addfinance(@RequestBody List<BillRequest> jso) throws IOException {
 
-        ResponseEntity<String> response = BACKENDCOMMPOSTLIST(Collections.singletonList(jso), "http://" + backendserve + "/api/finance/create-bills");
+        ResponseEntity<String> response = BACKENDCOMMPOSTLIST(Collections.singletonList(jso), backendserve + "/api/finance/create-bills");
         return response;
     }
 
     @ResponseBody
-    @RequestMapping(value = "/get-bills-by-institution", method = RequestMethod.POST)
+    @RequestMapping(value = "get-bills-by-institution", method = RequestMethod.POST)
     public ResponseEntity<String> getFinanceInstitutionByCode(@RequestBody SingleStringRequest jso) throws IOException {
 
-        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/finance/get-bills-by-institution");
+        ResponseEntity<String> response = BACKENDCOMMPOST(jso, backendserve + "/api/finance/get-bills-by-institution");
         return response;
     }
 
     @ResponseBody
-    @RequestMapping(value = "/get-billing-by-institutionClass", method = RequestMethod.POST)
+    @RequestMapping(value = "get-billing-by-institutionClass", method = RequestMethod.POST)
     public ResponseEntity<String> getClassBilling(@RequestBody BillingFetchRequest jso) {
-        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/finance/getStudentBillsByInstitutionClass");
+        ResponseEntity<String> response = BACKENDCOMMPOST(jso, backendserve + "/api/finance/getStudentBillsByInstitutionClass");
         return response;
     }
 
     @ResponseBody
-    @RequestMapping(value = "/bill-students-by-institution", method = RequestMethod.POST)
+    @RequestMapping(value = "bill-students-by-institution", method = RequestMethod.POST)
     public ResponseEntity<String> billStudents(@RequestBody BillingsRequest jso) {
-        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/finance/create-billings");
+        ResponseEntity<String> response = BACKENDCOMMPOST(jso, backendserve + "/api/finance/create-billings");
         return response;
     }
 
     @ResponseBody
-    @RequestMapping(value = "/paystackWebhookResponse ", method = RequestMethod.POST)
+    @RequestMapping(value = "paystackWebhookResponse ", method = RequestMethod.POST)
     public ResponseEntity<String> receivePaystackWebhook(@RequestBody PaystackPaymentResponse webhookData) {
-        log.info("Paystack Response -> {}",webhookData);
-        ResponseEntity<String> response = BACKENDCOMMPOST(webhookData, "http://" + backendserve + "/api/setup/paystackWebhookResponse");
+        log.info("Paystack Response -> {}", webhookData);
+        ResponseEntity<String> response = BACKENDCOMMPOST(webhookData, backendserve + "/api/setup/paystackWebhookResponse");
         return response;
     }
-
-
 
 
     private ResponseEntity<String> BACKENDCOMMPOSTLIST(List<Object> jso, String url) {

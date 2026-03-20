@@ -34,6 +34,7 @@ function postdata() {
       name: subjects[i].getElementsByClassName("newSubjectTxt")[0].value,
       classGroup: subjects[i].getElementsByClassName("classOption")[0].value,
       preference: subjects[i].getElementsByClassName("subjectPref")[0].value,
+      subjectType: subjects[i].getElementsByClassName("subjectType")[0].value,
     };
     resultlist.push(jsonObject);
   }

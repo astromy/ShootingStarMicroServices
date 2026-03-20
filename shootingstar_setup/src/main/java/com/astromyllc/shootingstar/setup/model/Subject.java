@@ -18,8 +18,10 @@ public class Subject {
     private Long idSubject;
     @NonNull
     private String name;
-    @NonNull
     private String classGroup;
+    @NonNull
+    private String subjectType;
+    @Column(columnDefinition = "Integer")
     @NonNull
     private Integer preference;
 

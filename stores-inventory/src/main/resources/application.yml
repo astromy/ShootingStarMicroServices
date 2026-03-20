@@ -17,7 +17,7 @@ server:
   port: 0
 
 gateway:
-  host: ${APIGATEWAY:localhost}
+  host: ${APIGATEWAY:http://localhost:8083}
 
 eureka:
   client:

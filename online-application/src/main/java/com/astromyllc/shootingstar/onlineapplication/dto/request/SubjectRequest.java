@@ -13,5 +13,6 @@ public class SubjectRequest {
     private Long id;
     private String name;
     private String classGroup;
+    private String subjectType;
     private int preference;
 }

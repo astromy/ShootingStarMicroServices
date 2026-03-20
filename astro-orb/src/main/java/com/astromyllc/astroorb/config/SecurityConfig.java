@@ -1,16 +1,21 @@
 package com.astromyllc.astroorb.config;
 
+
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.ws.rs.HttpMethod;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.client.oidc.web.logout.OidcClientInitiatedLogoutSuccessHandler;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.jwt.*;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
@@ -23,30 +28,62 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.io.IOException;
 
 @Configuration
+@RequiredArgsConstructor
 public class SecurityConfig {
 
+    private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
+
+
+    /**
+     * Mobile API Security Configuration - NO REDIRECTS, returns 401 for unauthenticated
+     * This handles requests from mobile apps with Bearer tokens
+     */
     @Bean
+    @Order(1)
+    public SecurityFilterChain mobileSecurityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .securityMatcher("/api/mobile/**")
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/mobile/**").authenticated()
+                )
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(jwt -> {
+                            // 1. First, configure the decoder (validation)
+                            jwt.decoder(jwtDecoder());
+
+                            // 2. Then, configure the converter (role mapping)
+                            jwt.jwtAuthenticationConverter(jwtAuthenticationConverter());
+                        })
+                );
+
+        return http.build();
+    }
+
+    @Bean
+    @Order(2)
     public SecurityFilterChain securityFilterChain(HttpSecurity http, ClientRegistrationRepository clientRegistrationRepository) throws Exception {
         http
                 // Require authentication for all requests
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/public/**", "/resources/**", "/error").permitAll()
                         .requestMatchers(HttpMethod.POST, "/webhook/subscriptionPaymentStatus").permitAll()
+                        .requestMatchers("/api/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 // Enable CSRF with Cookie-based token storage
                 .csrf(csrf -> csrf
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                        .ignoringRequestMatchers("/webhook/subscriptionPaymentStatus", "/public/**")
+                        .ignoringRequestMatchers("/api/**", "/webhook/subscriptionPaymentStatus", "/public/**")  // Only disable for API paths
                 )
                 // OAuth2 Login configuration using Keycloak
                 .oauth2Login(oauth2 -> oauth2
                         .loginPage("/oauth2/authorization/ShootingStar")
+                        .successHandler(oAuth2LoginSuccessHandler)
                         .defaultSuccessUrl("/", true)
                 )
-                .oauth2ResourceServer(oauth2 ->
-                        oauth2.jwt(Customizer.withDefaults())
-                )
+                /* .oauth2ResourceServer(oauth2 ->
+                         oauth2.jwt(Customizer.withDefaults())
+                 )*/
                 // Handle unauthorized access by redirecting to login
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/oauth2/authorization/ShootingStar"))
@@ -61,6 +98,7 @@ public class SecurityConfig {
                 )
                 // Enhanced Session management
                 .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                         .sessionFixation().changeSessionId()
                         .invalidSessionUrl("/oauth2/authorization/ShootingStar?invalidSession=true")
                         .maximumSessions(1)
@@ -68,15 +106,6 @@ public class SecurityConfig {
                 );
 
         return http.build();
-    }
-
-    // Custom session expired strategy
-    private static class CustomSessionExpiredStrategy implements SessionInformationExpiredStrategy {
-        @Override
-        public void onExpiredSessionDetected(SessionInformationExpiredEvent event) throws IOException {
-            HttpServletResponse response = event.getResponse();
-            response.sendRedirect("/oauth2/authorization/ShootingStar?sessionExpired=true");
-        }
     }
 
     // OIDC logout handler to redirect to Keycloak's logout endpoint
@@ -107,5 +136,26 @@ public class SecurityConfig {
 
         jwtDecoder.setJwtValidator(validator);
         return jwtDecoder;
+    }
+
+    @Bean
+    public JwtAuthenticationConverter jwtAuthenticationConverter() {
+        JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+        grantedAuthoritiesConverter.setAuthorityPrefix("ROLE_");  // Spring expects "ROLE_" prefix
+        grantedAuthoritiesConverter.setAuthoritiesClaimName("realm_access.roles");
+
+        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
+        return jwtAuthenticationConverter;
+    }
+
+
+    // Custom session expired strategy
+    private static class CustomSessionExpiredStrategy implements SessionInformationExpiredStrategy {
+        @Override
+        public void onExpiredSessionDetected(SessionInformationExpiredEvent event) throws IOException {
+            HttpServletResponse response = event.getResponse();
+            response.sendRedirect("/oauth2/authorization/ShootingStar?sessionExpired=true");
+        }
     }
 }

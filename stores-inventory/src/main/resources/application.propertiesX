@@ -4,7 +4,7 @@ server.port=0
 spring.application.name=stores-inventory
 spring.cloud.compatibility-verifier.enabled=false
 
-gateway.host=${APIGATEWAY:localhost}
+gateway.host=${APIGATEWAY:http://localhost:8083}
 
 management.health.circuitbreakers.enabled=true
 management.endpoints.web.exposure.include=*

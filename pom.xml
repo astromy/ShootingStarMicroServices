@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -30,12 +30,13 @@
         <module>hr-service</module>
         <module>finance</module>
         <module>clinic</module>
-       <module>accommodation</module>
+        <module>accommodation</module>
         <module>stores-inventory</module>
         <module>academics</module>
         <module>administration-pta</module>
         <module>astro-preorder</module>
         <module>astro-admission-acceptance</module>
+        <module>astro-online-application</module>
         <module>astro-orb</module>
     </modules>
 
@@ -44,7 +45,7 @@
         <maven.compiler.target>20</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring-cloud.version>2022.0.4</spring-cloud.version>
-       <!-- <spring-cloud.version>2021.0.3</spring-cloud.version>-->
+        <!-- <spring-cloud.version>2021.0.3</spring-cloud.version>-->
 
         <username>astromyllc</username>
         <password>${DB_PASSWORD}</password>
@@ -92,9 +93,9 @@
                             <artifactId>lombok</artifactId>
                         </exclude>
                     </excludes>
-                        <layers>
-                            <enabled>true</enabled>
-                        </layers>
+                    <layers>
+                        <enabled>true</enabled>
+                    </layers>
                 </configuration>
             </plugin>
             <plugin>

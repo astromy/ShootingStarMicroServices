@@ -65,7 +65,7 @@ server:
   port: 1373
 
 gateway:
-  host: ${APIGATEWAY:localhost:8083}
+  host: ${APIGATEWAY:http://localhost:8083}
   # host: ${APIGATEWAY:astro-api-gateway}  # Commented
 
 data:

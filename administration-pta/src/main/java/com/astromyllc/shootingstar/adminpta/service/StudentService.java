@@ -1,10 +1,7 @@
 package com.astromyllc.shootingstar.adminpta.service;
 
 import com.astromyllc.shootingstar.adminpta.dto.request.*;
-import com.astromyllc.shootingstar.adminpta.dto.response.ClassListResponse;
-import com.astromyllc.shootingstar.adminpta.dto.response.StudentSkimResponse;
-import com.astromyllc.shootingstar.adminpta.dto.response.StudentSkimWithParentResponse;
-import com.astromyllc.shootingstar.adminpta.dto.response.StudentsResponse;
+import com.astromyllc.shootingstar.adminpta.dto.response.*;
 import com.astromyllc.shootingstar.adminpta.model.Students;
 import com.astromyllc.shootingstar.adminpta.serviceInterface.StudentServiceInterface;
 import com.astromyllc.shootingstar.adminpta.util.StudentUtil;
@@ -33,6 +30,7 @@ public class StudentService implements StudentServiceInterface {
     public void fetchCurrentApplications(AdmissionRequest admissionRequest) {
         studentUtil.getCurrentApplications(admissionRequest);
     }
+
     @Override
     public void fetchCurrentApplications(Students2Request admissionRequest) {
         StudentUtil.studentsGlobalList.stream()
@@ -42,7 +40,7 @@ public class StudentService implements StudentServiceInterface {
                         existingStudent -> {
                             // Student exists - handle duplicate case
                             try {
-                                studentUtil.updateExistingStudents(admissionRequest,existingStudent);
+                                studentUtil.updateExistingStudents(admissionRequest, existingStudent);
                             } catch (URISyntaxException | IOException e) {
                                 throw new RuntimeException(e);
                             }
@@ -67,16 +65,17 @@ public class StudentService implements StudentServiceInterface {
     @Override
     public Optional<List<StudentsResponse>> fetchStudentsByClass(ClassListRequest request) {
         return Optional.of(StudentUtil.studentsGlobalList.stream()
-                .filter(st->st.getStudentClass().equalsIgnoreCase(request.getStudentClass()))
+                .filter(st -> st.getStudentClass().equalsIgnoreCase(request.getStudentClass()))
                 .map(studentUtil::mapStudent_ToStudentResponse).toList());
     }
 
     @Override
     public Optional<List<StudentSkimResponse>> fetchSkimpStudentsByClass(ClassListRequest request) {
         return Optional.of(StudentUtil.studentsGlobalList.stream()
-                .filter(st->st.getStudentClass().equalsIgnoreCase(request.getStudentClass()))
+                .filter(st -> st.getStudentClass().equalsIgnoreCase(request.getStudentClass()))
                 .map(studentUtil::mapStudent_ToSkimpStudentResponse).toList());
     }
+
     @Override
     public Optional<List<StudentSkimWithParentResponse>> getSkimpStudentsByParentContact(SingleStringRequest request) {
         List<Students> matches = StudentUtil.findStudentsByContact(request.getVal());
@@ -143,14 +142,14 @@ public class StudentService implements StudentServiceInterface {
 
     @Override
     public Optional<List<StudentsResponse>> fetchStudentsByStatus(SingleStringRequest status) {
-        return Optional.of(StudentUtil.studentsGlobalList.stream().filter(x->x.getStatus().equalsIgnoreCase(status.getVal()))
+        return Optional.of(StudentUtil.studentsGlobalList.stream().filter(x -> x.getStatus().equalsIgnoreCase(status.getVal()))
                 .map(studentUtil::mapStudent_ToStudentResponse).toList()
         );
     }
 
     @Override
     public Optional<List<StudentsResponse>> fetchStudentsByInstitution(SingleStringRequest institution) {
-        return Optional.of(StudentUtil.studentsGlobalList.stream().filter(x->x.getInstitutionCode().equalsIgnoreCase(institution.getVal()))
+        return Optional.of(StudentUtil.studentsGlobalList.stream().filter(x -> x.getInstitutionCode().equalsIgnoreCase(institution.getVal()))
                 .map(studentUtil::mapStudent_ToStudentResponse).toList()
         );
     }
@@ -228,10 +227,20 @@ public class StudentService implements StudentServiceInterface {
     }
 
     @Override
+    public Optional<StudentStatusResponse> checkStudentByID(SingleStringRequest request) {
+        return Optional.ofNullable(request.getVal())
+                .flatMap(val -> StudentUtil.studentsGlobalList.parallelStream()
+                        .filter(x -> x.getStudentId().equalsIgnoreCase(val))
+                        .findFirst()
+                        .map(studentUtil::mapStudent_ToStudentStatusResponse)
+                );
+    }
+
+    @Override
     public Optional<Long> getStudentsPopulationByInstitution(SingleStringRequest request) {
         return Optional.of(StudentUtil.studentsGlobalList.stream()
-                .filter(st->st.getInstitutionCode().equalsIgnoreCase(request.getVal())
-                && !st.getStatus().equalsIgnoreCase("completed")).count());
+                .filter(st -> st.getInstitutionCode().equalsIgnoreCase(request.getVal())
+                        && !st.getStatus().equalsIgnoreCase("completed")).count());
     }
 
     private Object convertValue(String stringValue, Class<?> targetType) {

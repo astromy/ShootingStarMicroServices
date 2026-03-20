@@ -27,7 +27,9 @@ import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Controller
 @ResponseBody
@@ -36,31 +38,29 @@ import java.util.*;
 public class AdmissionsController {
 
     private final Utils utils;
+    private final ObjectMapper objectMapper;
     @Value("${gateway.host}")
     private String backendserve;
-
-    private final ObjectMapper objectMapper;
-
 
     @ResponseBody
     //@PostMapping("/preRequestInstitution")
     @RequestMapping(value = "/preRequestInstitution", method = RequestMethod.POST)
     public String preRequestInstitution(@RequestBody PreOrderInstitutionRequest jso) throws IOException {
-       // jso.setCreationDate(LocalDate.now());
+        // jso.setCreationDate(LocalDate.now());
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
         String json = ow.writeValueAsString(jso);
-       URL url = new URL ("http://" + backendserve +"/api/setup/preRequestInstitution");
-        HttpURLConnection con = (HttpURLConnection)url.openConnection();
+        URL url = new URL(backendserve + "/api/setup/preRequestInstitution");
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("POST");
         con.setRequestProperty("Content-Type", "application/json");
         con.setRequestProperty("Accept", "application/json");
         con.setDoOutput(true);
         String jsonInputString = json;
-        try(OutputStream os = con.getOutputStream()) {
+        try (OutputStream os = con.getOutputStream()) {
             byte[] input = jsonInputString.getBytes("utf-8");
             os.write(input, 0, input.length);
         }
-        try(BufferedReader br = new BufferedReader(
+        try (BufferedReader br = new BufferedReader(
                 new InputStreamReader(con.getInputStream(), "utf-8"))) {
             StringBuilder response = new StringBuilder();
             String responseLine = null;
@@ -72,7 +72,6 @@ public class AdmissionsController {
             return response.toString();
         }
     }
-
 
 
     @RequestMapping(value = "/fetchAllInstitutions", method = RequestMethod.POST)
@@ -114,7 +113,6 @@ public class AdmissionsController {
     }
 
     //fetchAllInstitutions
-
 
 
     private ResponseEntity<String> BACKENDCOMMPOST(Object jso, String url) {

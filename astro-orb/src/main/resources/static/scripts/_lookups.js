@@ -2,6 +2,7 @@ type = $('[name="type"]').val();
 name = [];
 resultlist = [];
 id = null;
+
 fetchInstitution(instId.split(",")[0]);
 //fetchInstitution(instId);
 
@@ -31,7 +32,7 @@ function postdata() {
   for (let i = 0; i < classGroup.length; i++) {
     //name[i]=classGroup[i].value;
     var jsonObject = {
-      id: id,
+      id: $('.newClassGrouptxt').attr('id'),
       name: classGroup[i].value,
       type: type,
     };
@@ -89,6 +90,7 @@ function populateTable(data) {
 
         modalopn();
         $(".newClassGrouptxt").val(d.name);
+        $('.newClassGrouptxt').attr('id', d.id);
         $(".modalbody").eq(1).empty();
       });
   });

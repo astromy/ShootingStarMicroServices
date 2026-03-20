@@ -29,7 +29,7 @@ public class Utils {
 
     public List<InstitutionResponse> fetchAllInstitutions() {
         return webClientBuilder.build().post()
-                .uri("http://" + host + "/api/setup/getAllSubscribedInstitution")
+                .uri(host + "/api/setup/getAllSubscribedInstitution")
                 .contentType(MediaType.APPLICATION_JSON)
                 //.body(Mono.just(json), JSONObject.class)
                 .retrieve()
@@ -40,7 +40,7 @@ public class Utils {
     public ResponseEntity<String> admittedStudent(Students2Request jso) {
         try {
             String responseBody = webClientBuilder.build().post()
-                    .uri("http://" + host + "/api/administration-pta/accept-admissions")
+                    .uri(host + "/api/administration-pta/accept-admissions")
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(jso)
                     .retrieve()
@@ -64,7 +64,7 @@ public class Utils {
 
         try {
             List<StudentsResponse> studentsResponse = webClientBuilder.build().post()
-                    .uri("http://" + host + "/api/administration-pta/getStudentsByDynamicData")
+                    .uri(host + "/api/administration-pta/getStudentsByDynamicData")
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(request)
                     .retrieve()
@@ -72,7 +72,8 @@ public class Utils {
                         log.error("HTTP error occurred: {}", response.statusCode());
                         return Mono.error(new IllegalStateException("Failed to fetch student data: " + response.statusCode()));
                     })
-                    .bodyToMono(new ParameterizedTypeReference<List<StudentsResponse>>() {})
+                    .bodyToMono(new ParameterizedTypeReference<List<StudentsResponse>>() {
+                    })
                     .block();
 
             if (studentsResponse == null || studentsResponse.isEmpty()) {

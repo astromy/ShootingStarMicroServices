@@ -56,7 +56,7 @@ $('#submitRequest').click(function () {
             //        Example code for post form
             var data = JSON.stringify(jso);
             let dataReceived = "";
-            fetch("http://localhost:8083/api/setup/preRequestInstitution", {
+            fetch("/api/setup/preRequestInstitution", {
                 credentials: "Access-Control-Allow-Origin",
                 mode: "same-origin",
                 method: "post",
@@ -82,7 +82,7 @@ $('#submitRequest').click(function () {
             console.log(`Received: ${dataReceived}`)
             /*$.ajax({
                 type: "POST",
-                url: "http://localhost:8083/api/setup/preRequestInstitution",
+                url: "/api/setup/preRequestInstitution",
                 data: jso,
                 success: function(data) {
                  Notification

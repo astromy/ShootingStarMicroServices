@@ -119,11 +119,26 @@ public class StudentUtil {
         json.put("applicationStatus", admissionRequest.getApplicationStatus());
         log.info(json.toJSONString());
         return webClientBuilder.build().post()
-                .uri("http://" + host + ":8083/api/applications/getProcessedApplicationsBySchool")
+                .uri(host + "/api/applications/getProcessedApplicationsBySchool")
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Mono.just(json), JSONObject.class)
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<List<ApplicationRequest>>() {
+                }).block();
+    }
+
+    private Student_BillResponse fetchStudentsBalance(StudentBillFetchRequest billFetchRequest) {
+        JSONObject json = new JSONObject();
+        json.put("institutionCode", billFetchRequest.getInstitutionCode());
+        json.put("applicationDate", billFetchRequest.getStudentClass());
+        json.put("applicationStatus", billFetchRequest.getStudentId());
+        log.info(json.toJSONString());
+        return webClientBuilder.build().post()
+                .uri(host + "/api/finance/getStudentBillByIdAndInstitution")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(Mono.just(json), JSONObject.class)
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<Student_BillResponse>() {
                 }).block();
     }
 
@@ -251,6 +266,28 @@ public class StudentUtil {
                 .build();
     }
 
+    public StudentStatusResponse mapStudent_ToStudentStatusResponse(Students s) {
+        Double billBalance = fetchStudentsBalance(new StudentBillFetchRequest(
+                s.getInstitutionCode(),
+                s.getStudentClass(),
+                s.getStudentId()
+        )).getAmountBalance();
+        return StudentStatusResponse.builder()
+                .institutionCode(s.getInstitutionCode())
+                .studentId(s.getStudentId())
+                .dateOfAdmission(String.valueOf(s.getDateOfAdmission()))
+                .lastName(s.getLastName())
+                .firstName(s.getFirstName())
+                .gender(s.getGender())
+                .nationality(s.getResidentialLocality())
+                .otherName(s.getOtherName())
+                .picture(s.getPicture())
+                .status(s.getStatus())
+                .studentClass(s.getStudentClass())
+                .feeBalance(billBalance.toString())
+                .build();
+    }
+
     public StudentSkimWithParentResponse mapStudent_ToStudentSkimWithParentResponse(Students s) {
 
         List<ParentsResponse> p = parentsGlobalList.parallelStream()
@@ -264,7 +301,7 @@ public class StudentUtil {
                 .toList();
 
         return StudentSkimWithParentResponse.builder()
-                .institutionCode( parentsUtil.getSkimpInstitution(s.getInstitutionCode()).getName())
+                .institutionCode(parentsUtil.getSkimpInstitution(s.getInstitutionCode()).getName())
                 .studentId(s.getStudentId())
                 .dateOfAdmission(String.valueOf(s.getDateOfAdmission()))
                 .lastName(s.getLastName())
@@ -453,7 +490,7 @@ public class StudentUtil {
                     .countryOfBirth(s.getCountryOfBirth())
                     .residentialLocality(s.getResidentialLocality())
                     .institutionCode(s.getInstitutionCode())
-                    .picture(Base64.getEncoder().encodeToString(processAndValidateImage(s.getPicture(),150,256)))
+                    .picture(Base64.getEncoder().encodeToString(processAndValidateImage(s.getPicture(), 150, 256)))
                     .birthCert(s.getBirthCert())
                     .build();
 
@@ -650,11 +687,6 @@ public class StudentUtil {
         return false;
     }
 
-    @FunctionalInterface
-    interface TriConsumer<T, U, V> {
-        void accept(T t, U u, V v);
-    }
-
     public byte[] processAndValidateImage(String clientSideBase64, int maxFileSizeKB, int maxWidth) throws IOException, ValidationException {
 
         // 1. Decode the client-supplied data
@@ -697,6 +729,11 @@ public class StudentUtil {
         }
 
         return finalImageBytes; // Now safe to save to the DB
+    }
+
+    @FunctionalInterface
+    interface TriConsumer<T, U, V> {
+        void accept(T t, U u, V v);
     }
 
 }

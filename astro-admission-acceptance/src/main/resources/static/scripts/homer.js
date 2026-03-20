@@ -120,7 +120,7 @@ $(window).bind("resize click", function () {
     }, 300);
 });
 
-function fixWrapperHeight() {
+/*function fixWrapperHeight() {
 
     // Get and set current height
     var headerH = 62;
@@ -141,7 +141,8 @@ function fixWrapperHeight() {
     if (contentH > navigationH && contentH < $(window).height()) {
         $("#wrapper").css("min-height", $(window).height() - headerH + 'px');
     }
-}
+}*/
+
 
 
 function setBodySmall() {

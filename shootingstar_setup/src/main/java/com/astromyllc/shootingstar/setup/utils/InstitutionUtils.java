@@ -61,8 +61,8 @@ public class InstitutionUtils {
     private final SubjectUtil subjectUtil;
     private final MailUtil mailUtil;
     private final WebClient.Builder webClientBuilder;
-  /*  @Value("${gateway.host}")
-    private String keycloakSecrete;*/
+    /*  @Value("${gateway.host}")
+      private String keycloakSecrete;*/
     @Value("${keycloak.address}")
     private String keycloakURL;
     @Value("${gateway.host}")
@@ -84,7 +84,7 @@ public class InstitutionUtils {
         studentsCount =
 
                 webClientBuilder
-                        .baseUrl("http://" + host)
+                        .baseUrl(host)
                         .filter(ExchangeFilterFunction.ofRequestProcessor(clientRequest -> {
                             System.out.println("Request: " + clientRequest);
                             return Mono.just(clientRequest);
@@ -123,8 +123,18 @@ public class InstitutionUtils {
                 .postalAddress(institutionRequest.getPostalAddress())
                 .streams(institutionRequest.getStreams())
                 .subscription(institutionRequest.getSubscription())
-                .crest(Base64.getEncoder().encodeToString(processAndValidateImage(institutionRequest.getCrest(), 200, 512,"PNG")))
-                .headSignature(Base64.getEncoder().encodeToString(processAndValidateImage(institutionRequest.getHeadSignature(), 200, 512,"PNG")))
+                .crest(institutionRequest.getCrest() != null ?
+                        processAndValidateImage(institutionRequest.getCrest(), 200, 512, "PNG")
+                                .map(bytes -> Base64.getEncoder().encodeToString(bytes))
+                                .orElse(null) :
+                        null)
+                .headSignature(institutionRequest.getHeadSignature() != null ?
+                        processAndValidateImage(institutionRequest.getHeadSignature(), 200, 512, "PNG")
+                                .map(bytes -> Base64.getEncoder().encodeToString(bytes))
+                                .orElse(null) :
+                        null)
+                //.crest(Base64.getEncoder().encodeToString(processAndValidateImage(institutionRequest.getCrest(), 200, 512, "PNG")))
+                //.headSignature(Base64.getEncoder().encodeToString(processAndValidateImage(institutionRequest.getHeadSignature(), 200, 512, "PNG")))
                 .admissions(AdmissionUtil.mapAdmissionRequestToAdmission(institutionRequest.getAdmissions()))
                 .classList(institutionRequest.getClassList().stream().map(ClassesUtil::mapClassRequestToClass).toList())
                 .gradingSetting(institutionRequest.getGradingSetting().stream().map(GradingSettingUtil::mapGradeSettingRequest_ToGradeSetting).toList())
@@ -151,8 +161,18 @@ public class InstitutionUtils {
                 .postalAddress(institution.getPostalAddress())
                 .streams(institution.getStreams())
                 .subscription(institution.getSubscription())
-                .crest(Base64.getEncoder().encodeToString(processAndValidateImage(institution.getCrest(), 200, 512,"PNG")))
-                .headSignature(Base64.getEncoder().encodeToString(processAndValidateImage(institution.getHeadSignature(), 200, 512,"PNG")))
+                .crest(institution.getCrest() != null ?
+                        processAndValidateImage(institution.getCrest(), 200, 512, "PNG")
+                                .map(bytes -> Base64.getEncoder().encodeToString(bytes))
+                                .orElse(null) :
+                        null)
+                .headSignature(institution.getHeadSignature() != null ?
+                        processAndValidateImage(institution.getHeadSignature(), 200, 512, "PNG")
+                                .map(bytes -> Base64.getEncoder().encodeToString(bytes))
+                                .orElse(null) :
+                        null)
+                //.crest(Base64.getEncoder().encodeToString(processAndValidateImage(institution.getCrest(), 200, 512, "PNG")))
+                //.headSignature(Base64.getEncoder().encodeToString(processAndValidateImage(institution.getHeadSignature(), 200, 512, "PNG")))
                 .admissions(institution.getAdmissions() != null
                         ? AdmissionUtil.mapAdmissionToAdmissionResponse(institution.getAdmissions())
                         : null)
@@ -199,7 +219,12 @@ public class InstitutionUtils {
                 .contact1(institution.getContact1())
                 .bececode(institution.getBececode())
                 .postalAddress(institution.getPostalAddress())
-                .crest(Base64.getEncoder().encodeToString(processAndValidateImage(institution.getCrest(), 200, 512,"PNG")))
+                .crest(institution.getCrest() != null ?
+                        processAndValidateImage(institution.getCrest(), 200, 512, "PNG")
+                                .map(bytes -> Base64.getEncoder().encodeToString(bytes))
+                                .orElse(null) :
+                        null)
+                //.crest(Base64.getEncoder().encodeToString(processAndValidateImage(institution.getCrest(), 200, 512, "PNG")))
                 .classList(institution.getClassList() != null
                         ? institution.getClassList().stream()
                         .filter(Objects::nonNull)
@@ -213,6 +238,10 @@ public class InstitutionUtils {
                         .map(subjectUtil::mapSubject_ToSubjectResponse)
                         .toList()
                         : Collections.emptyList())
+
+                .admissions(institution.getAdmissions() != null
+                        ? AdmissionUtil.mapAdmissionToAdmissionResponse(institution.getAdmissions())
+                        : null)
                 .build();
     }
 
@@ -259,8 +288,18 @@ public class InstitutionUtils {
         institution.setStreams(institutionRequest.getStreams());
         institution.setWebsite(institutionRequest.getWebsite());
         institution.setSubscription(institutionRequest.getSubscription());
-        institution.setCrest(Base64.getEncoder().encodeToString(processAndValidateImage(institutionRequest.getCrest(), 200, 512,"PNG")));
-        institution.setHeadSignature(Base64.getEncoder().encodeToString(processAndValidateImage(institutionRequest.getHeadSignature(), 200, 512,"PNG")));
+        institution.setCrest(institutionRequest.getCrest() != null ?
+                processAndValidateImage(institutionRequest.getCrest(), 200, 512, "PNG")
+                        .map(bytes -> Base64.getEncoder().encodeToString(bytes))
+                        .orElse(null) :
+                null);
+        institution.setHeadSignature(institutionRequest.getHeadSignature() != null ?
+                processAndValidateImage(institutionRequest.getHeadSignature(), 200, 512, "PNG")
+                        .map(bytes -> Base64.getEncoder().encodeToString(bytes))
+                        .orElse(null) :
+                null);
+        //institution.setCrest(Base64.getEncoder().encodeToString(processAndValidateImage(institutionRequest.getCrest(), 200, 512, "PNG")));
+        //institution.setHeadSignature(Base64.getEncoder().encodeToString(processAndValidateImage(institutionRequest.getHeadSignature(), 200, 512, "PNG")));
         //institution.setCreationDate(LocalDate.parse(institutionRequest.getCreationDate().replace("T", " "), formatter));
         //institution.setAdmissions(AdmissionUtil.mapAdmissionRequestToAdmission(institutionRequest.getAdmissions(), institution.getAdmissions()));
         //institution.setClassList(institutionRequest.getClassList().stream().map((cr) -> ClassesUtil.mapClassRequestToClass(cr, institution.getClassList().stream().filter(c -> cr.getId().equalsIgnoreCase(c.getIdClasses())).findFirst().get())).toList());
@@ -288,7 +327,12 @@ public class InstitutionUtils {
                 .website(preOrderInstitution.getWebsite())
                 .subscription(preOrderInstitution.getSubscription())
                 .creationDate(preOrderInstitution.getCreationDate())
-                .crest(Base64.getEncoder().encodeToString(processAndValidateImage(preOrderInstitution.getCrest(), 200, 512,"PNG")))
+                .crest(preOrderInstitution.getCrest() != null ?
+                        processAndValidateImage(preOrderInstitution.getCrest(), 200, 512, "PNG")
+                                .map(bytes -> Base64.getEncoder().encodeToString(bytes))
+                                .orElse(null) :
+                        null)
+                //.crest(Base64.getEncoder().encodeToString(processAndValidateImage(preOrderInstitution.getCrest(), 200, 512, "PNG")))
                 .build();
     }
 
@@ -310,7 +354,12 @@ public class InstitutionUtils {
                 .streams(institutionRequest.getStreams())
                 .subscription(institutionRequest.getSubscription())
                 .population(institutionRequest.getPopulation())
-                .crest(Base64.getEncoder().encodeToString(processAndValidateImage(institutionRequest.getCrest(), 200, 512,"PNG")))
+                .crest(institutionRequest.getCrest() != null ?
+                        processAndValidateImage(institutionRequest.getCrest(), 200, 512, "PNG")
+                                .map(bytes -> Base64.getEncoder().encodeToString(bytes))
+                                .orElse(null) :
+                        null)
+                //.crest(Base64.getEncoder().encodeToString(processAndValidateImage(institutionRequest.getCrest(), 200, 512, "PNG")))
                 .build();
     }
 
@@ -333,7 +382,12 @@ public class InstitutionUtils {
                 .streams(institution.getStreams())
                 .subscription(institution.getSubscription())
                 .population(institution.getPopulation())
-                .crest(Base64.getEncoder().encodeToString(processAndValidateImage(institution.getCrest(), 200, 512,"PNG")))
+                .crest(institution.getCrest() != null ?
+                        processAndValidateImage(institution.getCrest(), 200, 512, "PNG")
+                                .map(bytes -> Base64.getEncoder().encodeToString(bytes))
+                                .orElse(null) :
+                        null)
+                //.crest(Base64.getEncoder().encodeToString(processAndValidateImage(institution.getCrest(), 200, 512, "PNG")))
                 .build();
     }
 
@@ -349,6 +403,7 @@ public class InstitutionUtils {
         permissions.add("setup institution");
         permissions.add("setup classgroup");
         permissions.add("setup promotion");
+        permissions.add("setup accommodation");
 
         permissions.add("Human_Resource onboarding");
         permissions.add("Human_Resource records");
@@ -400,6 +455,15 @@ public class InstitutionUtils {
         permissions.add("Teaching assignment");
         permissions.add("Teaching score_upload");
         permissions.add("Teaching assignment_review");
+
+        permissions.add("Accommodation accommodation_list");
+        permissions.add("Accommodation resource_tracking");
+        permissions.add("Accommodation allocation");
+        permissions.add("Accommodation maintenance");
+        permissions.add("Accommodation duty_roster");
+        permissions.add("Accommodation management");
+        permissions.add("Accommodation check-in");
+        permissions.add("Accommodation exeats");
 
         Keycloak kc = KeycloakBuilder.builder()
                 .serverUrl(keycloakURL)
@@ -621,12 +685,15 @@ public class InstitutionUtils {
         permissions.add("Infirmary diagnosis_recording");
         permissions.add("Infirmary medical_history");
 
-        permissions.add("Accommodation accommodationStudentList");
-        permissions.add("Accommodation roomAllocation");
-        permissions.add("Accommodation dutyRoster");
-        permissions.add("Accommodation resourceTracking");
-        permissions.add("Accommodation positions");
-        permissions.add("Accommodation faults");
+        permissions.add("Accommodation accommodation_list");
+        permissions.add("Accommodation resource_tracking");
+        permissions.add("Accommodation allocation");
+        permissions.add("Accommodation maintenance");
+        permissions.add("Accommodation duty_roster");
+        permissions.add("Accommodation management");
+        permissions.add("Accommodation check-in");
+        permissions.add("Accommodation exeats");
+
 
         permissions.add("Stores sales");
         permissions.add("Stores inventory");
@@ -670,49 +737,56 @@ public class InstitutionUtils {
     }
 
 
+    public Optional<byte[]> processAndValidateImage(String clientSideBase64, int maxFileSizeKB, int maxWidth, String outputFormat) throws IOException, ValidationException {
 
+        if (clientSideBase64 == null || clientSideBase64.trim().isEmpty()) {
+            log.warn("Received null or empty base64 image data");
+            return Optional.empty();
+        }
+        try {
+            // 1. Decode the client-supplied data
+            String base64Data = clientSideBase64.substring(clientSideBase64.indexOf(",") + 1);
+            byte[] clientImageBytes = Base64.getDecoder().decode(base64Data);
 
-    public byte[] processAndValidateImage(String clientSideBase64, int maxFileSizeKB, int maxWidth,String outputFormat) throws IOException, ValidationException {
-
-        // 1. Decode the client-supplied data
-        String base64Data = clientSideBase64.substring(clientSideBase64.indexOf(",") + 1);
-        byte[] clientImageBytes = Base64.getDecoder().decode(base64Data);
-
-        // 2. VALIDATE: Basic sanity check on the decoded size
+            // 2. VALIDATE: Basic sanity check on the decoded size
        /* if (clientImageBytes.length > (maxFileSizeKB * 1024)) {
             throw new ValidationException("Uploaded image is too large after client-side processing.");
         }*/
 
-        // 3. Read the image into a BufferedImage for inspection
-        ByteArrayInputStream bais = new ByteArrayInputStream(clientImageBytes);
-        BufferedImage image = ImageIO.read(bais);
-        if (image == null) {
-            throw new ValidationException("Uploaded data is not a valid image.");
-        }
+            // 3. Read the image into a BufferedImage for inspection
+            ByteArrayInputStream bais = new ByteArrayInputStream(clientImageBytes);
+            BufferedImage image = ImageIO.read(bais);
+            if (image == null) {
+                throw new ValidationException("Uploaded data is not a valid image.");
+            }
 
-        // 4. VALIDATE: Check dimensions (e.g., prevent a 1x1 pixel image)
-        if (image.getWidth() < 50 || image.getHeight() < 50) {
-            throw new ValidationException("Image is too small.");
-        }
+            // 4. VALIDATE: Check dimensions (e.g., prevent a 1x1 pixel image)
+            if (image.getWidth() < 50 || image.getHeight() < 50) {
+                throw new ValidationException("Image is too small.");
+            }
 
-        // 5. Re-optimize to ensure server standards (even if client already did)
-        // This ensures all profiles pics are exactly 400px and 80% quality.
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            // 5. Re-optimize to ensure server standards (even if client already did)
+            // This ensures all profiles pics are exactly 400px and 80% quality.
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-        // Use Thumbnailator for simple, robust resizing
-        Thumbnails.of(image)
-                .size(maxWidth, maxWidth)
-                .outputFormat(outputFormat)
-                .outputQuality(0.8) // Your app's standard quality
-                .toOutputStream(baos);
+            // Use Thumbnailator for simple, robust resizing
+            Thumbnails.of(image)
+                    .size(maxWidth, maxWidth)
+                    .outputFormat(outputFormat)
+                    .outputQuality(0.8) // Your app's standard quality
+                    .toOutputStream(baos);
 
-        // 6. Final validation on the server-processed image
-        byte[] finalImageBytes = baos.toByteArray();
+            // 6. Final validation on the server-processed image
+            byte[] finalImageBytes = baos.toByteArray();
         /*if (finalImageBytes.length > (maxFileSizeKB * 1024)) {
             throw new ValidationException("Image is too large.");
         }*/
 
-        return finalImageBytes; // Now safe to save to the DB
+            return Optional.of(finalImageBytes); // Now safe to save to the DB
+        } catch (Exception e) {
+            log.error("Error processing image", e);
+            return Optional.empty();
+        }
     }
 
 }

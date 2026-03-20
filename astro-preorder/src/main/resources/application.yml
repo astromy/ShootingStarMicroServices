@@ -3,7 +3,7 @@ server:
 
 
 gateway:
-  host: ${APIGATEWAY:localhost:8083}
+  host: ${APIGATEWAY:http://localhost:8083}
 
 
 logging:

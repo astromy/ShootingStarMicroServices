@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -17,22 +18,22 @@ import java.util.List;
 @Transactional
 public class Financial_BooksService implements Financial_BooksServiceInterface {
     @Override
-    public Financial_BooksResponse createLedger(Financial_BooksRequest billRequest) {
+    public Optional<Financial_BooksResponse> createLedger(Financial_BooksRequest billRequest) {
         return null;
     }
 
     @Override
-    public List<Financial_BooksResponse> createLedgerList(List<Financial_BooksRequest> billRequest) {
+    public Optional<List<Financial_BooksResponse>> createLedgerList(List<Financial_BooksRequest> billRequest) {
         return null;
     }
 
     @Override
-    public List<Financial_BooksResponse> fetchLedgerByInstitution(BillFetchRequest billFetchRequest) {
+    public Optional<List<Financial_BooksResponse>> fetchLedgerByInstitution(BillFetchRequest billFetchRequest) {
         return null;
     }
 
     @Override
-    public Financial_BooksResponse fetchLedgerByInstitutionAndName(BillFetchRequest billFetchRequest) {
+    public Optional<Financial_BooksResponse> fetchLedgerByInstitutionAndName(BillFetchRequest billFetchRequest) {
         return null;
     }
 }

@@ -1,10 +1,7 @@
 package com.astromyllc.shootingstar.adminpta.serviceInterface;
 
 import com.astromyllc.shootingstar.adminpta.dto.request.*;
-import com.astromyllc.shootingstar.adminpta.dto.response.ClassListResponse;
-import com.astromyllc.shootingstar.adminpta.dto.response.StudentSkimResponse;
-import com.astromyllc.shootingstar.adminpta.dto.response.StudentSkimWithParentResponse;
-import com.astromyllc.shootingstar.adminpta.dto.response.StudentsResponse;
+import com.astromyllc.shootingstar.adminpta.dto.response.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,6 +9,7 @@ import java.util.Optional;
 public interface StudentServiceInterface {
 
     void fetchCurrentApplications(AdmissionRequest admissionRequest);
+
     void fetchCurrentApplications(Students2Request admissionRequest);
 
     Optional<List<StudentsResponse>> fetchAllStudents();
@@ -22,17 +20,19 @@ public interface StudentServiceInterface {
 
     Optional<List<StudentsResponse>> postBulkStudentList(List<StudentsImportRequest> request);
 
-    Optional<List<ClassListResponse>>  fetchAssessmentList(ClassListRequest request);
+    Optional<List<ClassListResponse>> fetchAssessmentList(ClassListRequest request);
 
-    Optional<List<StudentsResponse>>  fetchStudentsByStatus(SingleStringRequest status);
+    Optional<List<StudentsResponse>> fetchStudentsByStatus(SingleStringRequest status);
 
-    Optional<List<StudentsResponse>>  fetchStudentsByInstitution(SingleStringRequest institution);
+    Optional<List<StudentsResponse>> fetchStudentsByInstitution(SingleStringRequest institution);
 
-    Optional<List<StudentSkimWithParentResponse>>  getSkimpStudentsByParentContact(SingleStringRequest request);
+    Optional<List<StudentSkimWithParentResponse>> getSkimpStudentsByParentContact(SingleStringRequest request);
 
-    Optional<List<StudentsResponse>>   fetchStudentsByDynamicData(DynamicStringRequest institution);
+    Optional<List<StudentsResponse>> fetchStudentsByDynamicData(DynamicStringRequest institution);
 
-    Optional<StudentSkimResponse>   getStudentByID(SingleStringRequest request);
+    Optional<StudentSkimResponse> getStudentByID(SingleStringRequest request);
 
     Optional<Long> getStudentsPopulationByInstitution(SingleStringRequest request);
+
+    Optional<StudentStatusResponse> checkStudentByID(SingleStringRequest request);
 }

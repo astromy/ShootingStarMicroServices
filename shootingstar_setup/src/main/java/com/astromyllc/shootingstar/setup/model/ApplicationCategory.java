@@ -18,7 +18,7 @@ public class ApplicationCategory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idApplicationCategory;
-   
+
     private BigDecimal applicationFormAmount;
     private String applicationFormType;
     private int applicationFormQNT;
@@ -28,7 +28,5 @@ public class ApplicationCategory {
     private int appointmentPerDay;
     private LocalDateTime appointmentCommencement;
     private LocalDateTime appointmentClosure;
-/*
-    @ManyToOne(optional = false)
-    private Admissions admissions;*/
+
 }

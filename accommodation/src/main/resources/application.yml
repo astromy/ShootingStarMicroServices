@@ -21,13 +21,13 @@ spring:
     compatibility-verifier:
       enabled: false
   application:
-    name: accommodation
+    name: astro-accommodation
 
 server:
   port: 0
 
 gateway:
-  host: ${APIGATEWAY:localhost}
+  host: ${APIGATEWAY:http://localhost:8083}
   # host: ${APIGATEWAY:astro-api-gateway}  # Commented
 
 data:

@@ -279,7 +279,7 @@ async function fetchInstitution(instId) {
   var v = instId.replace(/[\[\]']+/g, "");
   v = v.replace(/\//g, "");
   var instRequest = { val: v };
-  return fetchPost("getInstitutionByCode", instRequest).then(function (result) {
+  return fetchPost("/api/getInstitutionByCode", instRequest).then(function (result) {
     console.log(result);
     $('[name="clientName"]').val(result.name);
     $('[name="slogan"]').val(result.slogan);

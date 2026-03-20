@@ -1,7 +1,6 @@
 package com.astromyllc.shootingstar.finance.service;
 
 import com.astromyllc.shootingstar.finance.dto.request.BillFetchRequest;
-import com.astromyllc.shootingstar.finance.dto.request.BillRequest;
 import com.astromyllc.shootingstar.finance.dto.request.Bill_PaymentRequest;
 import com.astromyllc.shootingstar.finance.dto.response.Bill_PaymentResponse;
 import com.astromyllc.shootingstar.finance.serviceInterface.Bill_PaymentServiceInterface;
@@ -11,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -28,12 +28,12 @@ public class Bill_PaymentService implements Bill_PaymentServiceInterface {
     }
 
     @Override
-    public List<Bill_PaymentResponse> fetchBillPaymentsByInstitution(BillFetchRequest billFetchRequest) {
+    public Optional<List<Bill_PaymentResponse>> fetchBillPaymentsByInstitution(BillFetchRequest billFetchRequest) {
         return null;
     }
 
     @Override
-    public Bill_PaymentResponse fetchBillPaymentsByInstitutionAndName(BillFetchRequest billFetchRequest) {
+    public Optional<Bill_PaymentResponse> fetchBillPaymentsByInstitutionAndName(BillFetchRequest billFetchRequest) {
         return null;
     }
 }

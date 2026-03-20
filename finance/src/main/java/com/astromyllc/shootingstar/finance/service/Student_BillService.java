@@ -75,30 +75,30 @@ public class Student_BillService implements Student_BillServiceInterface {
     }
 
     @Override
-    public List<Student_BillResponse> fetchStudentBillsByInstitution(StudentBillFetchRequest studentBillFetchRequest) {
-        return Student_BillUtil.studentBillsGlobalList.stream().filter(
+    public Optional<List<Student_BillResponse>> fetchStudentBillsByInstitution(StudentBillFetchRequest studentBillFetchRequest) {
+        return Optional.of(Student_BillUtil.studentBillsGlobalList.stream().filter(
                         s -> s.getInstitutionCode().equalsIgnoreCase(studentBillFetchRequest.getInstitutionCode()))
-                .map(studentBillUtil::mapStudentBill_ToStudentBillResponse).toList();
+                .map(studentBillUtil::mapStudentBill_ToStudentBillResponse).toList());
     }
 
     @Override
-    public List<Student_BillResponse> fetchStudentBillsByInstitutionClass(StudentBillFetchRequest studentBillFetchRequest) {
-        return Student_BillUtil.studentBillsGlobalList.stream().filter(
+    public Optional<List<Student_BillResponse>> fetchStudentBillsByInstitutionClass(StudentBillFetchRequest studentBillFetchRequest) {
+        return Optional.of(Student_BillUtil.studentBillsGlobalList.stream().filter(
                         s -> s.getInstitutionCode().equalsIgnoreCase(studentBillFetchRequest.getInstitutionCode())
-                && s.getStudentClass().equalsIgnoreCase(studentBillFetchRequest.getStudentClass()))
-                .map(studentBillUtil::mapStudentBill_ToStudentBillResponse).toList();
+                                && s.getStudentClass().equalsIgnoreCase(studentBillFetchRequest.getStudentClass()))
+                .map(studentBillUtil::mapStudentBill_ToStudentBillResponse).toList());
     }
 
     @Override
-    public Student_BillResponse fetchStudentBillByIdAndInstitution(StudentBillFetchRequest studentBillFetchRequest) {
-        return Student_BillUtil.studentBillsGlobalList.stream().filter(
+    public Optional<Student_BillResponse> fetchStudentBillByIdAndInstitution(StudentBillFetchRequest studentBillFetchRequest) {
+        return Optional.of(Student_BillUtil.studentBillsGlobalList.stream().filter(
                         s -> s.getInstitutionCode().equalsIgnoreCase(studentBillFetchRequest.getInstitutionCode())
                                 && s.getStudentId().equalsIgnoreCase(studentBillFetchRequest.getStudentId()))
-                .map(studentBillUtil::mapStudentBill_ToStudentBillResponse).findFirst().get();
+                .map(studentBillUtil::mapStudentBill_ToStudentBillResponse).findFirst().get());
     }
 
     @Override
-    public List<Student_BillResponse> fetchOwingStudentsByInstitution(StudentBillFetchRequest studentBillFetchRequest) {
+    public Optional<List<Student_BillResponse>> fetchOwingStudentsByInstitution(StudentBillFetchRequest studentBillFetchRequest) {
         return null;
     }
 }

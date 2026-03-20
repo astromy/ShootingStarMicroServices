@@ -41,14 +41,14 @@ import static java.util.stream.Collectors.groupingBy;
 public class ApplicationUtilities {
 
 
+    public static List<Applications> apl = null;
+    public static List<Appointment> appointmentsGlobal = null;
+    static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private static Long applicantIndex = 0L;
     private final ApplicationsRepository applicationsRepository;
     private final WebClient.Builder webClientBuilder;
-    private static Long applicantIndex = 0L;
-    public static List<Applications> apl = null;
-    private InstitutionRequest institutionRequest = null;
-
     private final AppointmentRepository appointmentRepository;
-    public static List<Appointment> appointmentsGlobal = null;
+    private InstitutionRequest institutionRequest = null;
     @Value("${gateway.host}")
     private String host;
 
@@ -73,8 +73,6 @@ public class ApplicationUtilities {
     File docfilesystemRoot() throws URISyntaxException {
         return Paths.get((getClass().getClassLoader().getResource("static/applicationDocuments/BirthCerts/")).toURI()).toFile();
     }
-
-    static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public ApplicationsResponse mapApplications_ToApplicationResponse(Applications applications1) {
         return ApplicationsResponse.builder()
@@ -173,7 +171,7 @@ public class ApplicationUtilities {
     public Applications mapApplicationRequest_ToApplications(ApplicationRequest applications1) throws IOException, URISyntaxException {
         String applicationCode = generateApplicationCode(applications1.getApplicationInstitution());
         String appointmentDate = setAppointmentDate(applicationCode, applications1.getApplicationType());
-        if (appointmentDate==null) return null;
+        if (appointmentDate == null) return null;
         String fp = filesystemRoot().getPath();
         String fd = docfilesystemRoot().getAbsolutePath();
         String filepath = saveFile(applications1.getApplicantPicture(), applicationCode, fp);
@@ -228,7 +226,7 @@ public class ApplicationUtilities {
         JSONObject json = new JSONObject();
         json.put("beceCode", applicationInstitution);
         institutionRequest = webClientBuilder.build().post()
-                .uri("http://"+host+":8083/api/setup/getInstitutionByCode")
+                .uri(host + "/api/setup/getInstitutionByCode")
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Mono.just(json), JSONObject.class)
                 .retrieve()
@@ -248,8 +246,8 @@ public class ApplicationUtilities {
         int formsQNT = institutionRequest.getAdmissions().getApplicationCategoryList().stream().filter(x -> x.getApplicationFormType().equalsIgnoreCase(type)).findFirst().get().getApplicationFormQNT();
         String closure = institutionRequest.getAdmissions().getApplicationCategoryList().stream().filter(x -> x.getApplicationFormType().equalsIgnoreCase(type)).findFirst().get().getAppointmentClosure();
         Map<LocalDateTime, List<Appointment>> map = appointmentsGlobal.stream()
-                .filter(x->x.getAppointmentDateTime().isAfter(LocalDateTime.parse(commencement.replace("T"," "),formatter))
-                && x.getAppointmentDateTime().isBefore(LocalDateTime.parse(closure.replace("T"," "),formatter)))
+                .filter(x -> x.getAppointmentDateTime().isAfter(LocalDateTime.parse(commencement.replace("T", " "), formatter))
+                        && x.getAppointmentDateTime().isBefore(LocalDateTime.parse(closure.replace("T", " "), formatter)))
                 .collect(groupingBy(Appointment::getAppointmentDateTime));
         Appointment ap = new Appointment();
         Object o = map.keySet().toArray()[0];
@@ -257,7 +255,7 @@ public class ApplicationUtilities {
         if (!code.isEmpty()) {
             if (!map.isEmpty()) {
                 int appointmentArraySize = map.get(o).size();
-                if (map.get(o).get(0).getAppointmentDateTime().isBefore(LocalDateTime.parse(closure.replace("T", " "), formatter)) && formsQNT<appointmentArraySize) {
+                if (map.get(o).get(0).getAppointmentDateTime().isBefore(LocalDateTime.parse(closure.replace("T", " "), formatter)) && formsQNT < appointmentArraySize) {
                     LocalDateTime apt = map.get(o).get(0).getAppointmentDateTime();
                     if (appointmentArraySize >= appointmentsPerDay) {
                         apt = apt.plusDays(1);
@@ -337,8 +335,8 @@ public class ApplicationUtilities {
                 .build();
     }
 
-    private List<ParentsResponse> parentResponseBuilder(Applications x){
-        List<ParentsResponse> pr= new ArrayList<>();
+    private List<ParentsResponse> parentResponseBuilder(Applications x) {
+        List<ParentsResponse> pr = new ArrayList<>();
         pr.add(ParentsResponse.builder()
                 .email(x.getFatherEmail())
                 .institutionCode(x.getApplicationInstitution())
@@ -362,6 +360,6 @@ public class ApplicationUtilities {
                 .firstNames(x.getMotherFirstNames())
                 .lastName(x.getMotherLastName())
                 .build());
-                return pr;
+        return pr;
     }
 }

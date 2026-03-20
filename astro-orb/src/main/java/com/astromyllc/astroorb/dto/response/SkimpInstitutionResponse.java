@@ -1,5 +1,6 @@
 package com.astromyllc.astroorb.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,6 +12,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class SkimpInstitutionResponse {
     private Long id;
     private String name;

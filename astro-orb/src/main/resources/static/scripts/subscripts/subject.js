@@ -113,7 +113,7 @@ clonable=document.createElement("div");
 clonable.setAttribute("class", "row clonable");
 
 var el1=document.createElement("div");
-el1.setAttribute("class", "col-sm-4");
+el1.setAttribute("class", "col-sm-3");
 
 var el2=document.createElement("div");
 el2.setAttribute("class", "row");
@@ -138,7 +138,7 @@ el4.appendChild(el5);   // Append default option to select
 
 
 var ela=document.createElement("div");
-ela.setAttribute("class", "col-sm-4");
+ela.setAttribute("class", "col-sm-3");
 
 var elb=document.createElement("div");
 elb.setAttribute("class", "row");
@@ -161,7 +161,7 @@ eld.setAttribute("placeholder", "Enter Subject Name");
 
 
 var eli=document.createElement("div");
-eli.setAttribute("class", "col-sm-4");
+eli.setAttribute("class", "col-sm-3");
 
 var elii=document.createElement("div");
 elii.setAttribute("class", "row");
@@ -179,6 +179,29 @@ eliv.setAttribute("placeholder", "Enter Subject Preference");
     elii.appendChild(eliii);   // Append col-md-12 to inner row
     eli.appendChild(elii);   // Append inner row to col-sm-4
     clonable.appendChild(eli); // Append col-sm-4 to outer row (clonable)
+
+
+
+
+var eli1=document.createElement("div");
+eli1.setAttribute("class", "col-sm-3");
+
+var elii1=document.createElement("div");
+elii1.setAttribute("class", "row");
+
+var eliii1=document.createElement("div");
+eliii1.setAttribute("class", "col-md-12");
+
+var eliv1=document.createElement("input");
+eliv1.setAttribute("class", "form-control subjectType");
+eliv1.setAttribute("type", "text");
+eliv1.setAttribute("placeholder", "Enter Subject Type");
+
+
+    eliii1.appendChild(eliv1);   // Append input to col-md-12
+    elii1.appendChild(eliii1);   // Append col-md-12 to inner row
+    eli1.appendChild(elii1);   // Append inner row to col-sm-4
+    clonable.appendChild(eli1); // Append col-sm-4 to outer row (clonable)
 
 clonable2=document.createElement("div");
 clonable2.setAttribute("class", "hr-line-dashed");

@@ -61,6 +61,7 @@ public class InstitutionService implements InstitutionServiceInterface {
         Optional<PreOrderInstitution> institution = InstitutionUtils.preOrderInstitutionGlobalList.stream().filter(x -> x.getBececode().equalsIgnoreCase(institutionCode)).findFirst();
         Institution institution1 = new Institution();
         if (institution.isPresent()) {
+            log.info("NAME OF NEWEST INSTITUTION IS ..." + institution.get());
             Institution institution2 = institutionUtils.mapPreorderInstitutionToInstitution(institution.get());
             institutionRepository.save(institution2);
             InstitutionUtils.institutionGlobalList.add(institution2);
@@ -87,6 +88,7 @@ public class InstitutionService implements InstitutionServiceInterface {
         String finalBeceCode = beceCode.getVal();
         List<Institution> ii = InstitutionUtils.institutionGlobalList.stream().filter(x -> x.getBececode().equalsIgnoreCase(finalBeceCode)).toList();
         if (ii.size() == 0) {
+            log.info("NEWEST INSTITUTION CODE = " + finalBeceCode);
             migratePreOrder(finalBeceCode);
             return Optional.ofNullable(institutionUtils.mapInstitutionToInstitutionResponse(InstitutionUtils.institutionGlobalList.stream().filter(x -> x.getBececode().equalsIgnoreCase(finalBeceCode)).findFirst().get()));
         }
@@ -123,7 +125,7 @@ public class InstitutionService implements InstitutionServiceInterface {
                     .filter(i -> i.getGradingSetting() != null && i.getClassList() != null && i.getSubjectList() != null && i.getDepartmentList() != null)
                     .map(institution -> {
                         try {
-                            return institutionUtils.mapInstitutionToInstitutionResponse(institution," ");
+                            return institutionUtils.mapInstitutionToInstitutionResponse(institution, " ");
                         } catch (IOException e) {
                             throw new RuntimeException("Failed to map institution: " + institution.getIdInstitution(), e);
                         }
@@ -186,10 +188,14 @@ public class InstitutionService implements InstitutionServiceInterface {
     }
 
     @Override
-    public Optional<SkimpInstitutionResponse> getInstitutionStatus(SingleStringRequest beceCode) {
+    public Optional<SkimpInstitutionResponse> getInstitutionStatus(SingleStringRequest beceCode) throws IOException {
         String finalBeceCode = beceCode.getVal();
         List<Institution> ii = InstitutionUtils.institutionGlobalList.stream().filter(x -> x.getBececode().equalsIgnoreCase(finalBeceCode)).toList();
-
+        if (ii.size() < 1) {
+            migratePreOrder(finalBeceCode);
+        }
+        List<Institution> iii = InstitutionUtils.institutionGlobalList.stream().filter(x -> x.getBececode().equalsIgnoreCase(finalBeceCode)).toList();
+        ii = iii;
         return Optional.ofNullable(institutionUtils.mapInstitutionToSkimpInstitutionResponse(ii.get(0)));
     }
 

@@ -46,9 +46,9 @@ public class AssessmentUtil {
     public InstitutionRequest singleInstitutionGlobalRequest = null;
     public GradingSettingRequest gs = null;
 
-   /* public SendSMSJSON(){
-        executorService = Executors.newCachedThreadPool();
-    }*/
+    /* public SendSMSJSON(){
+         executorService = Executors.newCachedThreadPool();
+     }*/
     private List<LookupResponse> lookUpGlobalResponse = null;
     @Value("${gateway.host}")
     private String host;
@@ -91,7 +91,7 @@ public class AssessmentUtil {
                 .build();
         singleInstitutionGlobalRequest =
                 webClientBuilder.build().post()
-                        .uri("http://" + host + "/api/setup/getInstitutionByCode")
+                        .uri(host + "/api/setup/getInstitutionByCode")
                         .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                         .bodyValue(request)
                         .retrieve()
@@ -113,7 +113,7 @@ public class AssessmentUtil {
                 .val(institutionCode)
                 .build();
         studentsGlobalRequest = webClientBuilder.build().post()
-                .uri("http://" + host + "/api/administration-pta/getStudentsByInstitution")
+                .uri(host + "/api/administration-pta/getStudentsByInstitution")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .bodyValue(request)
                 .retrieve()
@@ -128,7 +128,7 @@ public class AssessmentUtil {
                 .val(institutionCode)
                 .build();
         lookUpGlobalResponse = webClientBuilder.build().post()
-                .uri("http://" + host + "/api/setup/getAllLookUp")
+                .uri(host + "/api/setup/getAllLookUp")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .bodyValue(request)
                 .retrieve()
@@ -395,9 +395,9 @@ public class AssessmentUtil {
         // Calculate average score
         double averageScore = calculateTotalAverage(assessments);
 
-        GradingRequest gradeInfo=null;
-        if(gs!=null) {
-             gradeInfo = computeGrade(averageScore);
+        GradingRequest gradeInfo = null;
+        if (gs != null) {
+            gradeInfo = computeGrade(averageScore);
         }
         // Calculate average position
         double averagePosition = calculateAveragePosition(assessments);

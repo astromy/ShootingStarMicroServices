@@ -7,13 +7,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-    <!--  <meta name="_csrf" th:content="${_csrf.token}" />
-   default header name is X-CSRF-TOKEN
-    <meta name="_csrf_header" th:content="${_csrf.headerName}" />-->
-    <meta name="scope" th:content="${access}" />
+    <meta name="_csrf" th:content="${_csrf}" />
+    <meta name="_csrf_header" th:content="${_csrf_headerName}" />
+  <!--    <meta name="accessToken" th:content="${accessToken}" />
+    <meta name="scope" th:content="${access}" />-->
     <meta name="institutionId" th:content="${institutions}" />
     <meta name="cd4" th:content="${cd4}" />
-    <meta name="accessToken" th:content="${accessToken}" />
 
     <!-- Page title -->
     <title>ORB | Services</title>

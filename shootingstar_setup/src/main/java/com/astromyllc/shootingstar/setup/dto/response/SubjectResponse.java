@@ -14,5 +14,6 @@ public class SubjectResponse {
     private String name;
     private String classGroup;
     private String classGroupName;
+    private String subjectType;
     private int preference;
 }

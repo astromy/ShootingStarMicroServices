@@ -3,6 +3,7 @@ const countries = ["Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "An
 var selectPlan, institution, slogan, country, region, city, email, contact1, contact2, bececode,
     postalAddress, streams, population, website, crest;
 var imagesArray = [];
+let crestData = null;
 
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize components
@@ -272,7 +273,7 @@ function validateImageUpload() {
     imageInput.parent().find('.invalid-feedback').remove();
     return true;
 }
-
+/*
 function initImageUpload() {
     const parts = dataURL.split(';base64,');
         const contentType = parts[0].split(':')[1];
@@ -284,7 +285,7 @@ function initImageUpload() {
         }
 
         return new Blob([uInt8Array], { type: contentType });
-    }
+    }*/
 
     // 3. The main initialization function for LOGOS
     function initImageUpload() {
@@ -292,7 +293,7 @@ function initImageUpload() {
         const output = document.querySelector(".imageOutput");
         const verifyOutput = document.querySelector("#crest_");
 
-        let imagesArray = [];
+         imagesArray = [];
 
         input.addEventListener("change", async () => {
             if (!input.files || !input.files[0]) return;
@@ -365,25 +366,29 @@ function getOptimizedImageData() {
 
     // We need to read the optimized file back to base64
     // Since we already have it optimized, we can convert it directly
-    return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = () => {
-            // Return only the base64 part (without the data URL prefix)
-            const fullDataURL = reader.result;
-            resolve(fullDataURL.split(',')[1]);
-        };
-        reader.readAsDataURL(imagesArray[0]);
-    });
+       return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+                const fullDataURL = reader.result;
+                const base64Data = fullDataURL.split(',')[1];
+
+                // If you need to store it globally
+                crestData = base64Data;
+
+                resolve(base64Data);
+            };
+            reader.readAsDataURL(imagesArray[0]);
+        });
 }
 
-function initTermsAndConditions() {
+async function initTermsAndConditions() {
     $('.tnc').click(function() {
         document.getElementById('modb').innerHTML = contract;
         document.getElementById('contractClient').innerHTML = $('[name="clientName"]').val();
         document.getElementById('dtime').innerHTML = new Date().toLocaleString();
     });
 
-    $('#submitRequest').click(function() {
+    $('#submitRequest').click(async function() {
         var approve = $(".approveCheck").is(':checked');
         if (!approve) {
             swal({
@@ -399,7 +404,7 @@ function initTermsAndConditions() {
             return false;
         }
 
-        postdata();
+       await postdata();
         var jso = buildJson();
 
         var header = $("meta[name='_csrf_header']").attr("content");
@@ -466,7 +471,7 @@ function confdata() {
     $('[name="subscription_"]').text(selectPlan);
 }
 
-function postdata() {
+async function postdata() {
     institution = $('[name="clientName"]').val();
     slogan = $('[name="slogan"]').val();
     country = $('[name="country"]').val();
@@ -484,7 +489,7 @@ function postdata() {
     // Get base64 image if available
     const crestImage = document.getElementById("crestImage");
     if (crestImage) {
-        crest = getOptimizedImageData();
+        crest = await getOptimizedImageData();
     }
 }
 

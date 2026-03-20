@@ -58,70 +58,77 @@ public class AdministrationController {
     }
 
     @ResponseBody
-    @RequestMapping(value = "/conduct-admissions", method = RequestMethod.POST)
+    @RequestMapping(value = "conduct-admissions", method = RequestMethod.POST)
     public ResponseEntity<String> conductAdmissions(@RequestBody List<BillRequest> jso) throws IOException {
 
-        return BACKENDCOMMPOSTLIST(Collections.singletonList(jso), "http://" + backendserve + "/api/administration-pta/conduct-admissions");
+        return BACKENDCOMMPOSTLIST(Collections.singletonList(jso), backendserve + "/api/administration-pta/conduct-admissions");
     }
 
     @ResponseBody
-    @RequestMapping(value = "/getAllStudents", method = RequestMethod.POST)
+    @RequestMapping(value = "getAllStudents", method = RequestMethod.POST)
     public ResponseEntity<String> getAllStudents(@RequestBody SingleStringRequest jso) throws IOException {
 
-        return BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/administration-pta/getAllStudents");
+        return BACKENDCOMMPOST(jso, backendserve + "/api/administration-pta/getAllStudents");
     }
 
     @ResponseBody
-    @RequestMapping(value = "/getStudentsByInstitution", method = RequestMethod.POST)
+    @RequestMapping(value = "getStudentsByInstitution", method = RequestMethod.POST)
     public ResponseEntity<String> getAllStudentsByInstitutionCode(@RequestBody SingleStringRequest jso) throws IOException {
 
-        return BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/administration-pta/getStudentsByInstitution");
+        return BACKENDCOMMPOST(jso, backendserve + "/api/administration-pta/getStudentsByInstitution");
     }
 
     @ResponseBody
-    @RequestMapping(value = "/getStudentsByDynamicData", method = RequestMethod.POST)
+    @RequestMapping(value = "getStudentsByDynamicData", method = RequestMethod.POST)
     public ResponseEntity<String> getAllStudentsByDynamic(@RequestBody DynamicStringRequest jso) throws IOException {
 
-        return BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/administration-pta/getStudentsByDynamicData");
+        return BACKENDCOMMPOST(jso, backendserve + "/api/administration-pta/getStudentsByDynamicData");
     }
 
     @ResponseBody
-    @RequestMapping(value = "/getAssessmentList", method = RequestMethod.POST)
+    @RequestMapping(value = "getAssessmentList", method = RequestMethod.POST)
     public ResponseEntity<String> getAssessmentList(@RequestBody ClassListRequest jso) throws IOException {
 
-        ResponseEntity<String> result = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/administration-pta/getAssessmentList");
+        ResponseEntity<String> result = BACKENDCOMMPOST(jso, backendserve + "/api/administration-pta/getAssessmentList");
         return result;
     }
 
     @ResponseBody
-    @RequestMapping(value = "/getStudentsByClass", method = RequestMethod.POST)
+    @RequestMapping(value = "getStudentsByClass", method = RequestMethod.POST)
     public ResponseEntity<String> getStudentsByClass(@RequestBody StudentSkimRequest jso) {
-        return BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/administration-pta/getStudentsByClass");
+        return BACKENDCOMMPOST(jso, backendserve + "/api/administration-pta/getStudentsByClass");
     }
 
     @ResponseBody
-    @RequestMapping(value = "/getSkimpStudentsByClass", method = RequestMethod.POST)
+    @RequestMapping(value = "getSkimpStudentsByClass", method = RequestMethod.POST)
     public ResponseEntity<String> getSkimpStudentsByClass(@RequestBody StudentSkimRequest jso) {
-        return BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/administration-pta/getSkimpStudentsByClass");
+        return BACKENDCOMMPOST(jso, backendserve + "/api/administration-pta/getSkimpStudentsByClass");
     }
 
     @ResponseBody
-    @RequestMapping(value = "/postBulkStudentList", method = RequestMethod.POST)
+    @RequestMapping(value = "postBulkStudentList", method = RequestMethod.POST)
     public ResponseEntity<String> submitBulkStudentList(@RequestBody List<StudentsImportRequest> jso) {
-        return BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/administration-pta/postBulkStudentList");
+        return BACKENDCOMMPOST(jso, backendserve + "/api/administration-pta/postBulkStudentList");
     }
 
     @ResponseBody
     @RequestMapping(value = "api/mobile/getSkimpStudentsByParentContact", method = RequestMethod.POST)
     public ResponseEntity<String> getSkimpStudentsByParentContact(@RequestBody SingleStringRequest jso) {
-        ResponseEntity<String> response= BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/administration-pta/getSkimpStudentsByParentContact");
+        ResponseEntity<String> response = BACKENDCOMMPOST(jso, backendserve + "/api/administration-pta/getSkimpStudentsByParentContact");
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "api/mobile/getStudentsStatusByID", method = RequestMethod.POST)
+    public ResponseEntity<String> getStudentsStatusByID(@RequestBody SingleStringRequest jso) {
+        ResponseEntity<String> response = BACKENDCOMMPOST(jso, backendserve + "/api/administration-pta/checkStudentByID");
         return response;
     }
 
     @ResponseBody
     @RequestMapping(value = "api/mobile/sendReactivationEmail", method = RequestMethod.POST)
     public ResponseEntity<String> sendReactivationEmail(@RequestBody DynamicStringRequest jso) {
-        return BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/administration-pta/sendReactivationEmail");
+        return BACKENDCOMMPOST(jso, backendserve + "/api/administration-pta/sendReactivationEmail");
     }
 
     @ResponseBody
@@ -139,14 +146,16 @@ public class AdministrationController {
             jso = objectMapper.readValue(requestBody, PaystackPaymentResponse.class);
             log.info("Paystack Response  === {}", jso);
             if (jso.getEvent().equalsIgnoreCase("charge.success")) {
-                ResponseEntity<String> serviceResponse=null;
+                ResponseEntity<String> serviceResponse = null;
                 if (jso.getData().getMetadata().getCustomFields().get(0).getDisplayName().toLowerCase().contains("student id")) {
-                    serviceResponse = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/administration-pta/subscriptionPaymentStatus");
+                    serviceResponse = BACKENDCOMMPOST(jso, backendserve + "/api/administration-pta/subscriptionPaymentStatus");
+                } else if (jso.getData().getReference().contains("APPLICANT_")) {
+                    serviceResponse = BACKENDCOMMPOST(jso, backendserve + "/api/administration-pta/subscriptionPaymentStatus");
                 } else {
-                    serviceResponse = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/setup/reactivateInstitutionalAccount");
+                    serviceResponse = BACKENDCOMMPOST(jso, backendserve + "/api/setup/reactivateInstitutionalAccount");
                 }
                 return serviceResponse;
-            }else{
+            } else {
                 return ResponseEntity.status(601).body("Failed Transaction");
             }
         } catch (Exception e) {

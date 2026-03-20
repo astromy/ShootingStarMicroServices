@@ -154,9 +154,11 @@ let activeScripts = new Set();
 let activeLinks = new Set();
 
 window.copyrights = function copyrights() {
+    
   $("#copyrightYear").text(getYear());
 
   function getYear() {
+    
     var objToday = new Date();
     var curYear = objToday.getFullYear();
     return curYear;
@@ -169,6 +171,7 @@ window.copyrights = function copyrights() {
 window.addEventListener("load", window.copyrights);
 
 function initializeDefaults() {
+    
   trackExistingResources("script", defaultScripts, activeScripts);
   trackExistingResources("link", defaultLinks, activeLinks);
 }
@@ -186,6 +189,7 @@ function trackExistingResources(tagName, defaultArray, activeSet) {
 }
 
 function addEventListeners() {
+    
   document
     .getElementById("dashboard")
     .addEventListener("click", dashboardBuild);
@@ -353,34 +357,65 @@ function removeUnwantedResources(tagName) {
 // Utility to add new scripts or links
 function addNewResources(tagName, newResources) {
   const parentTag = tagName === "script" ? "body" : "head";
-  newResources.forEach((srcOrHref) => {
-    // Ensure all URLs use HTTPS and are relative to current protocol
-    const secureUrl = srcOrHref.startsWith("http://")
-      ? srcOrHref.replace("http://", "https://")
-      : srcOrHref.startsWith("//")
-        ? window.location.protocol + srcOrHref
-        : srcOrHref;
 
-    const newElement = document.createElement(tagName);
-    if (tagName === "script") {
-      newElement.src = secureUrl;
-      newElement.type = "text/javascript";
-      newElement.onload = () => console.log(`${secureUrl} loaded successfully`);
-      newElement.onerror = () => {
-        console.error(`${secureUrl} failed to load`);
-        // Use protocol-relative URL for redirect
-        window.location.href = "/oauth2/authorization/ShootingStar?sessionExpired=true";
-      };
-    } else {
+  // For stylesheets, we can append all at once since they load asynchronously without blocking
+  if (tagName === "link") {
+    newResources.forEach((srcOrHref) => {
+      const secureUrl = srcOrHref.startsWith("http://")
+        ? srcOrHref.replace("http://", "https://")
+        : srcOrHref.startsWith("//")
+          ? window.location.protocol + srcOrHref
+          : srcOrHref;
+
+      const newElement = document.createElement(tagName);
       newElement.href = secureUrl;
       newElement.rel = "stylesheet";
-    }
-    newElement.setAttribute("data-dynamic", "true");
-    document.querySelector(parentTag).appendChild(newElement);
-  });
+      newElement.setAttribute("data-dynamic", "true");
+      document.querySelector(parentTag).appendChild(newElement);
+    });
+    return;
+  }
+
+  // For scripts, load them sequentially to maintain execution order
+  loadScriptsSequentially(newResources, 0, parentTag);
+}
+
+function loadScriptsSequentially(scripts, index, parentTag) {
+  if (index >= scripts.length) {
+    console.log('All scripts loaded successfully');
+    return;
+  }
+
+  const srcOrHref = scripts[index];
+  const secureUrl = srcOrHref.startsWith("http://")
+    ? srcOrHref.replace("http://", "https://")
+    : srcOrHref.startsWith("//")
+      ? window.location.protocol + srcOrHref
+      : srcOrHref;
+
+  const newElement = document.createElement("script");
+  newElement.src = secureUrl;
+  newElement.type = "text/javascript";
+  newElement.setAttribute("data-dynamic", "true");
+
+  newElement.onload = () => {
+    console.log(`${secureUrl} loaded successfully`);
+    // Load the next script only after this one has loaded
+    loadScriptsSequentially(scripts, index + 1, parentTag);
+  };
+
+  newElement.onerror = () => {
+    console.error(`${secureUrl} failed to load`);
+    // Use protocol-relative URL for redirect
+    window.location.href = "/oauth2/authorization/ShootingStar?sessionExpired=true";
+  };
+
+  document.querySelector(parentTag).appendChild(newElement);
 }
 
 function dashboardBuild() {
+    
+    
   const newScripts = [
     "scripts/subscripts/dashboard.js"  // Your dashboard code
   ];
@@ -455,6 +490,8 @@ function institutionBuild() {
 //-------------------------------------------------------------------------------------------------------
 
 function classgroupnBuild() {
+    
+    
   // Define new resources specific to this view
   const newScripts = [
     "vendor/sweetalert/lib/sweet-alert.min.js",
@@ -483,6 +520,8 @@ function classgroupnBuild() {
 //-------------------------------------------------------------------------------------------------------
 
 function classesBuild() {
+    
+    
   // Define new resources specific to this view
   const newScripts = [
     "vendor/sweetalert/lib/sweet-alert.min.js",
@@ -512,6 +551,8 @@ function classesBuild() {
 //-------------------------------------------------------------------------------------------------------
 
 function subjectBuild() {
+    
+    
   // Define new resources specific to this view
   const newScripts = [
     "vendor/sweetalert/lib/sweet-alert.min.js",
@@ -541,9 +582,11 @@ function subjectBuild() {
 //-------------------------------------------------------------------------------------------------------
 
 function admissionBuild() {
+    
+    
   // Define new resources specific to this view
   const newScripts = [
-    "scripts/moment.min.js",
+    //"scripts/moment.min.js",
     "scripts/daterangepicker.js",
     "vendor/sweetalert/lib/sweet-alert.min.js",
     "scripts/subscripts/admissions.js",
@@ -573,6 +616,8 @@ function admissionBuild() {
 //-------------------------------------------------------------------------------------------------------
 
 function departmentBuild() {
+    
+    
   // Define new resources specific to this view
   const newScripts = [
     "scripts/moment.min.js",
@@ -604,6 +649,8 @@ function departmentBuild() {
 //-------------------------------------------------------------------------------------------------------
 
 function gradingBuild() {
+    
+    
   const newScripts = [
     "vendor/sweetalert/lib/sweet-alert.min.js",
     "scripts/subscripts/grading.js",
@@ -634,6 +681,7 @@ function gradingBuild() {
 //-------------------------------------------------------------------------------------------------------
 
 function permissionsBuild() {
+    
   const newScripts = [
     "scripts/moment.min.js",
     "vendor/sweetalert/lib/sweet-alert.min.js",
@@ -667,6 +715,7 @@ function permissionsBuild() {
 //-------------------------------------------------------------------------------------------------------
 
 function designationBuild() {
+    
   const newScripts = [
     "scripts/moment.min.js",
     "vendor/sweetalert/lib/sweet-alert.min.js",
@@ -699,6 +748,7 @@ function designationBuild() {
 //-------------------------------------------------------------------------------------------------------
 
 function onloadingBuild() {
+    
   const newScripts = [
     "vendor/sparkline/index.js",
     "vendor/ladda/dist/spin.min.js",
@@ -736,6 +786,7 @@ function onloadingBuild() {
 //-------------------------------------------------------------------------------------------------------
 
 function recordsBuild() {
+    
   const newScripts = [
     "vendor/sparkline/index.js",
     "vendor/ladda/dist/spin.min.js",
@@ -773,6 +824,7 @@ function recordsBuild() {
 //-------------------------------------------------------------------------------------------------------
 
 function leaveBuild() {
+    
   // Remove previous non-default scripts/links
   removeUnwantedResources("script", activeScripts);
   removeUnwantedResources("link", activeLinks);
@@ -790,6 +842,7 @@ function leaveBuild() {
 //-------------------------------------------------------------------------------------------------------
 
 function appraisalsBuild() {
+    
   // Remove previous non-default scripts/links
   removeUnwantedResources("script", activeScripts);
   removeUnwantedResources("link", activeLinks);
@@ -807,6 +860,7 @@ function appraisalsBuild() {
 //-------------------------------------------------------------------------------------------------------
 
 function designationBuild_X() {
+    
   // Remove previous non-default scripts/links
   removeUnwantedResources("script", activeScripts);
   removeUnwantedResources("link", activeLinks);
@@ -824,6 +878,7 @@ function designationBuild_X() {
 //-------------------------------------------------------------------------------------------------------
 
 function offloadingBuild() {
+    
   // Remove previous non-default scripts/links
   removeUnwantedResources("script", activeScripts);
   removeUnwantedResources("link", activeLinks);
@@ -841,6 +896,7 @@ function offloadingBuild() {
 //-------------------------------------------------------------------------------------------------------
 
 function billcreationBuild() {
+    
   const newScripts = [
     "scripts/moment.min.js",
     "vendor/sweetalert/lib/sweet-alert.min.js",
@@ -873,6 +929,7 @@ function billcreationBuild() {
 //-------------------------------------------------------------------------------------------------------
 
 function billingBuild() {
+    
   // Define new resources specific to this view
   const newScripts = [
     "vendor/sweetalert/lib/sweet-alert.min.js",
@@ -902,6 +959,7 @@ function billingBuild() {
 //-------------------------------------------------------------------------------------------------------
 
 function feecollectionBuild() {
+    
   // Remove previous non-default scripts/links
   removeUnwantedResources("script", activeScripts);
   removeUnwantedResources("link", activeLinks);
@@ -919,6 +977,7 @@ function feecollectionBuild() {
 //-------------------------------------------------------------------------------------------------------
 
 function paymenthistoryBuild() {
+    
   // Remove previous non-default scripts/links
   removeUnwantedResources("script", activeScripts);
   removeUnwantedResources("link", activeLinks);
@@ -936,6 +995,7 @@ function paymenthistoryBuild() {
 //-------------------------------------------------------------------------------------------------------
 
 function paymentcheckerBuild() {
+    
   // Remove previous non-default scripts/links
   removeUnwantedResources("script", activeScripts);
   removeUnwantedResources("link", activeLinks);
@@ -953,6 +1013,7 @@ function paymentcheckerBuild() {
 //-------------------------------------------------------------------------------------------------------
 
 function salarysetupBuild() {
+    
   // Remove previous non-default scripts/links
   removeUnwantedResources("script", activeScripts);
   removeUnwantedResources("link", activeLinks);
@@ -970,6 +1031,7 @@ function salarysetupBuild() {
 //-------------------------------------------------------------------------------------------------------
 
 function payslipgenerationBuild() {
+    
   // Remove previous non-default scripts/links
   removeUnwantedResources("script", activeScripts);
   removeUnwantedResources("link", activeLinks);
@@ -987,6 +1049,7 @@ function payslipgenerationBuild() {
 //-------------------------------------------------------------------------------------------------------
 
 function ledgerbooksBuild() {
+    
   // Remove previous non-default scripts/links
   removeUnwantedResources("script", activeScripts);
   removeUnwantedResources("link", activeLinks);
@@ -1004,6 +1067,7 @@ function ledgerbooksBuild() {
 //-------------------------------------------------------------------------------------------------------
 
 function incomestatementBuild() {
+    
   // Remove previous non-default scripts/links
   removeUnwantedResources("script", activeScripts);
   removeUnwantedResources("link", activeLinks);
@@ -1021,6 +1085,7 @@ function incomestatementBuild() {
 //-------------------------------------------------------------------------------------------------------
 
 function cashflowBuild() {
+    
   // Remove previous non-default scripts/links
   removeUnwantedResources("script", activeScripts);
   removeUnwantedResources("link", activeLinks);
@@ -1038,6 +1103,7 @@ function cashflowBuild() {
 //-------------------------------------------------------------------------------------------------------
 
 function trialbalanaceBuild() {
+    
   // Remove previous non-default scripts/links
   removeUnwantedResources("script", activeScripts);
   removeUnwantedResources("link", activeLinks);
@@ -1053,6 +1119,7 @@ function trialbalanaceBuild() {
 }
 
 function scoreUploadBuild() {
+    
   // Define new resources specific to this view
   const newScripts = [
     "vendor/sweetalert/lib/sweet-alert.min.js",
@@ -1081,6 +1148,7 @@ function scoreUploadBuild() {
 }
 
 function terminalReportBuild() {
+    
   // Define new resources specific to this view
   const newScripts = [
     "vendor/sweetalert/lib/sweet-alert.min.js",
@@ -1109,6 +1177,7 @@ function terminalReportBuild() {
 }
 
 function studentsTranscriptBuild() {
+    
   // Define new resources specific to this view
   const newScripts = [
     "vendor/sweetalert/lib/sweet-alert.min.js",
@@ -1137,6 +1206,7 @@ function studentsTranscriptBuild() {
 }
 
 function broadSheetBuild() {
+    
   // Define new resources specific to this view
   const newScripts = [
     "vendor/sweetalert/lib/sweet-alert.min.js",
@@ -1167,6 +1237,7 @@ function broadSheetBuild() {
 //-------------------------------------------------------------------------------------------------------
 
 function studentBulkUploadBuild() {
+    
   // Define new resources specific to this view
   const newScripts = [
     "vendor/sweetalert/lib/sweet-alert.min.js",
@@ -1195,6 +1266,7 @@ function studentBulkUploadBuild() {
 }
 
 function studentRecordsBuild() {
+    
   // Define new resources specific to this view
   const newScripts = [
     "vendor/sweetalert/lib/sweet-alert.min.js",
@@ -1223,6 +1295,7 @@ function studentRecordsBuild() {
 }
 
 function suspendedStudentBuild() {
+    
   // Define new resources specific to this view
   const newScripts = [
     "vendor/sweetalert/lib/sweet-alert.min.js",
@@ -1251,6 +1324,7 @@ function suspendedStudentBuild() {
 }
 
 function dismissedStudentBuild() {
+    
   // Define new resources specific to this view
   const newScripts = [
     "vendor/sweetalert/lib/sweet-alert.min.js",
@@ -1279,6 +1353,7 @@ function dismissedStudentBuild() {
 }
 
 function studentListBuild() {
+    
   // Define new resources specific to this view
   const newScripts = [
     "vendor/sweetalert/lib/sweet-alert.min.js",
@@ -1307,6 +1382,7 @@ function studentListBuild() {
 }
 
 function classListBuild() {
+    
   // Define new resources specific to this view
   const newScripts = [
     "vendor/sweetalert/lib/sweet-alert.min.js",
@@ -1335,6 +1411,7 @@ function classListBuild() {
 }
 
 function academicTimeTableBuild() {
+    
   // Define new resources specific to this view
   const newScripts = [
     "vendor/sweetalert/lib/sweet-alert.min.js",
@@ -1363,6 +1440,7 @@ function academicTimeTableBuild() {
 }
 
 function idCardGenerationBuild() {
+    
   // Define new resources specific to this view
   const newScripts = [
     "vendor/sweetalert/lib/sweet-alert.min.js",
@@ -1392,6 +1470,7 @@ function idCardGenerationBuild() {
 
 
 function promotionsBuild() {
+    
   // Define new resources specific to this view
   const newScripts = [
     "vendor/sweetalert/lib/sweet-alert.min.js",
@@ -1421,6 +1500,7 @@ function promotionsBuild() {
 //----------------STAFF FUNCTIONS----------------------------------
 
 function staffQuestionUpload() {
+    
   // Define new resources specific to this view
   const newScripts = [
     "vendor/sweetalert/lib/sweet-alert.min.js",
@@ -1449,6 +1529,7 @@ function staffQuestionUpload() {
 }
 
 function staffAssignment() {
+    
   // Define new resources specific to this view
   const newScripts = [
     "vendor/sweetalert/lib/sweet-alert.min.js",
@@ -1477,6 +1558,7 @@ function staffAssignment() {
 }
 
 function staffExams() {
+    
   // Define new resources specific to this view
   const newScripts = [
     "vendor/sweetalert/lib/sweet-alert.min.js",
@@ -1505,6 +1587,7 @@ function staffExams() {
 }
 
 function staffScoreUploadBuild() {
+    
   // Define new resources specific to this view
   const newScripts = [
     "vendor/sweetalert/lib/sweet-alert.min.js",
@@ -1533,6 +1616,7 @@ function staffScoreUploadBuild() {
 }
 
 function staffAssignmentReview() {
+    
   // Define new resources specific to this view
   const newScripts = [
     "vendor/sweetalert/lib/sweet-alert.min.js",
@@ -1566,32 +1650,56 @@ function staffAssignmentReview() {
 
 
 function HttpPost(url, data) {
-  var access_token = $("meta[name='scope']").attr("content");
+  // Get CSRF token from meta tag
+  const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+  const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content') || 'X-CSRF-TOKEN';
 
-  return new Promise((resolve) => {
+  let headers = {
+    "Accept": "application/json",
+    "Content-Type": "application/json"
+  };
+
+  // Add CSRF token if available
+  if (csrfToken) {
+    headers[csrfHeader] = csrfToken;
+  }
+
+  return new Promise((resolve, reject) => {
     $.ajax({
       url: url,
       type: "POST",
       data: JSON.stringify(data),
       contentType: "application/json",
       dataType: "json",
-      headers: {
-        Accept: "application/json",
-        Authorization: "Bearer " + access_token,
-      },
+      headers: headers,
       xhrFields: {
-        withCredentials: false, // 👈 PREVENT sending cookies like JSESSIONID
+        withCredentials: true, // Send cookies
       },
       success: function (data) {
         resolve(data);
       },
       error: function (jqXHR, textStatus, errorThrown) {
         console.log("Error Details: ", jqXHR, textStatus, errorThrown);
+
+        // If it's a CSRF issue, show specific message
+        if (jqXHR.status === 403 && jqXHR.responseText.includes("CSRF")) {
+          console.log("CSRF token error - refreshing page");
+          location.reload();
+          return;
+        }
+
+        // Session expired - redirect to login
+        if (jqXHR.status === 401) {
+          window.location.href = "/oauth2/authorization/ShootingStar";
+          return;
+        }
+
         swal({
           title: "Sorry!",
           text: "Operation Failed\n" + errorThrown,
           type: "error",
         });
+        reject(errorThrown);
       },
     });
   });
@@ -1606,30 +1714,50 @@ function HttpPost(url, data) {
  * @returns {Promise<any>} - The parsed JSON response.
  */
 async function fetchPost(url, data) {
-  const token = document.querySelector("meta[name='scope']")?.getAttribute("content");
+  console.group(`🌐 API Call to ${url}`);
+  console.log('📋 document.cookie:', document.cookie);
+
+  const csrfToken =
+    document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+
+  const csrfHeader =
+    document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content') || 'X-XSRF-TOKEN';
+
+  const headers = {
+    "Content-Type": "application/json",
+    "Accept": "application/json"
+  };
+
+  if (csrfToken) {
+    headers[csrfHeader] = csrfToken;
+    console.log('🛡️ CSRF token added:', csrfHeader);
+  } else {
+    console.warn('⚠️ No CSRF meta token found');
+  }
 
   try {
     const response = await fetch(url, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`,
-        "Accept": "application/json",
-      },
+      headers,
       body: JSON.stringify(data),
-      credentials: "omit", // 🔒 Prevents cookies like JSESSIONID from being sent
+      credentials: "include",
     });
 
+    const responseText = await response.text();
+
+    console.log('📥 Response status:', response.status);
+    console.log('📥 Response body:', responseText);
+
     if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`HTTP ${response.status}: ${errorText}`);
+      throw new Error(`HTTP ${response.status}: ${responseText}`);
     }
 
-    return await response.json();
+    return responseText ? JSON.parse(responseText) : null;
   } catch (error) {
     console.error("POST Error:", error);
-    alert("Request failed: " + error.message);
     throw error;
+  } finally {
+    console.groupEnd();
   }
 }
 

@@ -5,7 +5,7 @@ spring.datasource.password=${DB_PASSWORD}
 spring.jpa.hibernate.ddl-auto=update
 server.port=0
 
-gateway.host=${APIGATEWAY:localhost}
+gateway.host=${APIGATEWAY:http://localhost:8083}
 
 eureka.client.serviceUrl.defaultZone=http://eureka:password@localhost:8761/eureka
 spring.application.name=clinic

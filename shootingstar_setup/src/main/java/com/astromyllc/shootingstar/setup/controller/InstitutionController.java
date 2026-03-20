@@ -29,15 +29,15 @@ public class InstitutionController {
     private final PromotionsServiceInterface promotionsServiceInterface;
 
 //=============================== INSTITUTION ========================================================
+
     /**
-     *
      * @param institutionRequest
      */
     @PostMapping("/api/setup/signupInstitution")
     @ResponseStatus(HttpStatus.CREATED)
     //@CircuitBreaker(name = "Institution",fallbackMethod = "fallBack0")
     public InstitutionResponse SubmitApplication(@RequestBody InstitutionRequest institutionRequest) throws IOException {
-        log.error("REQUEST INSTITUTION CREATION OF..... {}",institutionRequest);
+        log.error("REQUEST INSTITUTION CREATION OF..... {}", institutionRequest);
         return institutionService.createInstitution(institutionRequest);
     }
 
@@ -62,7 +62,7 @@ public class InstitutionController {
 
     @PostMapping("/api/setup/getInstitutionStatus")
     @ResponseStatus(HttpStatus.OK)
-    public Optional<SkimpInstitutionResponse> getInstitutionStatus(@RequestBody SingleStringRequest beceCode) {
+    public Optional<SkimpInstitutionResponse> getInstitutionStatus(@RequestBody SingleStringRequest beceCode) throws IOException {
         return institutionService.getInstitutionStatus(beceCode);
     }
 
@@ -74,20 +74,18 @@ public class InstitutionController {
 
     @GetMapping("/api/setup/getInstitutionByCode?institutionCode")
     @ResponseStatus(HttpStatus.OK)
-    public Optional<InstitutionResponse> getInstitutionByBeceCodePath(@PathVariable ("institutionCode") SingleStringRequest beceCode) throws IOException {
+    public Optional<InstitutionResponse> getInstitutionByBeceCodePath(@PathVariable("institutionCode") SingleStringRequest beceCode) throws IOException {
         log.error("REQUEST getInstitutionByBeceCodePath OF..... {}", beceCode);
         return institutionService.getInstitutionByBeceCode(beceCode);
     }
 
 
-
-
- //========================== PRE-REQUEST ===============================================
+    //========================== PRE-REQUEST ===============================================
     @PostMapping("/api/setup/preRequestInstitution")
     @ResponseStatus(HttpStatus.CREATED)
     public String SubmitPreOrderApplication(@RequestBody PreOrderInstitutionRequest institutionRequest) throws IOException {
-        log.error("REQUEST SubmitPreOrderApplication OF..... {}", institutionRequest);
-      return institutionService.createPreOrderInstitution(institutionRequest);
+        log.info("REQUEST SubmitPreOrderApplication OF..... {}", institutionRequest);
+        return institutionService.createPreOrderInstitution(institutionRequest);
     }
 
     @PostMapping("/api/setup/getPreOrderAllinstitution")
@@ -105,24 +103,21 @@ public class InstitutionController {
     }
 
 
-
- //================================== DEPARTMENTS ====================================================
+    //================================== DEPARTMENTS ====================================================
 
     @PostMapping("/api/setup/addDepartment")
     @ResponseStatus(HttpStatus.CREATED)
     public List<Optional<DepartmentResponse>> AddDepartment(@RequestBody DepartmentRequest departmentRequest) {
         log.error("REQUEST AddDepartment OF..... {}", departmentRequest);
-       return departmentServiceInterface.createDepartments(departmentRequest);
+        return departmentServiceInterface.createDepartments(departmentRequest);
     }
 
     @PostMapping("/api/setup/getInstitutionDepartment")
     @ResponseStatus(HttpStatus.OK)
     public List<Optional<DepartmentResponse>> getDepartmentByInstitution(@RequestBody SingleStringRequest beceCode) {
         log.error("REQUEST getDepartmentByInstitution OF..... {}", beceCode);
-      return  departmentServiceInterface.getDepartmentByInstitution(beceCode);
+        return departmentServiceInterface.getDepartmentByInstitution(beceCode);
     }
-
-
 
 
 //================================= LOOKUPS ============================================================================
@@ -133,18 +128,19 @@ public class InstitutionController {
         log.error("REQUEST SubmitLookup OF..... {}", lookupRequest);
         lookupServiceInterface.createLookup(lookupRequest);
     }
+
     @PostMapping("/api/setup/addLookUps")
     @ResponseStatus(HttpStatus.CREATED)
-    public List<Optional<LookupResponse>>  SubmitLookupList(@RequestBody List<LookupRequest> lookupRequest) {
+    public List<Optional<LookupResponse>> SubmitLookupList(@RequestBody List<LookupRequest> lookupRequest) {
         log.error("REQUEST SubmitLookupList OF..... {}", lookupRequest);
-        return  lookupServiceInterface.createLookups(lookupRequest);
+        return lookupServiceInterface.createLookups(lookupRequest);
     }
 
     @PostMapping("/api/setup/getLookUpByType")
     @ResponseStatus(HttpStatus.OK)
     public List<Optional<LookupResponse>> getLookUpType(@RequestBody SingleStringRequest lookupType) {
-        log.info("LOOKUP REQUEST ===>{}",lookupType);
-       return lookupServiceInterface.getAllLookupsByType(lookupType);
+        log.info("LOOKUP REQUEST ===>{}", lookupType);
+        return lookupServiceInterface.getAllLookupsByType(lookupType);
     }
 
     @PostMapping("/api/setup/getAllLookUp")
@@ -167,7 +163,7 @@ public class InstitutionController {
     @ResponseStatus(HttpStatus.OK)
     public List<Optional<ClassesResponse>> getClasses(@RequestBody SingleStringRequest beceCode) {
         log.error("REQUEST getClasses OF..... {}", beceCode);
-       return classesServiceInterface.getAllClassesByInstitution(beceCode);
+        return classesServiceInterface.getAllClassesByInstitution(beceCode);
     }
 
     @PostMapping("/api/setup/getInstitutionClassesByClassGroup")
@@ -176,7 +172,6 @@ public class InstitutionController {
         log.error("REQUEST getClassesAndClassGroup OF..... {}", beceCode);
         return classesServiceInterface.getAllClassesByClassGroup(beceCode);
     }
-
 
 
 //================================== SUBJECTS ==========================================================================
@@ -192,7 +187,7 @@ public class InstitutionController {
     @ResponseStatus(HttpStatus.OK)
     public List<Optional<SubjectResponse>> GetSubjects(@RequestBody SingleStringRequest beceCode) {
         log.error("REQUEST GetSubjects OF..... {}", beceCode);
-       return subjectServiceInterface.getAllSubjectsByInstitution(beceCode);
+        return subjectServiceInterface.getAllSubjectsByInstitution(beceCode);
     }
 
     @PostMapping("/api/setup/getInstitutionSubjectsAndClassGroup")
@@ -203,7 +198,6 @@ public class InstitutionController {
     }
 
 
-
 //================================== GRADING SETTING ===================================================================
 
 
@@ -211,7 +205,7 @@ public class InstitutionController {
     @ResponseStatus(HttpStatus.CREATED)
     public Optional<List<GradingSettingResponse>> AddGradingSetting(@RequestBody GradingSettingRequest gradingSettingRequests) {
         log.error("REQUEST AddGradingSetting OF..... {}", gradingSettingRequests);
-      return  gradingSettingsServiceInterface.createGradingSettingDetails(gradingSettingRequests);
+        return gradingSettingsServiceInterface.createGradingSettingDetails(gradingSettingRequests);
     }
 
     @PostMapping("/api/setup/getInstitutionGradingSetting")
@@ -230,16 +224,15 @@ public class InstitutionController {
     @ResponseStatus(HttpStatus.CREATED)
     public Optional<List<Optional<DesignationResponse>>> AddDesignation(@RequestBody DesignationRequest designationRequest) {
         log.error("REQUEST AddDesignation OF..... {}", designationRequest);
-      return  designationServiceInterface.createDesignation(designationRequest);
+        return designationServiceInterface.createDesignation(designationRequest);
     }
 
     @PostMapping("/api/setup/getInstitutionDesignations")
     @ResponseStatus(HttpStatus.OK)
-    public  Optional<List<List<Optional<DesignationResponse>>>> GetDesignationByInstitution(@RequestBody SingleStringRequest designationRequest) {
+    public Optional<List<List<Optional<DesignationResponse>>>> GetDesignationByInstitution(@RequestBody SingleStringRequest designationRequest) {
         log.error("REQUEST GetDesignationByInstitution OF..... {}", designationRequest);
         return designationServiceInterface.getAllDesignationByInstitution(designationRequest);
     }
-
 
 
 //======================================== JOB DESCRIPTION =============================================================
@@ -248,7 +241,7 @@ public class InstitutionController {
     @ResponseStatus(HttpStatus.CREATED)
     public Optional<JobDescriptionResponse> AddJobDescription(@RequestBody JobDescriptionRequest jobDescriptionRequest) {
         log.error("REQUEST AddJobDescription OF..... {}", jobDescriptionRequest);
-      return  jobDescriptionServiceInterface.createJobDescriptions(jobDescriptionRequest);
+        return jobDescriptionServiceInterface.createJobDescriptions(jobDescriptionRequest);
     }
 
     @PostMapping("/api/setup/getInstitutionJobDescriptions")
@@ -259,14 +252,12 @@ public class InstitutionController {
     }
 
 
-
-
 //======================================== ADMISSIONS =============================================================
 
     @PostMapping("/api/setup/addAdmissionSetup")
     @ResponseStatus(HttpStatus.CREATED)
     public Optional<AdmissionsResponse> AddAdmission(@RequestBody AdmissionsEntryRequest admissionsEntryRequest) {
-        return  admissionsServiceInterface.createAdmissionSetup(admissionsEntryRequest);
+        return admissionsServiceInterface.createAdmissionSetup(admissionsEntryRequest);
     }
 
     @PostMapping("/api/setup/getInstitutionAdmissionSetup")
@@ -276,14 +267,12 @@ public class InstitutionController {
     }
 
 
-
-
 //================================== PROMOTIONS ========================================================================
 
     @PostMapping("/api/setup/addPromotionSetup")
     @ResponseStatus(HttpStatus.CREATED)
     public List<Optional<PromotionsResponse>> AddPromotions(@RequestBody PromotionsRequest promotionsRequest) {
-        return  promotionsServiceInterface.createPromotions(promotionsRequest);
+        return promotionsServiceInterface.createPromotions(promotionsRequest);
     }
 
     @PostMapping("/api/setup/getInstitutionPromotionSetup")
@@ -293,10 +282,9 @@ public class InstitutionController {
     }
 
 
-
 //______________________________________________________________________________________________________________________
 
-    public String fallBack0(InstitutionRequest institutionRequest,RuntimeException runtimeException){
+    public String fallBack0(InstitutionRequest institutionRequest, RuntimeException runtimeException) {
         return "Temporal Failure, Try again after sometime";
     }
 }

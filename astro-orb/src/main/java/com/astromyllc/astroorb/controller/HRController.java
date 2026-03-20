@@ -1,6 +1,9 @@
 package com.astromyllc.astroorb.controller;
 
-import com.astromyllc.astroorb.dto.request.*;
+import com.astromyllc.astroorb.dto.request.BillingFetchRequest;
+import com.astromyllc.astroorb.dto.request.SingleStringRequest;
+import com.astromyllc.astroorb.dto.request.StaffPermissionsRequest;
+import com.astromyllc.astroorb.dto.request.StaffRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import lombok.RequiredArgsConstructor;
@@ -8,9 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,42 +38,42 @@ public class HRController {
     private String backendserve;
 
     @ResponseBody
-    @RequestMapping(value = "/create-staff", method = RequestMethod.POST)
-    public ResponseEntity<String>addfinance (@RequestBody List<StaffRequest> jso) throws IOException {
-        String url="http://" + backendserve + "/api/hr/createStaff";
-        ResponseEntity<String> response = BACKENDCOMMPOSTLIST(Collections.singletonList(jso), url);
-        return response;
-    }
-    @ResponseBody
-    @RequestMapping(value = "/addStaffPermissions", method = RequestMethod.POST)
-    public ResponseEntity<String>addStaffPermissions (@RequestBody List<StaffPermissionsRequest> jso) throws IOException {
-        String url="http://" + backendserve + "/api/hr/addStaffPermissions";
+    @RequestMapping(value = "create-staff", method = RequestMethod.POST)
+    public ResponseEntity<String> addfinance(@RequestBody List<StaffRequest> jso) throws IOException {
+        String url = backendserve + "/api/hr/createStaff";
         ResponseEntity<String> response = BACKENDCOMMPOSTLIST(Collections.singletonList(jso), url);
         return response;
     }
 
     @ResponseBody
-    @RequestMapping(value = "/get-staff-by-institution", method = RequestMethod.POST)
+    @RequestMapping(value = "addStaffPermissions", method = RequestMethod.POST)
+    public ResponseEntity<String> addStaffPermissions(@RequestBody List<StaffPermissionsRequest> jso) throws IOException {
+        String url = backendserve + "/api/hr/addStaffPermissions";
+        ResponseEntity<String> response = BACKENDCOMMPOSTLIST(Collections.singletonList(jso), url);
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "get-staff-by-institution", method = RequestMethod.POST)
     public ResponseEntity<String> getFinanceInstitutionByCode(@RequestBody SingleStringRequest jso) throws IOException {
 
-        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/hr/getStaffByCode");
+        ResponseEntity<String> response = BACKENDCOMMPOST(jso, backendserve + "/api/hr/getStaffByCode");
         return response;
     }
 
     @ResponseBody
-    @RequestMapping(value = "/get-staff-by-institution-and-code", method = RequestMethod.POST)
+    @RequestMapping(value = "get-staff-by-institution-and-code", method = RequestMethod.POST)
     public ResponseEntity<String> getClassBilling(@RequestBody BillingFetchRequest jso) {
-        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/hr/get-billings-by-institution");
+        ResponseEntity<String> response = BACKENDCOMMPOST(jso, backendserve + "/api/hr/get-billings-by-institution");
         return response;
     }
 
     @ResponseBody
-    @RequestMapping(value = "/getStaffByStaffId", method = RequestMethod.POST)
+    @RequestMapping(value = "getStaffByStaffId", method = RequestMethod.POST)
     public ResponseEntity<String> getStaffByStaffId(@RequestBody SingleStringRequest jso) {
-        ResponseEntity<String> response = BACKENDCOMMPOST(jso, "http://" + backendserve + "/api/hr/getStaffByStaffId");
+        ResponseEntity<String> response = BACKENDCOMMPOST(jso, backendserve + "/api/hr/getStaffByStaffId");
         return response;
     }
-
 
 
     private ResponseEntity<String> BACKENDCOMMPOSTLIST(List<Object> jso, String url) {

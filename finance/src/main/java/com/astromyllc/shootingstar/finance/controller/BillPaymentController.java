@@ -1,11 +1,8 @@
 package com.astromyllc.shootingstar.finance.controller;
 
 import com.astromyllc.shootingstar.finance.dto.request.BillFetchRequest;
-import com.astromyllc.shootingstar.finance.dto.request.BillRequest;
 import com.astromyllc.shootingstar.finance.dto.request.Bill_PaymentRequest;
-import com.astromyllc.shootingstar.finance.dto.response.BillResponse;
 import com.astromyllc.shootingstar.finance.dto.response.Bill_PaymentResponse;
-import com.astromyllc.shootingstar.finance.serviceInterface.BillServiceInterface;
 import com.astromyllc.shootingstar.finance.serviceInterface.Bill_PaymentServiceInterface;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -39,7 +37,7 @@ public class BillPaymentController {
     @PostMapping
     @RequestMapping("/api/finance/get-billPayments-by-institution")
     @ResponseStatus(HttpStatus.OK)
-    public List<Bill_PaymentResponse> getBillPaymentsByInstitution(@RequestBody BillFetchRequest billFetchRequest) {
+    public Optional<List<Bill_PaymentResponse>> getBillPaymentsByInstitution(@RequestBody BillFetchRequest billFetchRequest) {
         log.info("Application  Received");
         return billPaymentServiceInterface.fetchBillPaymentsByInstitution(billFetchRequest);
     }
@@ -48,7 +46,7 @@ public class BillPaymentController {
     @PostMapping
     @RequestMapping("/api/finance/get-billPayment-by-institutionAndName")
     @ResponseStatus(HttpStatus.OK)
-    public Bill_PaymentResponse getBillPaymentByInstitution(@RequestBody BillFetchRequest billFetchRequest) {
+    public Optional<Bill_PaymentResponse> getBillPaymentByInstitution(@RequestBody BillFetchRequest billFetchRequest) {
         log.info("Application  Received");
         return billPaymentServiceInterface.fetchBillPaymentsByInstitutionAndName(billFetchRequest);
     }

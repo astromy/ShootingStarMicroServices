@@ -97,7 +97,7 @@ public class ParentsUtil {
         return institutionRequest =
 
                 webClientBuilder
-                        .baseUrl("http://" + host)
+                        .baseUrl(host)
                         .filter(ExchangeFilterFunction.ofRequestProcessor(clientRequest -> {
                             System.out.println("Request: " + clientRequest);
                             return Mono.just(clientRequest);
@@ -124,7 +124,7 @@ public class ParentsUtil {
         return institutionRequest =
 
                 webClientBuilder
-                        .baseUrl("http://" + host)
+                        .baseUrl(host)
                         .filter(ExchangeFilterFunction.ofRequestProcessor(clientRequest -> {
                             System.out.println("Request: " + clientRequest);
                             return Mono.just(clientRequest);
