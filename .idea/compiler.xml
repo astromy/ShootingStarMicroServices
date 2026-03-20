@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="stores-inventory" />
+        <module name="astro-admission-acceptance" />
+        <module name="astro-api-gateway" />
+        <module name="academics" />
+        <module name="astro-preorder" />
+        <module name="discoveryserver" />
+        <module name="shootingstar_setup" />
+        <module name="astro-online-application" />
+        <module name="astro-orb" />
+        <module name="online-application" />
+        <module name="administration-pta" />
+        <module name="accommodation" />
+        <module name="hr-service" />
+        <module name="clinic" />
+        <module name="finance" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="academics" target="17" />
+      <module name="accommodation" target="17" />
+      <module name="administration-pta" target="17" />
+      <module name="astro-admission-acceptance" target="17" />
+      <module name="astro-api-gateway" target="17" />
+      <module name="astro-orb" target="17" />
+      <module name="astro-preorder" target="17" />
+      <module name="astroauthauth" target="17" />
+      <module name="clinic" target="17" />
+      <module name="discoveryserver" target="17" />
+      <module name="finance" target="17" />
+      <module name="hr-service" target="17" />
+      <module name="online-application" target="17" />
+      <module name="shootingstar_setup" target="17" />
+      <module name="stores-inventory" target="17" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="ParentShootingStar" options="" />
+      <module name="academics" options="-parameters" />
+      <module name="accommodation" options="-parameters" />
+      <module name="administration-pta" options="-parameters" />
+      <module name="astro-admission-acceptance" options="-parameters" />
+      <module name="astro-api-gateway" options="-parameters" />
+      <module name="astro-online-application" options="-parameters" />
+      <module name="astro-orb" options="-parameters" />
+      <module name="astro-preorder" options="-parameters" />
+      <module name="astroauthauth" options="-parameters" />
+      <module name="clinic" options="-parameters" />
+      <module name="discoveryserver" options="-parameters" />
+      <module name="finance" options="-parameters" />
+      <module name="hr-service" options="-parameters" />
+      <module name="online-application" options="-parameters" />
+      <module name="shootingstar_setup" options="-parameters" />
+      <module name="stores-inventory" options="-parameters" />
+    </option>
+  </component>
+</project>

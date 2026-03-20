@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Suspended</title>
+    <script src="https://js.paystack.co/v1/inline.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: #343a40;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .suspended-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            max-width: 500px;
+            text-align: center;
+        }
+        h1 {
+            color: #dc3545;
+            margin-bottom: 1rem;
+        }
+        p {
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+        .reactivate-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .reactivate-btn:hover {
+            background-color: #218838;
+        }
+        .hidden {
+            display: none;
+        }
+
+    </style>
+</head>
+<body>
+<span class="hidden" id="user" th:text="${userName}"></span>
+<div class="suspended-container">
+    <h1>Account Suspended</h1>
+    <p>This institutional account has been suspended due to unpaid fees. Please contact your administrator or reactivate your
+        account.</p>
+    <p id="plan" class="hidden"> Student size  <span th:text="${population}"></span></p>
+    <p id="population" class="hidden"> Current Subscription Plan  <span th:text="${plan}"></span></p>
+
+    <button id="reactivateBtn" class="hidden reactivate-btn">
+        Reactivate Account
+    </button>
+
+    <p id="contactSupport" th:text="${email}">Contact support at support@astromyllc.com</p>
+</div>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+
+    // Extract username from URL or storage
+    const urlParams = new URLSearchParams(window.location.search);
+    const username = /*[[${userName}]]*/ 'default_username';
+    const adminEmail = /*[[${email}]]*/ 'default_username';
+
+    // Check if user is admin (with null safety)
+    const isAdmin = (username || '').toLowerCase().includes('admin');
+
+    // Get the reactivate button
+    const reactivateBtn = document.getElementById('reactivateBtn');
+    const contactSupport = document.getElementById('contactSupport');
+    const plan = document.getElementById('plan');
+    const population = document.getElementById('population');
+
+    // Show button only for admin users (with element existence check)
+    if (isAdmin && reactivateBtn && contactSupport) {
+        reactivateBtn.classList.remove('hidden');
+        plan.classList.remove('hidden');
+        population.classList.remove('hidden');
+        contactSupport.classList.add('hidden');
+    }
+
+    // Paystack payment handler (with null checks)
+    if (reactivateBtn) {
+        reactivateBtn.addEventListener('click', function() {
+            const amount = /*[[${bill}]]*/ 0 * 100; // Fallback to 0 if bill is null
+
+            const handler = PaystackPop.setup({
+                key: 'pk_live_0052622a46fdb8e0e50f2c601cd1e18bb6bf502e',
+                email: adminEmail,
+                amount: amount*100,
+                currency: 'GHS',
+                ref: 'REACT_' + username + '_' + new Date().getTime(),
+                metadata: {
+                    custom_fields: [{
+                        display_name: "username",
+                        variable_name: "username",
+                        value: /*[[${institutionId}]]*/
+                    }]
+                },
+                onClose: function() {
+                    alert('Payment window closed');
+                },
+                callback: function(response) {
+                    alert('Payment completed! Reference: ' + response.reference);
+                    window.location.href = '/account/reactivated?reference=' + response.reference;
+                }
+            });
+            handler.openIframe();
+        });
+    }
+    /*]]>*/
+
+</script>
+</body>
+</html>
