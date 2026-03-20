@@ -1,5 +1,3 @@
-
-
 eureka:
   client:
     serviceUrl:
@@ -29,6 +27,8 @@ server:
   port: 8083
 
 spring:
+  config:
+    import: "optional:file:.env[.properties],optional:file:../.env[.properties]"
   main:
     web-application-type: reactive
   application:

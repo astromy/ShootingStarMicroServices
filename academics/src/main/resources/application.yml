@@ -12,6 +12,8 @@ gateway:
   host: ${APIGATEWAY:http://localhost:8083}
 
 spring:
+  config:
+    import: "optional:file:.env[.properties],optional:file:../.env[.properties]"
   cloud:
     compatibility-verifier:
       enabled: false
@@ -24,7 +26,7 @@ spring:
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/shootingstar_academics
-    username: astromyllc
+    username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     initialization-mode: always
   jpa:

@@ -1,4 +1,6 @@
 spring:
+  config:
+    import: "optional:file:.env[.properties],optional:file:../.env[.properties]"
   data:
     mongodb:
       uri: mongodb://localhost:27017/administration-pta
@@ -107,3 +109,4 @@ keycloak:
 
 paystack:
   secrete: ${PAYSTACK_SECRET_KEY}
+  webhook-secret: ${STRIPE_WEBHOOK_SECRET}

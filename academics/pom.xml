@@ -88,6 +88,10 @@
             <artifactId>hibernate-core</artifactId>
             <version>6.2.6.Final</version>
         </dependency>
+        <dependency>
+            <groupId>me.paulschwarz</groupId>
+            <artifactId>spring-dotenv</artifactId>
+        </dependency>
 
     </dependencies>
 

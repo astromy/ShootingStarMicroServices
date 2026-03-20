@@ -25,6 +25,8 @@ eureka:
 
 
 spring:
+  config:
+    import: "optional:file:.env[.properties],optional:file:../.env[.properties]"
   web:
     error:
       include-stacktrace: always
@@ -46,7 +48,7 @@ spring:
         registration:
           ShootingStar:
             client-id: astroauthauth
-            client-secret: KEYCLOAK_CLIENT_SECRET_PLACEHOLDER
+            client-secret: KEYCLOAK-CLIENT-SECRET
             authorization-grant-type: authorization_code
             redirect-uri: "{baseUrl}/login/oauth2/code/astroauthauth"
             scope:
@@ -86,3 +88,9 @@ keycloak:
             - webhook/subscriptionPaymentStatus
       oauth2:
         enabled: false
+
+
+
+paystack:
+  secrete: ${PAYSTACK_SECRET_KEY}
+  webhook-secret: ${STRIPE_WEBHOOK_SECRET}

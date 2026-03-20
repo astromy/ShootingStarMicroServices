@@ -1,8 +1,10 @@
 spring:
+  config:
+    import: "optional:file:.env[.properties],optional:file:../.env[.properties]"
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/shootingstarsetup  # URL for the created database
-    username: astromyllc
+    username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     initialization-mode: always
   jpa:
