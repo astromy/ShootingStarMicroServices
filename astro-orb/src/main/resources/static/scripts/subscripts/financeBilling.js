@@ -853,7 +853,7 @@
 
         var s = document.createElement("script");
         s.type = "text/javascript";
-        s.src = "scripts/subscripts/_financeBilling.js";   // adjust if needed
+        s.src = "scripts/_financeBilling.js";
 
         s.onload = function () {
             if (window.billingData && window.billingState) {
@@ -865,7 +865,7 @@
         };
 
         s.onerror = function () {
-            console.error("[financeBilling] Could not load scripts/subscripts/_financeBilling.js");
+            console.error("[financeBilling] Could not load scripts/_financeBilling.js");
         };
 
         document.body.appendChild(s);
