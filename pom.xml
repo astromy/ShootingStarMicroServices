@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.1.2</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>google-maven-central</id>
+            <url>https://plugins.gradle.org/m2/</url>
+        </pluginRepository>
+    </pluginRepositories>
+
+    <groupId>com.astromyllc.shootingstar</groupId>
+    <artifactId>ParentShootingStar</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <modules>
+        <module>online-application</module>
+        <module>shootingstar_setup</module>
+        <module>discoveryserver</module>
+        <module>astro-api-gateway</module>
+        <module>hr-service</module>
+        <module>finance</module>
+        <module>clinic</module>
+        <module>accommodation</module>
+        <module>stores-inventory</module>
+        <module>academics</module>
+        <module>administration-pta</module>
+        <module>astro-preorder</module>
+        <module>astro-admission-acceptance</module>
+        <module>astro-online-application</module>
+        <module>astro-orb</module>
+    </modules>
+
+    <properties>
+        <maven.compiler.source>20</maven.compiler.source>
+        <maven.compiler.target>20</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <spring-cloud.version>2022.0.4</spring-cloud.version>
+        <!-- <spring-cloud.version>2021.0.3</spring-cloud.version>-->
+
+        <username>astromyllc</username>
+        <password>${DB_PASSWORD}</password>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers-bom</artifactId>
+                <version>1.18.3</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <!-- Fix invalid maven-site-plugin:3.3 resolution -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-site-plugin</artifactId>
+                    <version>3.12.1</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                    <layers>
+                        <enabled>true</enabled>
+                    </layers>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.google.cloud.tools</groupId>
+                <artifactId>jib-maven-plugin</artifactId>
+                <version>3.4.0</version>
+                <configuration>
+                    <from>
+                        <image>eclipse-temurin:20-jre-alpine</image>
+                        <auth>
+                            <username>astromyllc</username>
+                            <password>${DB_PASSWORD}</password>
+                        </auth>
+                    </from>
+                    <to>
+                        <image>registry.hub.docker.com/astromyllc/${project.artifactId}</image>
+                        <tags>
+                            <tag>0.012b</tag>
+                        </tags>
+                        <auth>
+                            <username>astromyllc</username>
+                            <password>${DB_PASSWORD}</password>
+                        </auth>
+                    </to>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

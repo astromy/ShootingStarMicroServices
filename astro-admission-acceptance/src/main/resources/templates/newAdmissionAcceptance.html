@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, maximum-scale=1.0, user-scalable=yes">
+
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+
+    <!-- Page title -->
+    <title>Prospectus | Orb</title>
+
+    <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+    <link rel="shortcut icon" type="image/ico" href="./images/favicon.ico"/>
+
+    <link rel="stylesheet" href="vendor/animate.css/animate.css"/>
+    <link rel="stylesheet" href="vendor/sweetalert/lib/sweet-alert.css"/>
+    <link rel="stylesheet" href="styles/style.css">
+    <link rel="stylesheet" href="styles/font-awsome.css">
+    <link rel="stylesheet" href="vendor/bootstrap/dist/css/bootstrap.css"/>
+    <link rel="stylesheet" href="vendor/ladda/dist/ladda-themeless.min.css"/>
+
+</head>
+<body>
+
+<!-- Simple splash screen-->
+<div class="splash">
+    <div class="color-line"></div>
+    <div class="splash-title"><h1>Orb - school application</h1>
+        <p>Morden Basic School application. </p>
+        <div class="spinner">
+            <div class="rect1"></div>
+            <div class="rect2"></div>
+            <div class="rect3"></div>
+            <div class="rect4"></div>
+            <div class="rect5"></div>
+        </div>
+    </div>
+</div>
+<!--[if lt IE 7]>
+<p class="alert alert-danger">You are using an <strong>outdated</strong> browser. Please <a
+        href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+<![endif]-->
+
+<!-- Main Wrapper -->
+<div id="wrapper">
+
+    <div class="color-line">
+    </div>
+
+    <div class="small-header">
+        <div class="hpanel">
+            <div class="panel-body">
+                <h2 class="font-light m-b-xs">
+                    Student Data Capturing
+                </h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="content animate-panel">
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="hpanel">
+                    <div class="panel-body">
+
+                        <!--<form name="simpleForm" novalidate="novalidate" id="simpleForm" role="form">-->
+
+                        <div class="text-center m-b-md" id="wizardControl">
+
+                            <a class="btn btn-primary wizardTabs" data-toggle="tab">Step 1 - School Selection</a>
+                            <a class="btn btn-default wizardTabs" data-toggle="tab">Step 2 - Student Bio Data</a>
+                            <a class="btn btn-default wizardTabs" data-toggle="tab">Step 3 - Parent Bio Data</a>
+                            <a class="btn btn-default wizardTabs" data-toggle="tab">Step 4 - Subject Selection</a>
+                            <a class="btn btn-default wizardTabs" data-toggle="tab">Step 5 - Approval</a>
+
+                        </div>
+
+                        <div class="tab-content">
+
+                            <div class="p-m tab-pane active">
+
+                                <div class="container">
+                                    <div class="controls">
+                                        <div class="row">
+                                            <div class="col-md-5 mb-3">
+                                                <div class="search-box">
+                                                    <i class="fas fa-search"></i>
+                                                    <input type="text" class="form-control" id="search-input"
+                                                           placeholder="Search schools by name or location...">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-2 mb-3">
+                                                <select class="form-control" id="region-filter">
+                                                    <option value="">All Regions</option>
+                                                    <option value="Greater Accra">Greater Accra</option>
+                                                    <option value="Ashanti">Ashanti</option>
+                                                    <option value="Western">Western</option>
+                                                    <option value="Central">Central</option>
+                                                    <option value="Eastern">Eastern</option>
+                                                    <option value="Volta">Volta</option>
+                                                    <option value="Northern">Northern</option>
+                                                    <option value="Upper East">Upper East</option>
+                                                    <option value="Upper West">Upper West</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-2 mb-3">
+                                                <select class="form-control" id="program-filter">
+                                                    <option value="">All Program Types</option>
+                                                    <option value="General Arts">General Arts</option>
+                                                    <option value="General Science">General Science</option>
+                                                    <option value="Business">Business</option>
+                                                    <option value="Visual Arts">Visual Arts</option>
+                                                    <option value="Home Economics">Home Economics</option>
+                                                    <option value="Technical">Technical</option>
+                                                    <option value="Agriculture">Agriculture</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-3 mb-3">
+                                                <div class="search-box">
+                                                    <i class="fas fa-id-card"></i>
+                                                    <input type="text" class="form-control" id="studentID"
+                                                           placeholder="Enter Student ID">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="schools-grid" id="schools-container">
+                                        <!-- Schools will be generated here by JavaScript -->
+                                    </div>
+
+                                </div>
+
+
+                                <div class="text-right m-t-xs" style="display:none">
+                                    <a class="btn btn-default prev" href="#" title="dropdown">Previous</a>
+                                    <a class="btn btn-default next" href="#" title="dropdown">Next</a>
+                                </div>
+
+                            </div>
+
+                            <div class="p-m tab-pane">
+                                <!-- <form name="simpleForm" id="simpleForm" action="">-->
+                                <form id="institutionForm" role="form">
+                                    <div class="row">
+                                        <div class="col-lg-3 text-center">
+                                            <i class="fa fa-university fa-5x text-gradien"></i>
+                                            <p class="small m-t-md">
+                                                <strong>Astromy LLC's Orb</strong> is a comprehensive school
+                                                management system designed with just the needs of the schools in
+                                                mind.
+                                                <br/><br/>Student Data Capturing means no stress in providing your dream
+                                                SHS with your Bio data
+                                            </p>
+                                        </div>
+                                        <div class="col-lg-9">
+                                            <div class="row">
+                                                <div class="form-group col-lg-6">
+                                                    <label for="studFName">First Name</label>
+                                                    <input type="text" autocomplete="off" id="studFName"
+                                                           class="form-control" placeholder="Student First Name"
+                                                           name="studFName" minlength="2">
+                                                </div>
+                                                <div class="form-group col-lg-6">
+                                                    <label for="studSurName">Sur Name</label>
+                                                    <input type="text" autocomplete="off" required id="studSurName"
+                                                           class="form-control" placeholder="Student Last Name"
+                                                           name="studSurName"
+                                                           minlength="3">
+                                                </div>
+                                                <div class="form-group col-lg-6">
+                                                    <label for="studOtherName">Other Name</label>
+                                                    <input type="text" required id="studOtherName" class="form-control"
+                                                           placeholder="Student Other Name(s)" name="studOtherName"
+                                                           minlength="5">
+                                                </div>
+                                                <div class="form-group col-lg-6">
+                                                    <label for="studGender">Gender</label>
+                                                    <select autocomplete="off" required id="studGender"
+                                                            class="form-control" name="studGender">
+                                                        <option> Select Student Gender</option>
+                                                        <option value="male"> Male</option>
+                                                        <option value="female"> Female</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-3 text-center">
+                                            <div>
+                                                <label for="studPic">Student Picture</label>
+                                            </div>
+                                            <output class="imageOutput" name="studPic" id="studPic"
+                                                    style="height: 220px; width:220px; border-radius: 10px;display: inline-block;"></output>
+                                            <input class="imageInput" type="file" id="studentPicture"
+                                                   style="width: 200px;padding: 12px;display: inline;"
+                                                   accept="image/jpeg, image/png, image/jpg">
+                                        </div>
+                                        <div class="col-lg-9">
+                                            <div class="row">
+                                                <div class="form-group col-lg-6">
+                                                    <label for="studDOB">Date of Birth</label>
+                                                    <input type="text" id="studDOB" class="form-control"
+                                                           placeholder="Date of Birth" name="studDOB"
+                                                           minlength="10">
+                                                </div>
+
+                                                <div class="form-group col-lg-6">
+                                                    <label for="studDOA">Date of Admission</label>
+                                                    <input type="text" required id="studDOA" class="form-control"
+                                                           placeholder="Date of Admission" name="studDOA"
+                                                           minlength="10">
+                                                </div>
+                                                <div class="form-group col-lg-6">
+                                                    <label for="placeOfBirth">Plae of Birth</label>
+                                                    <input type="text" required id="placeOfBirth" class="form-control"
+                                                           placeholder="Place of Birth" name="placeOfBirth"
+                                                           minlength="5">
+                                                </div>
+                                                <div class="form-group col-lg-6">
+                                                    <label for="cob">Country of Birth</label>
+                                                    <select required id="cob"
+                                                            class="form-control" name="cob">
+                                                        <option>Select Country of Birth</option>
+                                                    </select>
+                                                </div>
+
+                                                <div class="form-group col-lg-6">
+                                                    <label for="studResidence">Residential Locality</label>
+                                                    <input type="text" required id="studResidence" class="form-control"
+                                                           name="studResidence" placeholder="Place of Residence">
+                                                </div>
+
+                                                <div class="form-group col-lg-6">
+                                                    <label for="denomination">Denomination</label>
+                                                    <input type="text" required id="denomination"
+                                                           class="form-control" name="denomination"
+                                                           placeholder="Student Denomination">
+                                                </div>
+
+                                                <div>
+                                                    <button id="instSubmit" class="btn btn-sm btn-primary m-t-n-xs"
+                                                            style="visibility: hidden;" type="submit">
+                                                        <strong>Submit</strong></button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                                <!-- <input id="fsubmit" type="submit" style="display: none;"></input>
+                                 </form>-->
+
+                                <div class="text-right m-t-xs">
+                                    <a class="btn btn-default prev">Previous</a>
+                                    <a class="btn btn-default next">Next</a>
+                                </div>
+
+                            </div>
+
+                            <div class="p-m tab-pane">
+                                <div class="header">
+                                    <h1><i class="fas fa-users"></i> Parent Details Form</h1>
+                                    <p>Please provide accurate information for both parents/guardians</p>
+                                </div>
+
+
+                                <form id="parentsDetailForm" role="form">
+                                    <!-- Father's Section -->
+                                    <div class="father-section">
+                                        <div class="section-title">
+                                            <i class="fas fa-male"></i> Father's Details
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-lg-4">
+                                                <div class="info-card">
+                                                    <i class="fas fa-user-tie"></i>
+                                                    <h5>Father's Information</h5>
+                                                    <p class="small">
+                                                        Please provide accurate details of the father as they appear on
+                                                        official documents.
+                                                        All fields marked with an asterisk (<span
+                                                            class="text-danger">*</span>) are required.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-8">
+                                                <div class="row">
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="fatherFirstName" class="form-label required-field">First
+                                                            Name</label>
+                                                        <input type="text" class="form-control" id="fatherFirstName"
+                                                               placeholder="Father's first name" required>
+                                                    </div>
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="fatherLastName" class="form-label required-field">Last
+                                                            Name</label>
+                                                        <input type="text" class="form-control" id="fatherLastName"
+                                                               placeholder="Father's last name" required>
+                                                    </div>
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="fatherEmail" class="form-label required-field">Email
+                                                            Address</label>
+                                                        <input type="email" class="form-control" id="fatherEmail"
+                                                               placeholder="Father's email address" required>
+                                                    </div>
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="fatherContact1" class="form-label required-field">Primary
+                                                            Contact</label>
+                                                        <input type="tel" class="form-control" id="fatherContact1"
+                                                               placeholder="Primary phone number" required>
+                                                    </div>
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="fatherContact2" class="form-label">Secondary
+                                                            Contact</label>
+                                                        <input type="tel" class="form-control" id="fatherContact2"
+                                                               placeholder="Secondary phone number">
+                                                    </div>
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="fatherOccupation" class="form-label required-field">Occupation</label>
+                                                        <input type="text" class="form-control" id="fatherOccupation"
+                                                               placeholder="Father's occupation" required>
+                                                    </div>
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="fatherPlaceOfWork"
+                                                               class="form-label required-field">Place of Work</label>
+                                                        <input type="text" class="form-control" id="fatherPlaceOfWork"
+                                                               placeholder="Father's place of work" required>
+                                                    </div>
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="fatherType" class="form-label required-field">Parent
+                                                            Type</label>
+                                                        <select class="form-control" id="fatherType" required>
+                                                            <option value="">Select parent type</option>
+                                                            <option value="Biological">Biological Father</option>
+                                                            <option value="Guardian">Guardian</option>
+                                                            <option value="Stepfather">Stepfather</option>
+                                                            <option value="Other">Other</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Mother's Section -->
+                                    <div class="mother-section">
+                                        <div class="section-title">
+                                            <i class="fas fa-female"></i> Mother's Details
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-lg-4">
+                                                <div class="info-card">
+                                                    <i class="fas fa-user-female"></i>
+                                                    <h5>Mother's Information</h5>
+                                                    <p class="small">
+                                                        Please provide accurate details of the mother as they appear on
+                                                        official documents.
+                                                        All fields marked with an asterisk (<span
+                                                            class="text-danger">*</span>) are required.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-8">
+                                                <div class="row">
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="motherFirstName" class="form-label required-field">First
+                                                            Name</label>
+                                                        <input type="text" class="form-control" id="motherFirstName"
+                                                               placeholder="Mother's first name" required>
+                                                    </div>
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="motherLastName" class="form-label required-field">Last
+                                                            Name</label>
+                                                        <input type="text" class="form-control" id="motherLastName"
+                                                               placeholder="Mother's last name" required>
+                                                    </div>
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="motherEmail" class="form-label required-field">Email
+                                                            Address</label>
+                                                        <input type="email" class="form-control" id="motherEmail"
+                                                               placeholder="Mother's email address" required>
+                                                    </div>
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="motherContact1" class="form-label required-field">Primary
+                                                            Contact</label>
+                                                        <input type="tel" class="form-control" id="motherContact1"
+                                                               placeholder="Primary phone number" required>
+                                                    </div>
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="motherContact2" class="form-label">Secondary
+                                                            Contact</label>
+                                                        <input type="tel" class="form-control" id="motherContact2"
+                                                               placeholder="Secondary phone number">
+                                                    </div>
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="motherOccupation" class="form-label required-field">Occupation</label>
+                                                        <input type="text" class="form-control" id="motherOccupation"
+                                                               placeholder="Mother's occupation" required>
+                                                    </div>
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="motherPlaceOfWork"
+                                                               class="form-label required-field">Place of Work</label>
+                                                        <input type="text" class="form-control" id="motherPlaceOfWork"
+                                                               placeholder="Mother's place of work" required>
+                                                    </div>
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="motherType" class="form-label required-field">Parent
+                                                            Type</label>
+                                                        <select class="form-control" id="motherType" required>
+                                                            <option value="">Select parent type</option>
+                                                            <option value="Biological">Biological Mother</option>
+                                                            <option value="Guardian">Guardian</option>
+                                                            <option value="Stepmother">Stepmother</option>
+                                                            <option value="Other">Other</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+
+
+                                <div class="text-right m-t-xs">
+                                    <a class="btn btn-default prev">Previous</a>
+                                    <a class="btn btn-default next">Next</a>
+                                </div>
+                            </div>
+
+                            <div class="p-m tab-pane">
+
+                                <div class="container">
+                                    <div class="selection-info">
+                                        <h4><i class="fas fa-info-circle me-2"></i>Selection Instructions</h4>
+                                        <p class="mb-1">- Click on any subject to select your program</p>
+                                        <p class="mb-1">- Select up to 4 elective subjects from your chosen program</p>
+                                        <p class="mb-0">- You cannot select subjects from multiple programs</p>
+                                    </div>
+
+                                    <div class="row">
+                                        <!-- General Arts -->
+                                        <div class="col-lg-6 col-md-6 mb-4">
+                                            <div class="program-card card" id="arts-card">
+                                                <div class="card-header">
+                                                    <span class="program-title"><i class="fas fa-paint-brush me-2"></i>General Arts</span>
+                                                    <span class="badge program-badge bg-light text-dark">Selected: <span
+                                                            id="arts-count">0</span>/4</span>
+                                                </div>
+                                                <div class="card-body">
+                                                    <h5 class="card-title">Elective Subjects (Select up to 4):</h5>
+                                                    <div class="subject-grid">
+                                                        <div class="subject-item">
+                                                            <input type="checkbox" class="form-check-input arts-subject"
+                                                                   id="arts1" name="arts-subject">
+                                                            <label class="form-check-label ms-2" for="arts1">Literature
+                                                                in English</label>
+                                                        </div>
+                                                        <div class="subject-item">
+                                                            <input type="checkbox" class="form-check-input arts-subject"
+                                                                   id="arts2" name="arts-subject">
+                                                            <label class="form-check-label ms-2" for="arts2">Ghanaian
+                                                                Language</label>
+                                                        </div>
+                                                        <div class="subject-item">
+                                                            <input type="checkbox" class="form-check-input arts-subject"
+                                                                   id="arts3" name="arts-subject">
+                                                            <label class="form-check-label ms-2"
+                                                                   for="arts3">French</label>
+                                                        </div>
+                                                        <div class="subject-item">
+                                                            <input type="checkbox" class="form-check-input arts-subject"
+                                                                   id="arts4" name="arts-subject">
+                                                            <label class="form-check-label ms-2"
+                                                                   for="arts4">Music</label>
+                                                        </div>
+                                                        <div class="subject-item">
+                                                            <input type="checkbox" class="form-check-input arts-subject"
+                                                                   id="arts5" name="arts-subject">
+                                                            <label class="form-check-label ms-2"
+                                                                   for="arts5">Economics</label>
+                                                        </div>
+                                                        <div class="subject-item">
+                                                            <input type="checkbox" class="form-check-input arts-subject"
+                                                                   id="arts6" name="arts-subject">
+                                                            <label class="form-check-label ms-2"
+                                                                   for="arts6">Geography</label>
+                                                        </div>
+                                                        <div class="subject-item">
+                                                            <input type="checkbox" class="form-check-input arts-subject"
+                                                                   id="arts7" name="arts-subject">
+                                                            <label class="form-check-label ms-2"
+                                                                   for="arts7">History</label>
+                                                        </div>
+                                                        <div class="subject-item">
+                                                            <input type="checkbox" class="form-check-input arts-subject"
+                                                                   id="arts8" name="arts-subject">
+                                                            <label class="form-check-label ms-2"
+                                                                   for="arts8">Government</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="core-subjects">
+                                                    <div class="core-title">Core Subjects:</div>
+                                                    <div>English, Mathematics, Integrated Science, Social Studies</div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- General Science -->
+                                        <div class="col-lg-6 col-md-6 mb-4">
+                                            <div class="program-card card" id="science-card">
+                                                <div class="card-header">
+                                                    <span class="program-title"><i class="fas fa-flask me-2"></i>General Science</span>
+                                                    <span class="badge program-badge bg-light text-dark">Selected: <span
+                                                            id="science-count">0</span>/4</span>
+                                                </div>
+                                                <div class="card-body">
+                                                    <h5 class="card-title">Elective Subjects (Select up to 4):</h5>
+                                                    <div class="subject-grid">
+                                                        <div class="subject-item">
+                                                            <input type="checkbox"
+                                                                   class="form-check-input science-subject"
+                                                                   id="science1" name="science-subject">
+                                                            <label class="form-check-label ms-2"
+                                                                   for="science1">Physics</label>
+                                                        </div>
+                                                        <div class="subject-item">
+                                                            <input type="checkbox"
+                                                                   class="form-check-input science-subject"
+                                                                   id="science2" name="science-subject">
+                                                            <label class="form-check-label ms-2" for="science2">Chemistry</label>
+                                                        </div>
+                                                        <div class="subject-item">
+                                                            <input type="checkbox"
+                                                                   class="form-check-input science-subject"
+                                                                   id="science3" name="science-subject">
+                                                            <label class="form-check-label ms-2"
+                                                                   for="science3">Biology</label>
+                                                        </div>
+                                                        <div class="subject-item">
+                                                            <input type="checkbox"
+                                                                   class="form-check-input science-subject"
+                                                                   id="science4" name="science-subject">
+                                                            <label class="form-check-label ms-2" for="science4">Elective
+                                                                Mathematics</label>
+                                                        </div>
+                                                        <div class="subject-item">
+                                                            <input type="checkbox"
+                                                                   class="form-check-input science-subject"
+                                                                   id="science5" name="science-subject">
+                                                            <label class="form-check-label ms-2" for="science5">Agriculture
+                                                                Science</label>
+                                                        </div>
+                                                        <div class="subject-item">
+                                                            <input type="checkbox"
+                                                                   class="form-check-input science-subject"
+                                                                   id="science6" name="science-subject">
+                                                            <label class="form-check-label ms-2" for="science6">Animal
+                                                                Husbandry</label>
+                                                        </div>
+                                                        <div class="subject-item">
+                                                            <input type="checkbox"
+                                                                   class="form-check-input science-subject"
+                                                                   id="science7" name="science-subject">
+                                                            <label class="form-check-label ms-2" for="science7">Fisheries</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="core-subjects">
+                                                    <div class="core-title">Core Subjects:</div>
+                                                    <div>English, Mathematics, Integrated Science, Social Studies</div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Business -->
+                                        <div class="col-lg-6 col-md-6 mb-4">
+                                            <div class="program-card card" id="business-card">
+                                                <div class="card-header">
+                                                    <span class="program-title"><i class="fas fa-chart-line me-2"></i>Business</span>
+                                                    <span class="badge program-badge bg-light text-dark">Selected: <span
+                                                            id="business-count">0</span>/4</span>
+                                                </div>
+                                                <div class="card-body">
+                                                    <h5 class="card-title">Elective Subjects (Select up to 4):</h5>
+                                                    <div class="subject-grid">
+                                                        <div class="subject-item">
+                                                            <input type="checkbox"
+                                                                   class="form-check-input business-subject"
+                                                                   id="business1" name="business-subject">
+                                                            <label class="form-check-label ms-2" for="business1">Financial
+                                                                Accounting</label>
+                                                        </div>
+                                                        <div class="subject-item">
+                                                            <input type="checkbox"
+                                                                   class="form-check-input business-subject"
+                                                                   id="business2" name="business-subject">
+                                                            <label class="form-check-label ms-2" for="business2">Cost
+                                                                Accounting</label>
+                                                        </div>
+                                                        <div class="subject-item">
+                                                            <input type="checkbox"
+                                                                   class="form-check-input business-subject"
+                                                                   id="business3" name="business-subject">
+                                                            <label class="form-check-label ms-2" for="business3">Business
+                                                                Management</label>
+                                                        </div>
+                                                        <div class="subject-item">
+                                                            <input type="checkbox"
+                                                                   class="form-check-input business-subject"
+                                                                   id="business4" name="business-subject">
+                                                            <label class="form-check-label ms-2" for="business4">Economics</label>
+                                                        </div>
+                                                        <div class="subject-item">
+                                                            <input type="checkbox"
+                                                                   class="form-check-input business-subject"
+                                                                   id="business5" name="business-subject">
+                                                            <label class="form-check-label ms-2" for="business5">Elective
+                                                                Mathematics</label>
+                                                        </div>
+                                                        <div class="subject-item">
+                                                            <input type="checkbox"
+                                                                   class="form-check-input business-subject"
+                                                                   id="business6" name="business-subject">
+                                                            <label class="form-check-label ms-2" for="business6">Office
+                                                                Practice</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="core-subjects">
+                                                    <div class="core-title">Core Subjects:</div>
+                                                    <div>English, Mathematics, Integrated Science, Social Studies</div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Visual Arts -->
+                                        <div class="col-lg-6 col-md-6 mb-4">
+                                            <div class="program-card card" id="visual-arts-card">
+                                                <div class="card-header">
+                                                    <span class="program-title"><i class="fas fa-palette me-2"></i>Visual Arts</span>
+                                                    <span class="badge program-badge bg-light text-dark">Selected: <span
+                                                            id="visual-arts-count">0</span>/4</span>
+                                                </div>
+                                                <div class="card-body">
+                                                    <h5 class="card-title">Elective Subjects (Select up to 4):</h5>
+                                                    <div class="subject-grid">
+                                                        <div class="subject-item">
+                                                            <input type="checkbox"
+                                                                   class="form-check-input visual-arts-subject"
+                                                                   id="visual1" name="visual-arts-subject">
+                                                            <label class="form-check-label ms-2" for="visual1">General
+                                                                Knowledge in Art</label>
+                                                        </div>
+                                                        <div class="subject-item">
+                                                            <input type="checkbox"
+                                                                   class="form-check-input visual-arts-subject"
+                                                                   id="visual2" name="visual-arts-subject">
+                                                            <label class="form-check-label ms-2" for="visual2">Graphic
+                                                                Design</label>
+                                                        </div>
+                                                        <div class="subject-item">
+                                                            <input type="checkbox"
+                                                                   class="form-check-input visual-arts-subject"
+                                                                   id="visual3" name="visual-arts-subject">
+                                                            <label class="form-check-label ms-2" for="visual3">Picture
+                                                                Making</label>
+                                                        </div>
+                                                        <div class="subject-item">
+                                                            <input type="checkbox"
+                                                                   class="form-check-input visual-arts-subject"
+                                                                   id="visual4" name="visual-arts-subject">
+                                                            <label class="form-check-label ms-2"
+                                                                   for="visual4">Sculpture</label>
+                                                        </div>
+                                                        <div class="subject-item">
+                                                            <input type="checkbox"
+                                                                   class="form-check-input visual-arts-subject"
+                                                                   id="visual5" name="visual-arts-subject">
+                                                            <label class="form-check-label ms-2"
+                                                                   for="visual5">Textiles</label>
+                                                        </div>
+                                                        <div class="subject-item">
+                                                            <input type="checkbox"
+                                                                   class="form-check-input visual-arts-subject"
+                                                                   id="visual6" name="visual-arts-subject">
+                                                            <label class="form-check-label ms-2"
+                                                                   for="visual6">Basketry</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="core-subjects">
+                                                    <div class="core-title">Core Subjects:</div>
+                                                    <div>English, Mathematics, Integrated Science, Social Studies</div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Home Economics -->
+                                        <div class="col-lg-6 col-md-6 mb-4">
+                                            <div class="program-card card" id="home-economics-card">
+                                                <div class="card-header">
+                                                    <span class="program-title"><i class="fas fa-utensils me-2"></i>Home Economics</span>
+                                                    <span class="badge program-badge bg-light text-dark">Selected: <span
+                                                            id="home-economics-count">0</span>/4</span>
+                                                </div>
+                                                <div class="card-body">
+                                                    <h5 class="card-title">Elective Subjects (Select up to 4):</h5>
+                                                    <div class="subject-grid">
+                                                        <div class="subject-item">
+                                                            <input type="checkbox"
+                                                                   class="form-check-input home-economics-subject"
+                                                                   id="home-eco1" name="home-economics-subject">
+                                                            <label class="form-check-label ms-2" for="home-eco1">Management
+                                                                in Living</label>
+                                                        </div>
+                                                        <div class="subject-item">
+                                                            <input type="checkbox"
+                                                                   class="form-check-input home-economics-subject"
+                                                                   id="home-eco2" name="home-economics-subject">
+                                                            <label class="form-check-label ms-2" for="home-eco2">Food
+                                                                and Nutrition</label>
+                                                        </div>
+                                                        <div class="subject-item">
+                                                            <input type="checkbox"
+                                                                   class="form-check-input home-economics-subject"
+                                                                   id="home-eco3" name="home-economics-subject">
+                                                            <label class="form-check-label ms-2" for="home-eco3">Clothing
+                                                                and Textiles</label>
+                                                        </div>
+                                                        <div class="subject-item">
+                                                            <input type="checkbox"
+                                                                   class="form-check-input home-economics-subject"
+                                                                   id="home-eco4" name="home-economics-subject">
+                                                            <label class="form-check-label ms-2" for="home-eco4">General
+                                                                Knowledge in Art</label>
+                                                        </div>
+                                                        <div class="subject-item">
+                                                            <input type="checkbox"
+                                                                   class="form-check-input home-economics-subject"
+                                                                   id="home-eco5" name="home-economics-subject">
+                                                            <label class="form-check-label ms-2"
+                                                                   for="home-eco5">Biology</label>
+                                                        </div>
+                                                        <div class="subject-item">
+                                                            <input type="checkbox"
+                                                                   class="form-check-input home-economics-subject"
+                                                                   id="home-eco6" name="home-economics-subject">
+                                                            <label class="form-check-label ms-2" for="home-eco6">Chemistry</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="core-subjects">
+                                                    <div class="core-title">Core Subjects:</div>
+                                                    <div>English, Mathematics, Integrated Science, Social Studies</div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Technical -->
+                                        <div class="col-lg-6 col-md-6 mb-4">
+                                            <div class="program-card card" id="technical-card">
+                                                <div class="card-header">
+                                                    <span class="program-title"><i class="fas fa-tools me-2"></i>Technical</span>
+                                                    <span class="badge program-badge bg-light text-dark">Selected: <span
+                                                            id="technical-count">0</span>/4</span>
+                                                </div>
+                                                <div class="card-body">
+                                                    <h5 class="card-title">Elective Subjects (Select up to 4):</h5>
+                                                    <div class="subject-grid">
+                                                        <div class="subject-item">
+                                                            <input type="checkbox"
+                                                                   class="form-check-input technical-subject" id="tech1"
+                                                                   name="technical-subject">
+                                                            <label class="form-check-label ms-2" for="tech1">Technical
+                                                                Drawing</label>
+                                                        </div>
+                                                        <div class="subject-item">
+                                                            <input type="checkbox"
+                                                                   class="form-check-input technical-subject" id="tech2"
+                                                                   name="technical-subject">
+                                                            <label class="form-check-label ms-2"
+                                                                   for="tech2">Metalwork</label>
+                                                        </div>
+                                                        <div class="subject-item">
+                                                            <input type="checkbox"
+                                                                   class="form-check-input technical-subject" id="tech3"
+                                                                   name="technical-subject">
+                                                            <label class="form-check-label ms-2"
+                                                                   for="tech3">Woodwork</label>
+                                                        </div>
+                                                        <div class="subject-item">
+                                                            <input type="checkbox"
+                                                                   class="form-check-input technical-subject" id="tech4"
+                                                                   name="technical-subject">
+                                                            <label class="form-check-label ms-2" for="tech4">Applied
+                                                                Electricity</label>
+                                                        </div>
+                                                        <div class="subject-item">
+                                                            <input type="checkbox"
+                                                                   class="form-check-input technical-subject" id="tech5"
+                                                                   name="technical-subject">
+                                                            <label class="form-check-label ms-2"
+                                                                   for="tech5">Electronics</label>
+                                                        </div>
+                                                        <div class="subject-item">
+                                                            <input type="checkbox"
+                                                                   class="form-check-input technical-subject" id="tech6"
+                                                                   name="technical-subject">
+                                                            <label class="form-check-label ms-2" for="tech6">Auto
+                                                                Mechanics</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="core-subjects">
+                                                    <div class="core-title">Core Subjects:</div>
+                                                    <div>English, Mathematics, Integrated Science, Social Studies</div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Agriculture -->
+                                        <div class="col-lg-6 col-md-6 mb-4">
+                                            <div class="program-card card" id="agriculture-card">
+                                                <div class="card-header">
+                                                    <span class="program-title"><i class="fas fa-leaf me-2"></i>Agriculture</span>
+                                                    <span class="badge program-badge bg-light text-dark">Selected: <span
+                                                            id="agriculture-count">0</span>/4</span>
+                                                </div>
+                                                <div class="card-body">
+                                                    <h5 class="card-title">Elective Subjects (Select up to 4):</h5>
+                                                    <div class="subject-grid">
+                                                        <div class="subject-item">
+                                                            <input type="checkbox"
+                                                                   class="form-check-input agriculture-subject"
+                                                                   id="agri1" name="agriculture-subject">
+                                                            <label class="form-check-label ms-2" for="agri1">Crop
+                                                                Husbandry</label>
+                                                        </div>
+                                                        <div class="subject-item">
+                                                            <input type="checkbox"
+                                                                   class="form-check-input agriculture-subject"
+                                                                   id="agri2" name="agriculture-subject">
+                                                            <label class="form-check-label ms-2" for="agri2">Horticulture</label>
+                                                        </div>
+                                                        <div class="subject-item">
+                                                            <input type="checkbox"
+                                                                   class="form-check-input agriculture-subject"
+                                                                   id="agri3" name="agriculture-subject">
+                                                            <label class="form-check-label ms-2" for="agri3">Animal
+                                                                Husbandry</label>
+                                                        </div>
+                                                        <div class="subject-item">
+                                                            <input type="checkbox"
+                                                                   class="form-check-input agriculture-subject"
+                                                                   id="agri4" name="agriculture-subject">
+                                                            <label class="form-check-label ms-2"
+                                                                   for="agri4">Fisheries</label>
+                                                        </div>
+                                                        <div class="subject-item">
+                                                            <input type="checkbox"
+                                                                   class="form-check-input agriculture-subject"
+                                                                   id="agri5" name="agriculture-subject">
+                                                            <label class="form-check-label ms-2"
+                                                                   for="agri5">Forestry</label>
+                                                        </div>
+                                                        <div class="subject-item">
+                                                            <input type="checkbox"
+                                                                   class="form-check-input agriculture-subject"
+                                                                   id="agri6" name="agriculture-subject">
+                                                            <label class="form-check-label ms-2" for="agri6">Agricultural
+                                                                Economics</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="core-subjects">
+                                                    <div class="core-title">Core Subjects:</div>
+                                                    <div>English, Mathematics, Integrated Science, Social Studies</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="text-right m-t-xs">
+                                    <button class="btn btn-outline-secondary" id="reset-btn">
+                                        <i class="fas fa-undo me-2"></i>Reset Selection
+                                    </button>
+                                    <a class="btn btn-default prev" href="#" title="dropdown">Previous</a>
+                                    <a class="btn btn-default next" href="#" title="dropdown">Next</a>
+                                </div>
+                            </div>
+
+                            <div class="tab-pane">
+                                <div class="row text-center m-t-lg m-b-lg">
+                                    <div class="col-lg-12">
+                                        <i class="pe-7s-check fa-5x text-muted"></i>
+                                        <p class="small m-t-md">
+                                            <strong>By submitting this form</strong> ,You are committing to an
+                                            agreement between your company <b><span id="client"></span></b>
+                                            and Astromy LLC <br/>to treate you as a customer who has placed a
+                                            request for our product under the following terms
+                                            <br/><a title="dropdown" class="tnc" data-toggle="modal"
+                                                    data-target="#termsAndConditionsModal">Read Terms</a>
+                                        </p>
+                                    </div>
+                                </div>
+
+
+                                <div class="text-right m-t-xs">
+                                    <a class="btn btn-default prev" href="#" title="dropdown">Previous</a>
+                                    <a class="btn btn-default next" href="#" title="dropdown">Next</a>
+                                    <button id="submitRequest" type="submit" class="ladda-button btn btn-success"
+                                            data-style="expand-left"><span class="ladda-label">Submit</span><span
+                                            class="ladda-spinner"></span>
+                                        <div class="ladda-progress" style="width: 0px;"></div>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <!--</form>-->
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+
+    </div>
+
+    <div class="modal fade hmodal-info" id="termsAndConditionsModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="color-line"></div>
+                <div class="modal-header">
+                    <h6 class="modal-title">Terms & Conditions</h6>
+                    <small class="font-bold">Terms and conditions governing the contract you are about to enter</small>
+                </div>
+                <div class="panel-body modalbody" id="modb">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" id="dismiss" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="printToPdf">Print Copy</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer-->
+    <footer class="footer">
+        <span class="pull-right">
+            ORB
+        </span>
+        <span class="fa fa-copyright"></span>
+        Astromy LLC 2013-<span id="copyrightYear"></span>
+    </footer>
+
+</div>
+
+
+<!-- Vendor scripts -->
+<script src="vendor/jquery/dist/jquery.min.js"></script>
+<script src="vendor/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="vendor/sweetalert/lib/sweet-alert.min.js"></script>
+<script src="vendor/ladda/dist/spin.min.js"></script>
+<script src="vendor/ladda/dist/ladda.min.js"></script>
+<script src="vendor/ladda/dist/ladda.jquery.min.js"></script>
+<script src="scripts/homer.js"></script>
+<script src="scripts/preorder.js"></script>
+
+<script>
+
+$(function () {
+
+// Bind normal buttons
+$( '.ladda-button' ).ladda( 'bind', { timeout: 2000 } );
+
+// Bind progress buttons and simulate loading progress
+Ladda.bind( '.progress-demo .ladda-button',{
+    callback: function( instance ){
+        var progress = 0;
+        var interval = setInterval( function(){
+            progress = Math.min( progress + Math.random() * 0.1, 1 );
+            instance.setProgress( progress );
+
+            if( progress === 1 ){
+                instance.stop();
+                clearInterval( interval );
+            }
+        }, 200 );
+    }
+});
+
+
+var l = $( '.ladda-button-demo' ).ladda();
+
+l.click(function(){
+    // Start loading
+    l.ladda( 'start' );
+
+    // Timeout example
+    // Do something in backend and then stop ladda
+    setTimeout(function(){
+        l.ladda('stop');
+    },12000)
+});
+
+});
+
+
+
+</script>
+
+</body>
+</html>
