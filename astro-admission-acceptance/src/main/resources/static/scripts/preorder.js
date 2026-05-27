@@ -1,17 +1,17 @@
 var selectPlan,
-  institution,
-  slogan,
-  country,
-  region,
-  city,
-  email,
-  contact1,
-  contact2,
-  bececode,
-  postalAddress,
-  streams,
-  population,
-  website;
+    institution,
+    slogan,
+    country,
+    region,
+    city,
+    email,
+    contact1,
+    contact2,
+    bececode,
+    postalAddress,
+    streams,
+    population,
+    website;
 var subjectJsonData = null;
 let selectedProgram = null;
 let currentStudentData = null
@@ -19,154 +19,153 @@ let currentStudentData = null
 const countries = ["Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Côte d'Ivoire", "Cabo Verde", "Cambodia", "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo (Congo-Brazzaville)", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czechia (Czech Republic)", "Democratic Republic of the Congo", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia", "Fiji", "Finland", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Holy See", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar (Burma)", "Namibia", "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Korea", "North Macedonia", "Norway", "Oman", "Pakistan", "Palau", "Palestine State", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Korea", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Tajikistan", "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States of America", "Uruguay", "Uzbekistan", "Vanuatu", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe"];
 
 
-
-$(".prev").click(function(){
-previous();
+$(".prev").click(function () {
+    previous();
 })
 
 function previous() {
-  var tabs = $(".tab-pane");
-  var tbs = $(".tab-pane.active");
-  tabs.removeClass("active");
-  var prevLi = tbs.prev().addClass("active");
+    var tabs = $(".tab-pane");
+    var tbs = $(".tab-pane.active");
+    tabs.removeClass("active");
+    var prevLi = tbs.prev().addClass("active");
 
-  var header = $(".wizardTabs");
-  var header1 = $(".wizardTabs.btn-primary");
-  header.removeClass("btn-primary");
-  header.addClass("btn-default");
-  header1.prev().removeClass("btn-default").addClass("btn-primary");
+    var header = $(".wizardTabs");
+    var header1 = $(".wizardTabs.btn-primary");
+    header.removeClass("btn-primary");
+    header.addClass("btn-default");
+    header1.prev().removeClass("btn-default").addClass("btn-primary");
 };
 
 $(".next").click(function () {
-if (!validateForm()) {
-    //previous();
-    return;
+    if (!validateForm()) {
+        //previous();
+        return;
     }
-  var tabs = $(".tab-pane");
-  var tbs = $(".tab-pane.active");
-  tabs.removeClass("active");
-  var nextLi = tbs.next().addClass("active");
+    var tabs = $(".tab-pane");
+    var tbs = $(".tab-pane.active");
+    tabs.removeClass("active");
+    var nextLi = tbs.next().addClass("active");
 
-  var header = $(".wizardTabs");
-  var header1 = $(".wizardTabs.btn-primary");
-  header.removeClass("btn-primary");
-  header.addClass("btn-default");
-  header1.next().removeClass("btn-default").addClass("btn-primary");
-  /*document.getElementById('client').innerHTML=document.getElementsByName('clientName')[0].value;
-       confdata();*/
+    var header = $(".wizardTabs");
+    var header1 = $(".wizardTabs.btn-primary");
+    header.removeClass("btn-primary");
+    header.addClass("btn-default");
+    header1.next().removeClass("btn-default").addClass("btn-primary");
+    /*document.getElementById('client').innerHTML=document.getElementsByName('clientName')[0].value;
+         confdata();*/
 });
 
 
-    // Initialize country select
-    const countrySelect = document.getElementById('cob');
-    countries.forEach(country => {
-        const option = document.createElement('option');
-        option.value = country;
-        option.textContent = country;
-        countrySelect.appendChild(option);
-    });
+// Initialize country select
+const countrySelect = document.getElementById('cob');
+countries.forEach(country => {
+    const option = document.createElement('option');
+    option.value = country;
+    option.textContent = country;
+    countrySelect.appendChild(option);
+});
 
-    // Set copyright year
-    document.getElementById('copyrightYear').textContent = new Date().getFullYear();
+// Set copyright year
+document.getElementById('copyrightYear').textContent = new Date().getFullYear();
 
 //TERMS AND CONDITIONS
 $(".tnc").click(function () {
-  document.getElementById("modb").innerHTML = contract;
-  /*document.getElementById('contractClient').innerHTML=$('[name="clientName"]').val();*/
-  document.getElementById("dtime").innerHTML = datetime();
+    document.getElementById("modb").innerHTML = contract;
+    /*document.getElementById('contractClient').innerHTML=$('[name="clientName"]').val();*/
+    document.getElementById("dtime").innerHTML = datetime();
 });
 
 $("#submitRequest").click(async function () {
-  var approve = $(".approveCheck").is(":checked");
- // if (approve) {
+    var approve = $(".approveCheck").is(":checked");
+    // if (approve) {
     var c = validateForm();
     if (c === true) {
-      // Got to step 1
-      //  $('[href=#step1]').tab('show');
-      //buildStudentPayload();
-      var jso = await buildStudentPayload();
-      // Serialize data to post method
-      var datastring = $("#simpleForm").serialize();
+        // Got to step 1
+        //  $('[href=#step1]').tab('show');
+        //buildStudentPayload();
+        var jso = await buildStudentPayload();
+        // Serialize data to post method
+        var datastring = $("#simpleForm").serialize();
 
-      // Show notification
-      //        Example code for post form
+        // Show notification
+        //        Example code for post form
 
-      var header = $("meta[name='_csrf_header']").attr("content");
-      var token = $("meta[name='_csrf']").attr("content");
+        var header = $("meta[name='_csrf_header']").attr("content");
+        var token = $("meta[name='_csrf']").attr("content");
 
-      $.ajax({
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        url: "postedStudentRegistration",
-        type: "POST",
-        data: JSON.stringify(jso),
-        beforeSend: function (xhr) {
-          xhr.setRequestHeader(header, token);
-        },
-        cache: false,
-        contentType: false,
-        processData: false,
-        xhr: function () {
-          var myXhr = $.ajaxSettings.xhr();
-          if (myXhr.upload) {
-            myXhr.upload.addEventListener(
-              "progress",
-              function (e) {
-                if (e.lengthComputable) {
-                  $("progress").attr({
-                    value: e.loaded,
-                    max: e.total,
-                  });
+        $.ajax({
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+            },
+            url: "postedStudentRegistration",
+            type: "POST",
+            data: JSON.stringify(jso),
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader(header, token);
+            },
+            cache: false,
+            contentType: false,
+            processData: false,
+            xhr: function () {
+                var myXhr = $.ajaxSettings.xhr();
+                if (myXhr.upload) {
+                    myXhr.upload.addEventListener(
+                        "progress",
+                        function (e) {
+                            if (e.lengthComputable) {
+                                $("progress").attr({
+                                    value: e.loaded,
+                                    max: e.total,
+                                });
+                            }
+                        },
+                        false
+                    );
                 }
-              },
-              false
-            );
-          }
-          return myXhr;
-        },
-        success: function (data) {
-          swal({
-            title: "Thank you!",
-            text: "Your application is being submitted",
-            type: "success",
-          });
-        },
-        error: function (errMsg) {
-          swal({
-            title: "Sorry!",
-            text: "Operation Failed",
-            type: "error",
-          });
-        },
-      });
+                return myXhr;
+            },
+            success: function (data) {
+                swal({
+                    title: "Thank you!",
+                    text: "Your application is being submitted",
+                    type: "success",
+                });
+            },
+            error: function (errMsg) {
+                swal({
+                    title: "Sorry!",
+                    text: "Operation Failed",
+                    type: "error",
+                });
+            },
+        });
 
-      /*$.post("preRequestInstitution", jso, function(data) {
+        /*$.post("preRequestInstitution", jso, function(data) {
 
-	})*/
+      })*/
     }
- /* } else {
-    // Show notification
-    swal({
-      title: "Error!",
-      text: "You have to first approve to the Terms and Conditions.",
-      type: "error",
-    });
-  }*/
+    /* } else {
+       // Show notification
+       swal({
+         title: "Error!",
+         text: "You have to first approve to the Terms and Conditions.",
+         type: "error",
+       });
+     }*/
 });
 
 $("#copyrightYear").text(getYear());
 
 
 function getBase64Image(img) {
-  var canvas = document.createElement("canvas");
-  canvas.width = img.width;
-  canvas.height = img.height;
-  var ctx = canvas.getContext("2d");
-  ctx.drawImage(img, 0, 0);
-  var dataURL = canvas.toDataURL("image/png");
-  return dataURL.split(",")[1].replace('"', "");
+    var canvas = document.createElement("canvas");
+    canvas.width = img.width;
+    canvas.height = img.height;
+    var ctx = canvas.getContext("2d");
+    ctx.drawImage(img, 0, 0);
+    var dataURL = canvas.toDataURL("image/png");
+    return dataURL.split(",")[1].replace('"', "");
 }
 
 
@@ -176,413 +175,234 @@ var verfyOutput = document.querySelector("#studentPicture");
 let imagesArray = [];
 
 input.addEventListener("change", () => {
-  const file = input.files;
-  imagesArray = [];
-  imagesArray.push(file[0]);
-  displayImages();
+    const file = input.files;
+    imagesArray = [];
+    imagesArray.push(file[0]);
+    displayImages();
 });
 
 function displayImages() {
-  let images = "";
-  imagesArray.forEach((image, index) => {
-    images += `<div class="studPic">
+    let images = "";
+    imagesArray.forEach((image, index) => {
+        images += `<div class="studPic">
                   <img src="${URL.createObjectURL(
-                    image
-                  )}" alt="image" id="studentPicture" class="studPic">
+            image
+        )}" alt="image" id="studentPicture" class="studPic">
                   <span onclick="deleteImage(${index})">&times;</span>
                 </div>`;
-  });
-  output.innerHTML = images;
-  verfyOutput = images;
+    });
+    output.innerHTML = images;
+    verfyOutput = images;
 }
 
 function deleteImage(index) {
-  imagesArray.splice(index, 1);
-  imagesArray = [];
-  displayImages();
+    imagesArray.splice(index, 1);
+    imagesArray = [];
+    displayImages();
 }
 
 function datetime() {
-  var objToday = new Date(),
-    weekday = new Array(
-      "Sunday",
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday"
-    ),
-    dayOfWeek = weekday[objToday.getDay()],
-    domEnder = (function () {
-      var a = objToday;
-      if (/1/.test(parseInt((a + "").charAt(0)))) return "th";
-      a = parseInt((a + "").charAt(1));
-      return 1 == a ? "st" : 2 == a ? "nd" : 3 == a ? "rd" : "th";
-    })(),
-    dayOfMonth =
-      today + (objToday.getDate() < 10)
-        ? "0" + objToday.getDate() + domEnder
-        : objToday.getDate() + domEnder,
-    months = new Array(
-      "January",
-      "February",
-      "March",
-      "April",
-      "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December"
-    ),
-    curMonth = months[objToday.getMonth()],
-    curYear = objToday.getFullYear(),
-    curHour =
-      objToday.getHours() > 12
-        ? objToday.getHours() - 12
-        : objToday.getHours() < 10
-        ? "0" + objToday.getHours()
-        : objToday.getHours(),
-    curMinute =
-      objToday.getMinutes() < 10
-        ? "0" + objToday.getMinutes()
-        : objToday.getMinutes(),
-    curSeconds =
-      objToday.getSeconds() < 10
-        ? "0" + objToday.getSeconds()
-        : objToday.getSeconds(),
-    curMeridiem = objToday.getHours() > 12 ? "PM" : "AM";
-  var today =
-    curHour +
-    ":" +
-    curMinute +
-    "." +
-    curSeconds +
-    curMeridiem +
-    " " +
-    dayOfWeek +
-    " " +
-    dayOfMonth +
-    " of " +
-    curMonth +
-    ", " +
-    curYear;
-  return objToday;
+    var objToday = new Date(),
+        weekday = new Array(
+            "Sunday",
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday"
+        ),
+        dayOfWeek = weekday[objToday.getDay()],
+        domEnder = (function () {
+            var a = objToday;
+            if (/1/.test(parseInt((a + "").charAt(0)))) return "th";
+            a = parseInt((a + "").charAt(1));
+            return 1 == a ? "st" : 2 == a ? "nd" : 3 == a ? "rd" : "th";
+        })(),
+        dayOfMonth =
+            today + (objToday.getDate() < 10)
+                ? "0" + objToday.getDate() + domEnder
+                : objToday.getDate() + domEnder,
+        months = new Array(
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December"
+        ),
+        curMonth = months[objToday.getMonth()],
+        curYear = objToday.getFullYear(),
+        curHour =
+            objToday.getHours() > 12
+                ? objToday.getHours() - 12
+                : objToday.getHours() < 10
+                    ? "0" + objToday.getHours()
+                    : objToday.getHours(),
+        curMinute =
+            objToday.getMinutes() < 10
+                ? "0" + objToday.getMinutes()
+                : objToday.getMinutes(),
+        curSeconds =
+            objToday.getSeconds() < 10
+                ? "0" + objToday.getSeconds()
+                : objToday.getSeconds(),
+        curMeridiem = objToday.getHours() > 12 ? "PM" : "AM";
+    var today =
+        curHour +
+        ":" +
+        curMinute +
+        "." +
+        curSeconds +
+        curMeridiem +
+        " " +
+        dayOfWeek +
+        " " +
+        dayOfMonth +
+        " of " +
+        curMonth +
+        ", " +
+        curYear;
+    return objToday;
 }
 
 function getYear() {
-  var objToday = new Date();
-  curYear = objToday.getFullYear();
-  return curYear;
+    var objToday = new Date();
+    curYear = objToday.getFullYear();
+    return curYear;
 }
 
 async function fetchAllInstitutions() {
-  try {
-    const response = await fetchPost("/fetchAllInstitutions", {});
-    const formattedSchools = formatSchoolsData(response);
-    return formattedSchools;
-  } catch (error) {
-    console.error("Error fetching and formatting schools:", error);
-    return [];
-  }
+    debugger;
+    try {
+        const response = await fetchPost("/fetchAllInstitutions", {});
+        const formattedSchools = formatSchoolsData(response);
+        return formattedSchools;
+    } catch (error) {
+        console.error("Error fetching and formatting schools:", error);
+        return [];
+    }
 }
 
 async function fetchStudent(studentID, institutionId, institutionName) {
-  try {
-  if(studentID.length<3){
-    document.querySelector("#studentID").focus();
-    document.querySelector("#studentID").style.border = "1px solid red";
-    return
-  }
-    const requestData = {
-      key: ["studentId", "institutionCode"],
-      val: [studentID, institutionId],
-    };
-    const response = await fetchPost("/fetchStudent", requestData);
+    try {
+        if (studentID.length < 3) {
+            document.querySelector("#studentID").focus();
+            document.querySelector("#studentID").style.border = "1px solid red";
+            return
+        }
+        const requestData = {
+            key: ["studentId", "institutionCode"],
+            val: [studentID, institutionId],
+        };
+        const response = await fetchPost("/fetchStudent", requestData);
 
-    // If response is null (404 or empty response), student not found
-    if (response === null) {
-      swal({
-        title: "Sorry!",
-        text:
-          "No record of student ID " +
-          studentID +
-          " found with Selected Institution " +
-          institutionName +
-          "\nPlease check and try again",
-        type: "info",
-      });
-      return null;
+        // If response is null (404 or empty response), student not found
+        if (response === null) {
+            swal({
+                title: "Sorry!",
+                text:
+                    "No record of student ID " +
+                    studentID +
+                    " found with Selected Institution " +
+                    institutionName +
+                    "\nPlease check and try again",
+                type: "info",
+            });
+            return null;
+        }
+
+        // Handle other empty responses
+        if (
+            response &&
+            typeof response === "object" &&
+            Object.keys(response).length === 0
+        ) {
+            swal({
+                title: "Sorry!",
+                text:
+                    "No record of student ID " +
+                    studentID +
+                    " found with Selected Institution " +
+                    institutionName +
+                    "\nPlease check and try again",
+                type: "info",
+            });
+            return null;
+        }
+
+        if (Array.isArray(response) && response.length === 0) {
+            swal({
+                title: "Sorry!",
+                text:
+                    "No record of student ID " +
+                    studentID +
+                    " found with Selected Institution " +
+                    institutionName +
+                    "\nPlease check and try again",
+                type: "info",
+            });
+            return null;
+        }
+
+        currentStudentData = response;
+        // If we get here, we have valid student data
+        populateStudentForm(response);
+
+        document.querySelector(".next").click();
+
+    } catch (error) {
+        // This will now catch only genuine errors (network issues, server errors, etc.)
+        console.error("Error fetching student data:", error.message);
+        return null;
     }
-
-    // Handle other empty responses
-    if (
-      response &&
-      typeof response === "object" &&
-      Object.keys(response).length === 0
-    ) {
-      swal({
-        title: "Sorry!",
-        text:
-          "No record of student ID " +
-          studentID +
-          " found with Selected Institution " +
-          institutionName +
-          "\nPlease check and try again",
-        type: "info",
-      });
-      return null;
-    }
-
-    if (Array.isArray(response) && response.length === 0) {
-      swal({
-        title: "Sorry!",
-        text:
-          "No record of student ID " +
-          studentID +
-          " found with Selected Institution " +
-          institutionName +
-          "\nPlease check and try again",
-        type: "info",
-      });
-      return null;
-    }
-
- currentStudentData = response;
-    // If we get here, we have valid student data
-    populateStudentForm(response);
-
-    document.querySelector(".next").click();
-
-  } catch (error) {
-    // This will now catch only genuine errors (network issues, server errors, etc.)
-    console.error("Error fetching student data:", error.message);
-    return null;
-  }
 }
-
-document.addEventListener("DOMContentLoaded", function () {
-  // Get all program cards and their checkboxes
-  const programCards = document.querySelectorAll(".program-card");
-  const resetBtn = document.getElementById("reset-btn");
-
-  // Get all subject groups
-  const subjectGroups = {
-    arts: document.querySelectorAll(".arts-subject"),
-    science: document.querySelectorAll(".science-subject"),
-    business: document.querySelectorAll(".business-subject"),
-    "visual-arts": document.querySelectorAll(".visual-arts-subject"),
-    "home-economics": document.querySelectorAll(".home-economics-subject"),
-    technical: document.querySelectorAll(".technical-subject"),
-    agriculture: document.querySelectorAll(".agriculture-subject"),
-  };
-
-  // Track total selected subjects
-  let totalSelected = 0;
-  const MAX_SELECTION = 4;
-  let selectedProg = null;
-  var selectedCount1 = null;
-
-  // Function to disable all subjects in all programs
-  function disableAllSubjects() {
-    debugger;
-    for (const program in subjectGroups) {
-      disableSubjects(subjectGroups[program]);
-    }
-  }
-
-  // Function to disable subjects in a program
-  function disableSubjects(subjects) {
-    subjects.forEach((subject) => {
-      subject.disabled = true;
-      subject.parentElement.classList.add("disabled");
-    });
-  }
-
-  // Function to enable subjects in a program
-  function enableSubjects(subjects) {
-    subjects.forEach((subject) => {
-      subject.disabled = false;
-      subject.parentElement.classList.remove("disabled");
-    });
-  }
-
-  // Function to update selection count
-  function updateSelectionCount(subjects, countElementId) {
-    const selectedCount = Array.from(subjects).filter(
-      (subject) => subject.checked
-    ).length;
-    document.getElementById(countElementId).textContent = selectedCount;
-    selectedProg = countElementId;
-    selectedCount1 = selectedCount;
-
-    // Update total selected count
-    totalSelected = Array.from(
-      document.querySelectorAll('input[type="checkbox"]')
-    ).filter((cb) => cb.checked).length;
-
-    // Enable/disable submit button based on selection
-    const anySelected = Array.from(
-      document.querySelectorAll('input[type="checkbox"]')
-    ).some((cb) => cb.checked);
-  }
-
-  // Function to reset all selections
-  function resetAllSelections() {
-    // Uncheck all checkboxes
-    document.querySelectorAll('input[type="checkbox"]').forEach((checkbox) => {
-      checkbox.checked = false;
-    });
-
-    // Enable all subjects
-    for (const program in subjectGroups) {
-      enableSubjects(subjectGroups[program]);
-    }
-
-    // Remove selected style from all cards
-    programCards.forEach((card) => {
-      card.classList.remove("selected-program");
-    });
-
-    // Reset counters
-    document.querySelectorAll('[id$="-count"]').forEach((el) => {
-      el.textContent = "0";
-    });
-
-    // Reset selected program
-    selectedProgram = null;
-  }
-
-  // Function to handle program selection
-  function selectProgram(programId, subjects) {
-    // If clicking the same program again, do nothing
-    if (selectedProgram === programId) return;
-
-    // Reset all selections first
-    resetAllSelections();
-
-    // Set the new selected program
-    selectedProgram = programId;
-
-    // Add selected style to this card
-    //document.getElementById(programId + '-card').classList.add('selected-program');
-
-    // Enable only the subjects in this program
-    enableSubjects(subjects);
-
-    // Disable all other subjects
-    for (const program in subjectGroups) {
-      if (program !== programId) {
-        disableSubjects(subjectGroups[program]);
-      }
-    }
-  }
-
-  // Add event listeners to checkboxes to handle program selection
-  for (const program in subjectGroups) {
-    subjectGroups[program].forEach((subject) => {
-      subject.addEventListener("click", function () {
-        if (!selectedProgram) {
-          selectProgram(program, subjectGroups[program]);
-        }
-        updateSelectionCount(subjectGroups[program], program + "-count");
-      });
-    });
-  }
-
-  // Function to create JSON output of selected subjects
-  function createSelectedSubjectsJSON() {
-    const selectedSubjects = [];
-
-    // Get all checked checkboxes
-    document
-      .querySelectorAll('input[type="checkbox"]:checked')
-      .forEach((checkbox) => {
-        selectedSubjects.push({
-          subject: checkbox.nextElementSibling.textContent.split("\n")[0],
-        });
-      });
-
-    return {
-      selectedSubjects: selectedSubjects,
-    };
-  }
-
-  // Add event listeners to checkboxes to handle program selection and limit
-  for (const program in subjectGroups) {
-    subjectGroups[program].forEach((subject) => {
-      subject.addEventListener("click", function () {
-        if (!selectedProgram) {
-          selectProgram(program, subjectGroups[program]);
-        }
-
-        // Enforce the 4 subject limit
-        if (totalSelected > MAX_SELECTION && this.checked) {
-          this.checked = false;
-          document.getElementById(selectedProg).textContent =
-            selectedCount1 - 1;
-          alert(`You can only select up to ${MAX_SELECTION} subjects.`);
-          return;
-        }
-
-        updateSelectionCount(subjectGroups[program], program + "-count");
-        exportJSON(); // Update JSON output on change
-      });
-    });
-  }
-
-  // Function to export JSON
-  function exportJSON() {
-    subjectJsonData = createSelectedSubjectsJSON();
-    //jsonResult.textContent = JSON.stringify(jsonData, null, 2);
-  }
-
-  // Reset button event listener
-  resetBtn.addEventListener("click", resetAllSelections);
-});
 
 //**************************************************************
 
 document.addEventListener("DOMContentLoaded", async function () {
-  const schoolsContainer = document.getElementById("schools-container");
-  const selectedSchoolElement = document.getElementById("selected-school");
-  const compareBtn = document.getElementById("compare-btn");
-  const viewBtn = document.getElementById("view-btn");
-  const searchInput = document.getElementById("search-input");
-  const regionFilter = document.getElementById("region-filter");
-  const programFilter = document.getElementById("program-filter");
+    const schoolsContainer = document.getElementById("schools-container");
+    const selectedSchoolElement = document.getElementById("selected-school");
+    const compareBtn = document.getElementById("compare-btn");
+    const viewBtn = document.getElementById("view-btn");
+    const searchInput = document.getElementById("search-input");
+    const regionFilter = document.getElementById("region-filter");
+    const programFilter = document.getElementById("program-filter");
 
-  let selectedSchool = null;
+    let selectedSchool = null;
 
-  const schools = await fetchAllInstitutions();
+    const schools = await fetchAllInstitutions();
 
-  // Function to generate school cards
-  function generateSchoolCards(schoolsArray) {
-    schoolsContainer.innerHTML = "";
+    // Function to generate school cards
+    function generateSchoolCards(schoolsArray) {
+        schoolsContainer.innerHTML = "";
 
-    if (schoolsArray.length === 0) {
-      schoolsContainer.innerHTML = `
+        if (schoolsArray.length === 0) {
+            schoolsContainer.innerHTML = `
                            <div class="no-results">
                                <i class="fas fa-search fa-3x mb-3"></i>
                                <h4>No schools found</h4>
                                <p>Try adjusting your search or filters</p>
                            </div>
                        `;
-      return;
-    }
+            return;
+        }
 
-    schoolsArray.forEach((school) => {
-      const programTags = school.programs
-        .map((program) => `<span class="program-tag">${program}</span>`)
-        .join("");
+        schoolsArray.forEach((school) => {
+            const programTags = school.programs
+                .map((program) => `<span class="program-tag">${program}</span>`)
+                .join("");
 
-      const schoolCard = document.createElement("div");
-      schoolCard.className = "school-card";
-      schoolCard.dataset.id = school.id;
-      schoolCard.innerHTML = `
+            const schoolCard = document.createElement("div");
+            schoolCard.className = "school-card";
+            schoolCard.dataset.id = school.id;
+            schoolCard.innerHTML = `
                            <div class="school-image" style="background-color: ${school.color};">
                                <img src="${school.logo}" alt="${school.name} Logo" class="school-logo">
                            </div>
@@ -598,70 +418,70 @@ document.addEventListener("DOMContentLoaded", async function () {
                            </div>
                        `;
 
-      schoolsContainer.appendChild(schoolCard);
-    });
+            schoolsContainer.appendChild(schoolCard);
+        });
 
-    // Add click event to all school cards
-    document.querySelectorAll(".school-card").forEach((card) => {
-      card.addEventListener("click", async function () {
-        // Remove selected class from all cards
-        document
-          .querySelectorAll(".school-card")
-          .forEach((c) => c.classList.remove("selected"));
+        // Add click event to all school cards
+        document.querySelectorAll(".school-card").forEach((card) => {
+            card.addEventListener("click", async function () {
+                // Remove selected class from all cards
+                document
+                    .querySelectorAll(".school-card")
+                    .forEach((c) => c.classList.remove("selected"));
 
-        // Add selected class to clicked card
-        this.classList.add("selected");
+                // Add selected class to clicked card
+                this.classList.add("selected");
 
-        // Update selected school
-        const schoolId = this.dataset.id;
-        selectedSchool = schools.find((school) => school.id == schoolId);
-        institution = selectedSchool.bececode;
+                // Update selected school
+                const schoolId = this.dataset.id;
+                selectedSchool = schools.find((school) => school.id == schoolId);
+                institution = selectedSchool.bececode;
 
-        const student = await fetchStudent(
-          document.querySelector("#studentID").value,
-          selectedSchool.bececode,
-          selectedSchool.name
-        );
+                const student = await fetchStudent(
+                    document.querySelector("#studentID").value,
+                    selectedSchool.bececode,
+                    selectedSchool.name
+                );
 
-        // Enable buttons
-        /*compareBtn.disabled = false;
-                           viewBtn.disabled = false;*/
-      });
-    });
-  }
+                // Enable buttons
+                /*compareBtn.disabled = false;
+                                   viewBtn.disabled = false;*/
+            });
+        });
+    }
 
-  // Initial rendering of all schools
-  generateSchoolCards(schools);
+    // Initial rendering of all schools
+    generateSchoolCards(schools);
 
-  // Search functionality
-  searchInput.addEventListener("input", filterSchools);
+    // Search functionality
+    searchInput.addEventListener("input", filterSchools);
 
-  // Filter functionality
-  regionFilter.addEventListener("change", filterSchools);
-  programFilter.addEventListener("change", filterSchools);
+    // Filter functionality
+    regionFilter.addEventListener("change", filterSchools);
+    programFilter.addEventListener("change", filterSchools);
 
-  function filterSchools() {
-    const searchTerm = searchInput.value.toLowerCase();
-    const regionValue = regionFilter.value;
-    const programValue = programFilter.value;
+    function filterSchools() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const regionValue = regionFilter.value;
+        const programValue = programFilter.value;
 
-    const filteredSchools = schools.filter((school) => {
-      const matchesSearch =
-        school.name.toLowerCase().includes(searchTerm) ||
-        school.location.toLowerCase().includes(searchTerm);
+        const filteredSchools = schools.filter((school) => {
+            const matchesSearch =
+                school.name.toLowerCase().includes(searchTerm) ||
+                school.location.toLowerCase().includes(searchTerm);
 
-      const matchesRegion =
-        regionValue === "" || school.location.includes(regionValue);
+            const matchesRegion =
+                regionValue === "" || school.location.includes(regionValue);
 
-      const matchesProgram =
-        programValue === "" ||
-        school.programs.some((program) => program === programValue);
+            const matchesProgram =
+                programValue === "" ||
+                school.programs.some((program) => program === programValue);
 
-      return matchesSearch && matchesRegion && matchesProgram;
-    });
+            return matchesSearch && matchesRegion && matchesProgram;
+        });
 
-    generateSchoolCards(filteredSchools);
-  }
+        generateSchoolCards(filteredSchools);
+    }
 });
 
 /**
@@ -672,642 +492,640 @@ document.addEventListener("DOMContentLoaded", async function () {
  * @returns {Promise<any>} - The parsed JSON response.
  */
 async function fetchPost(url, data) {
-  const csrfToken = document.querySelector("meta[name='_csrf']")?.content;
-  const csrfHeader = document.querySelector(
-    "meta[name='_csrf_header']"
-  )?.content;
+    const csrfToken = document.querySelector("meta[name='_csrf']")?.content;
+    const csrfHeader = document.querySelector(
+        "meta[name='_csrf_header']"
+    )?.content;
 
-  try {
-    const headers = {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-    };
+    try {
+        const headers = {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+        };
 
-    if (csrfToken && csrfHeader) {
-      headers[csrfHeader] = csrfToken;
+        if (csrfToken && csrfHeader) {
+            headers[csrfHeader] = csrfToken;
+        }
+
+        const response = await fetch(url, {
+            method: "POST",
+            headers: headers,
+            body: JSON.stringify(data),
+            credentials: "include",
+        });
+
+        // Handle 404 specifically - it's not an error, just "not found"
+        if (response.status === 404) {
+            return null;
+        }
+
+        // Still throw error for other non-2xx status codes (500, 400, etc.)
+        if (!response.ok) {
+            let errorText;
+            try {
+                errorText = await response.text();
+            } catch (e) {
+                errorText = "No error message available";
+            }
+            throw new Error(`HTTP ${response.status}: ${errorText}`);
+        }
+
+        // Handle empty responses
+        const contentLength = response.headers.get("content-length");
+        const contentType = response.headers.get("content-type");
+
+        if (
+            contentLength === "0" ||
+            !contentType ||
+            !contentType.includes("application/json")
+        ) {
+            return null;
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("POST Error:", error.message || error);
+        // Re-throw the error with a proper message
+        throw new Error(error.message || "Network request failed");
     }
-
-    const response = await fetch(url, {
-      method: "POST",
-      headers: headers,
-      body: JSON.stringify(data),
-      credentials: "include",
-    });
-
-    // Handle 404 specifically - it's not an error, just "not found"
-    if (response.status === 404) {
-      return null;
-    }
-
-    // Still throw error for other non-2xx status codes (500, 400, etc.)
-    if (!response.ok) {
-      let errorText;
-      try {
-        errorText = await response.text();
-      } catch (e) {
-        errorText = "No error message available";
-      }
-      throw new Error(`HTTP ${response.status}: ${errorText}`);
-    }
-
-    // Handle empty responses
-    const contentLength = response.headers.get("content-length");
-    const contentType = response.headers.get("content-type");
-
-    if (
-      contentLength === "0" ||
-      !contentType ||
-      !contentType.includes("application/json")
-    ) {
-      return null;
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error("POST Error:", error.message || error);
-    // Re-throw the error with a proper message
-    throw new Error(error.message || "Network request failed");
-  }
 }
 
 function formatSchoolsData(originalData) {
-  return originalData.map((school) => {
-    // Extract unique program names from class groups
-    const programs = [
-      ...new Set(
-        school.classList.map((cls) => {
-          const classGroup = cls.classGroup;
-          // Map classGroup numbers to program names
-          const programMap = {
-            1: "General Science",
-            2: "General Arts",
-            3: "Business",
-            4: "Visual Arts",
-            5: "Home Economics",
-            6: "Agriculture",
-            7: "Technical",
-          };
-          return programMap[classGroup] || `Program ${classGroup}`;
-        })
-      ),
-    ];
+    return originalData.map((school) => {
+        // Extract unique program names from class groups
+        const programs = [
+            ...new Set(
+                school.classList.map((cls) => {
+                    const classGroup = cls.classGroup;
+                    // Map classGroup numbers to program names
+                    const programMap = {
+                        1: "Creche",
+                        2: "Nursery",
+                        3: "K.G",
+                        4: "Lower Primary",
+                        5: "Upper Primary",
+                        6: "J.H.S",
+                    };
+                    return programMap[classGroup] || `Program ${classGroup}`;
+                })
+            ),
+        ];
 
-    // Determine school type based on name and available data
-    const schoolName = school.name.toLowerCase();
-    let type = "Public • Mixed"; // Default
+        // Determine school type based on name and available data
+        const schoolName = school.name.toLowerCase();
+        let type = "Mixed"; // Default
 
-    if (
-      schoolName.includes("girls") ||
-      schoolName.includes("girls'") ||
-      schoolName.includes("female")
-    ) {
-      type = "Public • Girls";
-    } else if (
-      schoolName.includes("boys") ||
-      schoolName.includes("boys'") ||
-      schoolName.includes("male")
-    ) {
-      type = "Public • Boys";
-    }
+        if (
+            schoolName.includes("girls") ||
+            schoolName.includes("girls'") ||
+            schoolName.includes("female")
+        ) {
+            type = "Girls";
+        } else if (
+            schoolName.includes("boys") ||
+            schoolName.includes("boys'") ||
+            schoolName.includes("male")
+        ) {
+            type = "Boys";
+        }
 
-    // Create location string
-    const location = `${school.city}, ${school.region}`;
+        // Create location string
+        const location = `${school.city}, ${school.region}`;
 
-    const bececode=`${school.bececode}`
+        const bececode = `${school.bececode}`
 
-    // Convert base64 crest to data URL if exists, otherwise use placeholder
-    let logo =
-      "https://via.placeholder.com/100x100/3498db/ffffff?text=" +
-      encodeURIComponent(school.name.charAt(0));
-    if (school.crest) {
-      logo = `data:image/png;base64,${school.crest}`;
-    }
+        // Convert base64 crest to data URL if exists, otherwise use placeholder
+        let logo =
+            "https://via.placeholder.com/100x100/3498db/ffffff?text=" +
+            encodeURIComponent(school.name.charAt(0));
+        if (school.crest) {
+            logo = `data:image/png;base64,${school.crest}`;
+        }
 
-    // Predefined color palette for consistent colors
-    const colorPalette = [
-      "#3498db",
-      "#2ecc71",
-      "#9b59b6",
-      "#e74c3c",
-      "#f39c12",
-      "#1abc9c",
-      "#d35400",
-      "#27ae60",
-      "#8e44ad",
-      "#c0392b",
-      "#16a085",
-      "#2980b9",
-      "#f1c40f",
-      "#e67e22",
-      "#2c3e50",
-    ];
+        // Predefined color palette for consistent colors
+        const colorPalette = [
+            "#3498db",
+            "#2ecc71",
+            "#9b59b6",
+            "#e74c3c",
+            "#f39c12",
+            "#1abc9c",
+            "#d35400",
+            "#27ae60",
+            "#8e44ad",
+            "#c0392b",
+            "#16a085",
+            "#2980b9",
+            "#f1c40f",
+            "#e67e22",
+            "#2c3e50",
+        ];
 
-    const color = colorPalette[school.id % colorPalette.length];
+        const color = colorPalette[school.id % colorPalette.length];
 
-    return {
-      id: school.id,
-      name: school.name,
-      location: location,
-      type: type,
-      programs: programs,
-      logo: logo,
-      color: color,
-      bececode:bececode,
-    };
-  });
+        return {
+            id: school.id,
+            name: school.name,
+            location: location,
+            type: type,
+            programs: programs,
+            logo: logo,
+            color: color,
+            bececode: bececode,
+        };
+    });
 }
 
 function populateStudentForm(studentData) {
-  if (!studentData) return;
+    if (!studentData) return;
 
-  // Populate Basic Student Information
-  document.getElementById("studFName").value = studentData.firstName.trim();
-  document.getElementById("studSurName").value = studentData.lastName.trim();
-  document.getElementById("studOtherName").value = studentData.otherName.trim();
+    // Populate Basic Student Information
+    document.getElementById("studFName").value = studentData.firstName.trim();
+    document.getElementById("studSurName").value = studentData.lastName.trim();
+    document.getElementById("studOtherName").value = studentData.otherName.trim();
 
-  // Set gender
-  if (studentData.gender) {
-    const genderSelect = document.getElementById("studGender");
-    const options = genderSelect.options;
-    for (let i = 0; i < options.length; i++) {
-      if (
-        options[i].text.toLowerCase().includes(studentData.gender.toLowerCase())
-      ) {
-        genderSelect.selectedIndex = i;
-        break;
-      }
-    }
-  }
-
-  // Populate dates
-  document.getElementById("studDOB").value = studentData.dateOfBirth.trim();
-  document.getElementById("studDOA").value = studentData.dateOfAdmission.trim();
-
-  // Populate place of birth and residence
-  document.getElementById("placeOfBirth").value =
-    studentData.placeOfBirth.trim();
-  document.getElementById("studResidence").value =
-    studentData.residentialLocality.trim();
-
-  // Set country of birth
-  if (studentData.countryOfBirth) {
-    const countrySelect = document.getElementById("cob");
-    const options = countrySelect.options;
-    for (let i = 0; i < options.length; i++) {
-      if (
-        options[i].text
-          .toLowerCase()
-          .includes(studentData.countryOfBirth.toLowerCase())
-      ) {
-        countrySelect.selectedIndex = i;
-        break;
-      }
-    }
-  }
-
-  // Populate denomination
-  document.getElementById("denomination").value =
-    studentData.denomination.trim();
-
-  // Populate Parent Information if available
-  if (studentData.studentParents && studentData.studentParents.length > 0) {
-    const parents = studentData.studentParents;
-
-    // Find father (assuming first parent with contact is father)
-    const father =
-      parents.find((p) => p.contact1 && p.contact1.trim()) || parents[0];
-    if (father) {
-      document.getElementById("fatherFirstName").value =
-        father.firstNames.trim();
-      document.getElementById("fatherLastName").value = father.lastName.trim();
-      document.getElementById("fatherEmail").value = father.email.trim();
-      document.getElementById("fatherContact1").value = father.contact1.trim();
-      document.getElementById("fatherContact2").value = father.contact2.trim();
-      document.getElementById("fatherOccupation").value =
-        father.occupation.trim();
-      document.getElementById("fatherPlaceOfWork").value =
-        father.placeOfWork.trim();
-
-      if (father.parentType) {
-        const fatherTypeSelect = document.getElementById("fatherType");
-        const options = fatherTypeSelect.options;
+    // Set gender
+    if (studentData.gender) {
+        const genderSelect = document.getElementById("studGender");
+        const options = genderSelect.options;
         for (let i = 0; i < options.length; i++) {
-          if (
-            options[i].text
-              .toLowerCase()
-              .includes(father.parentType.toLowerCase())
-          ) {
-            fatherTypeSelect.selectedIndex = i;
-            break;
-          }
+            if (
+                options[i].text.toLowerCase().includes(studentData.gender.toLowerCase())
+            ) {
+                genderSelect.selectedIndex = i;
+                break;
+            }
         }
-      }
     }
 
-    // Find mother (assuming second parent or different type)
-    const mother =
-      parents.find((p) => p !== father) || parents[1] || parents[0];
-    if (mother && mother !== father) {
-      document.getElementById("motherFirstName").value =
-        mother.firstNames.trim();
-      document.getElementById("motherLastName").value = mother.lastName.trim();
-      document.getElementById("motherEmail").value = mother.email.trim();
-      document.getElementById("motherContact1").value = mother.contact1.trim();
-      document.getElementById("motherContact2").value = mother.contact2.trim();
-      document.getElementById("motherOccupation").value =
-        mother.occupation.trim();
-      document.getElementById("motherPlaceOfWork").value =
-        mother.placeOfWork.trim();
+    // Populate dates
+    document.getElementById("studDOB").value = studentData.dateOfBirth.trim();
+    document.getElementById("studDOA").value = studentData.dateOfAdmission.trim();
 
-      if (mother.parentType) {
-        const motherTypeSelect = document.getElementById("motherType");
-        const options = motherTypeSelect.options;
+    // Populate place of birth and residence
+    document.getElementById("placeOfBirth").value =
+        studentData.placeOfBirth.trim();
+    document.getElementById("studResidence").value =
+        studentData.residentialLocality.trim();
+
+    // Set country of birth
+    if (studentData.countryOfBirth) {
+        const countrySelect = document.getElementById("cob");
+        const options = countrySelect.options;
         for (let i = 0; i < options.length; i++) {
-          if (
-            options[i].text
-              .toLowerCase()
-              .includes(mother.parentType.toLowerCase())
-          ) {
-            motherTypeSelect.selectedIndex = i;
-            break;
-          }
+            if (
+                options[i].text
+                    .toLowerCase()
+                    .includes(studentData.countryOfBirth.toLowerCase())
+            ) {
+                countrySelect.selectedIndex = i;
+                break;
+            }
         }
-      }
     }
-  }
 
-  // Auto-select program based on student class
- if (studentData.studentClass) {
-     const studentClass = studentData.studentClass.toLowerCase();
-     let programCard = null;
-     let programType = null;
+    // Populate denomination
+    document.getElementById("denomination").value =
+        studentData.denomination.trim();
 
-     if (studentClass.includes("arts")) {
-       programCard = document.getElementById("arts-card");
-       programType = "arts";
-     } else if (studentClass.includes("science")) {
-       programCard = document.getElementById("science-card");
-       programType = "science";
-     } else if (studentClass.includes("business")) {
-       programCard = document.getElementById("business-card");
-       programType = "business";
-     } else if (studentClass.includes("visual") || studentClass.includes("art")) {
-       programCard = document.getElementById("visual-arts-card");
-       programType = "visual-arts";
-     } else if (studentClass.includes("home") || studentClass.includes("economics")) {
-       programCard = document.getElementById("home-economics-card");
-       programType = "home-economics";
-     } else if (studentClass.includes("technical") || studentClass.includes("tech")) {
-       programCard = document.getElementById("technical-card");
-       programType = "technical";
-     } else if (studentClass.includes("agriculture") || studentClass.includes("agri")) {
-       programCard = document.getElementById("agriculture-card");
-       programType = "agriculture";
-     }
+    // Populate Parent Information if available
+    if (studentData.studentParents && studentData.studentParents.length > 0) {
+        const parents = studentData.studentParents;
 
-     if (programCard) {
-       programCard.click();
+        // Find father (assuming first parent with contact is father)
+        const father =
+            parents.find((p) => p.contact1 && p.contact1.trim()) || parents[0];
+        if (father) {
+            document.getElementById("fatherFirstName").value =
+                father.firstNames.trim();
+            document.getElementById("fatherLastName").value = father.lastName.trim();
+            document.getElementById("fatherEmail").value = father.email.trim();
+            document.getElementById("fatherContact1").value = father.contact1.trim();
+            document.getElementById("fatherContact2").value = father.contact2.trim();
+            document.getElementById("fatherOccupation").value =
+                father.occupation.trim();
+            document.getElementById("fatherPlaceOfWork").value =
+                father.placeOfWork.trim();
 
-       // Select subjects based on the student's subject data
-       if (studentData.studentSubjectsResponse && studentData.studentSubjectsResponse.length > 0) {
-         selectSubjectsBasedOnData(studentData.studentSubjectsResponse, programType);
-       } else {
-         selectFirstSubjectInProgram(programType);
-       }
-     }
-   }
+            if (father.parentType) {
+                const fatherTypeSelect = document.getElementById("fatherType");
+                const options = fatherTypeSelect.options;
+                for (let i = 0; i < options.length; i++) {
+                    if (
+                        options[i].text
+                            .toLowerCase()
+                            .includes(father.parentType.toLowerCase())
+                    ) {
+                        fatherTypeSelect.selectedIndex = i;
+                        break;
+                    }
+                }
+            }
+        }
 
-   if (studentData.picture) {
-     displayStudentPicture(studentData.picture);
-   }
+        // Find mother (assuming second parent or different type)
+        const mother =
+            parents.find((p) => p !== father) || parents[1] || parents[0];
+        if (mother && mother !== father) {
+            document.getElementById("motherFirstName").value =
+                mother.firstNames.trim();
+            document.getElementById("motherLastName").value = mother.lastName.trim();
+            document.getElementById("motherEmail").value = mother.email.trim();
+            document.getElementById("motherContact1").value = mother.contact1.trim();
+            document.getElementById("motherContact2").value = mother.contact2.trim();
+            document.getElementById("motherOccupation").value =
+                mother.occupation.trim();
+            document.getElementById("motherPlaceOfWork").value =
+                mother.placeOfWork.trim();
 
-   console.log("Student data populated successfully");
+            if (mother.parentType) {
+                const motherTypeSelect = document.getElementById("motherType");
+                const options = motherTypeSelect.options;
+                for (let i = 0; i < options.length; i++) {
+                    if (
+                        options[i].text
+                            .toLowerCase()
+                            .includes(mother.parentType.toLowerCase())
+                    ) {
+                        motherTypeSelect.selectedIndex = i;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    // Auto-select program based on student class
+    if (studentData.studentClass) {
+        const studentClass = studentData.studentClass.toLowerCase();
+        let programCard = null;
+        let programType = null;
+
+        if (studentClass.includes("arts")) {
+            programCard = document.getElementById("arts-card");
+            programType = "arts";
+        } else if (studentClass.includes("science")) {
+            programCard = document.getElementById("science-card");
+            programType = "science";
+        } else if (studentClass.includes("business")) {
+            programCard = document.getElementById("business-card");
+            programType = "business";
+        } else if (studentClass.includes("visual") || studentClass.includes("art")) {
+            programCard = document.getElementById("visual-arts-card");
+            programType = "visual-arts";
+        } else if (studentClass.includes("home") || studentClass.includes("economics")) {
+            programCard = document.getElementById("home-economics-card");
+            programType = "home-economics";
+        } else if (studentClass.includes("technical") || studentClass.includes("tech")) {
+            programCard = document.getElementById("technical-card");
+            programType = "technical";
+        } else if (studentClass.includes("agriculture") || studentClass.includes("agri")) {
+            programCard = document.getElementById("agriculture-card");
+            programType = "agriculture";
+        }
+
+        if (programCard) {
+            programCard.click();
+
+            // Select subjects based on the student's subject data
+            if (studentData.studentSubjectsResponse && studentData.studentSubjectsResponse.length > 0) {
+                selectSubjectsBasedOnData(studentData.studentSubjectsResponse, programType);
+            } else {
+                selectFirstSubjectInProgram(programType);
+            }
+        }
+    }
+
+    if (studentData.picture) {
+        displayStudentPicture(studentData.picture);
+    }
+
+    console.log("Student data populated successfully");
 }
 
 function selectSubjectsBasedOnData(subjectsData, programType) {
-  // Get all subject checkboxes for the program
-  let subjectCheckboxes;
-  const subjectSelector = `.${programType}-subject`;
-  subjectCheckboxes = document.querySelectorAll(subjectSelector);
+    // Get all subject checkboxes for the program
+    let subjectCheckboxes;
+    const subjectSelector = `.${programType}-subject`;
+    subjectCheckboxes = document.querySelectorAll(subjectSelector);
 
-  // Clear any previously selected subjects in this program
-  subjectCheckboxes.forEach(checkbox => {
-    checkbox.checked = false;
-  });
+    // Clear any previously selected subjects in this program
+    subjectCheckboxes.forEach(checkbox => {
+        checkbox.checked = false;
+    });
 
-  // Select subjects that match the backend data
+    // Select subjects that match the backend data
     subjectsData.forEach(subject => {
-      // Clean the subject name more thoroughly
-      const subjectName = subject.subjectName
-        .replace(/\s+/g, ' ')  // Replace multiple whitespace with single space
-        .replace(/\n/g, ' ')   // Remove newlines
-        .trim()                // Trim leading/trailing spaces
-        .toLowerCase();
+        // Clean the subject name more thoroughly
+        const subjectName = subject.subjectName
+            .replace(/\s+/g, ' ')  // Replace multiple whitespace with single space
+            .replace(/\n/g, ' ')   // Remove newlines
+            .trim()                // Trim leading/trailing spaces
+            .toLowerCase();
 
-      // Find the checkbox that matches this subject
-      const matchingCheckbox = Array.from(subjectCheckboxes).find(checkbox => {
-        // Find the parent div and then the label within it
-        const parentDiv = checkbox.closest('.subject-item');
-        if (parentDiv) {
-          const label = parentDiv.querySelector('label');
-          if (label) {
-            // Clean up the label text
-            const labelText = label.textContent
-              .replace(/\s+/g, ' ')
-              .replace(/\n/g, ' ')
-              .trim()
-              .toLowerCase();
+        // Find the checkbox that matches this subject
+        const matchingCheckbox = Array.from(subjectCheckboxes).find(checkbox => {
+            // Find the parent div and then the label within it
+            const parentDiv = checkbox.closest('.subject-item');
+            if (parentDiv) {
+                const label = parentDiv.querySelector('label');
+                if (label) {
+                    // Clean up the label text
+                    const labelText = label.textContent
+                        .replace(/\s+/g, ' ')
+                        .replace(/\n/g, ' ')
+                        .trim()
+                        .toLowerCase();
 
-            console.log(`Comparing: "${labelText}" vs "${subjectName}"`);
+                    console.log(`Comparing: "${labelText}" vs "${subjectName}"`);
 
-            // Use exact match instead of includes for better accuracy
-            return labelText === subjectName;
-          }
-        }
-        return false;
-      });
+                    // Use exact match instead of includes for better accuracy
+                    return labelText === subjectName;
+                }
+            }
+            return false;
+        });
 
-    if (matchingCheckbox) {
-     console.log("Found matching checkbox for:", subjectName, matchingCheckbox);
+        if (matchingCheckbox) {
+            console.log("Found matching checkbox for:", subjectName, matchingCheckbox);
 
-         // Check if checkbox is disabled or readonly
-         if (matchingCheckbox.disabled) {
-           console.log("Checkbox is disabled:", matchingCheckbox);
-         }
-         if (matchingCheckbox.readOnly) {
-           console.log("Checkbox is readOnly:", matchingCheckbox);
-         }
+            // Check if checkbox is disabled or readonly
+            if (matchingCheckbox.disabled) {
+                console.log("Checkbox is disabled:", matchingCheckbox);
+            }
+            if (matchingCheckbox.readOnly) {
+                console.log("Checkbox is readOnly:", matchingCheckbox);
+            }
 
-         // Try different approaches to select the checkbox
-         matchingCheckbox.checked = true;
+            // Try different approaches to select the checkbox
+            matchingCheckbox.checked = true;
 
-         console.log("Selected subject:", subjectName, "Checkbox state:", matchingCheckbox.checked);
-         if(matchingCheckbox.checked==false){
-          matchingCheckbox.checked = true;
-         console.log("Selected subject:", subjectName, "Checkbox state:", matchingCheckbox.checked);
-         }
+            console.log("Selected subject:", subjectName, "Checkbox state:", matchingCheckbox.checked);
+            if (matchingCheckbox.checked == false) {
+                matchingCheckbox.checked = true;
+                console.log("Selected subject:", subjectName, "Checkbox state:", matchingCheckbox.checked);
+            }
 
         } else {
-          console.log("Could not find checkbox for subject:", subjectName);
-          console.log("Available labels:", Array.from(subjectCheckboxes).map(cb => {
-            const parentDiv = cb.closest('.subject-item');
-            const label = parentDiv ? parentDiv.querySelector('label') : null;
-            return label ? `"${label.textContent.replace(/\s+/g, ' ').trim()}"` : 'no label';
-          }));
+            console.log("Could not find checkbox for subject:", subjectName);
+            console.log("Available labels:", Array.from(subjectCheckboxes).map(cb => {
+                const parentDiv = cb.closest('.subject-item');
+                const label = parentDiv ? parentDiv.querySelector('label') : null;
+                return label ? `"${label.textContent.replace(/\s+/g, ' ').trim()}"` : 'no label';
+            }));
         }
-  });
+    });
 }
 
 
 // Function to display base64 image
 function displayStudentPicture(base64Data) {
-  try {
-    // Create the image URL from base64 data
-    const imageUrl = `data:image/png;base64,${base64Data}`;
+    try {
+        // Create the image URL from base64 data
+        const imageUrl = `data:image/png;base64,${base64Data}`;
 
-    // Get the image element
-    const imgElement = document.getElementById('studentPicture');
-    const imageOutput = document.querySelector('.imageOutput');
+        // Get the image element
+        const imgElement = document.getElementById('studentPicture');
+        const imageOutput = document.querySelector('.imageOutput');
 
-    if (imgElement) {
-      // Set the image source
-      imgElement.src = imageUrl;
+        if (imgElement) {
+            // Set the image source
+            imgElement.src = imageUrl;
 
-      // If you want to update the preview container too
-      if (imageOutput) {
-        imageOutput.innerHTML = `
+            // If you want to update the preview container too
+            if (imageOutput) {
+                imageOutput.innerHTML = `
           <div class="studPic">
             <img src="${imageUrl}" alt="Student Picture" id="studentPicture" class="studPic">
             <span onclick="deleteImage(0)">&times;</span>
           </div>
         `;
-      }
+            }
+        }
+    } catch (error) {
+        console.error('Error displaying student picture:', error);
     }
-  } catch (error) {
-    console.error('Error displaying student picture:', error);
-  }
 }
 
 function selectFirstSubjectInProgram(programType) {
-  let subjectCheckboxes;
-  const subjectSelector = `.${programType}-subject`;
-  subjectCheckboxes = document.querySelectorAll(subjectSelector);
+    let subjectCheckboxes;
+    const subjectSelector = `.${programType}-subject`;
+    subjectCheckboxes = document.querySelectorAll(subjectSelector);
 
-  // Select the first available checkbox that isn't already checked
-  if (subjectCheckboxes.length > 0) {
-    const firstAvailableCheckbox = Array.from(subjectCheckboxes).find(
-      (checkbox) => !checkbox.checked
-    );
-    if (firstAvailableCheckbox) {
-      firstAvailableCheckbox.checked = true;
-      firstAvailableCheckbox.dispatchEvent(new Event("change", { bubbles: true }));
-      firstAvailableCheckbox.dispatchEvent(new Event("click", { bubbles: true }));
+    // Select the first available checkbox that isn't already checked
+    if (subjectCheckboxes.length > 0) {
+        const firstAvailableCheckbox = Array.from(subjectCheckboxes).find(
+            (checkbox) => !checkbox.checked
+        );
+        if (firstAvailableCheckbox) {
+            firstAvailableCheckbox.checked = true;
+            firstAvailableCheckbox.dispatchEvent(new Event("change", {bubbles: true}));
+            firstAvailableCheckbox.dispatchEvent(new Event("click", {bubbles: true}));
+        }
     }
-  }
 }
 
 
+async function buildStudentPayload() {
+    if (!currentStudentData) {
+        throw new Error("No student data loaded. Please fetch student first.");
+    }
 
- async function buildStudentPayload() {
-   if (!currentStudentData) {
-     throw new Error("No student data loaded. Please fetch student first.");
-   }
+    // Start with the complete existing data
+    const payload = {...currentStudentData};
 
-   // Start with the complete existing data
-   const payload = {...currentStudentData};
+    // Only update fields that have values in the UI
+    const studentId = document.getElementById('studentID').value.trim();
+    if (studentId) payload.studentId = studentId;
 
-   // Only update fields that have values in the UI
-   const studentId = document.getElementById('studentID').value.trim();
-   if (studentId) payload.studentId = studentId;
+    const firstName = document.getElementById('studFName').value.trim();
+    if (firstName) payload.firstName = firstName;
 
-   const firstName = document.getElementById('studFName').value.trim();
-   if (firstName) payload.firstName = firstName;
+    const otherName = document.getElementById('studOtherName').value.trim();
+    if (otherName) payload.otherName = otherName;
 
-   const otherName = document.getElementById('studOtherName').value.trim();
-   if (otherName) payload.otherName = otherName;
+    const lastName = document.getElementById('studSurName').value.trim();
+    if (lastName) payload.lastName = lastName;
 
-   const lastName = document.getElementById('studSurName').value.trim();
-   if (lastName) payload.lastName = lastName;
+    const dateOfBirth = document.getElementById('studDOB').value.trim();
+    if (dateOfBirth) payload.dateOfBirth = dateOfBirth;
 
-   const dateOfBirth = document.getElementById('studDOB').value.trim();
-   if (dateOfBirth) payload.dateOfBirth = dateOfBirth;
+    const dateOfAdmission = document.getElementById('studDOA').value.trim();
+    if (dateOfAdmission) payload.dateOfAdmission = dateOfAdmission;
 
-   const dateOfAdmission = document.getElementById('studDOA').value.trim();
-   if (dateOfAdmission) payload.dateOfAdmission = dateOfAdmission;
+    const placeOfBirth = document.getElementById('placeOfBirth').value.trim();
+    if (placeOfBirth) payload.placeOfBirth = placeOfBirth;
 
-   const placeOfBirth = document.getElementById('placeOfBirth').value.trim();
-   if (placeOfBirth) payload.placeOfBirth = placeOfBirth;
+    const genderSelect = document.getElementById('studGender');
+    if (genderSelect.value) payload.gender = genderSelect.value;
 
-   const genderSelect = document.getElementById('studGender');
-   if (genderSelect.value) payload.gender = genderSelect.value;
+    const countryOfBirthSelect = document.getElementById('cob');
+    if (countryOfBirthSelect.value) payload.countryOfBirth = countryOfBirthSelect.value;
 
-   const countryOfBirthSelect = document.getElementById('cob');
-   if (countryOfBirthSelect.value) payload.countryOfBirth = countryOfBirthSelect.value;
+    const residentialLocality = document.getElementById('studResidence').value.trim();
+    if (residentialLocality) payload.residentialLocality = residentialLocality;
 
-   const residentialLocality = document.getElementById('studResidence').value.trim();
-   if (residentialLocality) payload.residentialLocality = residentialLocality;
+    const denomination = document.getElementById('denomination').value.trim();
+    if (denomination) payload.denomination = denomination;
 
-   const denomination = document.getElementById('denomination').value.trim();
-   if (denomination) payload.denomination = denomination;
-
-   // Handle picture - only update if changed
-   const pictureInput = document.querySelector('.imageInput');
-   const existingPicture = document.getElementById('studentPicture');
-
-
-  if (pictureInput && pictureInput.files.length > 0) {
-      const file = pictureInput.files[0];
-
-      const optimizedDataURL = await optimizeImage(file, {
-          maxSize: 400,
-          quality: 0.7,
-          outputFormat: 'jpeg'
-      }).catch(error => {
-          console.error("Image optimization failed", error);
-          throw error;
-      });
-
-      payload.picture = optimizedDataURL.split(',')[1];
-  }
-
-   // If picture wasn't changed, keep the original value
-
-   // Update institution code if selected
-   if (institution) payload.institutionCode = institution;
-
-   // Build parents data from UI (only if parents were modified)
-   const uiParents = buildParentsData(payload.studentId);
-   if (uiParents && uiParents.length > 0) {
-     // Merge parents data - this is more complex, see next step
-     payload.studentParents = mergeParentsData(currentStudentData.studentParents, uiParents);
-   }
-
-   // Build subjects data from UI
-   const uiSubjects = buildSubjectsData();
-   if (uiSubjects && uiSubjects.length > 0) {
-     payload.studentSubjectsResponse = uiSubjects;
-   }
-
-   return payload;
- }
-
- function mergeParentsData(existingParents, uiParents) {
-   if (!existingParents || existingParents.length === 0) {
-     return uiParents;
-   }
-
-   if (!uiParents || uiParents.length === 0) {
-     return existingParents;
-   }
-
-   // Create a map of existing parents by type for easy lookup
-   const existingParentsMap = {};
-   existingParents.forEach(parent => {
-     if (parent.parentType) {
-       existingParentsMap[parent.parentType.toLowerCase()] = parent;
-     }
-   });
-
-   // Merge UI parents with existing parents
-   const mergedParents = uiParents.map(uiParent => {
-     const parentType = uiParent.parentType?.toLowerCase() || '';
-
-     if (existingParentsMap[parentType]) {
-       // Merge UI fields with existing parent data
-       return {
-         ...existingParentsMap[parentType], // Keep all existing fields
-         ...uiParent // Override with UI fields
-       };
-     }
-
-     // New parent from UI
-     return uiParent;
-   });
-
-   // Add any existing parents that weren't modified in UI
-   Object.values(existingParentsMap).forEach(existingParent => {
-     const parentType = existingParent.parentType?.toLowerCase() || '';
-     const existsInUI = uiParents.some(uiParent =>
-       (uiParent.parentType?.toLowerCase() || '') === parentType
-     );
-
-     if (!existsInUI) {
-       mergedParents.push(existingParent);
-     }
-   });
-
-   return mergedParents;
- }
+    // Handle picture - only update if changed
+    const pictureInput = document.querySelector('.imageInput');
+    const existingPicture = document.getElementById('studentPicture');
 
 
- function buildParentsData(studentId) {
-   const parents = [];
+    if (pictureInput && pictureInput.files.length > 0) {
+        const file = pictureInput.files[0];
 
-   // Father's data - only include if fields have values
-   const fatherData = buildParentData('father', studentId);
-   if (hasParentData(fatherData)) {
-     parents.push(fatherData);
-   }
+        const optimizedDataURL = await optimizeImage(file, {
+            maxSize: 400,
+            quality: 0.7,
+            outputFormat: 'jpeg'
+        }).catch(error => {
+            console.error("Image optimization failed", error);
+            throw error;
+        });
 
-   // Mother's data - only include if fields have values
-   const motherData = buildParentData('mother', studentId);
-   if (hasParentData(motherData)) {
-     parents.push(motherData);
-   }
+        payload.picture = optimizedDataURL.split(',')[1];
+    }
 
-   return parents;
- }
+    // If picture wasn't changed, keep the original value
 
- function buildParentData(prefix, studentId) {
-   const firstName = document.getElementById(`${prefix}FirstName`).value.trim();
-   const lastName = document.getElementById(`${prefix}LastName`).value.trim();
-   const email = document.getElementById(`${prefix}Email`).value.trim();
-   const contact1 = document.getElementById(`${prefix}Contact1`).value.trim();
-   const contact2 = document.getElementById(`${prefix}Contact2`).value.trim();
-   const occupation = document.getElementById(`${prefix}Occupation`).value.trim();
-   const placeOfWork = document.getElementById(`${prefix}PlaceOfWork`).value.trim();
-   const parentType = document.getElementById(`${prefix}Type`).value.trim();
+    // Update institution code if selected
+    if (institution) payload.institutionCode = institution;
 
-   // Only include fields that have values
-   const parentData = {
-     institutionCode: institution,
-     studentId: studentId
-   };
+    // Build parents data from UI (only if parents were modified)
+    const uiParents = buildParentsData(payload.studentId);
+    if (uiParents && uiParents.length > 0) {
+        // Merge parents data - this is more complex, see next step
+        payload.studentParents = mergeParentsData(currentStudentData.studentParents, uiParents);
+    }
 
-   if (firstName) parentData.firstNames = firstName;
-   if (lastName) parentData.lastName = lastName;
-   if (email) parentData.email = email;
-   if (contact1) parentData.contact1 = contact1;
-   if (contact2) parentData.contact2 = contact2;
-   if (occupation) parentData.occupation = occupation;
-   if (placeOfWork) parentData.placeOfWork = placeOfWork;
-   if (parentType) parentData.parentType = parentType;
+    // Build subjects data from UI
+    const uiSubjects = buildSubjectsData();
+    if (uiSubjects && uiSubjects.length > 0) {
+        payload.studentSubjectsResponse = uiSubjects;
+    }
 
-   return parentData;
- }
+    return payload;
+}
 
- function hasParentData(parentData) {
-   // Check if any field (except institutionCode and studentId) has data
-   const { institutionCode, studentId, ...rest } = parentData;
-   return Object.values(rest).some(value => value && value.trim() !== '');
- }
+function mergeParentsData(existingParents, uiParents) {
+    if (!existingParents || existingParents.length === 0) {
+        return uiParents;
+    }
 
- // Function to build subjects data
- function buildSubjectsData() {
-     const subjects = [];
+    if (!uiParents || uiParents.length === 0) {
+        return existingParents;
+    }
 
-     // Get all checked subject checkboxes
-     const checkedSubjects = document.querySelectorAll('input[type="checkbox"]:checked');
+    // Create a map of existing parents by type for easy lookup
+    const existingParentsMap = {};
+    existingParents.forEach(parent => {
+        if (parent.parentType) {
+            existingParentsMap[parent.parentType.toLowerCase()] = parent;
+        }
+    });
 
-     checkedSubjects.forEach(checkbox => {
-         const subjectName = checkbox.nextElementSibling.textContent.trim();
-         subjects.push({
-             subjectName: subjectName
-         });
-     });
+    // Merge UI parents with existing parents
+    const mergedParents = uiParents.map(uiParent => {
+        const parentType = uiParent.parentType?.toLowerCase() || '';
 
-     return subjects;
- }
+        if (existingParentsMap[parentType]) {
+            // Merge UI fields with existing parent data
+            return {
+                ...existingParentsMap[parentType], // Keep all existing fields
+                ...uiParent // Override with UI fields
+            };
+        }
+
+        // New parent from UI
+        return uiParent;
+    });
+
+    // Add any existing parents that weren't modified in UI
+    Object.values(existingParentsMap).forEach(existingParent => {
+        const parentType = existingParent.parentType?.toLowerCase() || '';
+        const existsInUI = uiParents.some(uiParent =>
+            (uiParent.parentType?.toLowerCase() || '') === parentType
+        );
+
+        if (!existsInUI) {
+            mergedParents.push(existingParent);
+        }
+    });
+
+    return mergedParents;
+}
+
+
+function buildParentsData(studentId) {
+    const parents = [];
+
+    // Father's data - only include if fields have values
+    const fatherData = buildParentData('father', studentId);
+    if (hasParentData(fatherData)) {
+        parents.push(fatherData);
+    }
+
+    // Mother's data - only include if fields have values
+    const motherData = buildParentData('mother', studentId);
+    if (hasParentData(motherData)) {
+        parents.push(motherData);
+    }
+
+    return parents;
+}
+
+function buildParentData(prefix, studentId) {
+    const firstName = document.getElementById(`${prefix}FirstName`).value.trim();
+    const lastName = document.getElementById(`${prefix}LastName`).value.trim();
+    const email = document.getElementById(`${prefix}Email`).value.trim();
+    const contact1 = document.getElementById(`${prefix}Contact1`).value.trim();
+    const contact2 = document.getElementById(`${prefix}Contact2`).value.trim();
+    const occupation = document.getElementById(`${prefix}Occupation`).value.trim();
+    const placeOfWork = document.getElementById(`${prefix}PlaceOfWork`).value.trim();
+    const parentType = document.getElementById(`${prefix}Type`).value.trim();
+
+    // Only include fields that have values
+    const parentData = {
+        institutionCode: institution,
+        studentId: studentId
+    };
+
+    if (firstName) parentData.firstNames = firstName;
+    if (lastName) parentData.lastName = lastName;
+    if (email) parentData.email = email;
+    if (contact1) parentData.contact1 = contact1;
+    if (contact2) parentData.contact2 = contact2;
+    if (occupation) parentData.occupation = occupation;
+    if (placeOfWork) parentData.placeOfWork = placeOfWork;
+    if (parentType) parentData.parentType = parentType;
+
+    return parentData;
+}
+
+function hasParentData(parentData) {
+    // Check if any field (except institutionCode and studentId) has data
+    const {institutionCode, studentId, ...rest} = parentData;
+    return Object.values(rest).some(value => value && value.trim() !== '');
+}
+
+// Function to build subjects data
+function buildSubjectsData() {
+    const subjects = [];
+
+    // Get all checked subject checkboxes
+    const checkedSubjects = document.querySelectorAll('input[type="checkbox"]:checked');
+
+    checkedSubjects.forEach(checkbox => {
+        const subjectName = checkbox.nextElementSibling.textContent.trim();
+        subjects.push({
+            subjectName: subjectName
+        });
+    });
+
+    return subjects;
+}
 
 
 //============================= VALIDATION ==============================
@@ -1323,7 +1141,7 @@ function validateForm() {
     const tabIndex = Array.from(document.querySelectorAll('.tab-pane')).indexOf(activeTab);
 
     // Validate based on current step
-    switch(tabIndex) {
+    switch (tabIndex) {
         case 0: // School Selection
             if (!validateSchoolSelection()) {
                 isValid = false;
@@ -1611,7 +1429,7 @@ function highlightFieldError(fieldId, message) {
         }
 
         // Scroll to field
-        field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        field.scrollIntoView({behavior: 'smooth', block: 'center'});
     }
 }
 
@@ -1627,7 +1445,7 @@ function highlightError(message, containerId) {
         container.prepend(alertDiv);
 
         // Scroll to error
-        alertDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        alertDiv.scrollIntoView({behavior: 'smooth', block: 'center'});
 
         // Remove after 5 seconds
         setTimeout(() => {
@@ -1648,7 +1466,7 @@ function showValidationErrors(messages) {
     formContainer.prepend(errorAlert);
 
     // Scroll to errors
-    errorAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    errorAlert.scrollIntoView({behavior: 'smooth', block: 'center'});
 
     // Remove after 5 seconds
     setTimeout(() => {
@@ -1688,11 +1506,11 @@ function clearValidationErrors() {
 }
 
 // Add event listeners for real-time validation
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Add input event listeners to clear validation on change
     const allInputs = document.querySelectorAll('input, select, textarea');
     allInputs.forEach(input => {
-        input.addEventListener('input', function() {
+        input.addEventListener('input', function () {
             if (this.classList.contains('is-invalid')) {
                 this.classList.remove('is-invalid');
                 const errorMsg = this.nextElementSibling;
@@ -1706,7 +1524,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Validate on form submission
     const submitButton = document.getElementById('submitRequest');
     if (submitButton) {
-        submitButton.addEventListener('click', function(e) {
+        submitButton.addEventListener('click', function (e) {
             // Validate all steps before submission
             let allValid = true;
             const tabPanes = document.querySelectorAll('.tab-pane');
@@ -1736,110 +1554,102 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
+/**
+ * Optimizes an image file using canvas
+ * @param {File} file - The original image file
+ * @param {Object} options - Compression options
+ * @returns {Promise<String>} - A promise that resolves with a Base64 data URI
+ */
+function optimizeImage(file, options) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        const reader = new FileReader();
 
- /**
-  * Optimizes an image file using canvas
-  * @param {File} file - The original image file
-  * @param {Object} options - Compression options
-  * @returns {Promise<String>} - A promise that resolves with a Base64 data URI
-  */
- function optimizeImage(file, options) {
-     return new Promise((resolve, reject) => {
-         const img = new Image();
-         const reader = new FileReader();
+        reader.onload = function (e) {
+            img.src = e.target.result;
+        };
 
-         reader.onload = function(e) {
-             img.src = e.target.result;
-         };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
 
-         reader.onerror = reject;
-         reader.readAsDataURL(file);
+        img.onload = function () {
+            // Calculate new dimensions while maintaining aspect ratio
+            const maxDimension = options.maxSize;
+            let width = img.width;
+            let height = img.height;
 
-         img.onload = function() {
-             // Calculate new dimensions while maintaining aspect ratio
-             const maxDimension = options.maxSize;
-             let width = img.width;
-             let height = img.height;
+            if (width > height) {
+                if (width > maxDimension) {
+                    height = Math.round((height * maxDimension) / width);
+                    width = maxDimension;
+                }
+            } else {
+                if (height > maxDimension) {
+                    width = Math.round((width * maxDimension) / height);
+                    height = maxDimension;
+                }
+            }
 
-             if (width > height) {
-                 if (width > maxDimension) {
-                     height = Math.round((height * maxDimension) / width);
-                     width = maxDimension;
-                 }
-             } else {
-                 if (height > maxDimension) {
-                     width = Math.round((width * maxDimension) / height);
-                     height = maxDimension;
-                 }
-             }
+            // Create a canvas and draw the resized image on it
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
 
-             // Create a canvas and draw the resized image on it
-             const canvas = document.createElement('canvas');
-             canvas.width = width;
-             canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
 
-             const ctx = canvas.getContext('2d');
-             ctx.drawImage(img, 0, 0, width, height);
+            // Convert the canvas to a compressed Blob, then to a Data URL
+            canvas.toBlob(
+                (blob) => {
+                    const newReader = new FileReader();
+                    newReader.onload = () => resolve(newReader.result); // This is the Base64 string
+                    newReader.readAsDataURL(blob);
+                },
+                options.outputFormat === 'png' ? 'image/png' : 'image/jpeg', // Mime type
+                options.quality // Quality for JPEG
+            );
+        };
 
-             // Convert the canvas to a compressed Blob, then to a Data URL
-             canvas.toBlob(
-                 (blob) => {
-                     const newReader = new FileReader();
-                     newReader.onload = () => resolve(newReader.result); // This is the Base64 string
-                     newReader.readAsDataURL(blob);
-                 },
-                 options.outputFormat === 'png' ? 'image/png' : 'image/jpeg', // Mime type
-                 options.quality // Quality for JPEG
-             );
-         };
-
-         img.onerror = reject;
-     });
- }
-
-
-
-
-
-
-
+        img.onerror = reject;
+    });
+}
 
 
 $(function () {
 
 // Bind normal buttons
-$( '.ladda-button' ).ladda( 'bind', { timeout: 2000 } );
+    $('.ladda-button').ladda('bind', {timeout: 2000});
 
 // Bind progress buttons and simulate loading progress
-Ladda.bind( '.progress-demo .ladda-button',{
-    callback: function( instance ){
-        var progress = 0;
-        var interval = setInterval( function(){
-            progress = Math.min( progress + Math.random() * 0.1, 1 );
-            instance.setProgress( progress );
+    Ladda.bind('.progress-demo .ladda-button', {
+        callback: function (instance) {
+            var progress = 0;
+            var interval = setInterval(function () {
+                progress = Math.min(progress + Math.random() * 0.1, 1);
+                instance.setProgress(progress);
 
-            if( progress === 1 ){
-                instance.stop();
-                clearInterval( interval );
-            }
-        }, 200 );
-    }
-});
-
-
-var l = $( '.ladda-button-demo' ).ladda();
-
-l.click(function(){
-    // Start loading
-    l.ladda( 'start' );
-
-    // Timeout example
-    // Do something in backend and then stop ladda
-    setTimeout(function(){
-        l.ladda('stop');
-    },12000)
+                if (progress === 1) {
+                    instance.stop();
+                    clearInterval(interval);
+                }
+            }, 200);
+        }
+    });
 
 
-});
+    var l = $('.ladda-button-demo').ladda();
+
+    l.click(function () {
+        // Start loading
+        l.ladda('start');
+
+        // Timeout example
+        // Do something in backend and then stop ladda
+        setTimeout(function () {
+            l.ladda('stop');
+        }, 12000)
+
+
+    });
 
 });

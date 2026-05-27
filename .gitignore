@@ -1,29 +1,48 @@
-﻿# Build artifacts
 target/
-**/target/
-**/jib-cache/
-*.jar
-*.war
-*.tar.gz
-*.log
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
 
-# Temporary files
-replacements.txt
-replacements-pom.txt
-remove-env.txt
-*.backup
-*.tmp
+### IntelliJ IDEA ###
+.idea/modules.xml
+.idea/jarRepositories.xml
+.idea/compiler.xml
+.idea/libraries/
+.idea/workspace.xml
+.idea/misc.xml
+*.iws
+*.iml
+*.ipr
 
-# Environment files
+### Eclipse ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### VS Code ###
+.vscode/
+
+### Mac OS ###
+.DS_Store
+
+### Secrets / local config ###
 .env
 *.env
 !example.env
-
-# IDE
-.idea/
-*.iml
-.vscode/
-.DS_Store
-
-# Node (if any)
-node_modules/
+replacements.txt
+*.backup
+New folder/

@@ -1,17 +1,17 @@
 var selectPlan,
-  institution,
-  slogan,
-  country,
-  region,
-  city,
-  email,
-  contact1,
-  contact2,
-  bececode,
-  postalAddress,
-  streams,
-  population,
-  website;
+    institution,
+    slogan,
+    country,
+    region,
+    city,
+    email,
+    contact1,
+    contact2,
+    bececode,
+    postalAddress,
+    streams,
+    population,
+    website;
 var subjectJsonData = null;
 let selectedProgram = null;
 let currentStudentData = null
@@ -21,196 +21,175 @@ let schools = null
 const countries = ["Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Côte d'Ivoire", "Cabo Verde", "Cambodia", "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo (Congo-Brazzaville)", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czechia (Czech Republic)", "Democratic Republic of the Congo", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia", "Fiji", "Finland", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Holy See", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar (Burma)", "Namibia", "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Korea", "North Macedonia", "Norway", "Oman", "Pakistan", "Palau", "Palestine State", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Korea", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Tajikistan", "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States of America", "Uruguay", "Uzbekistan", "Vanuatu", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe"];
 
 
-
-$(".prev").click(function(){
-previous();
+$(".prev").click(function () {
+    previous();
 })
 
 function previous() {
-  var tabs = $(".tab-pane");
-  var tbs = $(".tab-pane.active");
-  tabs.removeClass("active");
-  var prevLi = tbs.prev().addClass("active");
+    var tabs = $(".tab-pane");
+    var tbs = $(".tab-pane.active");
+    tabs.removeClass("active");
+    var prevLi = tbs.prev().addClass("active");
 
-  var header = $(".wizardTabs");
-  var header1 = $(".wizardTabs.btn-primary");
-  header.removeClass("btn-primary");
-  header.addClass("btn-default");
-  header1.prev().removeClass("btn-default").addClass("btn-primary");
+    var header = $(".wizardTabs");
+    var header1 = $(".wizardTabs.btn-primary");
+    header.removeClass("btn-primary");
+    header.addClass("btn-default");
+    header1.prev().removeClass("btn-default").addClass("btn-primary");
 };
 
 $(".next").click(function () {
-if (!validateForm()) {
-    //previous();
-    return;
+    if (!validateForm()) {
+        return;
     }
-  var tabs = $(".tab-pane");
-  var tbs = $(".tab-pane.active");
-  tabs.removeClass("active");
-  var nextLi = tbs.next().addClass("active");
+    var tabs = $(".tab-pane");
+    var tbs = $(".tab-pane.active");
+    tabs.removeClass("active");
+    var nextLi = tbs.next().addClass("active");
 
-  var header = $(".wizardTabs");
-  var header1 = $(".wizardTabs.btn-primary");
-  header.removeClass("btn-primary");
-  header.addClass("btn-default");
-  header1.next().removeClass("btn-default").addClass("btn-primary");
-  /*document.getElementById('client').innerHTML=document.getElementsByName('clientName')[0].value;
-       confdata();*/
+    var header = $(".wizardTabs");
+    var header1 = $(".wizardTabs.btn-primary");
+    header.removeClass("btn-primary");
+    header.addClass("btn-default");
+    header1.next().removeClass("btn-default").addClass("btn-primary");
 });
 
 
-    // Initialize country select
-    const countrySelect = document.getElementById('cob');
-    countries.forEach(country => {
-        const option = document.createElement('option');
-        option.value = country;
-        option.textContent = country;
-        countrySelect.appendChild(option);
-    });
+// Initialize country select
+const countrySelect = document.getElementById('cob');
+countries.forEach(country => {
+    const option = document.createElement('option');
+    option.value = country;
+    option.textContent = country;
+    countrySelect.appendChild(option);
+});
 
-    // Set copyright year
-    document.getElementById('copyrightYear').textContent = new Date().getFullYear();
+// Set copyright year
+document.getElementById('copyrightYear').textContent = new Date().getFullYear();
 
 //TERMS AND CONDITIONS
 $(".tnc").click(function () {
-  document.getElementById("modb").innerHTML = contract;
-  /*document.getElementById('contractClient').innerHTML=$('[name="clientName"]').val();*/
-  document.getElementById("dtime").innerHTML = datetime();
+    document.getElementById("modb").innerHTML = contract;
+    document.getElementById("dtime").innerHTML = datetime();
 });
 
 
 $("#submitRequest").click(async function () {
-debugger
-alert("Got Here")
-  var approve = $(".approveCheck").is(":checked");
- // if (approve) {
+    var approve = $(".approveCheck").is(":checked");
     var c = validateForm();
     if (c === true) {
-      // Got to step 1
-      //  $('[href=#step1]').tab('show');
-      //buildStudentPayload();
-      var jso = await buildStudentPayload();
-      // Serialize data to post method
-      var datastring = $("#simpleForm").serialize();
+        var jso = await buildStudentPayload();
+        var datastring = $("#simpleForm").serialize();
 
-       // 1. Get amount from selected form
-              let amount = 0;
-              if (window.selectedForm) {
-                  amount = window.selectedForm.cost * 100; // Convert to kobo/pesewas
-              }
+        let amount = 0;
+        if (window.selectedForm) {
+            amount = window.selectedForm.cost * 100;
+        }
 
-              // 2. Email (same as before)
-              function getFilledEmail() {
-                  const fatherEmail = document.getElementById('fatherEmail').value.trim();
-                  const motherEmail = document.getElementById('motherEmail').value.trim();
-                  return fatherEmail || motherEmail || "adminEmail@astromyllc.com";
-              }
+        function getFilledEmail() {
+            const fatherEmail = document.getElementById('fatherEmail').value.trim();
+            const motherEmail = document.getElementById('motherEmail').value.trim();
+            return fatherEmail || motherEmail || "adminEmail@astromyllc.com";
+        }
 
-              // 3 & 4. Student name
-              function getStudentName() {
-                  const firstName = document.getElementById('studFName').value.trim();
-                  const lastName = document.getElementById('studSurName').value.trim();
-                  return `${firstName} ${lastName}`.trim() || "Student";
-              }
+        function getStudentName() {
+            const firstName = document.getElementById('studFName').value.trim();
+            const lastName = document.getElementById('studSurName').value.trim();
+            return `${firstName} ${lastName}`.trim() || "Student";
+        }
 
-              // 5. BECECode
-              const institutionBeceCode = institution || (window.selectedForm ? window.selectedForm.schoolCode : "unknown");
+        const institutionBeceCode = institution || (window.selectedForm ? window.selectedForm.schoolCode : "unknown");
 
-              const handler = PaystackPop.setup({
-                  key: 'pk_live_0052622a46fdb8e0e50f2c601cd1e18bb6bf502e',
-                  email: getFilledEmail(),
-                  amount: amount || 500 * 100,
-                  currency: 'GHS',
-                  ref: 'APPLICANT_' + getStudentName().replace(/\s+/g, '_') + '_' + new Date().getTime(),
-                  metadata: {
-                      custom_fields: [{
-                          display_name: getStudentName(),
-                          variable_name: getStudentName(),
-                          value: institutionBeceCode
-                      }]
-                  },
-                  onClose: function() {
-                      alert('Payment window closed');
-                  },
-                  callback: function(response) {
-                  alert('Payment completed! Reference: ' + response.reference);
+        const handler = PaystackPop.setup({
+            key: 'pk_test_957a501ee4935ea125978771108f5aba4ad53acf',
+            email: getFilledEmail(),
+            amount: amount || 500 * 100,
+            currency: 'GHS',
+            ref: 'APPLICANT_' + getStudentName().replace(/\s+/g, '_') + '_' + new Date().getTime(),
+            metadata: {
+                custom_fields: [{
+                    display_name: getStudentName(),
+                    variable_name: getStudentName(),
+                    value: institutionBeceCode
+                }]
+            },
+            onClose: function () {
+            },
+            callback: function (response) {
+                swal({
+                    title: "Payment completed",
+                    text: 'Reference: ' + response.reference,
+                    type: "success",
+                });
 
-                  debugger
+                var header = $("meta[name='_csrf_header']").attr("content");
+                var token = $("meta[name='_csrf']").attr("content");
 
-
-      var header = $("meta[name='_csrf_header']").attr("content");
-      var token = $("meta[name='_csrf']").attr("content");
-debugger
-      $.ajax({
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        url: "postedStudentApplication",
-        type: "POST",
-        data: JSON.stringify(jso),
-        beforeSend: function (xhr) {
-          xhr.setRequestHeader(header, token);
-        },
-        cache: false,
-        contentType: false,
-        processData: false,
-        xhr: function () {
-          var myXhr = $.ajaxSettings.xhr();
-          if (myXhr.upload) {
-            myXhr.upload.addEventListener(
-              "progress",
-              function (e) {
-                if (e.lengthComputable) {
-                  $("progress").attr({
-                    value: e.loaded,
-                    max: e.total,
-                  });
-                }
-              },
-              false
-            );
-          }
-          return myXhr;
-        },
-        success: function (data) {
-          swal({
-            title: "Thank you!",
-            text: "Your application is being submitted",
-            type: "success",
-          });
-        },
-        error: function (errMsg) {
-          swal({
-            title: "Sorry!",
-            text: "Operation Failed",
-            type: "error",
-          });
-        },
-      });
-
-                      /*alert('Payment completed! Reference: ' + response.reference);
-                      submitRequest();*/
-                  }
-              });
-              handler.openIframe();
-
+                $.ajax({
+                    headers: {
+                        Accept: "application/json",
+                        "Content-Type": "application/json",
+                    },
+                    url: "postedStudentApplication",
+                    type: "POST",
+                    data: JSON.stringify(jso),
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader(header, token);
+                    },
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    xhr: function () {
+                        var myXhr = $.ajaxSettings.xhr();
+                        if (myXhr.upload) {
+                            myXhr.upload.addEventListener(
+                                "progress",
+                                function (e) {
+                                    if (e.lengthComputable) {
+                                        $("progress").attr({
+                                            value: e.loaded,
+                                            max: e.total,
+                                        });
+                                    }
+                                },
+                                false
+                            );
+                        }
+                        return myXhr;
+                    },
+                    success: function (data) {
+                        swal({
+                            title: "Thank you!",
+                            text: "Your application is being submitted",
+                            type: "success",
+                        });
+                    },
+                    error: function (errMsg) {
+                        swal({
+                            title: "Sorry!",
+                            text: "Operation Failed",
+                            type: "error",
+                        });
+                    },
+                });
+            }
+        });
+        handler.openIframe();
     }
 });
-
 
 
 $("#copyrightYear").text(getYear());
 
 
 function getBase64Image(img) {
-  var canvas = document.createElement("canvas");
-  canvas.width = img.width;
-  canvas.height = img.height;
-  var ctx = canvas.getContext("2d");
-  ctx.drawImage(img, 0, 0);
-  var dataURL = canvas.toDataURL("image/png");
-  return dataURL.split(",")[1].replace('"', "");
+    var canvas = document.createElement("canvas");
+    canvas.width = img.width;
+    canvas.height = img.height;
+    var ctx = canvas.getContext("2d");
+    ctx.drawImage(img, 0, 0);
+    var dataURL = canvas.toDataURL("image/png");
+    return dataURL.split(",")[1].replace('"', "");
 }
 
 
@@ -220,587 +199,399 @@ var verfyOutput = document.querySelector("#studentPicture");
 let imagesArray = [];
 
 input.addEventListener("change", () => {
-  const file = input.files;
-  imagesArray = [];
-  imagesArray.push(file[0]);
-  displayImages();
+    const file = input.files;
+    imagesArray = [];
+    imagesArray.push(file[0]);
+    displayImages();
 });
 
 function displayImages() {
-  let images = "";
-  imagesArray.forEach((image, index) => {
-    images += `<div class="studPic">
+    let images = "";
+    imagesArray.forEach((image, index) => {
+        images += `<div class="studPic">
                   <img src="${URL.createObjectURL(
-                    image
-                  )}" alt="image" id="studentPicture" class="studPic">
+            image
+        )}" alt="image" id="studentPicture" class="studPic">
                   <span onclick="deleteImage(${index})">&times;</span>
                 </div>`;
-  });
-  output.innerHTML = images;
-  verfyOutput = images;
+    });
+    output.innerHTML = images;
+    verfyOutput = images;
 }
 
 function deleteImage(index) {
-  imagesArray.splice(index, 1);
-  imagesArray = [];
-  displayImages();
+    imagesArray.splice(index, 1);
+    imagesArray = [];
+    displayImages();
 }
 
 function datetime() {
-  var objToday = new Date(),
-    weekday = new Array(
-      "Sunday",
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday"
-    ),
-    dayOfWeek = weekday[objToday.getDay()],
-    domEnder = (function () {
-      var a = objToday;
-      if (/1/.test(parseInt((a + "").charAt(0)))) return "th";
-      a = parseInt((a + "").charAt(1));
-      return 1 == a ? "st" : 2 == a ? "nd" : 3 == a ? "rd" : "th";
-    })(),
-    dayOfMonth =
-      today + (objToday.getDate() < 10)
-        ? "0" + objToday.getDate() + domEnder
-        : objToday.getDate() + domEnder,
-    months = new Array(
-      "January",
-      "February",
-      "March",
-      "April",
-      "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December"
-    ),
-    curMonth = months[objToday.getMonth()],
-    curYear = objToday.getFullYear(),
-    curHour =
-      objToday.getHours() > 12
-        ? objToday.getHours() - 12
-        : objToday.getHours() < 10
-        ? "0" + objToday.getHours()
-        : objToday.getHours(),
-    curMinute =
-      objToday.getMinutes() < 10
-        ? "0" + objToday.getMinutes()
-        : objToday.getMinutes(),
-    curSeconds =
-      objToday.getSeconds() < 10
-        ? "0" + objToday.getSeconds()
-        : objToday.getSeconds(),
-    curMeridiem = objToday.getHours() > 12 ? "PM" : "AM";
-  var today =
-    curHour +
-    ":" +
-    curMinute +
-    "." +
-    curSeconds +
-    curMeridiem +
-    " " +
-    dayOfWeek +
-    " " +
-    dayOfMonth +
-    " of " +
-    curMonth +
-    ", " +
-    curYear;
-  return objToday;
+    var objToday = new Date(),
+        weekday = new Array(
+            "Sunday",
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday"
+        ),
+        dayOfWeek = weekday[objToday.getDay()],
+        domEnder = (function () {
+            var a = objToday;
+            if (/1/.test(parseInt((a + "").charAt(0)))) return "th";
+            a = parseInt((a + "").charAt(1));
+            return 1 == a ? "st" : 2 == a ? "nd" : 3 == a ? "rd" : "th";
+        })(),
+        dayOfMonth =
+            today + (objToday.getDate() < 10)
+                ? "0" + objToday.getDate() + domEnder
+                : objToday.getDate() + domEnder,
+        months = new Array(
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December"
+        ),
+        curMonth = months[objToday.getMonth()],
+        curYear = objToday.getFullYear(),
+        curHour =
+            objToday.getHours() > 12
+                ? objToday.getHours() - 12
+                : objToday.getHours() < 10
+                    ? "0" + objToday.getHours()
+                    : objToday.getHours(),
+        curMinute =
+            objToday.getMinutes() < 10
+                ? "0" + objToday.getMinutes()
+                : objToday.getMinutes(),
+        curSeconds =
+            objToday.getSeconds() < 10
+                ? "0" + objToday.getSeconds()
+                : objToday.getSeconds(),
+        curMeridiem = objToday.getHours() > 12 ? "PM" : "AM";
+    var today =
+        curHour +
+        ":" +
+        curMinute +
+        "." +
+        curSeconds +
+        curMeridiem +
+        " " +
+        dayOfWeek +
+        " " +
+        dayOfMonth +
+        " of " +
+        curMonth +
+        ", " +
+        curYear;
+    return objToday;
 }
 
 function getYear() {
-  var objToday = new Date();
-  curYear = objToday.getFullYear();
-  return curYear;
+    var objToday = new Date();
+    curYear = objToday.getFullYear();
+    return curYear;
 }
 
 async function fetchAllInstitutions() {
-  try {
-    const response = await fetchPost("/fetchAllInstitutions", {});
-    const formattedSchools = formatSchoolsData(response);
-    extractedFormList=extractAllSchoolsAdmissions(response)
-    return formattedSchools;
-  } catch (error) {
-    console.error("Error fetching and formatting schools:", error);
-    return [];
-  }
+    try {
+        const response = await fetchPost("/fetchAllInstitutions", {});
+        const formattedSchools = formatSchoolsData(response);
+        extractedFormList = extractAllSchoolsAdmissions(response);
+        return formattedSchools;
+    } catch (error) {
+        console.error("Error fetching and formatting schools:", error);
+        return [];
+    }
 }
 
- function buildCards(allAdmissionsData, schoolId, containerId) {
+function buildCards(allAdmissionsData, schoolId, containerId) {
     document.querySelector(".next").click();
-     createFormTypeCardsForSchool(allAdmissionsData, schoolId, containerId);
+    createFormTypeCardsForSchool(allAdmissionsData, schoolId, containerId);
 }
 
 function fetchStudent() {
     document.querySelector(".next").click();
 }
 
-document.addEventListener("DOMContentLoaded", function () {
-  // Get all program cards and their checkboxes
-  const programCards = document.querySelectorAll(".program-card");
-  const resetBtn = document.getElementById("reset-btn");
-
-  // Get all subject groups
-  const subjectGroups = {
-    arts: document.querySelectorAll(".arts-subject"),
-    science: document.querySelectorAll(".science-subject"),
-    business: document.querySelectorAll(".business-subject"),
-    "visual-arts": document.querySelectorAll(".visual-arts-subject"),
-    "home-economics": document.querySelectorAll(".home-economics-subject"),
-    technical: document.querySelectorAll(".technical-subject"),
-    agriculture: document.querySelectorAll(".agriculture-subject"),
-  };
-
-  // Track total selected subjects
-  let totalSelected = 0;
-  const MAX_SELECTION = 4;
-  let selectedProg = null;
-  var selectedCount1 = null;
-
-  // Function to disable all subjects in all programs
-  function disableAllSubjects() {
-    debugger;
-    for (const program in subjectGroups) {
-      disableSubjects(subjectGroups[program]);
-    }
-  }
-
-  // Function to disable subjects in a program
-  function disableSubjects(subjects) {
-    subjects.forEach((subject) => {
-      subject.disabled = true;
-      subject.parentElement.classList.add("disabled");
-    });
-  }
-
-  // Function to enable subjects in a program
-  function enableSubjects(subjects) {
-    subjects.forEach((subject) => {
-      subject.disabled = false;
-      subject.parentElement.classList.remove("disabled");
-    });
-  }
-
-  // Function to update selection count
-  function updateSelectionCount(subjects, countElementId) {
-    const selectedCount = Array.from(subjects).filter(
-      (subject) => subject.checked
-    ).length;
-    document.getElementById(countElementId).textContent = selectedCount;
-    selectedProg = countElementId;
-    selectedCount1 = selectedCount;
-
-    // Update total selected count
-    totalSelected = Array.from(
-      document.querySelectorAll('input[type="checkbox"]')
-    ).filter((cb) => cb.checked).length;
-
-    // Enable/disable submit button based on selection
-    const anySelected = Array.from(
-      document.querySelectorAll('input[type="checkbox"]')
-    ).some((cb) => cb.checked);
-  }
-
-
-  // Function to handle program selection
-  function selectProgram(programId, subjects) {
-    // If clicking the same program again, do nothing
-    if (selectedProgram === programId) return;
-
-    // Reset all selections first
-    resetAllSelections();
-
-    // Set the new selected program
-    selectedProgram = programId;
-
-    // Add selected style to this card
-    //document.getElementById(programId + '-card').classList.add('selected-program');
-
-    // Enable only the subjects in this program
-    enableSubjects(subjects);
-
-    // Disable all other subjects
-    for (const program in subjectGroups) {
-      if (program !== programId) {
-        disableSubjects(subjectGroups[program]);
-      }
-    }
-  }
-
-  // Add event listeners to checkboxes to handle program selection
-  for (const program in subjectGroups) {
-    subjectGroups[program].forEach((subject) => {
-      subject.addEventListener("click", function () {
-        if (!selectedProgram) {
-          selectProgram(program, subjectGroups[program]);
-        }
-        updateSelectionCount(subjectGroups[program], program + "-count");
-      });
-    });
-  }
-
-  // Function to create JSON output of selected subjects
-  function createSelectedSubjectsJSON() {
-    const selectedSubjects = [];
-
-    // Get all checked checkboxes
-    document
-      .querySelectorAll('input[type="checkbox"]:checked')
-      .forEach((checkbox) => {
-        selectedSubjects.push({
-          subject: checkbox.nextElementSibling.textContent.split("\n")[0],
-        });
-      });
-
-    return {
-      selectedSubjects: selectedSubjects,
-    };
-  }
-
-  // Add event listeners to checkboxes to handle program selection and limit
-  for (const program in subjectGroups) {
-    subjectGroups[program].forEach((subject) => {
-      subject.addEventListener("click", function () {
-        if (!selectedProgram) {
-          selectProgram(program, subjectGroups[program]);
-        }
-
-        // Enforce the 4 subject limit
-        if (totalSelected > MAX_SELECTION && this.checked) {
-          this.checked = false;
-          document.getElementById(selectedProg).textContent =
-            selectedCount1 - 1;
-          alert(`You can only select up to ${MAX_SELECTION} subjects.`);
-          return;
-        }
-
-        updateSelectionCount(subjectGroups[program], program + "-count");
-        exportJSON(); // Update JSON output on change
-      });
-    });
-  }
-
-  // Function to export JSON
-  function exportJSON() {
-    subjectJsonData = createSelectedSubjectsJSON();
-    //jsonResult.textContent = JSON.stringify(jsonData, null, 2);
-  }
-});
-
+//**************************************************************
+// FIRST CONTAINER - School Selection with Search/Filter (WORKING)
 //**************************************************************
 
 document.addEventListener("DOMContentLoaded", async function () {
-  const schoolsContainer = document.getElementById("schools-container");
-  const selectedSchoolElement = document.getElementById("selected-school");
-  const compareBtn = document.getElementById("compare-btn");
-  const viewBtn = document.getElementById("view-btn");
-  const searchInput = document.getElementById("search-input");
-  const regionFilter = document.getElementById("region-filter");
-  const programFilter = document.getElementById("program-filter");
+    const schoolsContainer = document.getElementById("schools-container");
+    const searchInput = document.getElementById("search-input");
+    const regionFilter = document.getElementById("region-filter");
 
-  let selectedSchool = null;
+    // Log for debugging
+    console.log("School Container:", schoolsContainer);
+    console.log("Search Input:", searchInput);
+    console.log("Region Filter:", regionFilter);
 
-  schools = await fetchAllInstitutions();
-
-  // Function to generate school cards
-  function generateSchoolCards(schoolsArray) {
-    schoolsContainer.innerHTML = "";
-
-    if (schoolsArray.length === 0) {
-      schoolsContainer.innerHTML = `
-                           <div class="no-results">
-                               <i class="fas fa-search fa-3x mb-3"></i>
-                               <h4>No schools found</h4>
-                               <p>Try adjusting your search or filters</p>
-                           </div>
-                       `;
-      return;
+    if (!schoolsContainer) {
+        console.error("schools-container not found!");
+        return;
     }
 
-    schoolsArray.forEach((school) => {
-      const programTags = school.programs
-        .map((program) => `<span class="program-tag">${program}</span>`)
-        .join("");
+    let selectedSchool = null;
 
-      const schoolCard = document.createElement("div");
-      schoolCard.className = "school-card";
-      schoolCard.dataset.id = school.id;
-      schoolCard.innerHTML = `
-                           <div class="school-image" style="background-color: ${school.color};">
-                               <img src="${school.logo}" alt="${school.name} Logo" class="school-logo">
-                           </div>
-                           <div class="school-content">
-                               <h3 class="school-name">${school.name}</h3>
-                               <div class="school-location">
-                                   <i class="fas fa-map-marker-alt"></i> ${school.location}
-                               </div>
-                               <span class="school-type">${school.type}</span>
-                               <div class="school-programs">
-                                   ${programTags}
-                               </div>
-                           </div>
-                       `;
+    // Fetch schools
+    schools = await fetchAllInstitutions();
+    console.log("Schools loaded:", schools ? schools.length : 0);
 
-      schoolsContainer.appendChild(schoolCard);
-    });
+    function generateSchoolCards(schoolsArray) {
+        if (!schoolsContainer) return;
+        schoolsContainer.innerHTML = "";
 
-    // Add click event to all school cards
-    document.querySelectorAll(".school-card").forEach((card) => {
-      card.addEventListener("click", async function () {
-        // Remove selected class from all cards
-        document
-          .querySelectorAll(".school-card")
-          .forEach((c) => c.classList.remove("selected"));
+        if (!schoolsArray || schoolsArray.length === 0) {
+            schoolsContainer.innerHTML = `
+                <div class="no-results">
+                    <i class="fas fa-search fa-3x mb-3"></i>
+                    <h4>No schools found</h4>
+                    <p>Try adjusting your search or filters</p>
+                </div>
+            `;
+            return;
+        }
 
-        // Add selected class to clicked card
-        this.classList.add("selected");
+        schoolsArray.forEach((school) => {
+            const programTags = school.programs
+                .map((program) => `<span class="program-tag">${program}</span>`)
+                .join("");
 
-        // Update selected school
-        const schoolId = this.dataset.id;
-        selectedSchool = schools.find((school) => school.id == schoolId);
-        institution = selectedSchool.bececode;
+            const schoolCard = document.createElement("div");
+            schoolCard.className = "school-card";
+            schoolCard.dataset.id = school.id;
+            schoolCard.innerHTML = `
+                <div class="school-image" style="background-color: ${school.color};">
+                    <img src="${school.logo}" alt="${school.name} Logo" class="school-logo">
+                </div>
+                <div class="school-content">
+                    <h3 class="school-name">${school.name}</h3>
+                    <div class="school-location">
+                        <i class="fas fa-map-marker-alt"></i> ${school.location}
+                    </div>
+                    <span class="school-type">${school.type}</span>
+                    <div class="school-programs">
+                        ${programTags}
+                    </div>
+                </div>
+            `;
 
-        const student = await  buildCards(extractedFormList, schoolId, 'availableForm-container');
+            schoolCard.addEventListener("click", async function () {
+                document.querySelectorAll("#schools-container .school-card")
+                    .forEach((c) => c.classList.remove("selected"));
+                this.classList.add("selected");
 
-        // Enable buttons
-        /*compareBtn.disabled = false;
-                           viewBtn.disabled = false;*/
-      });
-    });
-  }
+                const schoolId = this.dataset.id;
+                selectedSchool = schools.find((school) => school.id == schoolId);
+                if (selectedSchool) {
+                    institution = selectedSchool.bececode;
+                    await buildCards(extractedFormList, schoolId, 'availableForm-container');
+                }
+            });
 
-  // Initial rendering of all schools
-  generateSchoolCards(schools);
+            schoolsContainer.appendChild(schoolCard);
+        });
+    }
 
-  // Search functionality
-  searchInput.addEventListener("input", filterSchools);
+    // Initial rendering
+    generateSchoolCards(schools);
 
-  // Filter functionality
-  /*regionFilter.addEventListener("change", filterSchools);
-  programFilter.addEventListener("change", filterSchools);*/
+    // Filter function - ONLY for first container
+    function filterSchools() {
+        if (!searchInput || !regionFilter) return;
 
-  function filterSchools() {
-    const searchTerm = searchInput.value.toLowerCase();
-    const regionValue = regionFilter.value;
-    const programValue = programFilter.value;
+        const searchTerm = searchInput.value.toLowerCase();
+        const regionValue = regionFilter.value;
 
-    const filteredSchools = schools.filter((school) => {
-      const matchesSearch =
-        school.name.toLowerCase().includes(searchTerm) ||
-        school.location.toLowerCase().includes(searchTerm);
+        const filteredSchools = schools.filter((school) => {
+            const matchesSearch = searchTerm === "" ||
+                school.name.toLowerCase().includes(searchTerm) ||
+                school.location.toLowerCase().includes(searchTerm);
 
-      const matchesRegion =
-        regionValue === "" || school.location.includes(regionValue);
+            const matchesRegion = regionValue === "" ||
+                school.location.includes(regionValue);
 
-      const matchesProgram =
-        programValue === "" ||
-        school.programs.some((program) => program === programValue);
+            return matchesSearch && matchesRegion;
+        });
 
-      return matchesSearch && matchesRegion && matchesProgram;
-    });
+        console.log("Filtered schools:", filteredSchools.length);
+        generateSchoolCards(filteredSchools);
+    }
 
-    generateSchoolCards(filteredSchools);
-  }
+    // Attach event listeners for filters
+    if (searchInput) {
+        searchInput.addEventListener("input", filterSchools);
+        console.log("Search input listener attached");
+    }
+    if (regionFilter) {
+        regionFilter.addEventListener("change", filterSchools);
+        console.log("Region filter listener attached");
+    }
 });
 
 
-/**
-Creates cards of available forms for sale
-**************************************************************************************
-*/
-
+//**************************************************************
+// SECOND CONTAINER - Available Forms (NO search/filters)
+//**************************************************************
 
 document.addEventListener("DOMContentLoaded", async function () {
-  const schoolsContainer = document.getElementById("availableForm-container");
-  const selectedSchoolElement = document.getElementById("selected-applicationForm");
-  const compareBtn = document.getElementById("compare-btn");
-  const viewBtn = document.getElementById("view-btn");
+    const schoolsContainer = document.getElementById("availableForm-container");
 
-  let selectedForm = null;
-
-  //const schools = await fetchAllInstitutions();
-
-  // Function to generate school cards
-  function generateSchoolCards(schoolsArray) {
-    schoolsContainer.innerHTML = "";
-
-    if (schoolsArray.length === 0) {
-      schoolsContainer.innerHTML = `
-                           <div class="no-results">
-                               <i class="fas fa-search fa-3x mb-3"></i>
-                               <h4>No Forms found</h4>
-                               <p>Try adjusting your search or filters</p>
-                           </div>
-                       `;
-      return;
+    if (!schoolsContainer) {
+        console.error("availableForm-container not found!");
+        return;
     }
 
-    schoolsArray.forEach((school) => {
-      const programTags = school.programs
-        .map((program) => `<span class="program-tag">${program}</span>`)
-        .join("");
+    let availableSchools = [];
 
-      const schoolCard = document.createElement("div");
-      schoolCard.className = "school-card";
-      schoolCard.dataset.id = school.id;
-      schoolCard.innerHTML = `
-                           <div class="school-image" style="background-color: ${school.color};">
-                               <img src="${school.logo}" alt="${school.name} Logo" class="school-logo">
-                           </div>
-                           <div class="school-content">
-                               <h3 class="school-name">${school.name}</h3>
-                               <div class="school-location">
-                                   <i class="fas fa-map-marker-alt"></i> ${school.location}
-                               </div>
-                               <span class="school-type">${school.type}</span>
-                               <div class="school-programs">
-                                   ${programTags}
-                               </div>
-                           </div>
-                       `;
+    try {
+        availableSchools = await fetchAllInstitutions();
+        if (!availableSchools || !Array.isArray(availableSchools)) {
+            availableSchools = [];
+        }
+    } catch (error) {
+        console.error("Error fetching schools for forms:", error);
+        availableSchools = [];
+    }
 
-      schoolsContainer.appendChild(schoolCard);
-    });
+    function generateSchoolCards(schoolsArray) {
+        if (!schoolsArray || schoolsArray.length === 0) {
+            schoolsContainer.innerHTML = `
+                <div class="no-results">
+                    <i class="fas fa-info-circle fa-3x mb-3"></i>
+                    <h4>No Forms Available</h4>
+                    <p>Select a school to view available admission forms.</p>
+                </div>
+            `;
+            return;
+        }
 
-    // Add click event to all school cards
-    document.querySelectorAll(".school-card").forEach((card) => {
-      card.addEventListener("click", async function () {
-        // Remove selected class from all cards
-        document
-          .querySelectorAll(".school-card")
-          .forEach((c) => c.classList.remove("selected"));
+        schoolsContainer.innerHTML = "";
 
-        // Add selected class to clicked card
-        this.classList.add("selected");
+        schoolsArray.forEach((school) => {
+            const programTags = school.programs
+                .map((program) => `<span class="program-tag">${program}</span>`)
+                .join("");
 
-        // Update selected school
-        const schoolId = this.dataset.id;
-        selectedSchool = schools.find((school) => school.id == schoolId);
-        institution = selectedSchool.bececode;
+            const schoolCard = document.createElement("div");
+            schoolCard.className = "school-card";
+            schoolCard.dataset.id = school.id;
+            schoolCard.innerHTML = `
+                <div class="school-image" style="background-color: ${school.color};">
+                    <img src="${school.logo}" alt="${school.name} Logo" class="school-logo">
+                </div>
+                <div class="school-content">
+                    <h3 class="school-name">${school.name}</h3>
+                    <div class="school-location">
+                        <i class="fas fa-map-marker-alt"></i> ${school.location}
+                    </div>
+                    <span class="school-type">${school.type}</span>
+                    <div class="school-programs">
+                        ${programTags}
+                    </div>
+                </div>
+            `;
 
-debugger
-        const student = await fetchStudent(
-          selectedSchool.bececode,
-          selectedSchool.name
-        );
+            schoolsContainer.appendChild(schoolCard);
+        });
 
-        // Enable buttons
-        /*compareBtn.disabled = false;
-                           viewBtn.disabled = false;*/
-      });
-    });
-  }
+        const cards = document.querySelectorAll("#availableForm-container .school-card");
+        cards.forEach((card) => {
+            card.addEventListener("click", async function () {
+                cards.forEach((c) => c.classList.remove("selected"));
+                this.classList.add("selected");
 
-  // Initial rendering of all schools
-  generateSchoolCards(schools);
+                const schoolId = this.dataset.id;
+                const selectedSchool = schoolsArray.find((school) => school.id == schoolId);
+                if (selectedSchool) {
+                    institution = selectedSchool.bececode;
+                    await fetchStudent(selectedSchool.bececode, selectedSchool.name);
+                }
+            });
+        });
+    }
 
-  // Search functionality
-  searchInput.addEventListener("input", filterSchools);
+    if (availableSchools && availableSchools.length > 0) {
+        generateSchoolCards(availableSchools);
+    } else {
+        schoolsContainer.innerHTML = `
+            <div class="loading-state">
+                <i class="fas fa-spinner fa-spin fa-3x mb-3"></i>
+                <h4>Loading Available Forms...</h4>
+                <p>Please wait while we load the available admission forms.</p>
+            </div>
+        `;
+    }
 
-  // Filter functionality
-  regionFilter.addEventListener("change", filterSchools);
-  programFilter.addEventListener("change", filterSchools);
-
-  function filterSchools() {
-    const searchTerm = searchInput.value.toLowerCase();
-    const regionValue = regionFilter.value;
-    const programValue = programFilter.value;
-
-    const filteredSchools = schools.filter((school) => {
-      const matchesSearch =
-        school.name.toLowerCase().includes(searchTerm) ||
-        school.location.toLowerCase().includes(searchTerm);
-
-      const matchesRegion =
-        regionValue === "" || school.location.includes(regionValue);
-
-      const matchesProgram =
-        programValue === "" ||
-        school.programs.some((program) => program === programValue);
-
-      return matchesSearch && matchesRegion && matchesProgram;
-    });
-
-    generateSchoolCards(filteredSchools);
-  }
+    // NO filter event listeners here - they only work on the first container
 });
-
 
 
 /**
  * Makes a POST request using fetch with Bearer token.
- *
- * @param {string} url - The API endpoint.
- * @param {object} data - The JSON payload to send.
- * @returns {Promise<any>} - The parsed JSON response.
  */
 async function fetchPost(url, data) {
-   url="/api/"+url;
-  const csrfToken = document.querySelector("meta[name='_csrf']")?.content;
-  const csrfHeader = document.querySelector(
-    "meta[name='_csrf_header']"
-  )?.content;
+    const csrfToken = document.querySelector("meta[name='_csrf']")?.content;
+    const csrfHeader = document.querySelector("meta[name='_csrf_header']")?.content;
 
-  try {
-    const headers = {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-    };
+    try {
+        const headers = {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+        };
 
-    if (csrfToken && csrfHeader) {
-      headers[csrfHeader] = csrfToken;
+        if (csrfToken && csrfHeader) {
+            headers[csrfHeader] = csrfToken;
+        }
+
+        const response = await fetch(url, {
+            method: "POST",
+            headers: headers,
+            body: JSON.stringify(data),
+            credentials: "include",
+        });
+
+        if (response.status === 404) {
+            return null;
+        }
+
+        if (!response.ok) {
+            let errorText;
+            try {
+                errorText = await response.text();
+            } catch (e) {
+                errorText = "No error message available";
+            }
+            throw new Error(`HTTP ${response.status}: ${errorText}`);
+        }
+
+        const contentLength = response.headers.get("content-length");
+        const contentType = response.headers.get("content-type");
+
+        if (
+            contentLength === "0" ||
+            !contentType ||
+            !contentType.includes("application/json")
+        ) {
+            return null;
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("POST Error:", error.message || error);
+        throw new Error(error.message || "Network request failed");
     }
-
-    const response = await fetch(url, {
-      method: "POST",
-      headers: headers,
-      body: JSON.stringify(data),
-      credentials: "include",
-    });
-
-    // Handle 404 specifically - it's not an error, just "not found"
-    if (response.status === 404) {
-      return null;
-    }
-
-    // Still throw error for other non-2xx status codes (500, 400, etc.)
-    if (!response.ok) {
-      let errorText;
-      try {
-        errorText = await response.text();
-      } catch (e) {
-        errorText = "No error message available";
-      }
-      throw new Error(`HTTP ${response.status}: ${errorText}`);
-    }
-
-    // Handle empty responses
-    const contentLength = response.headers.get("content-length");
-    const contentType = response.headers.get("content-type");
-
-    if (
-      contentLength === "0" ||
-      !contentType ||
-      !contentType.includes("application/json")
-    ) {
-      return null;
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error("POST Error:", error.message || error);
-    // Re-throw the error with a proper message
-    throw new Error(error.message || "Network request failed");
-  }
 }
 
 
@@ -808,7 +599,6 @@ function extractAllSchoolsAdmissions(schoolsData) {
     const allAdmissionsData = {};
 
     schoolsData.forEach(school => {
-        // Create base school info
         const schoolData = {
             schoolId: school.id,
             schoolName: school.name,
@@ -822,13 +612,11 @@ function extractAllSchoolsAdmissions(schoolsData) {
             formTypes: []
         };
 
-        // If school has admissions data, process it
         if (school.admissions) {
             const admissions = school.admissions;
             schoolData.hasAdmissions = true;
             schoolData.admissionCriteria = admissions.admissionCriteriaList || [];
 
-            // Process each application category
             if (admissions.applicationCategoryList && admissions.applicationCategoryList.length > 0) {
                 schoolData.formTypes = admissions.applicationCategoryList.map(category => ({
                     id: category.id,
@@ -842,7 +630,6 @@ function extractAllSchoolsAdmissions(schoolsData) {
                     appointmentCommencement: category.appointmentCommencement,
                     appointmentClosure: category.appointmentClosure,
                     status: getFormStatus(category.commencement, category.closure),
-                    // Add school reference for easy access
                     schoolId: school.id,
                     schoolName: school.name,
                     schoolCode: school.bececode
@@ -850,7 +637,6 @@ function extractAllSchoolsAdmissions(schoolsData) {
             }
         }
 
-        // Store by multiple identifiers for easy lookup
         allAdmissionsData[school.id] = schoolData;
         allAdmissionsData[school.name] = schoolData;
         allAdmissionsData[school.bececode] = schoolData;
@@ -859,7 +645,6 @@ function extractAllSchoolsAdmissions(schoolsData) {
     return allAdmissionsData;
 }
 
-// Keep the same helper functions
 function getPaymentMediumText(code) {
     const paymentMethods = {
         "1": "Cash Only",
@@ -875,17 +660,15 @@ function getFormStatus(commencement, closure) {
     const startDate = new Date(commencement);
     const endDate = new Date(closure);
 
+    now.setHours(0, 0, 0, 0);
+    startDate.setHours(0, 0, 0, 0);
+    endDate.setHours(0, 0, 0, 0);
+
     if (now < startDate) return "Coming Soon";
     if (now > endDate) return "Closed";
     return "Open";
 }
 
-/**
- * Creates HTML cards for form types of a specific school
- * @param {Object} allAdmissionsData - All admissions data from extractAllSchoolsAdmissions
- * @param {number|string} schoolIdentifier - ID, name, or code of the specific school
- * @param {string} containerId - ID of the HTML container to render cards in
- */
 function createFormTypeCardsForSchool(extractedFormList, schoolIdentifier, containerId) {
     const container = document.getElementById(containerId);
 
@@ -894,10 +677,8 @@ function createFormTypeCardsForSchool(extractedFormList, schoolIdentifier, conta
         return;
     }
 
-    // Clear container
     container.innerHTML = '';
 
-    // Get specific school's data
     const schoolData = extractedFormList[schoolIdentifier];
 
     if (!schoolData) {
@@ -913,7 +694,6 @@ function createFormTypeCardsForSchool(extractedFormList, schoolIdentifier, conta
         return;
     }
 
-    // Create school header
     const schoolHeader = document.createElement('div');
     schoolHeader.className = 'school-header';
     schoolHeader.innerHTML = `
@@ -935,10 +715,8 @@ function createFormTypeCardsForSchool(extractedFormList, schoolIdentifier, conta
     `;
     container.appendChild(schoolHeader);
 
-    // Create forms section
     const formsSection = document.createElement('div');
-    formsSection.className = 'forms-section';
-    formsSection.className = 'schools-grid';
+    formsSection.className = 'forms-section schools-grid';
 
     if (!schoolData.hasAdmissions || schoolData.formTypes.length === 0) {
         formsSection.innerHTML = `
@@ -951,10 +729,47 @@ function createFormTypeCardsForSchool(extractedFormList, schoolIdentifier, conta
             </div>
         `;
     } else {
-        // Create cards for each form type
-        schoolData.formTypes.forEach(form => {
+        const availableForms = schoolData.formTypes.filter(form => form.status !== "Closed");
+
+        if (availableForms.length === 0) {
+            formsSection.innerHTML = `
+                <div class="no-forms-message">
+                    <div class="empty-state">
+                        <i class="fas fa-info-circle fa-3x"></i>
+                        <h3>No Available Forms</h3>
+                        <p>All admission forms are currently closed. Please check back later.</p>
+                    </div>
+                </div>
+            `;
+        } else {
+            availableForms.forEach(form => {
+                const isClosed = form.status === "Closed";
+                const isComingSoon = form.status === "Coming Soon";
+
                 const card = document.createElement('div');
-                card.className = `form-type-card ${form.status.toLowerCase().replace(' ', '-')}`;
+                let statusClass = '';
+                if (isClosed) statusClass = 'form-closed';
+                if (isComingSoon) statusClass = 'form-coming-soon';
+
+                card.className = `form-type-card ${form.status.toLowerCase().replace(' ', '-')} ${statusClass}`;
+
+                if (isClosed) {
+                    card.style.cursor = 'not-allowed';
+                    card.style.opacity = '0.6';
+                } else {
+                    card.style.cursor = 'pointer';
+                }
+
+                let startDateHtml = '';
+                if (isComingSoon && form.commencementDate) {
+                    startDateHtml = `
+                        <div class="form-start-date">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span>Starts: ${formatDate(form.commencementDate)}</span>
+                        </div>
+                    `;
+                }
+
                 card.innerHTML = `
                     <div class="form-header">
                         <h3 class="form-title">${form.formType}</h3>
@@ -971,41 +786,63 @@ function createFormTypeCardsForSchool(extractedFormList, schoolIdentifier, conta
                             <i class="fas fa-credit-card"></i>
                             <span>${form.paymentMedium}</span>
                         </div>
+                        ${startDateHtml}
+                        ${isClosed ? `
+                            <div class="form-closed-message">
+                                <i class="fas fa-ban"></i>
+                                <span>Applications Closed</span>
+                            </div>
+                        ` : ''}
+                        ${isComingSoon ? `
+                            <div class="form-coming-soon-message">
+                                <i class="fas fa-clock"></i>
+                                <span>Coming Soon</span>
+                            </div>
+                        ` : ''}
                     </div>
                 `;
 
-                // Store form data on the card element
                 card.dataset.formCost = form.cost;
                 card.dataset.formType = form.formType;
+                card.dataset.formStatus = form.status;
+                card.dataset.startDate = form.commencementDate;
 
-                card.addEventListener('click', function() {
-                    // Remove selected class from all cards
-                    document.querySelectorAll('.form-type-card').forEach(c => c.classList.remove('selected'));
-                    // Add selected class to clicked card
-                    this.classList.add('selected');
+                if (!isClosed) {
+                    card.addEventListener('click', function () {
+                        document.querySelectorAll('.form-type-card').forEach(c => c.classList.remove('selected'));
+                        this.classList.add('selected');
 
-                    // Store selected form data globally
-                    window.selectedForm = {
-                        cost: form.cost,
-                        type: form.formType,
-                        schoolCode: form.schoolCode
-                    };
+                        window.selectedForm = {
+                            cost: form.cost,
+                            type: form.formType,
+                            applicationType: form.formType,
+                            schoolCode: form.schoolCode,
+                            status: form.status,
+                            startDate: form.commencementDate
+                        };
 
-                    fetchStudent();
-                });
+                        if (form.status === "Open") {
+                            fetchStudent();
+                        } else if (form.status === "Coming Soon") {
+                            showNotification(`This form will be available starting ${formatDate(form.commencementDate)}. Please check back later.`, "info");
+                        }
+                    });
+                } else {
+                    card.title = "Applications are closed for this form";
+                    card.addEventListener('click', function (e) {
+                        e.stopPropagation();
+                        showNotification("Applications are closed for this admission form.", "warning");
+                    });
+                }
 
                 formsSection.appendChild(card);
             });
-
-        // Add event listeners after creating cards
-        addFormCardEventListeners();
-
+        }
     }
 
     container.appendChild(formsSection);
 }
 
-// Helper functions
 function formatDate(dateString) {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-GB', {
@@ -1015,19 +852,9 @@ function formatDate(dateString) {
     });
 }
 
-function getActionButtonText(status) {
-    const texts = {
-        'Open': 'Apply Now',
-        'Coming Soon': 'Notify Me',
-        'Closed': 'Application Closed'
-    };
-    return texts[status] || 'View';
-}
-
 function addFormCardEventListeners() {
-    // Add apply button listeners
     document.querySelectorAll('.apply-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', function () {
             const formType = this.getAttribute('data-form-type');
             const schoolId = this.getAttribute('data-school-id');
             const cost = this.getAttribute('data-cost');
@@ -1035,9 +862,8 @@ function addFormCardEventListeners() {
         });
     });
 
-    // Add details button listeners
     document.querySelectorAll('.details-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', function () {
             const formType = this.getAttribute('data-form-type');
             const schoolId = this.getAttribute('data-school-id');
             showFormDetails(formType, schoolId);
@@ -1047,789 +873,557 @@ function addFormCardEventListeners() {
 
 function handleFormApplication(formType, schoolId, cost) {
     console.log(`Applying for ${formType} at school ${schoolId}, Cost: GH₵${cost}`);
-    // Implement your application logic here
-    alert(`Starting application for ${formType} - GH₵${cost}`);
+    swal({
+        title: "Starting application",
+        text: `Starting application for ${formType} - GH₵${cost}`,
+        type: "info",
+    });
 }
 
 function showFormDetails(formType, schoolId) {
     console.log(`Showing details for ${formType} at school ${schoolId}`);
-    // Implement your details modal logic here
-    alert(`Details for ${formType}`);
+    swal({
+        title: "Form Details",
+        text: `Details for ${formType}`,
+        type: "info",
+    });
 }
 
-
-
-
-
 function formatSchoolsData(originalData) {
-  return originalData.map((school) => {
-    // Extract unique program names from class groups
-    const programs = [
-      ...new Set(
-        school.classList.map((cls) => {
-          const classGroup = cls.classGroup;
-          // Map classGroup numbers to program names
-          const programMap = {
-            1: "General Science",
-            2: "General Arts",
-            3: "Business",
-            4: "Visual Arts",
-            5: "Home Economics",
-            6: "Agriculture",
-            7: "Technical",
-          };
-          return programMap[classGroup] || `Program ${classGroup}`;
-        })
-      ),
-    ];
-
-    // Determine school type based on name and available data
-    const schoolName = school.name.toLowerCase();
-    let type = "Public • Mixed"; // Default
-
-    if (
-      schoolName.includes("girls") ||
-      schoolName.includes("girls'") ||
-      schoolName.includes("female")
-    ) {
-      type = "Public • Girls";
-    } else if (
-      schoolName.includes("boys") ||
-      schoolName.includes("boys'") ||
-      schoolName.includes("male")
-    ) {
-      type = "Public • Boys";
+    if (!originalData || !Array.isArray(originalData)) {
+        return [];
     }
 
-    // Create location string
-    const location = `${school.city}, ${school.region}`;
+    return originalData.map((school) => {
+        const programs = [
+            ...new Set(
+                school.classList.map((cls) => {
+                    const classGroup = cls.classGroup;
+                    const programMap = {
+                        1: "General Science",
+                        2: "General Arts",
+                        3: "Business",
+                        4: "Visual Arts",
+                        5: "Home Economics",
+                        6: "Agriculture",
+                        7: "Technical",
+                    };
+                    return programMap[classGroup] || `Program ${classGroup}`;
+                })
+            ),
+        ];
 
-    const bececode=`${school.bececode}`
+        const schoolName = school.name.toLowerCase();
+        let type = "Public • Mixed";
 
-    // Convert base64 crest to data URL if exists, otherwise use placeholder
-    let logo =
-      "https://via.placeholder.com/100x100/3498db/ffffff?text=" +
-      encodeURIComponent(school.name.charAt(0));
-    if (school.crest) {
-      logo = `data:image/png;base64,${school.crest}`;
-    }
+        if (
+            schoolName.includes("girls") ||
+            schoolName.includes("girls'") ||
+            schoolName.includes("female")
+        ) {
+            type = "Public • Girls";
+        } else if (
+            schoolName.includes("boys") ||
+            schoolName.includes("boys'") ||
+            schoolName.includes("male")
+        ) {
+            type = "Public • Boys";
+        }
 
-    // Predefined color palette for consistent colors
-    const colorPalette = [
-      "#3498db",
-      "#2ecc71",
-      "#9b59b6",
-      "#e74c3c",
-      "#f39c12",
-      "#1abc9c",
-      "#d35400",
-      "#27ae60",
-      "#8e44ad",
-      "#c0392b",
-      "#16a085",
-      "#2980b9",
-      "#f1c40f",
-      "#e67e22",
-      "#2c3e50",
-    ];
+        const location = `${school.city}, ${school.region}`;
+        const bececode = `${school.bececode}`
 
-    const color = colorPalette[school.id % colorPalette.length];
+        let logo = "https://via.placeholder.com/100x100/3498db/ffffff?text=" +
+            encodeURIComponent(school.name.charAt(0));
+        if (school.crest) {
+            logo = `data:image/png;base64,${school.crest}`;
+        }
 
-    return {
-      id: school.id,
-      name: school.name,
-      location: location,
-      type: type,
-      programs: programs,
-      logo: logo,
-      color: color,
-      bececode:bececode,
-    };
-  });
+        const colorPalette = [
+            "#3498db", "#2ecc71", "#9b59b6", "#e74c3c", "#f39c12",
+            "#1abc9c", "#d35400", "#27ae60", "#8e44ad", "#c0392b",
+            "#16a085", "#2980b9", "#f1c40f", "#e67e22", "#2c3e50"
+        ];
+
+        const color = colorPalette[school.id % colorPalette.length];
+
+        return {
+            id: school.id,
+            name: school.name,
+            location: location,
+            type: type,
+            programs: programs,
+            logo: logo,
+            color: color,
+            bececode: bececode,
+        };
+    });
 }
 
 function populateStudentForm(studentData) {
-  if (!studentData) return;
+    if (!studentData) return;
 
-  // Populate Basic Student Information
-  document.getElementById("studFName").value = studentData.firstName.trim();
-  document.getElementById("studSurName").value = studentData.lastName.trim();
-  document.getElementById("studOtherName").value = studentData.otherName.trim();
+    document.getElementById("studFName").value = studentData.firstName.trim();
+    document.getElementById("studSurName").value = studentData.lastName.trim();
+    document.getElementById("studOtherName").value = studentData.otherName.trim();
 
-  // Set gender
-  if (studentData.gender) {
-    const genderSelect = document.getElementById("studGender");
-    const options = genderSelect.options;
-    for (let i = 0; i < options.length; i++) {
-      if (
-        options[i].text.toLowerCase().includes(studentData.gender.toLowerCase())
-      ) {
-        genderSelect.selectedIndex = i;
-        break;
-      }
-    }
-  }
-
-  // Populate dates
-  document.getElementById("studDOB").value = studentData.dateOfBirth.trim();
-  document.getElementById("studDOA").value = studentData.dateOfAdmission.trim();
-
-  // Populate place of birth and residence
-  document.getElementById("placeOfBirth").value =
-    studentData.placeOfBirth.trim();
-  document.getElementById("studResidence").value =
-    studentData.residentialLocality.trim();
-
-  // Set country of birth
-  if (studentData.countryOfBirth) {
-    const countrySelect = document.getElementById("cob");
-    const options = countrySelect.options;
-    for (let i = 0; i < options.length; i++) {
-      if (
-        options[i].text
-          .toLowerCase()
-          .includes(studentData.countryOfBirth.toLowerCase())
-      ) {
-        countrySelect.selectedIndex = i;
-        break;
-      }
-    }
-  }
-
-  // Populate denomination
-  document.getElementById("denomination").value =
-    studentData.denomination.trim();
-
-  // Populate Parent Information if available
-  if (studentData.studentParents && studentData.studentParents.length > 0) {
-    const parents = studentData.studentParents;
-
-    // Find father (assuming first parent with contact is father)
-    const father =
-      parents.find((p) => p.contact1 && p.contact1.trim()) || parents[0];
-    if (father) {
-      document.getElementById("fatherFirstName").value =
-        father.firstNames.trim();
-      document.getElementById("fatherLastName").value = father.lastName.trim();
-      document.getElementById("fatherEmail").value = father.email.trim();
-      document.getElementById("fatherContact1").value = father.contact1.trim();
-      document.getElementById("fatherContact2").value = father.contact2.trim();
-      document.getElementById("fatherOccupation").value =
-        father.occupation.trim();
-      document.getElementById("fatherPlaceOfWork").value =
-        father.placeOfWork.trim();
-
-      if (father.parentType) {
-        const fatherTypeSelect = document.getElementById("fatherType");
-        const options = fatherTypeSelect.options;
+    if (studentData.gender) {
+        const genderSelect = document.getElementById("studGender");
+        const options = genderSelect.options;
         for (let i = 0; i < options.length; i++) {
-          if (
-            options[i].text
-              .toLowerCase()
-              .includes(father.parentType.toLowerCase())
-          ) {
-            fatherTypeSelect.selectedIndex = i;
-            break;
-          }
+            if (options[i].text.toLowerCase().includes(studentData.gender.toLowerCase())) {
+                genderSelect.selectedIndex = i;
+                break;
+            }
         }
-      }
     }
 
-    // Find mother (assuming second parent or different type)
-    const mother =
-      parents.find((p) => p !== father) || parents[1] || parents[0];
-    if (mother && mother !== father) {
-      document.getElementById("motherFirstName").value =
-        mother.firstNames.trim();
-      document.getElementById("motherLastName").value = mother.lastName.trim();
-      document.getElementById("motherEmail").value = mother.email.trim();
-      document.getElementById("motherContact1").value = mother.contact1.trim();
-      document.getElementById("motherContact2").value = mother.contact2.trim();
-      document.getElementById("motherOccupation").value =
-        mother.occupation.trim();
-      document.getElementById("motherPlaceOfWork").value =
-        mother.placeOfWork.trim();
+    document.getElementById("studDOB").value = studentData.dateOfBirth.trim();
+    document.getElementById("studDOA").value = studentData.dateOfAdmission.trim();
+    document.getElementById("placeOfBirth").value = studentData.placeOfBirth.trim();
+    document.getElementById("studResidence").value = studentData.residentialLocality.trim();
 
-      if (mother.parentType) {
-        const motherTypeSelect = document.getElementById("motherType");
-        const options = motherTypeSelect.options;
+    if (studentData.countryOfBirth) {
+        const countrySelect = document.getElementById("cob");
+        const options = countrySelect.options;
         for (let i = 0; i < options.length; i++) {
-          if (
-            options[i].text
-              .toLowerCase()
-              .includes(mother.parentType.toLowerCase())
-          ) {
-            motherTypeSelect.selectedIndex = i;
-            break;
-          }
+            if (options[i].text.toLowerCase().includes(studentData.countryOfBirth.toLowerCase())) {
+                countrySelect.selectedIndex = i;
+                break;
+            }
         }
-      }
     }
-  }
 
-  // Auto-select program based on student class
- if (studentData.studentClass) {
-     const studentClass = studentData.studentClass.toLowerCase();
-     let programCard = null;
-     let programType = null;
+    document.getElementById("denomination").value = studentData.denomination.trim();
 
-     if (studentClass.includes("arts")) {
-       programCard = document.getElementById("arts-card");
-       programType = "arts";
-     } else if (studentClass.includes("science")) {
-       programCard = document.getElementById("science-card");
-       programType = "science";
-     } else if (studentClass.includes("business")) {
-       programCard = document.getElementById("business-card");
-       programType = "business";
-     } else if (studentClass.includes("visual") || studentClass.includes("art")) {
-       programCard = document.getElementById("visual-arts-card");
-       programType = "visual-arts";
-     } else if (studentClass.includes("home") || studentClass.includes("economics")) {
-       programCard = document.getElementById("home-economics-card");
-       programType = "home-economics";
-     } else if (studentClass.includes("technical") || studentClass.includes("tech")) {
-       programCard = document.getElementById("technical-card");
-       programType = "technical";
-     } else if (studentClass.includes("agriculture") || studentClass.includes("agri")) {
-       programCard = document.getElementById("agriculture-card");
-       programType = "agriculture";
-     }
+    if (studentData.studentParents && studentData.studentParents.length > 0) {
+        const parents = studentData.studentParents;
+        const father = parents.find((p) => p.contact1 && p.contact1.trim()) || parents[0];
+        if (father) {
+            document.getElementById("fatherFirstName").value = father.firstNames.trim();
+            document.getElementById("fatherLastName").value = father.lastName.trim();
+            document.getElementById("fatherEmail").value = father.email.trim();
+            document.getElementById("fatherContact1").value = father.contact1.trim();
+            document.getElementById("fatherContact2").value = father.contact2.trim();
+            document.getElementById("fatherOccupation").value = father.occupation.trim();
+            document.getElementById("fatherPlaceOfWork").value = father.placeOfWork.trim();
 
-     if (programCard) {
-       programCard.click();
+            if (father.parentType) {
+                const fatherTypeSelect = document.getElementById("fatherType");
+                const options = fatherTypeSelect.options;
+                for (let i = 0; i < options.length; i++) {
+                    if (options[i].text.toLowerCase().includes(father.parentType.toLowerCase())) {
+                        fatherTypeSelect.selectedIndex = i;
+                        break;
+                    }
+                }
+            }
+        }
 
-       // Select subjects based on the student's subject data
-       if (studentData.studentSubjectsResponse && studentData.studentSubjectsResponse.length > 0) {
-         selectSubjectsBasedOnData(studentData.studentSubjectsResponse, programType);
-       } else {
-         selectFirstSubjectInProgram(programType);
-       }
-     }
-   }
+        const mother = parents.find((p) => p !== father) || parents[1] || parents[0];
+        if (mother && mother !== father) {
+            document.getElementById("motherFirstName").value = mother.firstNames.trim();
+            document.getElementById("motherLastName").value = mother.lastName.trim();
+            document.getElementById("motherEmail").value = mother.email.trim();
+            document.getElementById("motherContact1").value = mother.contact1.trim();
+            document.getElementById("motherContact2").value = mother.contact2.trim();
+            document.getElementById("motherOccupation").value = mother.occupation.trim();
+            document.getElementById("motherPlaceOfWork").value = mother.placeOfWork.trim();
 
-   if (studentData.picture) {
-     displayStudentPicture(studentData.picture);
-   }
+            if (mother.parentType) {
+                const motherTypeSelect = document.getElementById("motherType");
+                const options = motherTypeSelect.options;
+                for (let i = 0; i < options.length; i++) {
+                    if (options[i].text.toLowerCase().includes(mother.parentType.toLowerCase())) {
+                        motherTypeSelect.selectedIndex = i;
+                        break;
+                    }
+                }
+            }
+        }
+    }
 
-   console.log("Student data populated successfully");
+    if (studentData.picture) {
+        displayStudentPicture(studentData.picture);
+    }
+
+    console.log("Student data populated successfully");
 }
 
 function selectSubjectsBasedOnData(subjectsData, programType) {
-  // Get all subject checkboxes for the program
-  let subjectCheckboxes;
-  const subjectSelector = `.${programType}-subject`;
-  subjectCheckboxes = document.querySelectorAll(subjectSelector);
+    let subjectCheckboxes;
+    const subjectSelector = `.${programType}-subject`;
+    subjectCheckboxes = document.querySelectorAll(subjectSelector);
 
-  // Clear any previously selected subjects in this program
-  subjectCheckboxes.forEach(checkbox => {
-    checkbox.checked = false;
-  });
+    subjectCheckboxes.forEach(checkbox => {
+        checkbox.checked = false;
+    });
 
-  // Select subjects that match the backend data
     subjectsData.forEach(subject => {
-      // Clean the subject name more thoroughly
-      const subjectName = subject.subjectName
-        .replace(/\s+/g, ' ')  // Replace multiple whitespace with single space
-        .replace(/\n/g, ' ')   // Remove newlines
-        .trim()                // Trim leading/trailing spaces
-        .toLowerCase();
+        const subjectName = subject.subjectName
+            .replace(/\s+/g, ' ')
+            .replace(/\n/g, ' ')
+            .trim()
+            .toLowerCase();
 
-      // Find the checkbox that matches this subject
-      const matchingCheckbox = Array.from(subjectCheckboxes).find(checkbox => {
-        // Find the parent div and then the label within it
-        const parentDiv = checkbox.closest('.subject-item');
-        if (parentDiv) {
-          const label = parentDiv.querySelector('label');
-          if (label) {
-            // Clean up the label text
-            const labelText = label.textContent
-              .replace(/\s+/g, ' ')
-              .replace(/\n/g, ' ')
-              .trim()
-              .toLowerCase();
+        const matchingCheckbox = Array.from(subjectCheckboxes).find(checkbox => {
+            const parentDiv = checkbox.closest('.subject-item');
+            if (parentDiv) {
+                const label = parentDiv.querySelector('label');
+                if (label) {
+                    const labelText = label.textContent
+                        .replace(/\s+/g, ' ')
+                        .replace(/\n/g, ' ')
+                        .trim()
+                        .toLowerCase();
+                    return labelText === subjectName;
+                }
+            }
+            return false;
+        });
 
-            console.log(`Comparing: "${labelText}" vs "${subjectName}"`);
-
-            // Use exact match instead of includes for better accuracy
-            return labelText === subjectName;
-          }
+        if (matchingCheckbox) {
+            matchingCheckbox.checked = true;
         }
-        return false;
-      });
-
-    if (matchingCheckbox) {
-     console.log("Found matching checkbox for:", subjectName, matchingCheckbox);
-
-         // Check if checkbox is disabled or readonly
-         if (matchingCheckbox.disabled) {
-           console.log("Checkbox is disabled:", matchingCheckbox);
-         }
-         if (matchingCheckbox.readOnly) {
-           console.log("Checkbox is readOnly:", matchingCheckbox);
-         }
-
-         // Try different approaches to select the checkbox
-         matchingCheckbox.checked = true;
-
-         console.log("Selected subject:", subjectName, "Checkbox state:", matchingCheckbox.checked);
-         if(matchingCheckbox.checked==false){
-          matchingCheckbox.checked = true;
-         console.log("Selected subject:", subjectName, "Checkbox state:", matchingCheckbox.checked);
-         }
-
-        } else {
-          console.log("Could not find checkbox for subject:", subjectName);
-          console.log("Available labels:", Array.from(subjectCheckboxes).map(cb => {
-            const parentDiv = cb.closest('.subject-item');
-            const label = parentDiv ? parentDiv.querySelector('label') : null;
-            return label ? `"${label.textContent.replace(/\s+/g, ' ').trim()}"` : 'no label';
-          }));
-        }
-  });
+    });
 }
 
-
-// Function to display base64 image
 function displayStudentPicture(base64Data) {
-  try {
-    // Create the image URL from base64 data
-    const imageUrl = `data:image/png;base64,${base64Data}`;
+    try {
+        const imageUrl = `data:image/png;base64,${base64Data}`;
+        const imgElement = document.getElementById('studentPicture');
+        const imageOutput = document.querySelector('.imageOutput');
 
-    // Get the image element
-    const imgElement = document.getElementById('studentPicture');
-    const imageOutput = document.querySelector('.imageOutput');
-
-    if (imgElement) {
-      // Set the image source
-      imgElement.src = imageUrl;
-
-      // If you want to update the preview container too
-      if (imageOutput) {
-        imageOutput.innerHTML = `
-          <div class="studPic">
-            <img src="${imageUrl}" alt="Student Picture" id="studentPicture" class="studPic">
-            <span onclick="deleteImage(0)">&times;</span>
-          </div>
-        `;
-      }
+        if (imgElement) {
+            imgElement.src = imageUrl;
+            if (imageOutput) {
+                imageOutput.innerHTML = `
+                    <div class="studPic">
+                        <img src="${imageUrl}" alt="Student Picture" id="studentPicture" class="studPic">
+                        <span onclick="deleteImage(0)">&times;</span>
+                    </div>
+                `;
+            }
+        }
+    } catch (error) {
+        console.error('Error displaying student picture:', error);
     }
-  } catch (error) {
-    console.error('Error displaying student picture:', error);
-  }
 }
 
 function selectFirstSubjectInProgram(programType) {
-  let subjectCheckboxes;
-  const subjectSelector = `.${programType}-subject`;
-  subjectCheckboxes = document.querySelectorAll(subjectSelector);
+    let subjectCheckboxes;
+    const subjectSelector = `.${programType}-subject`;
+    subjectCheckboxes = document.querySelectorAll(subjectSelector);
 
-  // Select the first available checkbox that isn't already checked
-  if (subjectCheckboxes.length > 0) {
-    const firstAvailableCheckbox = Array.from(subjectCheckboxes).find(
-      (checkbox) => !checkbox.checked
-    );
-    if (firstAvailableCheckbox) {
-      firstAvailableCheckbox.checked = true;
-      firstAvailableCheckbox.dispatchEvent(new Event("change", { bubbles: true }));
-      firstAvailableCheckbox.dispatchEvent(new Event("click", { bubbles: true }));
+    if (subjectCheckboxes.length > 0) {
+        const firstAvailableCheckbox = Array.from(subjectCheckboxes).find(
+            (checkbox) => !checkbox.checked
+        );
+        if (firstAvailableCheckbox) {
+            firstAvailableCheckbox.checked = true;
+            firstAvailableCheckbox.dispatchEvent(new Event("change", {bubbles: true}));
+            firstAvailableCheckbox.dispatchEvent(new Event("click", {bubbles: true}));
+        }
     }
-  }
 }
 
+async function buildStudentPayload() {
+    const payload = {
+        studentId: document.getElementById('studentID')?.value.trim() || currentStudentData?.studentId || "",
+        firstName: document.getElementById('studFName').value.trim(),
+        otherName: document.getElementById('studOtherName').value.trim(),
+        lastName: document.getElementById('studSurName').value.trim(),
+        placeOfBirth: document.getElementById('placeOfBirth').value.trim(),
+        gender: document.getElementById('studGender').value,
+        countryOfBirth: document.getElementById('cob').value,
+        nationality: document.getElementById('cob').value,
+        denomination: document.getElementById('denomination').value.trim(),
+        institutionCode: institution || currentStudentData?.institutionCode || "",
+        applicationType: window.selectedForm?.type || null,
+        residentialLocality: document.getElementById('studResidence').value.trim(),
+        status: "APPLIED",
+        studentClass: determineStudentClass(),
+        dateOfBirth: formatDateForJava(document.getElementById('studDOB').value),
+        dateOfAdmission: formatDateForJava(document.getElementById('studDOA').value),
+        picture: null,
+        birthCert: pdfAttachmentData?.base64Data || null,
+        applicantBirthCert: pdfAttachmentData?.fileName || null,
+        applicantBirthCertFileType: pdfAttachmentData?.fileType || null,
+        studentParents: [],
+        studentSubjectsList: []
+    };
 
+    const pictureInput = document.querySelector('.imageInput');
+    if (pictureInput && pictureInput.files.length > 0) {
+        try {
+            const file = pictureInput.files[0];
+            const optimizedDataURL = await optimizeImage(file, {
+                maxSize: 400,
+                quality: 0.7,
+                outputFormat: 'jpeg'
+            });
+            payload.picture = optimizedDataURL.split(',')[1];
+        } catch (error) {
+            console.error("Image optimization failed", error);
+            const reader = new FileReader();
+            const dataUrl = await new Promise((resolve) => {
+                reader.onload = () => resolve(reader.result);
+                reader.readAsDataURL(pictureInput.files[0]);
+            });
+            payload.picture = dataUrl.split(',')[1];
+        }
+    } else if (currentStudentData?.picture) {
+        payload.picture = currentStudentData.picture;
+    }
 
- async function buildStudentPayload() {
- debugger
-     // Create payload matching Students2Request Java object structure
-     const payload = {
-         // String fields
-         studentId: document.getElementById('studentID')?.value.trim() || currentStudentData?.studentId || "",
-         firstName: document.getElementById('studFName').value.trim(),
-         otherName: document.getElementById('studOtherName').value.trim(),
-         lastName: document.getElementById('studSurName').value.trim(),
-         placeOfBirth: document.getElementById('placeOfBirth').value.trim(),
-         gender: document.getElementById('studGender').value,
-         countryOfBirth: document.getElementById('cob').value,
-         nationality: document.getElementById('cob').value, // Assuming same as countryOfBirth
-         denomination: document.getElementById('denomination').value.trim(),
-         institutionCode: institution || currentStudentData?.institutionCode || "",
-         residentialLocality: document.getElementById('studResidence').value.trim(),
-         status: "APPLIED", // Default status for new applications
-         studentClass: determineStudentClass(), // You'll need to implement this based on your logic
+    payload.studentParents = buildParentsData(payload.studentId);
+    payload.studentSubjectsList = buildSubjectsListData();
 
-         // Date fields - convert to LocalDate format (YYYY-MM-DD)
-         dateOfBirth: formatDateForJava(document.getElementById('studDOB').value),
-         dateOfAdmission: formatDateForJava(document.getElementById('studDOA').value),
+    Object.keys(payload).forEach(key => {
+        if (payload[key] === undefined || payload[key] === null) {
+            delete payload[key];
+        }
+    });
 
-         // File fields
-         picture: null,
-         birthCert: pdfAttachmentData?.base64Data || null,
-         applicantBirthCert: pdfAttachmentData?.fileName || null,
-         applicantBirthCertFileType: pdfAttachmentData?.fileType || null,
+    console.log("Final payload matching Students2Request:", payload);
+    return payload;
+}
 
-         // List fields
-         studentParents: [],
-         studentSubjectsList: []
-     };
+function formatDateForJava(dateString) {
+    if (!dateString) return null;
+    try {
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return null;
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    } catch (error) {
+        console.error("Error formatting date:", error);
+        return null;
+    }
+}
 
-     // Handle student picture
-     const pictureInput = document.querySelector('.imageInput');
-     if (pictureInput && pictureInput.files.length > 0) {
-         try {
-             const file = pictureInput.files[0];
-             const optimizedDataURL = await optimizeImage(file, {
-                 maxSize: 400,
-                 quality: 0.7,
-                 outputFormat: 'jpeg'
-             });
-             payload.picture = optimizedDataURL.split(',')[1];
-         } catch (error) {
-             console.error("Image optimization failed", error);
-             // Fallback to original file
-             const reader = new FileReader();
-             const dataUrl = await new Promise((resolve) => {
-                 reader.onload = () => resolve(reader.result);
-                 reader.readAsDataURL(pictureInput.files[0]);
-             });
-             payload.picture = dataUrl.split(',')[1];
-         }
-     } else if (currentStudentData?.picture) {
-         payload.picture = currentStudentData.picture;
-     }
+function determineStudentClass() {
+    if (window.selectedForm?.type) {
+        return window.selectedForm.type;
+    }
 
-     // Build parents data - matching ParentsRequest structure
-     payload.studentParents = buildParentsData(payload.studentId);
+    const selectedSubjects = document.querySelectorAll('input[type="checkbox"]:checked');
+    if (selectedSubjects.length > 0) {
+        const firstSubject = selectedSubjects[0];
+        if (firstSubject.className.includes('science-subject')) return "Science";
+        if (firstSubject.className.includes('arts-subject')) return "Arts";
+        if (firstSubject.className.includes('business-subject')) return "Business";
+    }
 
-     // Build subjects data - matching StudentSubjectsRequest structure
-     payload.studentSubjectsList = buildSubjectsListData();
+    return "General";
+}
 
-     // Remove any undefined or null values to match Java object expectations
-     Object.keys(payload).forEach(key => {
-         if (payload[key] === undefined || payload[key] === null) {
-             delete payload[key];
-         }
-     });
+function buildParentsData(studentId) {
+    const parents = [];
 
-     console.log("Final payload matching Students2Request:", payload);
-     return payload;
- }
+    const fatherFirstName = document.getElementById('fatherFirstName').value.trim();
+    const fatherLastName = document.getElementById('fatherLastName').value.trim();
 
- // Helper function to format dates for Java LocalDate (YYYY-MM-DD)
- function formatDateForJava(dateString) {
-     if (!dateString) return null;
+    if (fatherFirstName || fatherLastName) {
+        const fatherData = {
+            firstNames: fatherFirstName,
+            lastName: fatherLastName,
+            email: document.getElementById('fatherEmail').value.trim(),
+            contact1: document.getElementById('fatherContact1').value.trim(),
+            contact2: document.getElementById('fatherContact2').value.trim(),
+            occupation: document.getElementById('fatherOccupation').value.trim(),
+            placeOfWork: document.getElementById('fatherPlaceOfWork').value.trim(),
+            parentType: document.getElementById('fatherType').value,
+            relationship: "FATHER",
+            institutionCode: institution,
+            studentId: studentId
+        };
 
-     try {
-         const date = new Date(dateString);
-         if (isNaN(date.getTime())) return null;
+        Object.keys(fatherData).forEach(key => {
+            if (!fatherData[key]) delete fatherData[key];
+        });
 
-         const year = date.getFullYear();
-         const month = String(date.getMonth() + 1).padStart(2, '0');
-         const day = String(date.getDate()).padStart(2, '0');
+        if (Object.keys(fatherData).length > 3) {
+            parents.push(fatherData);
+        }
+    }
 
-         return `${year}-${month}-${day}`;
-     } catch (error) {
-         console.error("Error formatting date:", error);
-         return null;
-     }
- }
+    const motherFirstName = document.getElementById('motherFirstName').value.trim();
+    const motherLastName = document.getElementById('motherLastName').value.trim();
 
- // Determine student class based on selected subjects or other logic
- function determineStudentClass() {
-     // Implement your logic to determine student class
-     // This could be based on selected subjects, form type, or other criteria
+    if (motherFirstName || motherLastName) {
+        const motherData = {
+            firstNames: motherFirstName,
+            lastName: motherLastName,
+            email: document.getElementById('motherEmail').value.trim(),
+            contact1: document.getElementById('motherContact1').value.trim(),
+            contact2: document.getElementById('motherContact2').value.trim(),
+            occupation: document.getElementById('motherOccupation').value.trim(),
+            placeOfWork: document.getElementById('motherPlaceOfWork').value.trim(),
+            parentType: document.getElementById('motherType').value,
+            relationship: "MOTHER",
+            institutionCode: institution,
+            studentId: studentId
+        };
 
-     if (window.selectedForm?.type) {
-         return window.selectedForm.type;
-     }
+        Object.keys(motherData).forEach(key => {
+            if (!motherData[key]) delete motherData[key];
+        });
 
-     // Fallback: determine by selected subjects
-     const selectedSubjects = document.querySelectorAll('input[type="checkbox"]:checked');
-     if (selectedSubjects.length > 0) {
-         const firstSubject = selectedSubjects[0];
-         if (firstSubject.className.includes('science-subject')) return "Science";
-         if (firstSubject.className.includes('arts-subject')) return "Arts";
-         if (firstSubject.className.includes('business-subject')) return "Business";
-         // Add other class determinations as needed
-     }
+        if (Object.keys(motherData).length > 3) {
+            parents.push(motherData);
+        }
+    }
 
-     return "General"; // Default fallback
- }
+    return parents;
+}
 
- // Build parents data matching ParentsRequest structure
- function buildParentsData(studentId) {
-     const parents = [];
+function buildSubjectsListData() {
+    const subjectsList = [];
+    const checkedSubjects = document.querySelectorAll('input[type="checkbox"]:checked');
 
-     // Father's data
-     const fatherFirstName = document.getElementById('fatherFirstName').value.trim();
-     const fatherLastName = document.getElementById('fatherLastName').value.trim();
+    checkedSubjects.forEach(checkbox => {
+        const subjectName = checkbox.nextElementSibling?.textContent.trim() ||
+            checkbox.closest('.subject-item')?.querySelector('label')?.textContent.trim() ||
+            `Subject_${checkbox.value || checkbox.name}`;
 
-     if (fatherFirstName || fatherLastName) {
-         const fatherData = {
-             firstNames: fatherFirstName,
-             lastName: fatherLastName,
-             email: document.getElementById('fatherEmail').value.trim(),
-             contact1: document.getElementById('fatherContact1').value.trim(),
-             contact2: document.getElementById('fatherContact2').value.trim(),
-             occupation: document.getElementById('fatherOccupation').value.trim(),
-             placeOfWork: document.getElementById('fatherPlaceOfWork').value.trim(),
-             parentType: document.getElementById('fatherType').value,
-             relationship: "FATHER",
-             institutionCode: institution,
-             studentId: studentId
-         };
+        let subjectClass = "CORE";
+        if (checkbox.className.includes('elective')) subjectClass = "ELECTIVE";
 
-         // Remove empty fields
-         Object.keys(fatherData).forEach(key => {
-             if (!fatherData[key]) delete fatherData[key];
-         });
+        const subjectData = {
+            subjectName: subjectName,
+            subjectClass: subjectClass,
+            institutionCode: institution,
+            studentId: document.getElementById('studentID')?.value.trim() || ""
+        };
 
-         if (Object.keys(fatherData).length > 3) { // More than just institutionCode and studentId
-             parents.push(fatherData);
-         }
-     }
+        Object.keys(subjectData).forEach(key => {
+            if (!subjectData[key]) delete subjectData[key];
+        });
 
-     // Mother's data
-     const motherFirstName = document.getElementById('motherFirstName').value.trim();
-     const motherLastName = document.getElementById('motherLastName').value.trim();
+        subjectsList.push(subjectData);
+    });
 
-     if (motherFirstName || motherLastName) {
-         const motherData = {
-             firstNames: motherFirstName,
-             lastName: motherLastName,
-             email: document.getElementById('motherEmail').value.trim(),
-             contact1: document.getElementById('motherContact1').value.trim(),
-             contact2: document.getElementById('motherContact2').value.trim(),
-             occupation: document.getElementById('motherOccupation').value.trim(),
-             placeOfWork: document.getElementById('motherPlaceOfWork').value.trim(),
-             parentType: document.getElementById('motherType').value,
-             relationship: "MOTHER",
-             institutionCode: institution,
-             studentId: studentId
-         };
+    return subjectsList;
+}
 
-         // Remove empty fields
-         Object.keys(motherData).forEach(key => {
-             if (!motherData[key]) delete motherData[key];
-         });
+function mergeParentsData(existingParents, uiParents) {
+    if (!existingParents || existingParents.length === 0) {
+        return uiParents;
+    }
 
-         if (Object.keys(motherData).length > 3) { // More than just institutionCode and studentId
-             parents.push(motherData);
-         }
-     }
+    if (!uiParents || uiParents.length === 0) {
+        return existingParents;
+    }
 
-     return parents;
- }
+    const existingParentsMap = {};
+    existingParents.forEach(parent => {
+        if (parent.parentType) {
+            existingParentsMap[parent.parentType.toLowerCase()] = parent;
+        }
+    });
 
- // Build subjects data matching StudentSubjectsRequest structure
- function buildSubjectsListData() {
-     const subjectsList = [];
+    const mergedParents = uiParents.map(uiParent => {
+        const parentType = uiParent.parentType?.toLowerCase() || '';
+        if (existingParentsMap[parentType]) {
+            return {...existingParentsMap[parentType], ...uiParent};
+        }
+        return uiParent;
+    });
 
-     // Get all checked subject checkboxes
-     const checkedSubjects = document.querySelectorAll('input[type="checkbox"]:checked');
+    Object.values(existingParentsMap).forEach(existingParent => {
+        const parentType = existingParent.parentType?.toLowerCase() || '';
+        const existsInUI = uiParents.some(uiParent =>
+            (uiParent.parentType?.toLowerCase() || '') === parentType
+        );
+        if (!existsInUI) {
+            mergedParents.push(existingParent);
+        }
+    });
 
-     checkedSubjects.forEach(checkbox => {
-         const subjectName = checkbox.nextElementSibling?.textContent.trim() ||
-                            checkbox.closest('.subject-item')?.querySelector('label')?.textContent.trim() ||
-                            `Subject_${checkbox.value || checkbox.name}`;
+    return mergedParents;
+}
 
-         // Determine subject class/type
-         let subjectClass = "CORE";
-         if (checkbox.className.includes('elective')) subjectClass = "ELECTIVE";
+function buildParentData(prefix, studentId) {
+    const firstName = document.getElementById(`${prefix}FirstName`).value.trim();
+    const lastName = document.getElementById(`${prefix}LastName`).value.trim();
+    const email = document.getElementById(`${prefix}Email`).value.trim();
+    const contact1 = document.getElementById(`${prefix}Contact1`).value.trim();
+    const contact2 = document.getElementById(`${prefix}Contact2`).value.trim();
+    const occupation = document.getElementById(`${prefix}Occupation`).value.trim();
+    const placeOfWork = document.getElementById(`${prefix}PlaceOfWork`).value.trim();
+    const parentType = document.getElementById(`${prefix}Type`).value.trim();
 
-         const subjectData = {
-             subjectName: subjectName,
-             subjectClass: subjectClass,
-             institutionCode: institution,
-             studentId: document.getElementById('studentID')?.value.trim() || ""
-         };
+    const parentData = {
+        institutionCode: institution,
+        studentId: studentId
+    };
 
-         // Remove empty fields
-         Object.keys(subjectData).forEach(key => {
-             if (!subjectData[key]) delete subjectData[key];
-         });
+    if (firstName) parentData.firstNames = firstName;
+    if (lastName) parentData.lastName = lastName;
+    if (email) parentData.email = email;
+    if (contact1) parentData.contact1 = contact1;
+    if (contact2) parentData.contact2 = contact2;
+    if (occupation) parentData.occupation = occupation;
+    if (placeOfWork) parentData.placeOfWork = placeOfWork;
+    if (parentType) parentData.parentType = parentType;
 
-         subjectsList.push(subjectData);
-     });
+    return parentData;
+}
 
-     return subjectsList;
- }
+function hasParentData(parentData) {
+    const {institutionCode, studentId, ...rest} = parentData;
+    return Object.values(rest).some(value => value && value.trim() !== '');
+}
 
+function buildSubjectsData() {
+    const subjects = [];
+    const checkedSubjects = document.querySelectorAll('input[type="checkbox"]:checked');
 
- function mergeParentsData(existingParents, uiParents) {
-   if (!existingParents || existingParents.length === 0) {
-     return uiParents;
-   }
+    checkedSubjects.forEach(checkbox => {
+        const subjectName = checkbox.nextElementSibling.textContent.trim();
+        subjects.push({subjectName: subjectName});
+    });
 
-   if (!uiParents || uiParents.length === 0) {
-     return existingParents;
-   }
-
-   // Create a map of existing parents by type for easy lookup
-   const existingParentsMap = {};
-   existingParents.forEach(parent => {
-     if (parent.parentType) {
-       existingParentsMap[parent.parentType.toLowerCase()] = parent;
-     }
-   });
-
-   // Merge UI parents with existing parents
-   const mergedParents = uiParents.map(uiParent => {
-     const parentType = uiParent.parentType?.toLowerCase() || '';
-
-     if (existingParentsMap[parentType]) {
-       // Merge UI fields with existing parent data
-       return {
-         ...existingParentsMap[parentType], // Keep all existing fields
-         ...uiParent // Override with UI fields
-       };
-     }
-
-     // New parent from UI
-     return uiParent;
-   });
-
-   // Add any existing parents that weren't modified in UI
-   Object.values(existingParentsMap).forEach(existingParent => {
-     const parentType = existingParent.parentType?.toLowerCase() || '';
-     const existsInUI = uiParents.some(uiParent =>
-       (uiParent.parentType?.toLowerCase() || '') === parentType
-     );
-
-     if (!existsInUI) {
-       mergedParents.push(existingParent);
-     }
-   });
-
-   return mergedParents;
- }
-
-
- function buildParentsData(studentId) {
-   const parents = [];
-
-   // Father's data - only include if fields have values
-   const fatherData = buildParentData('father', studentId);
-   if (hasParentData(fatherData)) {
-     parents.push(fatherData);
-   }
-
-   // Mother's data - only include if fields have values
-   const motherData = buildParentData('mother', studentId);
-   if (hasParentData(motherData)) {
-     parents.push(motherData);
-   }
-
-   return parents;
- }
-
- function buildParentData(prefix, studentId) {
-   const firstName = document.getElementById(`${prefix}FirstName`).value.trim();
-   const lastName = document.getElementById(`${prefix}LastName`).value.trim();
-   const email = document.getElementById(`${prefix}Email`).value.trim();
-   const contact1 = document.getElementById(`${prefix}Contact1`).value.trim();
-   const contact2 = document.getElementById(`${prefix}Contact2`).value.trim();
-   const occupation = document.getElementById(`${prefix}Occupation`).value.trim();
-   const placeOfWork = document.getElementById(`${prefix}PlaceOfWork`).value.trim();
-   const parentType = document.getElementById(`${prefix}Type`).value.trim();
-
-   // Only include fields that have values
-   const parentData = {
-     institutionCode: institution,
-     studentId: studentId
-   };
-
-   if (firstName) parentData.firstNames = firstName;
-   if (lastName) parentData.lastName = lastName;
-   if (email) parentData.email = email;
-   if (contact1) parentData.contact1 = contact1;
-   if (contact2) parentData.contact2 = contact2;
-   if (occupation) parentData.occupation = occupation;
-   if (placeOfWork) parentData.placeOfWork = placeOfWork;
-   if (parentType) parentData.parentType = parentType;
-
-   return parentData;
- }
-
- function hasParentData(parentData) {
-   // Check if any field (except institutionCode and studentId) has data
-   const { institutionCode, studentId, ...rest } = parentData;
-   return Object.values(rest).some(value => value && value.trim() !== '');
- }
-
- // Function to build subjects data
- function buildSubjectsData() {
-     const subjects = [];
-
-     // Get all checked subject checkboxes
-     const checkedSubjects = document.querySelectorAll('input[type="checkbox"]:checked');
-
-     checkedSubjects.forEach(checkbox => {
-         const subjectName = checkbox.nextElementSibling.textContent.trim();
-         subjects.push({
-             subjectName: subjectName
-         });
-     });
-
-     return subjects;
- }
-
+    return subjects;
+}
 
 //============================= VALIDATION ==============================
 
-// Form validation for the student data capturing form
 function validateForm() {
-    // Track validation status
     let isValid = true;
     let errorMessages = [];
 
-    // Get current active tab
     const activeTab = document.querySelector('.tab-pane.active');
     const tabIndex = Array.from(document.querySelectorAll('.tab-pane')).indexOf(activeTab);
 
-    // Validate based on current step
-    switch(tabIndex) {
-        case 0: // School Selection
+    switch (tabIndex) {
+        case 0:
             if (!validateSchoolSelection()) {
                 isValid = false;
                 errorMessages.push("Please select a school and provide a Student ID");
             }
             break;
-
-        case 1: // School Selection
-            /*if (!validateSchoolSelection()) {
-                isValid = false;
-                errorMessages.push("Please select a school and provide a Student ID");
-            }*/
+        case 1:
             break;
-
-        case 2: // Student Bio Data
+        case 2:
             if (!validateStudentBioData()) {
                 isValid = false;
                 errorMessages.push("Please complete all required student information");
             }
             break;
-
-        case 3: // Parent Bio Data
+        case 3:
             if (!validateParentData()) {
                 isValid = false;
                 errorMessages.push("Please complete all required parent information");
             }
             break;
-
-       /* case 3: // Subject Selection
-            if (!validateSubjectSelection()) {
-                isValid = false;
-                errorMessages.push("Please select a program and appropriate subjects");
-            }
-            break;*/
-
-        case 4: // Approval
-            // No validation needed for approval step
+        case 4:
             break;
     }
 
-    // Show error messages if any
     if (!isValid) {
         showValidationErrors(errorMessages);
     }
@@ -1837,35 +1431,19 @@ function validateForm() {
     return isValid;
 }
 
-// Validate School Selection (Step 1)
 function validateSchoolSelection() {
     let isValid = true;
-
-    // Check if a school is selected
     const selectedSchool = document.querySelector('.school-card.selected');
     if (!selectedSchool) {
         isValid = false;
         highlightError('Please select a school', 'schools-container');
     }
-
-    // Validate Student ID
-  /*  const studentId = document.getElementById('studentID').value.trim();
-    if (!studentId) {
-        isValid = false;
-        highlightFieldError('studentID', 'Student ID is required');
-    } else if (studentId.length < 3) {
-        isValid = false;
-        highlightFieldError('studentID', 'Student ID must be at least 3 characters');
-    }*/
-
     return isValid;
 }
 
-// Validate Student Bio Data (Step 2)
 function validateStudentBioData() {
     let isValid = true;
 
-    // Required fields
     const requiredFields = [
         'studFName', 'studSurName', 'studGender',
         'studDOB', 'studDOA', 'placeOfBirth',
@@ -1880,7 +1458,6 @@ function validateStudentBioData() {
         }
     });
 
-    // Validate names
     const firstName = document.getElementById('studFName').value.trim();
     const surName = document.getElementById('studSurName').value.trim();
 
@@ -1894,16 +1471,13 @@ function validateStudentBioData() {
         highlightFieldError('studSurName', 'Surname must be at least 2 characters');
     }
 
-    // Validate dates
     const dob = document.getElementById('studDOB').value;
     const doa = document.getElementById('studDOA').value;
 
     if (dob) {
         const dobDate = new Date(dob);
-        const today = new Date();
         const minAgeDate = new Date();
-        minAgeDate.setFullYear(today.getFullYear() - 4); // At least 4 years old
-
+        minAgeDate.setFullYear(minAgeDate.getFullYear() - 4);
         if (dobDate > minAgeDate) {
             isValid = false;
             highlightFieldError('studDOB', 'Student must be at least 4 years old');
@@ -1913,66 +1487,52 @@ function validateStudentBioData() {
     if (doa && dob) {
         const doaDate = new Date(doa);
         const dobDate = new Date(dob);
-
         if (doaDate < dobDate) {
             isValid = false;
             highlightFieldError('studDOA', 'Date of admission cannot be before date of birth');
         }
     }
 
-    // Validate picture (if uploaded)
     const pictureInput = document.querySelector('.imageInput');
     if (pictureInput.files.length > 0) {
         const file = pictureInput.files[0];
         const validTypes = ['image/jpeg', 'image/png', 'image/jpg'];
-        const maxSize = 2 * 1024 * 1024; // 2MB
-
+        const maxSize = 2 * 1024 * 1024;
         if (!validTypes.includes(file.type)) {
             isValid = false;
             highlightError('Please upload a valid image (JPEG, PNG, JPG)', 'studPic');
         }
-
         if (file.size > maxSize) {
             isValid = false;
             highlightError('Image size must be less than 2MB', 'studPic');
         }
     }
 
-        // Validate PDF if uploaded
-        if (pdfAttachmentData) {
-            const maxSize = 5 * 1024 * 1024; // 5MB
-            if (pdfAttachmentData.fileSize > maxSize) {
-                isValid = false;
-                highlightError('PDF file size must be less than 5MB', 'pdfAttachment');
-            }
-
-            if (pdfAttachmentData.fileType !== 'application/pdf') {
-                isValid = false;
-                highlightError('Only PDF files are allowed', 'pdfAttachment');
-            }
+    if (pdfAttachmentData) {
+        const maxSize = 5 * 1024 * 1024;
+        if (pdfAttachmentData.fileSize > maxSize) {
+            isValid = false;
+            highlightError('PDF file size must be less than 5MB', 'pdfAttachment');
         }
-
+        if (pdfAttachmentData.fileType !== 'application/pdf') {
+            isValid = false;
+            highlightError('Only PDF files are allowed', 'pdfAttachment');
+        }
+    }
 
     return isValid;
 }
 
-// Validate Parent Data (Step 3)
 function validateParentData() {
     let isValid = true;
     let hasAtLeastOneParent = false;
 
-    // Father validation
     const fatherFirstName = document.getElementById('fatherFirstName').value.trim();
     const fatherLastName = document.getElementById('fatherLastName').value.trim();
 
     if (fatherFirstName || fatherLastName) {
         hasAtLeastOneParent = true;
-
-        const fatherRequired = [
-            'fatherFirstName', 'fatherLastName', 'fatherEmail',
-            'fatherContact1', 'fatherOccupation', 'fatherPlaceOfWork', 'fatherType'
-        ];
-
+        const fatherRequired = ['fatherFirstName', 'fatherLastName', 'fatherEmail', 'fatherContact1', 'fatherOccupation', 'fatherPlaceOfWork', 'fatherType'];
         fatherRequired.forEach(fieldId => {
             const field = document.getElementById(fieldId);
             if (!field.value.trim()) {
@@ -1981,14 +1541,12 @@ function validateParentData() {
             }
         });
 
-        // Validate father email
         const fatherEmail = document.getElementById('fatherEmail').value.trim();
         if (fatherEmail && !isValidEmail(fatherEmail)) {
             isValid = false;
             highlightFieldError('fatherEmail', 'Please enter a valid email address for father');
         }
 
-        // Validate father contact
         const fatherContact = document.getElementById('fatherContact1').value.trim();
         if (fatherContact && !isValidPhone(fatherContact)) {
             isValid = false;
@@ -1996,18 +1554,12 @@ function validateParentData() {
         }
     }
 
-    // Mother validation
     const motherFirstName = document.getElementById('motherFirstName').value.trim();
     const motherLastName = document.getElementById('motherLastName').value.trim();
 
     if (motherFirstName || motherLastName) {
         hasAtLeastOneParent = true;
-
-        const motherRequired = [
-            'motherFirstName', 'motherLastName', 'motherEmail',
-            'motherContact1', 'motherOccupation', 'motherPlaceOfWork', 'motherType'
-        ];
-
+        const motherRequired = ['motherFirstName', 'motherLastName', 'motherEmail', 'motherContact1', 'motherOccupation', 'motherPlaceOfWork', 'motherType'];
         motherRequired.forEach(fieldId => {
             const field = document.getElementById(fieldId);
             if (!field.value.trim()) {
@@ -2016,14 +1568,12 @@ function validateParentData() {
             }
         });
 
-        // Validate mother email
         const motherEmail = document.getElementById('motherEmail').value.trim();
         if (motherEmail && !isValidEmail(motherEmail)) {
             isValid = false;
             highlightFieldError('motherEmail', 'Please enter a valid email address for mother');
         }
 
-        // Validate mother contact
         const motherContact = document.getElementById('motherContact1').value.trim();
         if (motherContact && !isValidPhone(motherContact)) {
             isValid = false;
@@ -2031,7 +1581,6 @@ function validateParentData() {
         }
     }
 
-    // Check if at least one parent is provided
     if (!hasAtLeastOneParent) {
         isValid = false;
         highlightError('Please provide information for at least one parent', 'parentsDetailForm');
@@ -2040,13 +1589,11 @@ function validateParentData() {
     return isValid;
 }
 
-// Validate Subject Selection (Step 4)
 function validateSubjectSelection() {
     let isValid = true;
     let selectedProgram = null;
     let selectedSubjects = 0;
 
-    // Check which program has selected subjects
     const programCards = document.querySelectorAll('.program-card');
     programCards.forEach(card => {
         const subjectCheckboxes = card.querySelectorAll('input[type="checkbox"]:checked');
@@ -2056,14 +1603,12 @@ function validateSubjectSelection() {
         }
     });
 
-    // Validate program selection
     if (!selectedProgram) {
         isValid = false;
         highlightError('Please select at least one subject from a program', 'subject-selection-container');
         return isValid;
     }
 
-    // Validate subject count (must be exactly 4 for most programs)
     if (selectedSubjects !== 4) {
         isValid = false;
         highlightError(`Please select exactly 4 subjects from the ${formatProgramName(selectedProgram)} program`, selectedProgram + '-card');
@@ -2072,7 +1617,6 @@ function validateSubjectSelection() {
     return isValid;
 }
 
-// Helper functions
 function isValidEmail(email) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
@@ -2087,8 +1631,6 @@ function highlightFieldError(fieldId, message) {
     const field = document.getElementById(fieldId);
     if (field) {
         field.classList.add('is-invalid');
-
-        // Add error message if not already exists
         if (!field.nextElementSibling || !field.nextElementSibling.classList.contains('invalid-feedback')) {
             const errorDiv = document.createElement('div');
             errorDiv.style.setProperty('color', 'red', 'important');
@@ -2096,27 +1638,18 @@ function highlightFieldError(fieldId, message) {
             errorDiv.textContent = message;
             field.parentNode.appendChild(errorDiv);
         }
-
-        // Scroll to field
-        field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        field.scrollIntoView({behavior: 'smooth', block: 'center'});
     }
 }
 
 function highlightError(message, containerId) {
     const container = document.getElementById(containerId);
     if (container) {
-        // Create error alert
         const alertDiv = document.createElement('div');
         alertDiv.className = 'alert alert-danger';
         alertDiv.textContent = message;
-
-        // Prepend to container
         container.prepend(alertDiv);
-
-        // Scroll to error
-        alertDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-        // Remove after 5 seconds
+        alertDiv.scrollIntoView({behavior: 'smooth', block: 'center'});
         setTimeout(() => {
             alertDiv.remove();
         }, 5000);
@@ -2124,20 +1657,13 @@ function highlightError(message, containerId) {
 }
 
 function showValidationErrors(messages) {
-    // Create error alert at the top of the form
     const errorAlert = document.createElement('div');
     errorAlert.className = 'alert alert-danger';
     errorAlert.innerHTML = '<strong>Please fix the following errors:</strong><ul>' +
         messages.map(msg => `<li>${msg}</li>`).join('') + '</ul>';
-
-    // Add to the top of the form
     const formContainer = document.querySelector('.panel-body');
     formContainer.prepend(errorAlert);
-
-    // Scroll to errors
-    errorAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-    // Remove after 5 seconds
+    errorAlert.scrollIntoView({behavior: 'smooth', block: 'center'});
     setTimeout(() => {
         errorAlert.remove();
     }, 5000);
@@ -2156,30 +1682,16 @@ function formatProgramName(programId) {
     return names[programId] || programId;
 }
 
-// Clear validation errors
 function clearValidationErrors() {
-    // Remove field errors
-    document.querySelectorAll('.is-invalid').forEach(el => {
-        el.classList.remove('is-invalid');
-    });
-
-    // Remove error messages
-    document.querySelectorAll('.invalid-feedback').forEach(el => {
-        el.remove();
-    });
-
-    // Remove alert errors
-    document.querySelectorAll('.alert-danger').forEach(el => {
-        el.remove();
-    });
+    document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+    document.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
+    document.querySelectorAll('.alert-danger').forEach(el => el.remove());
 }
 
-// Add event listeners for real-time validation
-document.addEventListener('DOMContentLoaded', function() {
-    // Add input event listeners to clear validation on change
+document.addEventListener('DOMContentLoaded', function () {
     const allInputs = document.querySelectorAll('input, select, textarea');
     allInputs.forEach(input => {
-        input.addEventListener('input', function() {
+        input.addEventListener('input', function () {
             if (this.classList.contains('is-invalid')) {
                 this.classList.remove('is-invalid');
                 const errorMsg = this.nextElementSibling;
@@ -2189,154 +1701,84 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-
-    // Validate on form submission
-   /* const submitButton = document.getElementById('submitRequest');
-    if (submitButton) {
-        submitButton.addEventListener('click', function(e) {
-            // Validate all steps before submission
-            let allValid = true;
-            const tabPanes = document.querySelectorAll('.tab-pane');
-
-            for (let i = 1; i < tabPanes.length - 1; i++) { // Skip approval tab
-                // Activate each tab and validate
-                document.querySelectorAll('.wizardTabs')[i].click();
-                if (!validateForm()) {
-                    allValid = false;
-                }
-            }
-
-            // If any step is invalid, prevent submission
-            if (!allValid) {
-                e.preventDefault();
-                // Go back to first invalid step
-                for (let i = 0; i < tabPanes.length; i++) {
-                    document.querySelectorAll('.wizardTabs')[i].click();
-                    if (!validateForm()) {
-                        break;
-                    }
-                }
-            }
-        });
-    }*/
-
 });
 
+function optimizeImage(file, options) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        const reader = new FileReader();
 
+        reader.onload = function (e) {
+            img.src = e.target.result;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
 
- /**
-  * Optimizes an image file using canvas
-  * @param {File} file - The original image file
-  * @param {Object} options - Compression options
-  * @returns {Promise<String>} - A promise that resolves with a Base64 data URI
-  */
- function optimizeImage(file, options) {
-     return new Promise((resolve, reject) => {
-         const img = new Image();
-         const reader = new FileReader();
+        img.onload = function () {
+            const maxDimension = options.maxSize;
+            let width = img.width;
+            let height = img.height;
 
-         reader.onload = function(e) {
-             img.src = e.target.result;
-         };
+            if (width > height) {
+                if (width > maxDimension) {
+                    height = Math.round((height * maxDimension) / width);
+                    width = maxDimension;
+                }
+            } else {
+                if (height > maxDimension) {
+                    width = Math.round((width * maxDimension) / height);
+                    height = maxDimension;
+                }
+            }
 
-         reader.onerror = reject;
-         reader.readAsDataURL(file);
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
 
-         img.onload = function() {
-             // Calculate new dimensions while maintaining aspect ratio
-             const maxDimension = options.maxSize;
-             let width = img.width;
-             let height = img.height;
-
-             if (width > height) {
-                 if (width > maxDimension) {
-                     height = Math.round((height * maxDimension) / width);
-                     width = maxDimension;
-                 }
-             } else {
-                 if (height > maxDimension) {
-                     width = Math.round((width * maxDimension) / height);
-                     height = maxDimension;
-                 }
-             }
-
-             // Create a canvas and draw the resized image on it
-             const canvas = document.createElement('canvas');
-             canvas.width = width;
-             canvas.height = height;
-
-             const ctx = canvas.getContext('2d');
-             ctx.drawImage(img, 0, 0, width, height);
-
-             // Convert the canvas to a compressed Blob, then to a Data URL
-             canvas.toBlob(
-                 (blob) => {
-                     const newReader = new FileReader();
-                     newReader.onload = () => resolve(newReader.result); // This is the Base64 string
-                     newReader.readAsDataURL(blob);
-                 },
-                 options.outputFormat === 'png' ? 'image/png' : 'image/jpeg', // Mime type
-                 options.quality // Quality for JPEG
-             );
-         };
-
-         img.onerror = reject;
-     });
- }
-
-
-
-
-
-
-
-
+            canvas.toBlob(
+                (blob) => {
+                    const newReader = new FileReader();
+                    newReader.onload = () => resolve(newReader.result);
+                    newReader.readAsDataURL(blob);
+                },
+                options.outputFormat === 'png' ? 'image/png' : 'image/jpeg',
+                options.quality
+            );
+        };
+        img.onerror = reject;
+    });
+}
 
 $(function () {
+    $('.ladda-button').ladda('bind', {timeout: 2000});
+    Ladda.bind('.progress-demo .ladda-button', {
+        callback: function (instance) {
+            var progress = 0;
+            var interval = setInterval(function () {
+                progress = Math.min(progress + Math.random() * 0.1, 1);
+                instance.setProgress(progress);
+                if (progress === 1) {
+                    instance.stop();
+                    clearInterval(interval);
+                }
+            }, 200);
+        }
+    });
 
-// Bind normal buttons
-$( '.ladda-button' ).ladda( 'bind', { timeout: 2000 } );
-
-// Bind progress buttons and simulate loading progress
-Ladda.bind( '.progress-demo .ladda-button',{
-    callback: function( instance ){
-        var progress = 0;
-        var interval = setInterval( function(){
-            progress = Math.min( progress + Math.random() * 0.1, 1 );
-            instance.setProgress( progress );
-
-            if( progress === 1 ){
-                instance.stop();
-                clearInterval( interval );
-            }
-        }, 200 );
-    }
+    var l = $('.ladda-button-demo').ladda();
+    l.click(function () {
+        l.ladda('start');
+        setTimeout(function () {
+            l.ladda('stop');
+        }, 12000);
+    });
 });
 
-
-var l = $( '.ladda-button-demo' ).ladda();
-
-l.click(function(){
-    // Start loading
-    l.ladda( 'start' );
-
-    // Timeout example
-    // Do something in backend and then stop ladda
-    setTimeout(function(){
-        l.ladda('stop');
-    },12000)
-
-
-});
-
-});
-
-
-// Global variable to store PDF data
 let pdfAttachmentData = null;
 
-// Initialize PDF functionality when document is ready
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
     initializePdfUpload();
 });
 
@@ -2346,7 +1788,7 @@ function initializePdfUpload() {
     const removePdfBtn = document.getElementById('removePdfBtn');
 
     if (pdfUploadBtn && pdfInput) {
-        pdfUploadBtn.addEventListener('click', function() {
+        pdfUploadBtn.addEventListener('click', function () {
             pdfInput.click();
         });
     }
@@ -2368,40 +1810,36 @@ function handlePdfUpload(event) {
     const pdfPreviewSize = document.getElementById('pdfPreviewSize');
 
     if (file) {
-        // Validate file type
         if (file.type !== 'application/pdf') {
             alert('Please select a PDF file only.');
             resetPdfUpload();
             return;
         }
 
-        // Validate file size (5MB limit)
-        const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+        const maxSize = 5 * 1024 * 1024;
         if (file.size > maxSize) {
             alert('PDF file size must be less than 5MB.');
             resetPdfUpload();
             return;
         }
 
-        // Update UI
         pdfFileName.textContent = file.name;
         pdfPreviewName.textContent = file.name;
         pdfPreviewSize.textContent = formatFileSize(file.size);
         pdfPreview.style.display = 'block';
 
-        // Read file as base64
         const reader = new FileReader();
-        reader.onload = function(e) {
+        reader.onload = function (e) {
             pdfAttachmentData = {
                 fileName: file.name,
                 fileSize: file.size,
                 fileType: file.type,
-                base64Data: e.target.result.split(',')[1], // Remove data URL prefix
+                base64Data: e.target.result.split(',')[1],
                 uploadDate: new Date().toISOString()
             };
             console.log('PDF attached:', pdfAttachmentData.fileName);
         };
-        reader.onerror = function() {
+        reader.onerror = function () {
             alert('Error reading PDF file. Please try again.');
             resetPdfUpload();
         };
@@ -2430,4 +1868,118 @@ function formatFileSize(bytes) {
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+function showNotification(message, type = "info") {
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.innerHTML = `
+        <div class="notification-content">
+            <i class="fas ${getNotificationIcon(type)}"></i>
+            <span>${message}</span>
+        </div>
+        <button class="notification-close">&times;</button>
+    `;
+
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 10000;
+        padding: 15px 20px;
+        border-radius: 8px;
+        color: white;
+        font-weight: bold;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        animation: slideIn 0.3s ease-out;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-width: 300px;
+    `;
+
+    const colors = {
+        info: '#17a2b8',
+        warning: '#ffc107',
+        error: '#dc3545',
+        success: '#28a745'
+    };
+    notification.style.backgroundColor = colors[type] || colors.info;
+    notification.style.color = type === 'warning' ? '#333' : 'white';
+
+    document.body.appendChild(notification);
+
+    const closeBtn = notification.querySelector('.notification-close');
+    closeBtn.style.cssText = `
+        background: none;
+        border: none;
+        color: inherit;
+        font-size: 20px;
+        cursor: pointer;
+        margin-left: 15px;
+        padding: 0 5px;
+    `;
+    closeBtn.onclick = () => notification.remove();
+
+    setTimeout(() => {
+        if (notification && notification.remove) {
+            notification.style.animation = 'slideOut 0.3s ease-out';
+            setTimeout(() => notification.remove(), 300);
+        }
+    }, 5000);
+}
+
+function getNotificationIcon(type) {
+    const icons = {
+        info: 'fa-info-circle',
+        warning: 'fa-exclamation-triangle',
+        error: 'fa-times-circle',
+        success: 'fa-check-circle'
+    };
+    return icons[type] || 'fa-info-circle';
+}
+
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideOut {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+    }
+`;
+document.head.appendChild(style);
+
+function safelyGenerateCards(schoolsArray, container, emptyMessage = "No items found") {
+    if (!container) {
+        console.error("Container element not found");
+        return false;
+    }
+
+    if (!schoolsArray || !Array.isArray(schoolsArray)) {
+        console.error("Invalid schoolsArray provided:", schoolsArray);
+        container.innerHTML = `
+            <div class="error-state">
+                <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
+                <h4>Error Loading Data</h4>
+                <p>Unable to load data. Please refresh the page or try again later.</p>
+            </div>
+        `;
+        return false;
+    }
+
+    if (schoolsArray.length === 0) {
+        container.innerHTML = `
+            <div class="no-results">
+                <i class="fas fa-search fa-3x mb-3"></i>
+                <h4>${emptyMessage}</h4>
+                <p>Try adjusting your search or filters</p>
+            </div>
+        `;
+        return false;
+    }
+
+    return true;
 }

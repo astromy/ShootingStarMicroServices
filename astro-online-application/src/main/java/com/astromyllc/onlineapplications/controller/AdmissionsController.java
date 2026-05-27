@@ -89,6 +89,13 @@ public class AdmissionsController {
     }
 
 
+    @RequestMapping(value = "/postedStudentApplication", method = RequestMethod.POST)
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<String> postedStudentApplication(@RequestBody Students2Request jso) {
+        return BACKENDCOMMPOST(jso, backendserve + "/api/applications/submit-application");
+    }
+
+
     @RequestMapping(value = "/fetchStudent", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Object> getStudentByID(@RequestBody DynamicStringRequest jso) {

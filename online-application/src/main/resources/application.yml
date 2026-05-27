@@ -1,6 +1,4 @@
 spring:
-  config:
-    import: "optional:file:.env[.properties],optional:file:../.env[.properties]"
   data:
     mongodb:
       uri: mongodb://localhost:27017/online-application
@@ -24,7 +22,7 @@ gateway:
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://eureka:password@localhost:8761/eureka
+      defaultZone: http://${EUREKA_USERNAME}:${EUREKA_PASSWORD}@localhost:8761/eureka
 
 management:
   health:
@@ -49,16 +47,16 @@ resilience4j:
         failureRateThreshold: 50
         waitDurationInOpenState: 5s
         permittedNumberOfCallsInHalfOpenState: 3
-        authomaticTransitionFromOpenToHalfOpenEnabled: true
+        automaticTransitionFromOpenToHalfOpenEnabled: true
   timelimiter:
     instances:
-      setup:
-        timeout-duration: 3s
+      application:
+        timeout-duration: 63s
   retry:
     instances:
-      setup:
-        max-attempts: 3
-        wait-duration: 5s
+      application:
+        max-attempts: 1
+        wait-duration: 35s
 
 
 
@@ -66,7 +64,7 @@ logging:
   level:
     org:
       springframework:
-        security=ERROR:
+        security: ERROR
     root: ERROR
     org.springframework.web: ERROR
     org.springframework.security: ERROR

@@ -18,12 +18,16 @@ public class Subject {
     private Long idSubject;
     @NonNull
     private String name;
-    private String classGroup;
+    //private String classGroup;
     @NonNull
     private String subjectType;
     @Column(columnDefinition = "Integer")
     @NonNull
     private Integer preference;
+
+    @ManyToOne
+    @JoinColumn(name = "class_group_id")
+    private Lookup classGroup;
 
     @ManyToOne
     @JoinColumn(name = "idInstitution")

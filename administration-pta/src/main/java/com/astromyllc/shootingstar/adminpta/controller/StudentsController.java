@@ -97,6 +97,7 @@ public class StudentsController {
     @PostMapping("/api/administration-pta/checkStudentByID")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Optional<StudentStatusResponse>> checkStudentByID(@RequestBody SingleStringRequest request) {
+        log.info("Mobile Student Request");
         return ResponseEntity.ok(studentServiceInterface.checkStudentByID(request));
     }
 

@@ -1,328 +1,330 @@
-id = null;
-var studentList = [];
-var billList = [];
-var v;
-fetchLookup(instId.split(",")[0]);
+/**
+ * _financeBilling.js  —  Data & logic layer for the Student Billing System.
+ *
+ * Loaded at runtime by financeBilling.js.
+ * All API calls use the existing `fetchPost` helper already on the page.
+ *
+ * Sequence:
+ *   1. fetchLookup()             → class groups  → billingData.classGroups
+ *   2. fetchInstitutionBills()   → bill list      → billingData.billSections
+ *   3. (on group change) fetchClassesByGroup()  → billingData.classes
+ *   4. (on class change) fetchStudentsForClass() → billingData.classes[name].students
+ *   5. (on confirm)     submitBilling()          → bill-students-by-institution
+ */
 
-window.copyrights();
+(function () {
+    "use strict";
 
-async function fetchLookup(instId) {
-$('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
-  v = instId.replace(/[\[\]']+/g, "");
-  v = v.replace(/\//g, "");
-  var instRequest = { val: "ClassGroup" };
-  return fetchPost("getLookUpByType", instRequest).then(function (result) {
-    fetchInstitutionBills(v);
-    populateClassGroup(result);
-    $('.splash').css('display', 'none')
-  });
-}
+    // ─── Institution code (same extraction as original file) ─────────────────
+    var _rawInst = (typeof instId !== "undefined" ? instId : "").split(",")[0];
+    var _instCode = _rawInst.replace(/[\[\]']+/g, "").replace(/\//g, "");
 
-function populateClassGroup(data) {
-  $(".classGroupSelect option:not(:eq(0))").remove();
-  data.forEach(function (d) {
-    var details = $("<option>").val(d.id).text(d.name);
-    $(".classGroupSelect").append(details);
-  });
-}
-
-$(".saveBilling").click(async function () {
-$('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
-  var jso = postdata();
-  return fetchPost("bill-students-by-institution", jso).then(function (result) {
-    $(".dismissBilling").click();
-    $('.splash').css('display', 'none')
-    swal({
-      title: "Thank you!",
-      text: "Your application is being submitted",
-      type: "success",
-    });
-  });
-});
-
-function postdata() {
-  var json = {
-    term: document.querySelector(".termOptions").value,
-    studentClass: document.querySelector(".billingClassOptions").value,
-    studentId: studentList,
-    billname: billList,
-    academicYear: document.querySelector(".academicYearSelect").value,
-    institutionCode: v,
-  };
-  return json;
-}
-
-async function fetchBillings() {
-  var instRequest = {
-    institutionCode: v,
-    studentId: "",
-    studentClass: document.querySelector(".classSelect").value,
-    term: document.querySelector(".termSelect").value,
-  };
-  return fetchPost("get-billing-by-institutionClass", instRequest).then(
-    function (result) {
-      populateTable(result);
-    }
-  );
-}
-
-async function fetchInstitutionBills(v) {
-  var instRequest = { val: v };
-  return fetchPost("get-bills-by-institution", instRequest).then(function (
-    result
-  ) {
-    fetchInstitutionClasses(result, v);
-  });
-}
-
-document
-  .querySelector("#submitBtn")
-  .addEventListener("click", async function () {
-$('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
-    fetchBillings();
-    $('.splash').css('display', 'none')
-  });
-
-document
-  .querySelector(".classGroupSelect")
-  .addEventListener("change", async function () {
-$('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
-    var vg = document.getElementsByClassName("classGroupSelect")[0].value;
-
-    var instRequest2 = {
-      institution: v,
-      classGroup: document.getElementsByClassName("classGroupSelect")[0].value,
+    // ─── STATE ────────────────────────────────────────────────────────────────
+    window.billingState = {
+        institutionCode: _instCode,
+        selectedGroup: "",
+        selectedClass: "",
+        selectedTerm: "1st Term",
+        selectedYear: "",
+        selectedStudents: new Set(),
+        selectedBills: new Set(),
+        selectAllChecked: false,
+        searchQuery: "",
+        _studentCache: {},     // className → student array
     };
-    try {
-      // Await the result of the HTTP request
-      const result2 = await fetchPost(
-        "getInstitutionClassesByClassGroup",
-        instRequest2
-      );
-      populateSelectClasses(result2);
-    } catch (error) {
-      console.error("Error in fetchInstitutionSubject:", error);
+
+    // ─── DATA SKELETON ────────────────────────────────────────────────────────
+    window.billingData = {
+        classGroups: [],           // [{ id, name }]
+        classes: {},           // { "ClassName": { className, students:[] } }
+        billSections: {
+            general: {
+                name: "General Bills",
+                icon: "fas fa-file-invoice-dollar",
+                bills: [],
+            },
+            specific: {
+                name: "Specific Bills",
+                icon: "fas fa-clipboard-list",
+                bills: [],
+            },
+        },
+        terms: [
+            {value: "1st Term", label: "1st Term (Sep – Dec)"},
+            {value: "2nd Term", label: "2nd Term (Jan – Apr)"},
+            {value: "3rd Term", label: "3rd Term (May – Aug)"},
+        ],
+        academicYears: [],
+        _classGroupsLoaded: false, // UI polls this flag
+    };
+
+    // ─── ACADEMIC YEAR GENERATOR ──────────────────────────────────────────────
+    function buildAcademicYears() {
+        var currentYear = new Date().getFullYear();
+        var years = [];
+        for (var i = 4; i >= 0; i--) {
+            var s = currentYear - i;
+            years.push(s + "/" + (s + 1));
+        }
+        window.billingData.academicYears = years;
+        window.billingState.selectedYear = years[years.length - 1];
     }
-    $('.splash').css('display', 'none')
-  });
 
-function populateSelectClasses(data) {
-  $(".classSelect option:not(:eq(0))").remove();
-  data.forEach(function (d) {
-    var classOptions = document.querySelector(".classSelect")[0];
-    var details = $("<option>").val(d.name).text(d.name);
-    $(".classSelect").append(details);
-  });
-}
-
-async function fetchInstitutionClasses(bills, v) {
-  var instRequest = { val: v };
-  return fetchPost("getInstitutionClasses", instRequest).then(function (result) {
-    populateClasses(result);
-    createGeneralBills(bills);
-  });
-}
-
-async function fetchStudentsByClass(studClass) {
-  var v = instId.split(",")[0].replace(/[\[\]']+/g, "");
-  v = v.replace(/\//g, "");
-
-  var instRequest = {
-    institutionCode: v,
-    dateOfAdmission: "",
-    studentClass: studClass,
-    denomination: "",
-    dateOfBirth: "",
-    nationality: "",
-    studentId: "",
-    gender: "",
-    status: "",
-  };
-  return fetchPost("getSkimpStudentsByClass", instRequest).then(function (
-    result
-  ) {
-    studentList = result.map((student) => student.studentId);
-    createStudentList(result);
-  });
-}
-
-function generateAcademicYears() {
-  const select = clonable.querySelector(".academicYearSelect");
-
-  const currentYear = new Date().getFullYear();
-
-  for (let i = 4; i >= 0; i--) {
-    const startYear = currentYear - i;
-    const endYear = startYear + 1;
-    const option = document.createElement("option");
-    option.value = `${startYear}/${endYear}`;
-    option.textContent = `${startYear}/${endYear}`;
-    select.appendChild(option);
-  }
-}
-
-function populateClasses(data) {
-  data.forEach(function (d) {
-    var classOptions = clonable.querySelector("#billingClassOptions");
-    var option = document.createElement("option");
-    option.value = d.name;
-    option.textContent = d.name;
-    classOptions.appendChild(option);
-  });
-  generateAcademicYears();
-}
-
-function populateTable(data) {
-  var bar = new Promise((resolve, reject) => {
-    $("#billingTable").DataTable().destroy();
-    $("#billingTableBody").empty();
-    data.forEach((d, index, array) => {
-      var details =
-        "<tr> <td hidden>" +
-        d.studentBillId +
-        " </td> <td> " +
-        d.studentId +
-        "</td><td>" +
-        d.studentClass +
-        "</td> <td>" +
-        d.term +
-        "</td><td>" +
-        d.amountDue +
-        "</td><td>" +
-        d.amountPaid +
-        "</td><td>" +
-        d.amountBalance +
-        "</td></tr>";
-      $("#billingTableBody").append(details);
-      if (index === array.length - 1) resolve();
-    });
-  });
-  bar.then(() => {
-    console.log("All done!");
-    dataTableInit();
-  });
-}
-
-function dataTableInit() {
-  $("#billingTable").dataTable();
-}
-
-function createGeneralBills(data) {
-  // Get the table body element where rows will be added
-  const billItemsTbody = tabs.querySelector("#billItems");
-  const billItemsTbody2 = tabs.querySelectorAll(".specificBills");
-
-  // Function to create and append rows with checkboxes
-  data.forEach((item) => {
-    if (item.bill_Cat == "General") {
-      // Create a new row (tr) element
-      const row = document.createElement("tr");
-
-      // Create the checkbox cell (td)
-      const checkboxCell = document.createElement("td");
-      const checkbox = document.createElement("input");
-      checkbox.type = "checkbox";
-      checkbox.classList.add("i-checks", "gBill");
-      checkbox.checked = item.checked; // Set the checkbox state
-      checkboxCell.appendChild(checkbox);
-
-      // Create the description cell (td)
-      const descriptionCell = document.createElement("td");
-      descriptionCell.textContent = item.bill_Name;
-
-      // Append both cells to the row
-      row.appendChild(checkboxCell);
-      row.appendChild(descriptionCell);
-
-      // Append the row to the table body
-      billItemsTbody.appendChild(row);
-    } else {
-      billItemsTbody2.forEach((tb) => {
-        // Create a new row (tr) element
-        const row = document.createElement("tr");
-
-        // Create the checkbox cell (td)
-        const checkboxCell = document.createElement("td");
-        const checkbox = document.createElement("input");
-        checkbox.type = "checkbox";
-        checkbox.classList.add("i-checks", "sBill");
-        checkbox.checked = item.checked; // Set the checkbox state
-        checkboxCell.appendChild(checkbox);
-
-        // Create the description cell (td)
-        const descriptionCell = document.createElement("td");
-        descriptionCell.textContent = item.bill_Name;
-
-        // Append both cells to the row
-        row.appendChild(checkboxCell);
-        row.appendChild(descriptionCell);
-
-        // Append the row to the table body
-        tb.appendChild(row);
-      });
+    // ─── MAPPERS ──────────────────────────────────────────────────────────────
+    function mapApiBill(item, index) {
+        return {
+            id: item.billId || item.id || ("BILL-" + index),
+            name: item.bill_Name || item.billName || item.name || "",
+            price: parseFloat(item.bill_Amount || item.amount || item.price || 0),
+            isMandatory: !!(item.isMandatory || item.mandatory || false),
+            _raw: item,
+        };
     }
-  });
-}
 
-function createStudentList(data) {
-  // Get the table body element where rows will be added
-  const billItemsTbody2 = tabs.querySelectorAll(".studentsList");
+    function mapApiStudent(item) {
+        return {
+            id: item.studentId || item.id || "",
+            name: [item.lastName, item.firstName, item.otherName]
+                    .filter(Boolean).join(" ").trim()
+                || item.name || item.studentName || "",
+            email: item.email || item.emailAddress || "",
+            parentPhone: item.parentPhone || item.phoneNumber || item.phone || "",
+            _raw: item,
+        };
+    }
 
-  // Function to create and append rows with checkboxes
-  data.forEach((item, index) =>
-    billItemsTbody2.forEach((tb) => {
-      // Create a new row (tr) element
-      const row = document.createElement("div");
-      row.classList.add("row");
-      if (index % 2 == 0) {
-        row.style.backgroundColor = "#f9f9f9";
-        row.style.border = "1px solid #ddd";
-      }
+    // ─── SPLASH ───────────────────────────────────────────────────────────────
+    function showSplash() {
+        if (typeof $ !== "undefined") {
+            $(".splash")
+                .css({display: "block", background: "#ffffff3d"})
+                .find("h1, p").remove();
+        }
+    }
 
-      // Create the checkbox cell (td)
-      const checkboxCell = document.createElement("div");
-      checkboxCell.classList.add("col-sm-2");
-      checkboxCell.style.paddingTop = "13px;";
+    function hideSplash() {
+        if (typeof $ !== "undefined") $(".splash").css("display", "none");
+    }
 
-      const checkbox = document.createElement("input");
-      checkbox.type = "checkbox";
-      checkbox.classList.add("i-checks");
-      checkbox.checked = item.checked; // Set the checkbox state
-      checkboxCell.appendChild(checkbox);
+    // ─── 1. FETCH CLASS GROUPS + BILLS (initial load) ─────────────────────────
+    async function fetchInitialData() {
+        try {
+            showSplash();
+            buildAcademicYears();
 
-      // Create the description cell (td)
-      const descriptionCell = document.createElement("div");
-      descriptionCell.classList.add("col-sm-10");
-      descriptionCell.classList.add("border");
-      descriptionCell.classList.add("border-info");
-      descriptionCell.innerHTML = studentObject(item);
+            // Run class-group fetch and bills fetch in parallel
+            var instCode = _instCode;
+            var [groups, bills] = await Promise.all([
+                fetchPost("getLookUpByType", {val: "ClassGroup"}),
+                fetchPost("get-bills-by-institution", {val: instCode}),
+            ]);
 
-      // Append both cells to the row
-      row.appendChild(checkboxCell);
-      row.appendChild(descriptionCell);
+            processClassGroups(groups);
+            processBills(bills);
 
-      // Append the row to the table body
-      tb.appendChild(row);
-    })
-  );
-}
+            window.billingData._classGroupsLoaded = true;
+            hideSplash();
+            console.log("[_financeBilling] Initial data loaded.", window.billingData);
 
-function studentObject(data) {
-  // Return HTML string instead of divs
-  /*checkboxCell.classList.add('border');
-        checkboxCell.classList.add('border-info');*/
-  return `
-        <div class="row border border-info">
-            <div class="col-sm-12">
-                <label style="font-weight: unset studentId">${data.studentId}</label>
-            </div>
-            <div class="col-sm-12">
-                <label style="font-weight: unset">${data.lastName} ${data.firstName} ${data.otherName}</label>
-            </div>
-        </div>
-    `;
-}
+        } catch (err) {
+            hideSplash();
+            window.billingData._classGroupsLoaded = true; // unblock UI
+            console.error("[_financeBilling] fetchInitialData failed:", err);
+        }
+    }
 
-function buildGeneralBill(el) {
-  billList.push(el.closest("tr").querySelectorAll("td")[1].innerHTML);
-}
+    function processClassGroups(data) {
+        if (!Array.isArray(data)) return;
+        window.billingData.classGroups = data.map(function (d) {
+            return {id: d.id, name: d.name};
+        });
+    }
+
+    function processBills(data) {
+        if (!Array.isArray(data)) return;
+        // Clear before repopulating
+        window.billingData.billSections.general.bills = [];
+        window.billingData.billSections.specific.bills = [];
+
+        data.forEach(function (item, i) {
+            var bill = mapApiBill(item, i);
+            var cat = (item.bill_Cat || item.category || "").toLowerCase();
+            if (cat === "general") {
+                window.billingData.billSections.general.bills.push(bill);
+            } else {
+                window.billingData.billSections.specific.bills.push(bill);
+            }
+        });
+    }
+
+    // ─── 2. FETCH CLASSES BY GROUP (on group dropdown change) ─────────────────
+    window.fetchClassesByGroup = async function (groupId) {
+        try {
+            showSplash();
+            // Reset classes whenever the group changes
+            window.billingData.classes = {};
+            window.billingState._studentCache = {};
+
+            var result = await fetchPost("getInstitutionClassesByClassGroup", {
+                institution: _instCode,
+                classGroup: groupId,
+            });
+
+            if (Array.isArray(result)) {
+                result.forEach(function (d) {
+                    var name = d.name || d.className || "";
+                    if (!name) return;
+                    window.billingData.classes[name] = {
+                        className: name,
+                        students: [],
+                    };
+                });
+            }
+
+            hideSplash();
+        } catch (err) {
+            hideSplash();
+            console.error("[_financeBilling] fetchClassesByGroup failed:", err);
+        }
+    };
+
+    // ─── 3. FETCH STUDENTS FOR A CLASS (lazy, cached) ─────────────────────────
+    window.fetchStudentsForClass = async function (className) {
+        // Return cache hit
+        if (window.billingState._studentCache[className]) {
+            window.billingData.classes[className].students =
+                window.billingState._studentCache[className];
+            return;
+        }
+
+        try {
+            showSplash();
+            var result = await fetchPost("getSkimpStudentsByClass", {
+                institutionCode: _instCode,
+                studentClass: className,
+                dateOfAdmission: "",
+                denomination: "",
+                dateOfBirth: "",
+                nationality: "",
+                studentId: "",
+                gender: "",
+                status: "",
+            });
+
+            var mapped = (result || []).map(mapApiStudent);
+            if (!window.billingData.classes[className]) {
+                window.billingData.classes[className] = {className: className, students: []};
+            }
+            window.billingData.classes[className].students = mapped;
+            window.billingState._studentCache[className] = mapped;
+            hideSplash();
+
+        } catch (err) {
+            hideSplash();
+            console.error("[_financeBilling] fetchStudentsForClass failed:", err);
+        }
+    };
+
+    // ─── 4. SUBMIT BILLING ────────────────────────────────────────────────────
+    window.submitBilling = async function () {
+        try {
+            showSplash();
+            var payload = {
+                term: window.billingState.selectedTerm,
+                studentClass: window.billingState.selectedClass,
+                studentId: Array.from(window.billingState.selectedStudents),
+                billname: Array.from(window.billingState.selectedBills),
+                academicYear: window.billingState.selectedYear,
+                institutionCode: _instCode,
+            };
+            var result = await fetchPost("bill-students-by-institution", payload);
+            hideSplash();
+
+            if (typeof swal === "function") {
+                swal({title: "Success!", text: "Billing submitted successfully.", type: "success"});
+            }
+            return result;
+
+        } catch (err) {
+            hideSplash();
+            console.error("[_financeBilling] submitBilling failed:", err);
+            throw err;
+        }
+    };
+
+    // ─── 5. FETCH EXISTING BILLINGS (billing history table) ───────────────────
+    window.fetchExistingBillings = async function (className, term) {
+        try {
+            showSplash();
+            var result = await fetchPost("get-billing-by-institutionClass", {
+                institutionCode: _instCode,
+                studentId: "",
+                studentClass: className || window.billingState.selectedClass,
+                term: term || window.billingState.selectedTerm,
+            });
+            hideSplash();
+            return result || [];
+        } catch (err) {
+            hideSplash();
+            console.error("[_financeBilling] fetchExistingBillings failed:", err);
+            return [];
+        }
+    };
+
+    // ─── HELPERS (used by financeBilling.js renderer) ────────────────────────
+
+    window.filterStudentsBySearch = function (students) {
+        var q = (window.billingState.searchQuery || "").toLowerCase().trim();
+        if (!q) return students;
+        return students.filter(function (s) {
+            return s.name.toLowerCase().includes(q) || s.id.toLowerCase().includes(q);
+        });
+    };
+
+    window.calculateTotalAmount = function () {
+        var total = 0;
+        var selected = window.billingState.selectedBills;
+        Object.values(window.billingData.billSections).forEach(function (section) {
+            section.bills.forEach(function (bill) {
+                if (selected.has(bill.id)) total += (bill.price || 0);
+            });
+        });
+        return total;
+    };
+
+    window.getSelectedStudentsDetails = function () {
+        var classData = window.billingData.classes[window.billingState.selectedClass];
+        if (!classData) return [];
+        return (classData.students || []).filter(function (s) {
+            return window.billingState.selectedStudents.has(s.id);
+        });
+    };
+
+    window.getSelectedBillsDetails = function () {
+        var results = [];
+        var selected = window.billingState.selectedBills;
+        Object.values(window.billingData.billSections).forEach(function (section) {
+            section.bills.forEach(function (bill) {
+                if (selected.has(bill.id)) results.push(bill);
+            });
+        });
+        return results;
+    };
+
+    window.buildPostPayload = function () {
+        return {
+            institutionCode: _instCode,
+            studentClass: window.billingState.selectedClass,
+            term: window.billingState.selectedTerm,
+            academicYear: window.billingState.selectedYear,
+            studentId: Array.from(window.billingState.selectedStudents),
+            billname: Array.from(window.billingState.selectedBills),
+        };
+    };
+
+    // ─── KICK OFF ─────────────────────────────────────────────────────────────
+    if (window.copyrights) window.copyrights();
+
+    fetchInitialData();
+
+})();

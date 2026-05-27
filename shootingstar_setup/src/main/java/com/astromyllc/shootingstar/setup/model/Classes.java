@@ -17,7 +17,11 @@ public class Classes {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idClasses;
     private String name;
-    private String classGroup;
+    //private String classGroup;
+
+    @ManyToOne
+    @JoinColumn(name = "class_group_id")
+    private Lookup classGroup;
 
     @ManyToOne
     @JoinColumn(name = "idInstitution")

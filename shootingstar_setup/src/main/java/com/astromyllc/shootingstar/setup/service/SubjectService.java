@@ -1,8 +1,10 @@
 package com.astromyllc.shootingstar.setup.service;
 
-import com.astromyllc.shootingstar.setup.dto.request.*;
+import com.astromyllc.shootingstar.setup.dto.request.ClassesRequest;
+import com.astromyllc.shootingstar.setup.dto.request.SingleStringRequest;
+import com.astromyllc.shootingstar.setup.dto.request.SubjectDetails;
+import com.astromyllc.shootingstar.setup.dto.request.SubjectRequest;
 import com.astromyllc.shootingstar.setup.dto.response.SubjectResponse;
-import com.astromyllc.shootingstar.setup.model.Institution;
 import com.astromyllc.shootingstar.setup.model.Subject;
 import com.astromyllc.shootingstar.setup.repository.InstitutionRepository;
 import com.astromyllc.shootingstar.setup.repository.SubjectRepository;
@@ -26,6 +28,7 @@ public class SubjectService implements SubjectServiceInterface {
     private final SubjectRepository subjectRepository;
     private final InstitutionUtils institutionUtils;
     private final InstitutionRepository institutionRepository;
+
     @Override
     public List<Optional<SubjectResponse>> createSubject(SubjectRequest subjectRequest) {
         log.info("Subject Request {}", subjectRequest);
@@ -39,18 +42,18 @@ public class SubjectService implements SubjectServiceInterface {
 
                     // Convert existing subjects into a Set for quick lookup (name + classGroup as unique key)
                     Set<String> existingSubjects = institution.getSubjectList().stream()
-                            .map(sub -> (sub.getName().toLowerCase() + "_" + sub.getClassGroup().toLowerCase())) // Unique key
+                            .map(sub -> (sub.getName().toLowerCase() + "_" + sub.getClassGroup().getName().toLowerCase())) // Unique key
                             .collect(Collectors.toSet());
 
                     // Filter out subjects that already exist and add new subjects
-                    List<Subject> newSubjects=
+                    List<Subject> newSubjects =
                             subjectRequest.getSubjectDetails().stream()
-                                    .map(s->{
-                                       Subject ns= SubjectUtil.mapSubjectRequest_ToSubject(s);
-                                       ns.setInstitution(institution);
-                                       return ns;
+                                    .map(s -> {
+                                        Subject ns = SubjectUtil.mapSubjectRequest_ToSubject(s);
+                                        ns.setInstitution(institution);
+                                        return ns;
                                     })
-                                    .filter(sub -> !existingSubjects.contains(sub.getName().toLowerCase() + "_" + sub.getClassGroup().toLowerCase()))
+                                    .filter(sub -> !existingSubjects.contains(sub.getName().toLowerCase() + "_" + sub.getClassGroup().getName().toLowerCase()))
                                     .collect(Collectors.toList());
 
 
@@ -80,19 +83,19 @@ public class SubjectService implements SubjectServiceInterface {
 
     @Override
     public List<Optional<SubjectResponse>> getAllSubjects() {
-       return SubjectUtil.subjectGlobalList.stream().map(subjectUtil::mapSubject_ToSubjectResponse).toList();
+        return SubjectUtil.subjectGlobalList.stream().map(subjectUtil::mapSubject_ToSubjectResponse).toList();
     }
 
     @Override
     public List<Optional<SubjectResponse>> getAllSubjectsByClass(ClassesRequest classesRequest) {
-       return InstitutionUtils.institutionGlobalList.stream().filter(i-> false).findFirst().get().getClassList()
-                .stream().map(cl->classesRequest.getClassDetailList().stream().filter(c->c.getId().equals(cl.getIdClasses()))).map(s->subjectUtil.mapSubject_ToSubjectResponse((Subject) s)).toList();
+        return InstitutionUtils.institutionGlobalList.stream().filter(i -> false).findFirst().get().getClassList()
+                .stream().map(cl -> classesRequest.getClassDetailList().stream().filter(c -> c.getId().equals(cl.getIdClasses()))).map(s -> subjectUtil.mapSubject_ToSubjectResponse((Subject) s)).toList();
     }
 
     @Override
     public List<Optional<SubjectResponse>> getAllSubjectsByInstitution(SingleStringRequest institutionRequest) {
-        String finalBeceCode= institutionRequest.getVal();
-        List<Optional<SubjectResponse>> returnVal=  Optional.ofNullable(InstitutionUtils.institutionGlobalList)  // Check if institutionGlobalList is null
+        String finalBeceCode = institutionRequest.getVal();
+        List<Optional<SubjectResponse>> returnVal = Optional.ofNullable(InstitutionUtils.institutionGlobalList)  // Check if institutionGlobalList is null
                 .map(list -> list.stream()  // Stream over the list if it's not null
                         .filter(i -> i.getBececode().equalsIgnoreCase(finalBeceCode))  // Filter based on BECE code
                         .findFirst()  // Find the first matching institution
@@ -104,7 +107,7 @@ public class SubjectService implements SubjectServiceInterface {
                                 .toList())  // Collect to list
                         .orElse(Collections.emptyList()))  // If no matching institution or subject list is null, return an empty list
                 .orElse(Collections.emptyList());
-        log.debug("\n\n\n\n Subject List..... {}",returnVal );
+        log.debug("\n\n\n\n Subject List..... {}", returnVal);
         return returnVal;
     }
 
@@ -114,7 +117,7 @@ public class SubjectService implements SubjectServiceInterface {
                 .filter(i -> i.getBececode().equalsIgnoreCase(institutionRequest.getName())) // Filter by BECE code
                 .findFirst() // Find the first matching institution
                 .map(institution -> institution.getSubjectList().stream() // Get the subject list
-                        .filter(ps -> ps.getClassGroup().equalsIgnoreCase(institutionRequest.getClassGroup())) // Filter by class group
+                        .filter(ps -> ps.getClassGroup().getName().equalsIgnoreCase(institutionRequest.getClassGroup())) // Filter by class group
                         .map(subjectUtil::mapSubject_ToSubjectResponse) // Map to SubjectResponse
                         .collect(Collectors.toList()) // Collect the results into a List
                 ).orElse(Collections.emptyList()));
@@ -123,7 +126,7 @@ public class SubjectService implements SubjectServiceInterface {
 
     @Override
     public List<Optional<SubjectResponse>> getAllSubjectsByClassGroup(SingleStringRequest classGroup1) {
-        String classGroup= classGroup1.getVal();
-       return SubjectUtil.subjectGlobalList.stream().filter(s->s.getClassGroup().equalsIgnoreCase(classGroup)).map(m->subjectUtil.mapSubject_ToSubjectResponse(m)).toList();
+        String classGroup = classGroup1.getVal();
+        return SubjectUtil.subjectGlobalList.stream().filter(s -> s.getClassGroup().getName().equalsIgnoreCase(classGroup)).map(m -> subjectUtil.mapSubject_ToSubjectResponse(m)).toList();
     }
 }

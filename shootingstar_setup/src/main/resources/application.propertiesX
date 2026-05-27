@@ -8,7 +8,7 @@ server.port=0
 gateway.host=${APIGATEWAY:http://localhost:8083}
 #gateway.host=${APIGATEWAY:astro-api-gateway}
 
-eureka.client.serviceUrl.defaultZone=http://eureka:password@localhost:8761/eureka
+eureka.client.serviceUrl.defaultZone=http://${EUREKA_USERNAME}:${EUREKA_PASSWORD}@localhost:8761/eureka
 spring.application.name=shootingStar-setup
 spring.cloud.compatibility-verifier.enabled=false
 

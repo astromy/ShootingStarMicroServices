@@ -2,6 +2,7 @@ package com.astromyllc.shootingstar.setup.utils;
 
 import com.astromyllc.shootingstar.setup.dto.request.SubjectDetails;
 import com.astromyllc.shootingstar.setup.dto.response.SubjectResponse;
+import com.astromyllc.shootingstar.setup.model.Lookup;
 import com.astromyllc.shootingstar.setup.model.Subject;
 import com.astromyllc.shootingstar.setup.repository.SubjectRepository;
 import com.astromyllc.shootingstar.setup.service.LookUpService;
@@ -17,13 +18,23 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Slf4j
 public class SubjectUtil {
+    private static final LookupUtil lookupUtil = null;
     public static List<Subject> subjectGlobalList = null;
     private final SubjectRepository subjectRepository;
     private final LookUpService l;
 
     public static Subject mapSubjectRequest_ToSubject(SubjectDetails s) {
+        Lookup classGroupLookup = null;
+
+        if (s.getClassGroup() != null) {
+            // Find the lookup from the global list or repository
+            classGroupLookup = lookupUtil.lookupGlobalList.stream().filter(cg -> cg.getIdLookup()
+                            .equals(Long.parseLong(s.getClassGroup())))
+                    .findFirst()
+                    .orElse(null);
+        }
         return Subject.builder()
-                .classGroup(s.getClassGroup())
+                .classGroup(classGroupLookup)
                 .name(s.getName())
                 .preference(s.getPreference())
                 .subjectType(s.getSubjectType())
@@ -31,7 +42,16 @@ public class SubjectUtil {
     }
 
     public static Subject mapSubjectRequest_ToSubject(SubjectDetails s, Subject subject) {
-        subject.setClassGroup(s.getClassGroup());
+        Lookup classGroupLookup = null;
+
+        if (s.getClassGroup() != null) {
+            // Find the lookup from the global list or repository
+            classGroupLookup = lookupUtil.lookupGlobalList.stream().filter(cg -> cg.getIdLookup()
+                            .equals(Long.parseLong(s.getClassGroup())))
+                    .findFirst()
+                    .orElse(null);
+        }
+        subject.setClassGroup(classGroupLookup);
         subject.setName(s.getName());
         subject.setPreference(s.getPreference());
         return subject;
@@ -43,13 +63,15 @@ public class SubjectUtil {
         log.info("Global list of Subjects Populated with {} Record", subjectGlobalList.stream().count());
     }
 
+
     public Optional<SubjectResponse> mapSubject_ToSubjectResponse(Subject s) {
-        String lc = s.getClassGroup();
+
+        String lc = s.getClassGroup().getName();
         return Optional.ofNullable(SubjectResponse.builder()
                 .id(s.getIdSubject())
-                .classGroup(s.getClassGroup())
+                .classGroup(s.getClassGroup().getName())
                 .name(s.getName())
-                .classGroupName(l.getLookUpById(s.getClassGroup()).get().get().getName())
+                .classGroupName(s.getName())/*(l.getLookUpById(s.getClassGroup()).get().get().getName())*/
                 .preference(s.getPreference())
                 .build());
     }

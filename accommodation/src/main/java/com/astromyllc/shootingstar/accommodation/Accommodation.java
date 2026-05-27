@@ -14,6 +14,7 @@ import java.sql.SQLException;
 @SpringBootApplication
 @RequiredArgsConstructor
 @EnableDiscoveryClient
+//@PropertySource("file:/app/.env")
 @Slf4j
 public class Accommodation {
 
@@ -21,6 +22,21 @@ public class Accommodation {
 
     public static void main(String[] args) throws SQLException {
         SpringApplication.run(Accommodation.class, args);
+
+        boolean isDocker = isRunningInDocker();
+
+        if (isDocker) {
+            System.setProperty("spring.profiles.active", "docker");
+        } else {
+            System.setProperty("spring.profiles.active", "local");
+        }
+    }
+
+    private static boolean isRunningInDocker() {
+        // Check for Docker environment markers
+        return System.getenv("DOCKER_ENV") != null ||
+                new java.io.File("/.dockerenv").exists() ||
+                System.getenv("KUBERNETES_SERVICE_HOST") != null;
     }
 
 

@@ -1,6 +1,8 @@
 package com.astromyllc.shootingstar.setup.service;
 
-import com.astromyllc.shootingstar.setup.dto.request.*;
+import com.astromyllc.shootingstar.setup.dto.request.ClassGroupRequest;
+import com.astromyllc.shootingstar.setup.dto.request.ClassesRequest;
+import com.astromyllc.shootingstar.setup.dto.request.SingleStringRequest;
 import com.astromyllc.shootingstar.setup.dto.response.ClassesResponse;
 import com.astromyllc.shootingstar.setup.model.Classes;
 import com.astromyllc.shootingstar.setup.model.Institution;
@@ -27,6 +29,7 @@ public class ClassService implements ClassesServiceInterface {
     private final ClassesUtil classesUtil;
     private final InstitutionUtils institutionUtils;
     private final InstitutionRepository institutionRepository;
+
     @Override
     public void createClass(ClassesRequest classesRequest) {
 
@@ -47,7 +50,7 @@ public class ClassService implements ClassesServiceInterface {
                             .collect(Collectors.toSet());
 
                     // Filter out existing classes and add only new ones
-                 List<Classes> newClasses=
+                    List<Classes> newClasses =
                             classesRequestList.getClassDetailList().stream()
                                     .map(c -> {
                                         Classes mappedClass = ClassesUtil.mapClassRequestToClass(c);
@@ -80,23 +83,23 @@ public class ClassService implements ClassesServiceInterface {
 
     @Override
     public List<Optional<ClassesResponse>> getAllClassesByClassGroup(ClassGroupRequest classGroupRequest) {
-      return  InstitutionUtils.institutionGlobalList.stream()
-              .filter(i->i.getBececode().equalsIgnoreCase(classGroupRequest.getInstitution()))
-              .findFirst().get().getClassList().stream()
-              .filter(f->f.getClassGroup().equalsIgnoreCase(classGroupRequest.getClassGroup()))
-              .map(ClassesUtil::mapClassToClassResponse).toList();
+        return InstitutionUtils.institutionGlobalList.stream()
+                .filter(i -> i.getBececode().equalsIgnoreCase(classGroupRequest.getInstitution()))
+                .findFirst().get().getClassList().stream()
+                .filter(f -> f.getClassGroup().getName().equalsIgnoreCase(classGroupRequest.getClassGroup()))
+                .map(ClassesUtil::mapClassToClassResponse).toList();
     }
 
     @Override
     public List<Optional<ClassesResponse>> getAllClassesByInstitution(SingleStringRequest institutionRequest) {
-        String finalBeceCode= institutionRequest.getVal();
-        List<Optional<ClassesResponse>> classesResponse= InstitutionUtils.institutionGlobalList.stream().filter(x->x.getBececode().equalsIgnoreCase(finalBeceCode)).findFirst()
+        String finalBeceCode = institutionRequest.getVal();
+        List<Optional<ClassesResponse>> classesResponse = InstitutionUtils.institutionGlobalList.stream().filter(x -> x.getBececode().equalsIgnoreCase(finalBeceCode)).findFirst()
                 .map(Institution::getClassList)  // Safe check if inst is null
                 .map(Collection::stream)  // Safe check if getClassList() is null
                 .map(stream -> stream.map(ClassesUtil::mapClassToClassResponse))  // Safe map operation
                 .map(Stream::toList)  // Convert stream to list safely
                 .orElse(Collections.emptyList());
-        log.debug("\n\n\n\n List OF Classes..... {}",classesResponse );
+        log.debug("\n\n\n\n List OF Classes..... {}", classesResponse);
         return classesResponse;
     }
 }

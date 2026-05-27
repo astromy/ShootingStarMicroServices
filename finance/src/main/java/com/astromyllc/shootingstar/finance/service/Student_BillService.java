@@ -91,10 +91,22 @@ public class Student_BillService implements Student_BillServiceInterface {
 
     @Override
     public Optional<Student_BillResponse> fetchStudentBillByIdAndInstitution(StudentBillFetchRequest studentBillFetchRequest) {
-        return Optional.of(Student_BillUtil.studentBillsGlobalList.stream().filter(
-                        s -> s.getInstitutionCode().equalsIgnoreCase(studentBillFetchRequest.getInstitutionCode())
-                                && s.getStudentId().equalsIgnoreCase(studentBillFetchRequest.getStudentId()))
-                .map(studentBillUtil::mapStudentBill_ToStudentBillResponse).findFirst().get());
+        Optional<Student_BillResponse> result = Student_BillUtil.studentBillsGlobalList.stream()
+                .filter(s -> s.getInstitutionCode().equalsIgnoreCase(studentBillFetchRequest.getInstitutionCode())
+                        && s.getStudentId().equalsIgnoreCase(studentBillFetchRequest.getStudentId()))
+                .map(studentBillUtil::mapStudentBill_ToStudentBillResponse)
+                .findFirst();
+
+        if (result.isPresent()) {
+            return Optional.of(result.get());
+        }
+
+        // Log the issue
+        log.warn("No student bill found for institution: {} and student: {}",
+                studentBillFetchRequest.getInstitutionCode(),
+                studentBillFetchRequest.getStudentId());
+
+        return Optional.empty();  // Or throw a custom exception
     }
 
     @Override

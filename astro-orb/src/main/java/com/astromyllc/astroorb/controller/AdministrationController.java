@@ -38,6 +38,8 @@ public class AdministrationController {
     private final ObjectMapper objectMapper;
     @Value("${gateway.host}")
     private String backendserve;
+    @Value("${paystack.secrete}")
+    private String PAYSTACK_SECRET_KEY;
 
     private static String bytesToHex(byte[] bytes) {
         StringBuilder result = new StringBuilder();
@@ -111,6 +113,19 @@ public class AdministrationController {
         return BACKENDCOMMPOST(jso, backendserve + "/api/administration-pta/postBulkStudentList");
     }
 
+    //----------------------------------------------------------------------------------------------------------------------
+
+
+    @ResponseBody
+    @RequestMapping(value = "getAllApplicants", method = RequestMethod.POST)
+    public ResponseEntity<String> getAllApplicants(@RequestBody SingleStringRequest jso) throws IOException {
+
+        return BACKENDCOMMPOST(jso, backendserve + "/api/applications/getApplicationsBySchool");
+    }
+
+
+    //---------------------------------------------------------------------------------------------------------------------
+
     @ResponseBody
     @RequestMapping(value = "api/mobile/getSkimpStudentsByParentContact", method = RequestMethod.POST)
     public ResponseEntity<String> getSkimpStudentsByParentContact(@RequestBody SingleStringRequest jso) {
@@ -165,7 +180,6 @@ public class AdministrationController {
     }
 
     private boolean verifyPaystackSignature(String requestBody, String signature) {
-        ;
         try {
             Mac mac = Mac.getInstance("HmacSHA512");
             SecretKeySpec secretKeySpec = new SecretKeySpec(PAYSTACK_SECRET_KEY.getBytes(StandardCharsets.UTF_8), "HmacSHA512");

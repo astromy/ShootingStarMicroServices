@@ -291,7 +291,7 @@
   background: #fff;
   padding: 0;
   box-shadow: 0 0 1px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.2);
-  -webkit-box-shadow: 0 0 1 px rgba(0, 0, 0, 0.1), 0 2 px 4 px rgba(0, 0, 0, 0.2);
+  -webkit-box-shadow: 0 0 1px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.2);
   -moz-box-shadow: 0 0 1 px rgba(0, 0, 0, 0.1), 0 2 px 4 px rgba(0, 0, 0, 0.2);
   border: none ;
   margin-top: 30px;
@@ -1487,7 +1487,7 @@ h3,
 @media (-o-min-device-pixel-ratio: 5/4), (-webkit-min-device-pixel-ratio: 1.25), (min-resolution: 120dpi) {
   .icheckbox_square-green,
   .iradio_square-green {
-    background-image: url("img/green%402x.png");
+    background-image: url("img/green@2x.png");
     -webkit-background-size: 240px 24px;
     background-size: 240px 24px;
   }
@@ -1566,9 +1566,9 @@ body {
 .color-line {
   background: #f7f9fa;
   height: 6px; 
-  background-image: -webkit-linear-gradient(left,#412cfd 50%,#1d04fd 50%);
-  background-image: -moz-linear-gradient(left,#412cfd 50%,#1d04fd 50%);
-  background-image: -ms-linear-gradient(left,#412cfd 50%,#1d04fd 50%);
+  background-image: -webkit-linear-gradient(to left,#412cfd 50%,#1d04fd 50%);
+  background-image: -moz-linear-gradient(to left,#412cfd 50%,#1d04fd 50%);
+  background-image: linear-gradient(to right, #412cfd 50%, #1d04fd 50%);
   /*background-image: -webkit-linear-gradient(left, #34495e, #34495e 25%, #9b59b6 25%, #9b59b6 35%, #3498db 35%, #3498db 45%, #62cb31 45%, #62cb31 55%, #ffb606 55%, #ffb606 65%, #e67e22 65%, #e67e22 75%, #e74c3c 85%, #e74c3c 85%, #c0392b 85%, #c0392b 100%);
   background-image: -moz-linear-gradient(left, #34495e, #34495e 25%, #9b59b6 25%, #9b59b6 35%, #3498db 35%, #3498db 45%, #62cb31 45%, #62cb31 55%, #ffb606 55%, #ffb606 65%, #e67e22 65%, #e67e22 75%, #e74c3c 85%, #e74c3c 85%, #c0392b 85%, #c0392b 100%);
   background-image: -ms-linear-gradient(left, #34495e, #34495e 25%, #9b59b6 25%, #9b59b6 35%, #3498db 35%, #3498db 45%, #62cb31 45%, #62cb31 55%, #ffb606 55%, #ffb606 65%, #e67e22 65%, #e67e22 75%, #e74c3c 85%, #e74c3c 85%, #c0392b 85%, #c0392b 100%);

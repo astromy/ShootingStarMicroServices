@@ -8,15 +8,14 @@ import java.sql.*;
 @Component
 public class DataBaseInitializer {
 
+    private final String DB_NAME = "shootingstarsetup";  // The name of the database to check/create
     @Value("${data.connection}")
     private String dbConnection;
-
-    private final String DB_NAME = "shootingstarsetup";  // The name of the database to check/create
 
     public void createDatabaseIfNotExists() throws SQLException {
         String url = "jdbc:postgresql://" + dbConnection + "/postgres";  // Connect to the default 'postgres' DB
         String user = "astromyllc";
-        String pass = "${DB_PASSWORD}";
+        String pass = "IdowhatIlikeIlikewhatIdo!@3";
 
         // Step 1: Check if the database exists
         try (Connection conn = DriverManager.getConnection(url, user, pass);
@@ -43,7 +42,7 @@ public class DataBaseInitializer {
         // Create a new connection to the actual database we want to use
         String url = "jdbc:postgresql://" + dbConnection + "/" + dbName;
         String user = "astromyllc";
-        String pass = "${DB_PASSWORD}";
+        String pass = "IdowhatIlikeIlikewhatIdo!@3";
 
         try (Connection conn = DriverManager.getConnection(url, user, pass)) {
             // Step 4: Once connected, you can proceed with any database setup logic or let Hibernate handle the schema

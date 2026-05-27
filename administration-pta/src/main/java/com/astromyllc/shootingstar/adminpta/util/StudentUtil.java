@@ -127,19 +127,30 @@ public class StudentUtil {
                 }).block();
     }
 
-    private Student_BillResponse fetchStudentsBalance(StudentBillFetchRequest billFetchRequest) {
-        JSONObject json = new JSONObject();
-        json.put("institutionCode", billFetchRequest.getInstitutionCode());
-        json.put("applicationDate", billFetchRequest.getStudentClass());
-        json.put("applicationStatus", billFetchRequest.getStudentId());
-        log.info(json.toJSONString());
-        return webClientBuilder.build().post()
-                .uri(host + "/api/finance/getStudentBillByIdAndInstitution")
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(Mono.just(json), JSONObject.class)
-                .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<Student_BillResponse>() {
-                }).block();
+    private Optional<Student_BillResponse> fetchStudentsBalance(StudentBillFetchRequest billFetchRequest) {
+        try {
+            JSONObject json = new JSONObject();
+            json.put("institutionCode", billFetchRequest.getInstitutionCode());
+            json.put("applicationDate", billFetchRequest.getStudentClass());
+            json.put("applicationStatus", billFetchRequest.getStudentId());
+            log.info(json.toJSONString());
+
+            Student_BillResponse response = webClientBuilder.build().post()
+                    .uri(host + "/api/finance/getStudentBillByIdAndInstitution")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(Mono.just(json), JSONObject.class)
+                    .retrieve()
+                    .bodyToMono(new ParameterizedTypeReference<Student_BillResponse>() {
+                    })
+                    .block();
+
+            return Optional.ofNullable(response);
+        } catch (Exception e) {
+            log.error("Error fetching student balance for institution: {}, student: {}",
+                    billFetchRequest.getInstitutionCode(),
+                    billFetchRequest.getStudentId(), e);
+            return Optional.empty();
+        }
     }
 
     public void getCurrentApplications(AdmissionRequest admissionRequest) {
@@ -271,7 +282,8 @@ public class StudentUtil {
                 s.getInstitutionCode(),
                 s.getStudentClass(),
                 s.getStudentId()
-        )).getAmountBalance();
+        )).map(Student_BillResponse::getAmountBalance)
+                .orElse(0.00);
         return StudentStatusResponse.builder()
                 .institutionCode(s.getInstitutionCode())
                 .studentId(s.getStudentId())

@@ -1,9 +1,14 @@
 package com.astromyllc.shootingstar.onlineapplication.dto.response;
 
-import lombok.*;
+import com.astromyllc.shootingstar.onlineapplication.dto.request.ParentsRequest;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -11,21 +16,6 @@ import java.time.LocalDateTime;
 @Data
 public class ApplicationsResponse {
     private String idapplication;
-    private String fatherFirstNames;
-    private String fatherLastName;
-    private String fatherEmail;
-    private String fatherContact1;
-    private String fatherContact2;
-    private String fatherOccupation;
-    private String fatherPlaceOfWork;
-
-    private String motherFirstNames;
-    private String motherLastName;
-    private String motherEmail;
-    private String motherContact1;
-    private String motherContact2;
-    private String motherOccupation;
-    private String motherPlaceOfWork;
 
     private String applicantFirstName;
     private String applicantOtherName;
@@ -52,4 +42,5 @@ public class ApplicationsResponse {
     private String reasonForDeparture;
     private String addressOfPreviousSchool;
     private String contactOfPreviousSchool;
+    private List<ParentsRequest> studentParents;
 }

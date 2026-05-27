@@ -16,33 +16,49 @@ import static org.springframework.security.config.Customizer.withDefaults;
 
 @SpringBootApplication
 @EnableDiscoveryClient
+//@PropertySource("file:/app/.env")
 public class AstroPreOrder {
 
-	public static void main(String[] args) {
-		SpringApplication.run(AstroPreOrder.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(AstroPreOrder.class, args);
 
-	@Bean
-	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-		http
-				.authorizeHttpRequests((authz) -> authz
-						.anyRequest().permitAll()
-				)
-				.httpBasic(withDefaults());
-		return http.build();
-	}
+        boolean isDocker = isRunningInDocker();
+
+        if (isDocker) {
+            System.setProperty("spring.profiles.active", "docker");
+        } else {
+            System.setProperty("spring.profiles.active", "local");
+        }
+    }
+
+    private static boolean isRunningInDocker() {
+        // Check for Docker environment markers
+        return System.getenv("DOCKER_ENV") != null ||
+                new java.io.File("/.dockerenv").exists() ||
+                System.getenv("KUBERNETES_SERVICE_HOST") != null;
+    }
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+                .authorizeHttpRequests((authz) -> authz
+                        .anyRequest().permitAll()
+                )
+                .httpBasic(withDefaults());
+        return http.build();
+    }
 
 
-	@Bean
-	CorsConfigurationSource corsConfigurationSource() {
-		CorsConfiguration configuration = new CorsConfiguration();
-		configuration.setAllowedOrigins(Arrays.asList("*"));
-		configuration.setAllowCredentials(true);
-		configuration.setAllowedHeaders(Arrays.asList("Access-Control-Allow-Headers","Access-Control-Allow-Origin","Access-Control-Request-Method", "Access-Control-Request-Headers","Origin","Cache-Control", "Content-Type", "Authorization"));
-		configuration.setAllowedMethods(Arrays.asList("DELETE", "GET", "POST", "PATCH", "PUT"));
-		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-		source.registerCorsConfiguration("/**", configuration);
-		return source;
-	}
+    @Bean
+    CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList("*"));
+        configuration.setAllowCredentials(true);
+        configuration.setAllowedHeaders(Arrays.asList("Access-Control-Allow-Headers", "Access-Control-Allow-Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers", "Origin", "Cache-Control", "Content-Type", "Authorization"));
+        configuration.setAllowedMethods(Arrays.asList("DELETE", "GET", "POST", "PATCH", "PUT"));
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
 
 }
