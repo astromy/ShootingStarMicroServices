@@ -54,3 +54,12 @@ docker-compose*.yml
 **/application-docker.yml
 **/application-docker*.properties
 **/application-docker*.yml
+
+# Docker files - DO NOT COMMIT
+**/Dockerfile
+**/application-docker*.yml
+**/application-docker*.properties
+**/application-docker*.propertiesX
+*.zip
+.dockerignore
+docker-compose*.yml
