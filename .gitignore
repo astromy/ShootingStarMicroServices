@@ -46,3 +46,11 @@ build/
 replacements.txt
 *.backup
 New folder/
+
+# Docker files
+Dockerfile
+docker-compose*.yml
+.dockerignore
+**/application-docker.yml
+**/application-docker*.properties
+**/application-docker*.yml
