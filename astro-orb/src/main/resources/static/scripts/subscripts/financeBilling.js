@@ -17,14 +17,33 @@
 (function () {
     "use strict";
 
+    // ─── RESOLVE BASE PATH from this script's own URL ───────────────────────
+    // Derives the folder where financeBilling.js lives so that sibling files
+    // (_financeBilling.js, financeBilling.css) are always found — no hardcoded
+    // paths to maintain.
+    var _scriptBase = (function () {
+        // currentScript works in modern browsers; fall back to searching <script> tags
+        var el = document.currentScript ||
+            (function () {
+                var tags = document.getElementsByTagName("script");
+                for (var i = tags.length - 1; i >= 0; i--) {
+                    if (tags[i].src && tags[i].src.indexOf("financeBilling") !== -1) {
+                        return tags[i];
+                    }
+                }
+                return null;
+            })();
+        if (!el || !el.src) return "";
+        return el.src.substring(0, el.src.lastIndexOf("/") + 1); // e.g. "http://host/scripts/subscripts/"
+    })();
+
     // ─── INJECT CSS ───────────────────────────────────────────────────────────
     (function injectCSS() {
         if (document.getElementById("financeBillingCSS")) return;
         var link = document.createElement("link");
         link.id = "financeBillingCSS";
         link.rel = "stylesheet";
-        // Adjust path to match your project layout
-        link.href = "scripts/subscripts/financeBilling.css";
+        link.href = _scriptBase + "../financeBilling.css"; // CSS lives in scripts/
         document.head.appendChild(link);
     })();
 
@@ -52,7 +71,7 @@
                 (t.value === state.selectedTerm ? "selected" : "") + '>' + t.label + '</option>';
         }).join("");
 
-        document.getElementById("wrapper").innerHTML = [
+        document.getElementById("wrapper").innerHTML = '<div class="bs-page">' + [
             // ── HEADER ──────────────────────────────────────────────────────
             '<header class="bs-header">',
             '<div class="bs-header-row">',
@@ -216,7 +235,7 @@
             // ── TOAST ────────────────────────────────────────────────────────
             '<div class="bs-toast" id="bsToast"></div>'
 
-        ].join("");
+        ].join("") + '</div>';
 
         document.getElementById("copyrightYear").textContent = new Date().getFullYear();
     }
@@ -656,29 +675,43 @@
 
         // ── Class Group → fetch classes in that group ────────────────────────
         document.getElementById("classGroupFilter").addEventListener("change", function (e) {
+            var groupSelect = document.getElementById("classGroupFilter");
+            var selectedOption = groupSelect.options[groupSelect.selectedIndex];
+            // value = group id, text = group name — backend and filter both need the NAME
             var groupId = e.target.value;
+            var groupText = selectedOption ? selectedOption.text : "";
+
             window.billingState.selectedGroup = groupId;
+            window.billingState.selectedGroupText = groupText;
 
             var classSel = document.getElementById("classFilter");
-            classSel.innerHTML = '<option value="">Loading…</option>';
             classSel.disabled = true;
 
-            // Clear students
+            // Clear students and class selection
             window.billingState.selectedStudents.clear();
             window.billingState.selectAllChecked = false;
             window.billingState.selectedClass = "";
             refresh();
 
-            if (!groupId) {
+            if (!groupId || !groupText) {
                 classSel.innerHTML = '<option value="">Select group first</option>';
                 return;
             }
 
-            if (typeof window.fetchClassesByGroup === "function") {
-                window.fetchClassesByGroup(groupId).then(function () {
-                    repopulateClassFilter();
-                    classSel.disabled = false;
-                });
+            // Filter classes from institution object — NO server call
+            var filtered = typeof window.getClassesByGroupText === "function"
+                ? window.getClassesByGroupText(groupText)
+                : [];
+
+            if (filtered && filtered.length) {
+                classSel.innerHTML = '<option value="">Select class…</option>' +
+                    filtered.map(function (cls) {
+                        return '<option value="' + cls.name + '">' + cls.name + '</option>';
+                    }).join("");
+                classSel.disabled = false;
+            } else {
+                classSel.innerHTML = '<option value="">No classes found</option>';
+                classSel.disabled = true;
             }
         });
 
@@ -775,7 +808,8 @@
         if (!sel) return;
         sel.innerHTML = '<option value="">Select group…</option>' +
             groups.map(function (g) {
-                return '<option value="' + g.id + '">' + g.name + '</option>';
+                // value is the group name — backend expects name, not id
+                return '<option value="' + (g.value || g.name) + '">' + g.name + '</option>';
             }).join("");
         sel.disabled = false;
     }
@@ -829,17 +863,29 @@
     }
 
     function afterAPIDataLoaded() {
-        // Populate class-group dropdown
+        // ── Class-group dropdown (from getLookUpByType) ──────────────────────
         repopulateGroupFilter(window.billingData.classGroups || []);
-        // Render bills (now populated from API)
-        renderBillSelection();
-        // Year options may have been set by _financeBilling.js
+
+        // ── Term dropdown (derived from institution by _financeBilling.js) ───
+        var termSel = document.getElementById("termFilter");
+        if (termSel && window.billingData.terms && window.billingData.terms.length) {
+            termSel.innerHTML = window.billingData.terms.map(function (t) {
+                var sel = t.value === window.billingState.selectedTerm ? "selected" : "";
+                return '<option value="' + t.value + '" ' + sel + '>' + t.label + '</option>';
+            }).join("");
+        }
+
+        // ── Academic year dropdown (generated locally) ───────────────────────
         var yearSel = document.getElementById("yearFilter");
         if (yearSel && window.billingData.academicYears.length) {
             yearSel.innerHTML = window.billingData.academicYears.map(function (y) {
                 return '<option ' + (y === window.billingState.selectedYear ? "selected" : "") + '>' + y + '</option>';
             }).join("");
         }
+
+        // ── Bills (from get-bills-by-institution) ────────────────────────────
+        renderBillSelection();
+
         renderStats();
         renderSummary();
     }
@@ -853,7 +899,7 @@
 
         var s = document.createElement("script");
         s.type = "text/javascript";
-        s.src = "scripts/_financeBilling.js";
+        s.src = _scriptBase + "../_financeBilling.js"; // lives in scripts/ not subscripts/
 
         s.onload = function () {
             if (window.billingData && window.billingState) {
@@ -865,7 +911,7 @@
         };
 
         s.onerror = function () {
-            console.error("[financeBilling] Could not load scripts/_financeBilling.js");
+            console.error("[financeBilling] Could not load: " + _scriptBase + "../_financeBilling.js");
         };
 
         document.body.appendChild(s);

@@ -7,46 +7,34 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="stores-inventory" />
-        <module name="astro-admission-acceptance" />
-        <module name="astro-api-gateway" />
-        <module name="academics" />
-        <module name="astro-preorder" />
-        <module name="discoveryserver" />
-        <module name="shootingstar_setup" />
         <module name="astro-online-application" />
         <module name="astro-orb" />
-        <module name="online-application" />
-        <module name="administration-pta" />
-        <module name="accommodation" />
-        <module name="hr-service" />
-        <module name="clinic" />
-        <module name="finance" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="administration-pta" target="17" />
       <module name="astroauthauth" target="17" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="ParentShootingStar" options="" />
-      <module name="academics" options="-parameters" />
-      <module name="accommodation" options="-parameters" />
+      <module name="academics" options="" />
+      <module name="accommodation" options="" />
       <module name="administration-pta" options="-parameters" />
-      <module name="astro-admission-acceptance" options="-parameters" />
-      <module name="astro-api-gateway" options="-parameters" />
+      <module name="astro-admission-acceptance" options="" />
+      <module name="astro-api-gateway" options="" />
       <module name="astro-online-application" options="-parameters" />
       <module name="astro-orb" options="-parameters" />
-      <module name="astro-preorder" options="-parameters" />
+      <module name="astro-preorder" options="" />
       <module name="astroauthauth" options="-parameters" />
-      <module name="clinic" options="-parameters" />
-      <module name="discoveryserver" options="-parameters" />
-      <module name="finance" options="-parameters" />
-      <module name="hr-service" options="-parameters" />
-      <module name="online-application" options="-parameters" />
-      <module name="shootingstar_setup" options="-parameters" />
-      <module name="stores-inventory" options="-parameters" />
+      <module name="clinic" options="" />
+      <module name="discoveryserver" options="" />
+      <module name="finance" options="" />
+      <module name="hr-service" options="" />
+      <module name="online-application" options="" />
+      <module name="shootingstar_setup" options="" />
+      <module name="stores-inventory" options="" />
     </option>
   </component>
 </project>

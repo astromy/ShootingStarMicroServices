@@ -46,9 +46,10 @@ $(function () {
                             </div>
                             <div class="form-group col-lg-2">
                                 <select class="form-control termSelect">
-                                    <option value="0">Select Semester</option>
-                                    <option value="First Semester">First Semester</option>
-                                    <option value="Second Semester">Second Semester</option>
+                                    <option value="0">Select Term</option>
+                                    <option value="First Term">First Term</option>
+                                    <option value="Second Term">Second Term</option>
+                                    <option value="Third Term">Third Term</option>
                                  </select>
                             </div>
                             <div class="form-group col-lg-2">
@@ -110,12 +111,10 @@ $(function () {
     `
 
 
-
-
     document.getElementById("wrapper").innerHTML = header;
     document.getElementById("wrapper").insertAdjacentHTML('beforeend', scoreUpload);
-  /*  document.getElementsByClassName("test")[0].addEventListener("click", scoreUploadIndut);
-    document.getElementById("modalopn").addEventListener("click", modalopn);*/
+    /*  document.getElementsByClassName("test")[0].addEventListener("click", scoreUploadIndut);
+      document.getElementById("modalopn").addEventListener("click", modalopn);*/
 
     var script14 = document.createElement("script");
     script14.setAttribute("type", "text/javascript");
@@ -129,8 +128,8 @@ $(function () {
 });
 
 //document.getElementById("institution").addEventListener("click", institutionBuild);
-function modalopn(){
-    document.getElementsByClassName("modalbody")[0].innerHTML="";
+function modalopn() {
+    document.getElementsByClassName("modalbody")[0].innerHTML = "";
     scoreUploadIndut();
 }
 
@@ -155,10 +154,10 @@ $(function () {
         dom: "<'row'<'col-sm-4'l><'col-sm-4 text-center'B><'col-sm-4'f>>tp",
         "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
         buttons: [
-            { extend: 'copy', className: 'btn-sm' },
-            { extend: 'csv', title: 'ExampleFile', className: 'btn-sm' },
-            { extend: 'pdf', title: 'ExampleFile', className: 'btn-sm' },
-            { extend: 'print', className: 'btn-sm' }
+            {extend: 'copy', className: 'btn-sm'},
+            {extend: 'csv', title: 'ExampleFile', className: 'btn-sm'},
+            {extend: 'pdf', title: 'ExampleFile', className: 'btn-sm'},
+            {extend: 'print', className: 'btn-sm'}
         ]
     });
 });

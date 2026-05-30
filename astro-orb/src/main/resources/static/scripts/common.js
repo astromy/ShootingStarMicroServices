@@ -279,6 +279,9 @@ function addEventListeners() {
     document
         .getElementById("promotionSettings")
         .addEventListener("click", promotionsBuild);
+    document
+        .getElementById("classTimeTable")
+        .addEventListener("click", classTimeTableBuild);
 
 //ADMINISTRATION FUNCTIONS
     document
@@ -415,30 +418,31 @@ function loadScriptsSequentially(scripts, index, parentTag) {
 
 function dashboardBuild() {
 
+    removeUnwantedResources("script", activeScripts);
+    removeUnwantedResources("link", activeLinks);
 
-    const newScripts = [
-        "scripts/subscripts/dashboard.js"  // Your dashboard code
-    ];
-    const newLinks = [ /* CSS files */];
+    var amBase = "vendor/amcharts5/";
 
-    // Clear old resources
-    //removeUnwantedResources("script", activeScripts);
-    // removeUnwantedResources("link", activeLinks);
+    // Step 1 — load amCharts core in order
+    loadScript(amBase + "index.js", function () {
+        loadScript(amBase + "xy.js", function () {
+            loadScript(amBase + "radar.js", function () {
+                loadScript(amBase + "hierarchy.js", function () {
+                    loadScript(amBase + "percent.js", function () {
+                        loadScript(amBase + "themes/Animated.js", function () {
 
-    // Key Difference 1: Sequential loading with callbacks
-    loadScript(newScripts[0], () => {          // First load Chart.js
-        loadScript(newScripts[1], () => {        // Then load dashboard.js
-            console.log("All scripts loaded");
+                            // Step 2 — am5 is now defined; load charts then dashboard
+                            loadScript("scripts/charts1.js", function () {
+                                loadScript("scripts/subscripts/dashboard.js", function () {
+                                    console.log("[dashboardBuild] All scripts loaded.");
+                                });
+                            });
+
+                        });
+                    });
+                });
+            });
         });
-    });
-
-    // Key Difference 2: Simpler CSS loading
-    newLinks.forEach(href => {
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = href;
-        document.head.appendChild(link);
-        activeLinks.add(href);
     });
 }
 
@@ -827,6 +831,18 @@ function recordsBuild() {
 //-------------------------------------------------------------------------------------------------------
 
 function leaveBuild() {
+
+    // Define new resources specific to this view
+    const newScripts = [
+        "vendor/sweetalert/lib/sweet-alert.min.js",
+        "scripts/subscripts/hrLeave.js",
+    ];
+    const newLinks = [
+        "vendor/sweetalert/lib/sweet-alert.css",
+        "vendor/metisMenu/dist/metisMenu.css",
+        "vendor/animate.css/animate.css",
+        "vendor/datatables.net-bs/css/dataTables.bootstrap.min.css",
+    ];
 
     // Remove previous non-default scripts/links
     removeUnwantedResources("script", activeScripts);
@@ -1478,6 +1494,34 @@ function promotionsBuild() {
     const newScripts = [
         "vendor/sweetalert/lib/sweet-alert.min.js",
         "scripts/subscripts/promotions.js",
+    ];
+    const newLinks = [
+        "vendor/sweetalert/lib/sweet-alert.css",
+        "vendor/metisMenu/dist/metisMenu.css",
+        "vendor/animate.css/animate.css",
+        "vendor/datatables.net-bs/css/dataTables.bootstrap.min.css",
+    ];
+
+    // Remove previous non-default scripts/links
+    removeUnwantedResources("script", activeScripts);
+    removeUnwantedResources("link", activeLinks);
+
+    // Add new resources
+    addNewResources("script", newScripts);
+    addNewResources("link", newLinks);
+
+    // Update the active state with new resources
+    newScripts.forEach((src) => activeScripts.add(src));
+
+    newLinks.forEach((href) => activeLinks.add(href));
+}
+
+function classTimeTableBuild() {
+
+    // Define new resources specific to this view
+    const newScripts = [
+        "vendor/sweetalert/lib/sweet-alert.min.js",
+        "scripts/subscripts/timetable.js",
     ];
     const newLinks = [
         "vendor/sweetalert/lib/sweet-alert.css",

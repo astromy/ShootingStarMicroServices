@@ -1,49 +1,47 @@
-function loadScript(src) {
-  return new Promise((resolve, reject) => {
-    const script = document.createElement('script');
-    script.src = src;
-    script.onload = resolve;
-    script.onerror = () => reject(new Error(`Failed to load ${src}`));
-    document.head.appendChild(script);
-  });
-}
+// landing.js — static/scripts/landing.js
+// Loads amCharts vendor scripts then initialises charts1.js inline.
+// Do NOT register charts1.js in common.js — let this file handle it.
 
-async function loadAmCharts() {
-  const basePath = 'vendor/amcharts5/'; // Update path if needed
-  const scripts = [
-    'index.js',       // Core library
-    'xy.js',          // XY charts (e.g., line, column)
-    'radar.js',       // Radar charts
-    'hierarchy.js',       // Radar charts
-    'percent.js',       // pie charts
-    'themes/Animated.js' // Animated theme
-  ];
+(function () {
 
-  const basePath1 = 'scripts/'; // Update path if needed
-      const scripts1 = [
-        'charts1.js'
-      ];
+    var BASE = "vendor/amcharts5/";
+    var VENDORS = [
+        BASE + "index.js",
+        BASE + "xy.js",
+        BASE + "radar.js",
+        BASE + "hierarchy.js",
+        BASE + "percent.js",
+        BASE + "themes/Animated.js"
+    ];
 
-  try {
-    for (const script of scripts) {
-      await loadScript(`${basePath}${script}`);
+    function loadScript(src, cb) {
+        var s = document.createElement("script");
+        s.src = src;
+        s.async = false;
+        s.onload = cb;
+        s.onerror = function () {
+            console.error("Failed: " + src);
+            cb();
+        };
+        document.head.appendChild(s);
     }
 
-    // ✅ Load chart script after all amCharts scripts
-    await loadScript("scripts/charts1.js");
+    function loadSequential(list, done) {
+        if (!list.length) return done();
+        loadScript(list[0], function () {
+            loadSequential(list.slice(1), done);
+        });
+    }
 
-    // ✅ Now safely call the chart function
-   /* if (typeof initRadarChart === 'function') {
-      initRadarChart(); // safe to run now
-    } else {
-      console.error("initRadarChart is not defined!");
-    }*/
+    // Load all vendor scripts, then charts1.js
+    loadSequential(VENDORS, function () {
+        if (typeof am5 === "undefined") {
+            console.error("[landing.js] am5 still not defined after loading vendor scripts.");
+            return;
+        }
+        loadScript("scripts/charts1.js", function () {
+            console.log("[landing.js] Done.");
+        });
+    });
 
-    console.log('All scripts loaded and chart initialized!');
-  } catch (error) {
-    console.error('Error loading amCharts:', error);
-  }
-}
-
-// Start loading
-loadAmCharts();
+})();

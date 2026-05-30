@@ -1,5 +1,5 @@
 $(function () {
-  let header = `
+    let header = `
             <div class="panel-body">
                 <div class=" panel-body row">
                     <div class="pull-right col-lg-8">
@@ -32,8 +32,9 @@ $(function () {
                             <div class="form-group col-lg-2">
                                 <select class="form-control termSelect">
                                     <option value="0">Select Term</option>
-                                    <option value="First Semester">First Term</option>
-                                    <option value="Second Semester">Second Term</option>
+                                    <option value="First Term">First Term</option>
+                                    <option value="Second Term">Second Term</option>
+                                    <option value="Third Term">Third Term</option>
                                  </select>
                             </div>
                             <div class="form-group col-lg-2">
@@ -51,8 +52,8 @@ $(function () {
             </div>
     `;
 
-  //function institutionBuild() {
-  let reportPublish = `
+    //function institutionBuild() {
+    let reportPublish = `
     
     
     <div class="content animate-panel" id="pagecontent">
@@ -99,104 +100,104 @@ $(function () {
     </footer>
     `;
 
-  // 1. Optimized DOM manipulation (cache element, use efficient methods)
-  const wrapper = document.getElementById("wrapper");
-  if (wrapper) {
-    wrapper.innerHTML = header;
-    wrapper.insertAdjacentHTML("beforeend", reportPublish);
-  }
-
-  // 2. Preload critical scripts for faster loading
-  const preloadScripts = [
-    "scripts/jspdf.umd.min.js",
-    "scripts/jspdf.plugin.autotable.min.js",
-    "scripts/xlsx.full.min.js",
-    "scripts/_terminalReport.js",
-  ];
-
-  // Create preload links without blocking
-  requestIdleCallback(() => {
-    preloadScripts.forEach((src) => {
-      const link = document.createElement("link");
-      link.rel = "preload";
-      link.as = "script";
-      link.href = src;
-      document.head.appendChild(link);
-    });
-  });
-
-  // 3. Modern Promise-based script loader with error handling
-  function loadScript(src) {
-    return new Promise((resolve, reject) => {
-      const script = document.createElement("script");
-      script.src = src;
-      script.async = true;
-      script.onload = () => {
-        performance.mark(`${src}-loaded`);
-        console.log(
-          `✅ ${src.split("/").pop()} loaded in ${performance
-            .measure(`${src}-duration`, "navigationStart", `${src}-loaded`)
-            .duration.toFixed(2)}ms`
-        );
-        resolve();
-      };
-      script.onerror = () => reject(new Error(`Failed to load ${src}`));
-      document.body.appendChild(script);
-    });
-  }
-
-  // 4. Optimized loading sequence with parallel loading where possible
-  (async function () {
-    try {
-      // Start loading jsPDF and XLSX in parallel (no dependencies between them)
-      const [jspdfLoaded] = await Promise.all([
-        loadScript("scripts/jspdf.umd.min.js"),
-        loadScript("scripts/xlsx.full.min.js"), // Load in parallel
-      ]);
-
-      // Initialize jsPDF
-      window.jspdf = window.jspdf || window["jspdf"];
-
-      // Load autoTable (depends on jsPDF)
-      await loadScript("scripts/jspdf.plugin.autotable.min.js");
-      window.jspdf.autoTable = window.jspdf.autoTable || window["autoTable"];
-
-      // Load terminal report (depends on all previous)
-      await loadScript("scripts/_terminalReport.js");
-
-      console.log("🚀 All dependencies loaded and ready");
-
-      // Optional: Dispatch custom event when everything is loaded
-      document.dispatchEvent(new CustomEvent("terminalReportReady"));
-    } catch (error) {
-      console.error("⚠️ Script loading error:", error);
-      // Implement your error recovery logic here
+    // 1. Optimized DOM manipulation (cache element, use efficient methods)
+    const wrapper = document.getElementById("wrapper");
+    if (wrapper) {
+        wrapper.innerHTML = header;
+        wrapper.insertAdjacentHTML("beforeend", reportPublish);
     }
-  })();
 
-  // 5. Bonus: Add performance monitoring
-  performance.mark("scriptLoadingStart");
-  window.addEventListener("terminalReportReady", () => {
-    performance.mark("scriptLoadingEnd");
-    const measure = performance.measure(
-      "totalScriptLoading",
-      "scriptLoadingStart",
-      "scriptLoadingEnd"
-    );
-    console.log(
-      `⏱ Total script loading time: ${measure.duration.toFixed(2)}ms`
-    );
-  });
+    // 2. Preload critical scripts for faster loading
+    const preloadScripts = [
+        "scripts/jspdf.umd.min.js",
+        "scripts/jspdf.plugin.autotable.min.js",
+        "scripts/xlsx.full.min.js",
+        "scripts/_terminalReport.js",
+    ];
+
+    // Create preload links without blocking
+    requestIdleCallback(() => {
+        preloadScripts.forEach((src) => {
+            const link = document.createElement("link");
+            link.rel = "preload";
+            link.as = "script";
+            link.href = src;
+            document.head.appendChild(link);
+        });
+    });
+
+    // 3. Modern Promise-based script loader with error handling
+    function loadScript(src) {
+        return new Promise((resolve, reject) => {
+            const script = document.createElement("script");
+            script.src = src;
+            script.async = true;
+            script.onload = () => {
+                performance.mark(`${src}-loaded`);
+                console.log(
+                    `✅ ${src.split("/").pop()} loaded in ${performance
+                        .measure(`${src}-duration`, "navigationStart", `${src}-loaded`)
+                        .duration.toFixed(2)}ms`
+                );
+                resolve();
+            };
+            script.onerror = () => reject(new Error(`Failed to load ${src}`));
+            document.body.appendChild(script);
+        });
+    }
+
+    // 4. Optimized loading sequence with parallel loading where possible
+    (async function () {
+        try {
+            // Start loading jsPDF and XLSX in parallel (no dependencies between them)
+            const [jspdfLoaded] = await Promise.all([
+                loadScript("scripts/jspdf.umd.min.js"),
+                loadScript("scripts/xlsx.full.min.js"), // Load in parallel
+            ]);
+
+            // Initialize jsPDF
+            window.jspdf = window.jspdf || window["jspdf"];
+
+            // Load autoTable (depends on jsPDF)
+            await loadScript("scripts/jspdf.plugin.autotable.min.js");
+            window.jspdf.autoTable = window.jspdf.autoTable || window["autoTable"];
+
+            // Load terminal report (depends on all previous)
+            await loadScript("scripts/_terminalReport.js");
+
+            console.log("🚀 All dependencies loaded and ready");
+
+            // Optional: Dispatch custom event when everything is loaded
+            document.dispatchEvent(new CustomEvent("terminalReportReady"));
+        } catch (error) {
+            console.error("⚠️ Script loading error:", error);
+            // Implement your error recovery logic here
+        }
+    })();
+
+    // 5. Bonus: Add performance monitoring
+    performance.mark("scriptLoadingStart");
+    window.addEventListener("terminalReportReady", () => {
+        performance.mark("scriptLoadingEnd");
+        const measure = performance.measure(
+            "totalScriptLoading",
+            "scriptLoadingStart",
+            "scriptLoadingEnd"
+        );
+        console.log(
+            `⏱ Total script loading time: ${measure.duration.toFixed(2)}ms`
+        );
+    });
 });
 
 //document.getElementById("institution").addEventListener("click", institutionBuild);
 function modalopn() {
-  document.getElementsByClassName("modalbody")[0].innerHTML = "";
-  reportPublishIndut();
+    document.getElementsByClassName("modalbody")[0].innerHTML = "";
+    reportPublishIndut();
 }
 
 function reportPublishIndut() {
-  let div = `
+    let div = `
     <div class="row"><label class="col-sm-3 control-label">Group Name</label>
         <div class="col-sm-9">
             <div class="row">
@@ -205,24 +206,24 @@ function reportPublishIndut() {
         </div>
     </div>
     <div class="hr-line-dashed"></div>`;
-  document
-    .getElementsByClassName("modalbody")[0]
-    .insertAdjacentHTML("beforeend", div);
+    document
+        .getElementsByClassName("modalbody")[0]
+        .insertAdjacentHTML("beforeend", div);
 }
 
 $(function () {
-  // Initialize Example 1
-  $("#reportTable").dataTable({
-    dom: "<'row'<'col-sm-4'l><'col-sm-4 text-center'B><'col-sm-4'f>>tp",
-    lengthMenu: [
-      [10, 25, 50, -1],
-      [10, 25, 50, "All"],
-    ],
-    buttons: [
-      { extend: "copy", className: "btn-sm" },
-      { extend: "csv", title: "ExampleFile", className: "btn-sm" },
-      { extend: "pdf", title: "ExampleFile", className: "btn-sm" },
-      { extend: "print", className: "btn-sm" },
-    ],
-  });
+    // Initialize Example 1
+    $("#reportTable").dataTable({
+        dom: "<'row'<'col-sm-4'l><'col-sm-4 text-center'B><'col-sm-4'f>>tp",
+        lengthMenu: [
+            [10, 25, 50, -1],
+            [10, 25, 50, "All"],
+        ],
+        buttons: [
+            {extend: "copy", className: "btn-sm"},
+            {extend: "csv", title: "ExampleFile", className: "btn-sm"},
+            {extend: "pdf", title: "ExampleFile", className: "btn-sm"},
+            {extend: "print", className: "btn-sm"},
+        ],
+    });
 });

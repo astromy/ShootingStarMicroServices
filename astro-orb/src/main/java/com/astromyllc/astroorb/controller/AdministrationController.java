@@ -134,6 +134,13 @@ public class AdministrationController {
     }
 
     @ResponseBody
+    @RequestMapping(value = "api/mobile/getStudentsByInstitution", method = RequestMethod.POST)
+    public ResponseEntity<String> getSkimpStudentsStudentsByInstitution(@RequestBody SingleStringRequest jso) {
+        ResponseEntity<String> response = BACKENDCOMMPOST(jso, backendserve + "/api/administration-pta/getSkimpStudentsByParentContact");
+        return response;
+    }
+
+    @ResponseBody
     @RequestMapping(value = "api/mobile/getStudentsStatusByID", method = RequestMethod.POST)
     public ResponseEntity<String> getStudentsStatusByID(@RequestBody SingleStringRequest jso) {
         ResponseEntity<String> response = BACKENDCOMMPOST(jso, backendserve + "/api/administration-pta/checkStudentByID");
@@ -143,6 +150,30 @@ public class AdministrationController {
     @ResponseBody
     @RequestMapping(value = "api/mobile/sendReactivationEmail", method = RequestMethod.POST)
     public ResponseEntity<String> sendReactivationEmail(@RequestBody DynamicStringRequest jso) {
+        return BACKENDCOMMPOST(jso, backendserve + "/api/administration-pta/sendReactivationEmail");
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "api/mobile/sendVoiceMessage", method = RequestMethod.POST)
+    public ResponseEntity<String> sendVoiceMessage(@RequestBody DynamicStringRequest jso) {
+        return BACKENDCOMMPOST(jso, backendserve + "/api/administration-pta/sendReactivationEmail");
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "api/mobile/getSentVoiceMessages", method = RequestMethod.POST)
+    public ResponseEntity<String> getSentVoiceMessages(@RequestBody DynamicStringRequest jso) {
+        return BACKENDCOMMPOST(jso, backendserve + "/api/administration-pta/sendReactivationEmail");
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "api/mobile/markVoiceMessageListened", method = RequestMethod.POST)
+    public ResponseEntity<String> markVoiceMessageListened(@RequestBody DynamicStringRequest jso) {
+        return BACKENDCOMMPOST(jso, backendserve + "/api/administration-pta/sendReactivationEmail");
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "api/mobile/deleteVoiceMessage", method = RequestMethod.POST)
+    public ResponseEntity<String> deleteVoiceMessage(@RequestBody DynamicStringRequest jso) {
         return BACKENDCOMMPOST(jso, backendserve + "/api/administration-pta/sendReactivationEmail");
     }
 
