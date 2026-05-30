@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(powershell -Command \"Format-Hex .gitignore -Count 200\")",
+      "Bash(cmd /c \"certutil -encodehex .gitignore .gitignore.hex 4 && type .gitignore.hex && del .gitignore.hex\")",
+      "Bash(xxd .gitignore)",
+      "Bash(git check-ignore *)",
+      "Read(//tmp/**)",
+      "Bash(git rm *)",
+      "Bash(awk '{print $1}')"
+    ]
+  }
+}
