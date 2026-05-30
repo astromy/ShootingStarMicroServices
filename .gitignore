@@ -63,3 +63,5 @@ docker-compose*.yml
 *.zip
 .dockerignore
 docker-compose*.yml
+**/target/
+**/.mvn/
