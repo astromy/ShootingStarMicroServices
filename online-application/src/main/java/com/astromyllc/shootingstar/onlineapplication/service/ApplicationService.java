@@ -1,17 +1,22 @@
 package com.astromyllc.shootingstar.onlineapplication.service;
 
+import com.astromyllc.shootingstar.onlineapplication.dto.request.ApplicantStudentSkimRequest;
+import com.astromyllc.shootingstar.onlineapplication.dto.request.RefundRequest;
 import com.astromyllc.shootingstar.onlineapplication.dto.request.Students2Request;
 import com.astromyllc.shootingstar.onlineapplication.dto.request.alien.AdmissionRequest;
 import com.astromyllc.shootingstar.onlineapplication.dto.response.ApplicationsResponse;
 import com.astromyllc.shootingstar.onlineapplication.dto.response.alien.ProcessedApplicationResponse;
 import com.astromyllc.shootingstar.onlineapplication.model.Applications;
+import com.astromyllc.shootingstar.onlineapplication.model.Parents;
 import com.astromyllc.shootingstar.onlineapplication.repository.ApplicationsRepository;
 import com.astromyllc.shootingstar.onlineapplication.serviceInterface.ApplicationServiceInterface;
 import com.astromyllc.shootingstar.onlineapplication.utils.ApplicationUtilities;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -28,7 +33,6 @@ import java.util.Optional;
 @Transactional
 public class ApplicationService implements ApplicationServiceInterface {
 
-
     static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private final ApplicationsRepository applicationsRepository;
     private final ApplicationUtilities util;
@@ -41,7 +45,29 @@ public class ApplicationService implements ApplicationServiceInterface {
             try {
                 Applications saved = applicationsRepository.save(app);
                 log.info("Application {} Saved Successfully", saved.getIdapplication());
-                util.apl.add(saved); // ✅ use saved, not app
+                util.apl.add(saved);
+
+                if (saved.getParentsList() != null) {
+                    for (Parents parent : saved.getParentsList()) {
+                        if (!parent.getEmail().isBlank()) {
+                            String emailBody = util.buildApplicationConfirmationEmail(saved);
+                            boolean sent = util.sendmail(
+                                    parent.getEmail(),
+                                    "Application Confirmation — " + saved.getApplicationCode(),
+                                    emailBody,
+                                    saved.getApplicationInstitutionName() != null
+                                            ? saved.getApplicationInstitutionName()
+                                            : "Admissions Office",
+                                    true
+                            );
+                            log.info("Confirmation email to {} for institution [{}]: {}",
+                                    parent.getEmail(),
+                                    saved.getApplicationInstitutionName(),
+                                    sent ? "sent" : "failed");
+                        }
+                    }
+                }
+
             } catch (Exception e) {
                 log.error("Failed to save application: {}", e.getMessage(), e); // ← what error?
             }
@@ -72,16 +98,82 @@ public class ApplicationService implements ApplicationServiceInterface {
     }
 
 
-    public void UpdateApplicationList(ArrayList<Students2Request> requestArrayList) {
-        List<Applications> applications = applicationsRepository
-                .findAll()
-                .stream()
-                .filter(a -> requestArrayList.stream()
-                        .anyMatch(request -> a.getIdapplication().equalsIgnoreCase(request.getIdapplication()))).toList();
-        applications.stream().map(applications1 -> util.mapApplications_ToApplicationResponse(applications1)).toList();
+    public void UpdateApplicationList(ArrayList<ApplicantStudentSkimRequest> requestArrayList) {
+        List<String> ids = requestArrayList.stream()
+                .map(ApplicantStudentSkimRequest::getIdapplication)
+                .toList();
 
-        applicationsRepository.saveAll(applications);
-        util.apl.addAll(applications);
+        List<Applications> applications = util.apl.stream()
+                .filter(application -> ids.stream()
+                        .anyMatch(id -> id.equalsIgnoreCase(application.getIdapplication())))
+                .toList();
+        // 2. Map and update
+        List<Applications> updatedApplications = applications.stream()
+                .map(application -> {
+                    ApplicantStudentSkimRequest matchingRequest = requestArrayList.stream()
+                            .filter(request -> request.getIdapplication()
+                                    .equalsIgnoreCase(application.getIdapplication()))
+                            .findFirst()
+                            .orElseThrow();
+                    try {
+                        return util.UpdateApplication(application, matchingRequest);
+                    } catch (IOException | URISyntaxException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .toList();
+
+        // 3. Save to DB
+        applicationsRepository.saveAll(updatedApplications);
+
+        // 4. Update cache — remove stale entries first, then add fresh ones
+        updatedApplications.forEach(updated ->
+                util.apl.removeIf(cached ->
+                        cached.getIdapplication().equalsIgnoreCase(updated.getIdapplication())
+                )
+        );
+        util.apl.addAll(updatedApplications);
+
+        updatedApplications.forEach(application -> {
+            if (application.getParentsList() != null) {
+                for (Parents parent : application.getParentsList()) {
+                    if (parent.getEmail() != null && !parent.getEmail().isBlank()) {
+
+                        String status = application.getApplicationStatus();
+
+                        // FLAGGED = no decision yet, do not email
+                        if (status == null || status.equalsIgnoreCase("FLAGGED")
+                                || status.equalsIgnoreCase("APPLIED")) {
+                            log.info("Skipping status email for {} — status is {}",
+                                    application.getApplicationCode(), status);
+                            continue;
+                        }
+
+                        String subject = status.equalsIgnoreCase("APPROVED")
+                                ? "Application Approved — " + application.getApplicationCode()
+                                : "Application Unsuccessful — " + application.getApplicationCode();
+
+                        String emailBody = util.buildAdmissionStatusEmail(application);
+
+                        boolean sent = util.sendmail(
+                                parent.getEmail(),
+                                subject,
+                                emailBody,
+                                application.getApplicationInstitutionName() != null
+                                        ? application.getApplicationInstitutionName()
+                                        : "Admissions Office",
+                                true
+                        );
+                        log.info("Status email ({}) to {} for [{}]: {}",
+                                status,
+                                parent.getEmail(),
+                                application.getApplicationInstitutionName(),
+                                sent ? "sent" : "failed");
+                    }
+                }
+            }
+        });
+
         log.info(" {} Application Saved Successfully", applications.stream().count());
     }
 
@@ -147,5 +239,10 @@ public class ApplicationService implements ApplicationServiceInterface {
                         .stream().map(x -> util.mapApplications_ToProcessedApplicationResponse(x)).toList())
                 .orElseThrow(() -> new RuntimeException(String.format("No Record of Application with Application School %s", admissionRequest.getInstitutionCode()))));
 
+    }
+
+    @Override
+    public Mono<ResponseEntity<String>> refundPayment(RefundRequest refundRequest) {
+        return util.refundPayment(refundRequest);
     }
 }

@@ -237,10 +237,10 @@ $(function () {
     function createApplicationCard(application, isFlaggedApp) {
         const fullName = `${application.applicantFirstName || ''} ${application.applicantLastName || ''}`.trim();
         const applicationDate = application.applicationDate ? new Date(application.applicationDate).toLocaleDateString() : 'N/A';
-        const status = application.applicationStatus || 'PENDING';
+        const status = application.applicationStatus || 'APPLIED';
 
-        let statusClass = '';
-        let statusText = '';
+        let statusClass = 'badge-info';
+        let statusText = 'Applied';
         switch (status) {
             case 'APPROVED':
                 statusClass = 'badge-success';
@@ -254,63 +254,70 @@ $(function () {
                 statusClass = 'badge-warning';
                 statusText = 'Flagged';
                 break;
-            default:
-                statusClass = 'badge-info';
-                statusText = 'Pending';
         }
 
-        return $(`
-            <div class="col-lg-4 col-md-6 mb-3">
-                <div class="application-card ${isFlaggedApp ? 'flagged-card' : ''}" data-application='${JSON.stringify(application)}'>
-                    <div class="card-header">
-                        <div class="student-avatar">
-                            ${application.applicantPicture ?
-            `<img src="data:image/png;base64,${application.applicantPicture}" alt="Student">` :
-            `<div class="avatar-placeholder">${fullName.charAt(0) || 'S'}</div>`
+        function extractFilename(path) {
+            if (!path) return null;
+            // Handles "E:\\full\\path\\26-00147-1.png" and "26-00147-1.png"
+            return path.split('\\').pop().split('/').pop();
         }
-                        </div>
-                        <div class="student-info">
-                            <h5 class="student-name">${fullName || 'Unknown Student'}</h5>
-                            <p class="application-code">${application.applicationCode || 'No Code'}</p>
-                        </div>
-                        <span class="badge ${statusClass} status-badge">${statusText}</span>
+
+        var filename = extractFilename(application.applicantPicture);
+
+        // ✅ Build avatar separately using concatenation — no backtick conflicts
+        var avatarHtml = filename
+            ? '<img src="/getApplicantPicture/' + filename + '" alt="Student" class="student-img" onerror="handleImgError(this)"><div class="avatar-placeholder" style="display:none">' + (fullName.charAt(0) || 'S') + '</div>'
+            : '<div class="avatar-placeholder">' + (fullName.charAt(0) || 'S') + '</div>';
+
+        return $(`
+        <div class="col-lg-4 col-md-6 mb-3">
+            <div class="application-card ${isFlaggedApp ? 'flagged-card' : ''}" data-application='${JSON.stringify(application)}'>
+                <div class="card-header">
+                    <div class="student-avatar">
+                        ${avatarHtml}
                     </div>
-                    <div class="card-body">
-                        <div class="info-row">
-                            <i class="fas fa-calendar"></i>
-                            <span>Applied: ${applicationDate}</span>
-                        </div>
-                        <div class="info-row">
-                            <i class="fas fa-school"></i>
-                            <span>${application.applicationInstitution || 'N/A'}</span>
-                        </div>
-                        <div class="info-row">
-                            <i class="fas fa-tag"></i>
-                            <span>${application.applicationType || 'General'}</span>
-                        </div>
-                        ${application.score ? `
-                        <div class="info-row score-display">
-                            <i class="fas fa-star text-warning"></i>
-                            <span>Score: <strong>${application.score}</strong>/100</span>
-                        </div>
-                        ` : ''}
-                        ${isFlaggedApp ? `
-                        <div class="alert alert-warning mt-2 mb-0 p-2 small">
-                            <i class="fas fa-exclamation-triangle"></i> Missing required documents or information
-                        </div>
-                        ` : ''}
+                    <div class="student-info">
+                        <h5 class="student-name">${fullName || 'Unknown Student'}</h5>
+                        <p class="application-code">${application.applicationCode || 'No Code'}</p>
                     </div>
-                    <div class="card-footer">
-                        <button class="btn btn-sm btn-outline-primary view-details-btn">
-                            <i class="fas fa-eye"></i> View Details
-                        </button>
-                        <button class="btn btn-sm btn-outline-success add-score-btn">
-                            <i class="fas fa-plus-circle"></i> Add Score
-                        </button>
+                    <span class="badge ${statusClass} status-badge">${statusText}</span>
+                </div>
+                <div class="card-body">
+                    <div class="info-row">
+                        <i class="fas fa-calendar"></i>
+                        <span>Applied: ${applicationDate}</span>
                     </div>
+                    <div class="info-row">
+                        <i class="fas fa-school"></i>
+                        <span>${application.applicationInstitutionName || application.applicationInstitution || 'N/A'}</span>
+                    </div>
+                    <div class="info-row">
+                        <i class="fas fa-tag"></i>
+                        <span>${application.applicationType || 'General'}</span>
+                    </div>
+                    ${application.score ? `
+                    <div class="info-row score-display">
+                        <i class="fas fa-star text-warning"></i>
+                        <span>Score: <strong>${application.score}</strong>/100</span>
+                    </div>
+                    ` : ''}
+                    ${isFlaggedApp ? `
+                    <div class="alert alert-warning mt-2 mb-0 p-2 small">
+                        <i class="fas fa-exclamation-triangle"></i> Missing required documents or information
+                    </div>
+                    ` : ''}
+                </div>
+                <div class="card-footer">
+                    <button class="btn btn-sm btn-outline-primary view-details-btn">
+                        <i class="fas fa-eye"></i> View Details
+                    </button>
+                    <button class="btn btn-sm btn-outline-success add-score-btn">
+                        <i class="fas fa-plus-circle"></i> Add Score
+                    </button>
                 </div>
             </div>
-        `);
+        </div>
+    `);
     }
 
     // ============================================================
@@ -319,97 +326,127 @@ $(function () {
 
     function showApplicationDetails(application) {
         const fullName = `${application.applicantFirstName || ''} ${application.applicantLastName || ''}`.trim();
+
+        // ✅ Extract parents from studentParents array
+        const parents = application.studentParents || [];
+        const father = parents.find(p =>
+            p.parentType?.toLowerCase().includes('father') ||
+            p.parentType?.toLowerCase().includes('biological') ||
+            p.parentType?.toLowerCase().includes('guardian')
+        ) || parents[0] || null;
+
+        const mother = parents.find(p =>
+            p.parentType?.toLowerCase().includes('mother')
+        ) || (parents.length > 1 ? parents[1] : null);
+
         const modalBody = $('#applicationModalBody');
 
         modalBody.html(`
-            <div class="application-details">
-                <!-- Student Information Section -->
-                <div class="details-section">
-                    <h5><i class="fas fa-user-graduate"></i> Student Information</h5>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="detail-item"><label>Full Name:</label><p>${fullName}</p></div>
-                            <div class="detail-item"><label>Other Name:</label><p>${application.applicantOtherName || 'N/A'}</p></div>
-                            <div class="detail-item"><label>Date of Birth:</label><p>${application.applicantDateOfBirth || 'N/A'}</p></div>
-                            <div class="detail-item"><label>Place of Birth:</label><p>${application.applicantPlaceOfBirth || 'N/A'}</p></div>
-                            <div class="detail-item"><label>Gender:</label><p>${application.applicantGender || 'N/A'}</p></div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="detail-item"><label>Country of Birth:</label><p>${application.applicantCountryOfBirth || 'N/A'}</p></div>
-                            <div class="detail-item"><label>Nationality:</label><p>${application.applicantNationality || 'N/A'}</p></div>
-                            <div class="detail-item"><label>Denomination:</label><p>${application.applicantDenomination || 'N/A'}</p></div>
-                            <div class="detail-item">
-                                <label>Birth Certificate:</label>
-                                ${application.applicantBirthCert ?
-            `<a href="#" onclick="viewBirthCert('${application.applicantBirthCert}')" class="btn btn-sm btn-link">View Certificate</a>` :
-            '<span class="text-muted">Not uploaded</span>'
+        <div class="application-details">
+
+            <!-- Student Information -->
+            <div class="details-section">
+                <h5><i class="fas fa-user-graduate"></i> Student Information</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="detail-item"><label>Full Name:</label><p>${fullName || 'N/A'}</p></div>
+                        <div class="detail-item"><label>Other Name:</label><p>${application.applicantOtherName || 'N/A'}</p></div>
+                        <div class="detail-item"><label>Date of Birth:</label><p>${application.applicantDateOfBirth || 'N/A'}</p></div>
+                        <div class="detail-item"><label>Place of Birth:</label><p>${application.applicantPlaceOfBirth || 'N/A'}</p></div>
+                        <div class="detail-item"><label>Gender:</label><p>${application.applicantGender || 'N/A'}</p></div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="detail-item"><label>Country of Birth:</label><p>${application.applicantCountryOfBirth || 'N/A'}</p></div>
+                        <div class="detail-item"><label>Nationality:</label><p>${application.applicantNationality || 'N/A'}</p></div>
+                        <div class="detail-item"><label>Denomination:</label><p>${application.applicantDenomination || 'N/A'}</p></div>
+                        <div class="detail-item">
+                            <label>Birth Certificate:</label>
+                            ${application.applicantBirthCert
+            ? `<a href="#" onclick="viewBirthCert('${application.applicantBirthCert}')" class="btn btn-sm btn-link">View Certificate</a>`
+            : '<span class="text-muted">Not uploaded</span>'
         }
-                            </div>
                         </div>
                     </div>
                 </div>
-                
-                <!-- Parent Information Section -->
-                <div class="details-section">
-                    <h5><i class="fas fa-users"></i> Parent/Guardian Information</h5>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="sub-section">
-                                <h6><i class="fas fa-male"></i> Father's Details</h6>
-                                <div class="detail-item"><label>Name:</label><p>${application.fatherFirstNames || ''} ${application.fatherLastName || ''}</p></div>
-                                <div class="detail-item"><label>Email:</label><p>${application.fatherEmail || 'N/A'}</p></div>
-                                <div class="detail-item"><label>Contact:</label><p>${application.fatherContact1 || ''} ${application.fatherContact2 ? `/ ${application.fatherContact2}` : ''}</p></div>
-                                <div class="detail-item"><label>Occupation:</label><p>${application.fatherOccupation || 'N/A'}</p></div>
-                                <div class="detail-item"><label>Place of Work:</label><p>${application.fatherPlaceOfWork || 'N/A'}</p></div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="sub-section">
-                                <h6><i class="fas fa-female"></i> Mother's Details</h6>
-                                <div class="detail-item"><label>Name:</label><p>${application.motherFirstNames || ''} ${application.motherLastName || ''}</p></div>
-                                <div class="detail-item"><label>Email:</label><p>${application.motherEmail || 'N/A'}</p></div>
-                                <div class="detail-item"><label>Contact:</label><p>${application.motherContact1 || ''} ${application.motherContact2 ? `/ ${application.motherContact2}` : ''}</p></div>
-                                <div class="detail-item"><label>Occupation:</label><p>${application.motherOccupation || 'N/A'}</p></div>
-                                <div class="detail-item"><label>Place of Work:</label><p>${application.motherPlaceOfWork || 'N/A'}</p></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Application Information Section -->
-                <div class="details-section">
-                    <h5><i class="fas fa-file-alt"></i> Application Information</h5>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="detail-item"><label>Application Code:</label><p>${application.applicationCode || 'N/A'}</p></div>
-                            <div class="detail-item"><label>Application Type:</label><p>${application.applicationType || 'N/A'}</p></div>
-                            <div class="detail-item"><label>Application Date:</label><p>${application.applicationDate || 'N/A'}</p></div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="detail-item"><label>Institution:</label><p>${application.applicationInstitution || 'N/A'}</p></div>
-                            <div class="detail-item"><label>Status:</label><p><span class="badge ${getStatusBadgeClass(application.applicationStatus)}">${application.applicationStatus || 'PENDING'}</span></p></div>
-                            ${application.score ? `<div class="detail-item"><label>Score:</label><p><strong>${application.score}/100</strong></p></div>` : ''}
-                        </div>
-                    </div>
-                </div>
-                
-                ${application.nameOfPreviousSchool ? `
-                <div class="details-section">
-                    <h5><i class="fas fa-school"></i> Previous School Information</h5>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="detail-item"><label>Previous School:</label><p>${application.nameOfPreviousSchool}</p></div>
-                            <div class="detail-item"><label>Class of Departure:</label><p>${application.classOfDeparture || 'N/A'}</p></div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="detail-item"><label>Reason for Departure:</label><p>${application.reasonForDeparture || 'N/A'}</p></div>
-                            <div class="detail-item"><label>School Address:</label><p>${application.addressOfPreviousSchool || 'N/A'}</p></div>
-                        </div>
-                    </div>
-                </div>
-                ` : ''}
             </div>
-        `);
+
+            <!-- Parent Information -->
+            <div class="details-section">
+                <h5><i class="fas fa-users"></i> Parent / Guardian Information</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="sub-section">
+                            <h6><i class="fas fa-male"></i> ${father ? father.parentType || 'Parent' : 'Parent'} Details</h6>
+                            ${father ? `
+                                <div class="detail-item"><label>Name:</label><p>${father.firstNames || ''} ${father.lastName || ''}</p></div>
+                                <div class="detail-item"><label>Email:</label><p>${father.email || 'N/A'}</p></div>
+                                <div class="detail-item"><label>Contact:</label><p>${father.contact1 || 'N/A'}${father.contact2 ? ` / ${father.contact2}` : ''}</p></div>
+                                <div class="detail-item"><label>Occupation:</label><p>${father.occupation || 'N/A'}</p></div>
+                                <div class="detail-item"><label>Place of Work:</label><p>${father.placeOfWork || 'N/A'}</p></div>
+                            ` : '<p class="text-muted">No parent information provided</p>'}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        ${mother ? `
+                        <div class="sub-section">
+                            <h6><i class="fas fa-female"></i> ${mother.parentType || 'Parent'} Details</h6>
+                            <div class="detail-item"><label>Name:</label><p>${mother.firstNames || ''} ${mother.lastName || ''}</p></div>
+                            <div class="detail-item"><label>Email:</label><p>${mother.email || 'N/A'}</p></div>
+                            <div class="detail-item"><label>Contact:</label><p>${mother.contact1 || 'N/A'}${mother.contact2 ? ` / ${mother.contact2}` : ''}</p></div>
+                            <div class="detail-item"><label>Occupation:</label><p>${mother.occupation || 'N/A'}</p></div>
+                            <div class="detail-item"><label>Place of Work:</label><p>${mother.placeOfWork || 'N/A'}</p></div>
+                        </div>
+                        ` : '<p class="text-muted small mt-3">Only one parent/guardian provided</p>'}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Application Information -->
+            <div class="details-section">
+                <h5><i class="fas fa-file-alt"></i> Application Information</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="detail-item"><label>Application Code:</label><p><strong>${application.applicationCode || 'N/A'}</strong></p></div>
+                        <div class="detail-item"><label>Application Type:</label><p>${application.applicationType || 'N/A'}</p></div>
+                        <div class="detail-item"><label>Application Date:</label><p>${application.applicationDate || 'N/A'}</p></div>
+                        <div class="detail-item"><label>Appointment Date:</label>
+                            <p>${application.appointmentDate
+            ? new Date(application.appointmentDate).toLocaleString('en-GB', {
+                weekday: 'long', year: 'numeric', month: 'long',
+                day: '2-digit', hour: '2-digit', minute: '2-digit'
+            })
+            : 'N/A'}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="detail-item"><label>Institution:</label><p>${application.applicationInstitutionName || application.applicationInstitution || 'N/A'}</p></div>
+                        <div class="detail-item"><label>Status:</label>
+                            <p><span class="badge ${getStatusBadgeClass(application.applicationStatus)}">${application.applicationStatus || 'APPLIED'}</span></p>
+                        </div>
+                        ${application.score ? `<div class="detail-item"><label>Score:</label><p><strong>${application.score}/100</strong></p></div>` : ''}
+                    </div>
+                </div>
+            </div>
+
+            ${application.nameOfPreviousSchool ? `
+            <div class="details-section">
+                <h5><i class="fas fa-school"></i> Previous School Information</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="detail-item"><label>Previous School:</label><p>${application.nameOfPreviousSchool}</p></div>
+                        <div class="detail-item"><label>Class of Departure:</label><p>${application.classOfDeparture || 'N/A'}</p></div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="detail-item"><label>Reason for Departure:</label><p>${application.reasonForDeparture || 'N/A'}</p></div>
+                        <div class="detail-item"><label>School Address:</label><p>${application.addressOfPreviousSchool || 'N/A'}</p></div>
+                    </div>
+                </div>
+            </div>
+            ` : ''}
+
+        </div>
+    `);
 
         $('#applicationModal').data('currentApplication', application);
         $('#applicationModal').modal('show');
@@ -506,21 +543,28 @@ $(function () {
     async function updateApplicationStatus(application, status) {
         showLoading();
         try {
-            const payload = {
-                applicationId: application.idapplication,
-                status: status,
-                institutionCode: application.applicationInstitution
-            };
+            const payload = [          // ← raw array, no wrapper object
+                {
+                    idapplication: application.idapplication,
+                    status: status,
+                    institutionCode: application.applicationInstitution,
+                    applicationCode: application.applicationCode
+                }
+            ];
 
             const response = await fetchPost("/updateApplicationStatus", payload);
             if (response) {
-                alert(`Application ${status.toLowerCase()} successfully!`);
+                swal({
+                    title: "Success!",
+                    text: `Application ${status.toLowerCase()} successfully!`,
+                    type: "success"
+                });
                 $('#applicationModal').modal('hide');
                 loadApplications();
             }
         } catch (error) {
             console.error("Error updating status:", error);
-            alert('Failed to update status. Please try again.');
+            swal({title: "Error", text: "Failed to update status.", type: "error"});
         }
         hideLoading();
     }
@@ -561,21 +605,16 @@ $(function () {
 });
 
 // Helper function for birth certificate viewing
-function viewBirthCert(base64Data) {
-    const blob = base64ToBlob(base64Data, 'application/pdf');
-    const url = URL.createObjectURL(blob);
-    window.open(url, '_blank');
+function viewBirthCert(filePath) {
+    var filename = filePath.split('\\').pop().split('/').pop();
+    window.open('/getApplicantBirthCert/' + filename, '_blank');
 }
 
-function base64ToBlob(base64, mimeType) {
-    const byteCharacters = atob(base64);
-    const byteNumbers = new Array(byteCharacters.length);
-    for (let i = 0; i < byteCharacters.length; i++) {
-        byteNumbers[i] = byteCharacters.charCodeAt(i);
-    }
-    const byteArray = new Uint8Array(byteNumbers);
-    return new Blob([byteArray], {type: mimeType});
-}
+window.handleImgError = function (img) {
+    img.style.display = 'none';
+    var placeholder = img.nextElementSibling;
+    if (placeholder) placeholder.style.display = 'flex';
+};
 
 /*async function fetchPost(url, data) {
     const csrfToken = document.querySelector("meta[name='_csrf']")?.content;

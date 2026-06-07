@@ -1565,7 +1565,7 @@ body {
 }
 .color-line {
   background: #f7f9fa;
-  height: 6px; 
+  height: 6px;
   background-image: -webkit-linear-gradient(to left,#412cfd 50%,#1d04fd 50%);
   background-image: -moz-linear-gradient(to left,#412cfd 50%,#1d04fd 50%);
   background-image: linear-gradient(to right, #412cfd 50%, #1d04fd 50%);
@@ -3693,8 +3693,8 @@ ul.h-list li:hover a {
 }
 
 .crest1{
-  height: 220px; 
-  width:220px; 
+  height: 220px;
+  width:220px;
   border-radius: 10px;
   display: flex;
 }

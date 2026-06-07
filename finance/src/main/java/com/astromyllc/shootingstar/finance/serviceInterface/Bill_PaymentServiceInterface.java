@@ -8,11 +8,17 @@ import java.util.List;
 import java.util.Optional;
 
 public interface Bill_PaymentServiceInterface {
-    public Bill_PaymentResponse createBillPayment(Bill_PaymentRequest billPaymentRequest);
 
-    public List<Bill_PaymentResponse> createBillPayments(List<Bill_PaymentRequest> billPaymentRequests);
+    Bill_PaymentResponse createBillPayment(Bill_PaymentRequest billPaymentRequest);
 
-    public Optional<List<Bill_PaymentResponse>> fetchBillPaymentsByInstitution(BillFetchRequest billFetchRequest);
+    List<Bill_PaymentResponse> createBillPayments(List<Bill_PaymentRequest> billPaymentRequests);
 
-    public Optional<Bill_PaymentResponse> fetchBillPaymentsByInstitutionAndName(BillFetchRequest billFetchRequest);
+    Optional<List<Bill_PaymentResponse>> fetchBillPaymentsByInstitution(BillFetchRequest billFetchRequest);
+
+    Optional<List<Bill_PaymentResponse>> fetchPaymentsByStudent(String studentId, String institutionCode);
+
+    Optional<List<Bill_PaymentResponse>> fetchPaymentsByStudentTermYear(
+            String studentId, String institutionCode, String term, String academicYear);
+
+    Optional<Bill_PaymentResponse> fetchBillPaymentsByInstitutionAndName(BillFetchRequest billFetchRequest);
 }

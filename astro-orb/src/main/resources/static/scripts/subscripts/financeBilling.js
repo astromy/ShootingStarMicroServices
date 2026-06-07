@@ -43,7 +43,7 @@
         var link = document.createElement("link");
         link.id = "financeBillingCSS";
         link.rel = "stylesheet";
-        link.href = _scriptBase + "../financeBilling.css"; // CSS lives in scripts/
+        link.href = _scriptBase + "../../styles/style.css"; // CSS lives in scripts/
         document.head.appendChild(link);
     })();
 
@@ -73,7 +73,7 @@
 
         document.getElementById("wrapper").innerHTML = '<div class="bs-page">' + [
             // ── HEADER ──────────────────────────────────────────────────────
-            '<header class="bs-header">',
+            '<header class="fc-header">',
             '<div class="bs-header-row">',
             '<div>',
             '<h1><i class="fas fa-receipt"></i> Student Billing System</h1>',
@@ -207,7 +207,7 @@
             '</main>',
 
             // ── FOOTER ───────────────────────────────────────────────────────
-            '<footer class="bs-footer">',
+            '<footer class="footer">',
             '<i class="far fa-copyright"></i> Astromy LLC 2013–<span id="copyrightYear"></span>',
             ' &nbsp;|&nbsp; Student Billing System v3.0',
             '</footer>',

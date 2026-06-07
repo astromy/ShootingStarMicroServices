@@ -116,9 +116,11 @@ $("#submitRequest").click(async function () {
             onClose: function () {
             },
             callback: function (response) {
+                const paystackReference = response.reference;
+
                 swal({
-                    title: "Payment completed",
-                    text: 'Reference: ' + response.reference,
+                    title: "Payment Successful",
+                    text: "Reference: " + paystackReference + "\nSubmitting your application...",
                     type: "success",
                 });
 
@@ -159,17 +161,27 @@ $("#submitRequest").click(async function () {
                     },
                     success: function (data) {
                         swal({
-                            title: "Thank you!",
-                            text: "Your application is being submitted",
+                            title: "Application Submitted!",
+                            text: `Application Code: ${data.applicationCode}\n` +
+                                `Appointment: ${formatDate(data.appointmentDate)}\n\n` +
+                                `A confirmation has been sent to your email.`,
                             type: "success",
+                            confirmButtonText: "Download Receipt",
+                            showCancelButton: true,
+                            cancelButtonText: "Close"
+                        }, function (isConfirmed) {
+                            if (isConfirmed) {
+                                downloadReceipt(data); // generate a PDF receipt
+                            }
                         });
                     },
                     error: function (errMsg) {
                         swal({
-                            title: "Sorry!",
-                            text: "Operation Failed",
-                            type: "error",
+                            title: "Submission Failed",
+                            text: "Your application could not be submitted. Resolving issue for payment: " + paystackReference,
+                            type: "warning",
                         });
+                        initiateResolve(paystackReference, paystackReference);
                     },
                 });
             }
@@ -178,6 +190,60 @@ $("#submitRequest").click(async function () {
     }
 });
 
+async function initiateResolve(reference, displayReference) {
+    const csrfToken = document.querySelector("meta[name='_csrf']")?.content;
+    const csrfHeader = document.querySelector("meta[name='_csrf_header']")?.content;
+
+    try {
+        const response = await fetch("/resolveApplicationIssue", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                [csrfHeader]: csrfToken
+            },
+            body: JSON.stringify({
+                reference: reference,
+                reason: "Application submission failed after payment"
+            }),
+            credentials: "include"
+        });
+
+        if (response.ok) {
+            swal({
+                title: "Resolving Initiated",
+                text: `Your payment (Ref: ${displayReference}) is being resolved. ` +
+                    `Please allow 3-5 business days for the amount to reflect if issue not resolved.`,
+                type: "success",
+            });
+        } else {
+            const errorText = await response.text();
+            handleResolveFailure(displayReference, errorText);
+        }
+
+    } catch (error) {
+        handleResolveFailure(displayReference, error.message);
+    }
+}
+
+function handleResolveFailure(reference, errorDetail) {
+    console.error("Resolve failed:", errorDetail);
+    swal({
+        title: "Resolve Could Not Be Processed",
+        text: `We could not automatically resolve your payment. ` +
+            `Please contact support with your payment reference: ${reference}`,
+        type: "error",
+        confirmButtonText: "Copy Reference",
+        showCancelButton: true,
+        cancelButtonText: "Close"
+    }, function (isCopied) {
+        if (isCopied) {
+            navigator.clipboard.writeText(reference).then(() => {
+                swal("Copied!", "Reference copied to clipboard.", "success");
+            });
+        }
+    });
+}
 
 $("#copyrightYear").text(getYear());
 
@@ -1982,4 +2048,371 @@ function safelyGenerateCards(schoolsArray, container, emptyMessage = "No items f
     }
 
     return true;
+}
+
+function downloadReceipt(data) {
+    const appointmentDate = data.appointmentDate
+        ? new Date(data.appointmentDate).toLocaleString('en-GB', {
+            weekday: 'long', year: 'numeric', month: 'long',
+            day: '2-digit', hour: '2-digit', minute: '2-digit'
+        })
+        : "To be confirmed";
+
+    const applicationDate = data.applicationDate
+        ? new Date(data.applicationDate).toLocaleDateString('en-GB', {
+            year: 'numeric', month: 'long', day: '2-digit'
+        })
+        : new Date().toLocaleDateString('en-GB');
+
+    const parentInfo = data.studentParents && data.studentParents.length > 0
+        ? data.studentParents[0]
+        : null;
+
+    const receiptHTML = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="utf-8">
+            <title>Application Receipt - ${data.applicationCode}</title>
+            <style>
+                * { margin: 0; padding: 0; box-sizing: border-box; }
+                
+                body {
+                    font-family: 'Segoe UI', Arial, sans-serif;
+                    background: #f0f4f8;
+                    display: flex;
+                    justify-content: center;
+                    padding: 30px;
+                }
+
+                .receipt {
+                    background: white;
+                    width: 720px;
+                    border-radius: 12px;
+                    overflow: hidden;
+                    box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+                }
+
+                .receipt-header {
+                    background: linear-gradient(135deg, #1a3c5e, #2980b9);
+                    color: white;
+                    padding: 30px 40px;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                }
+
+                .receipt-header .school-info h1 {
+                    font-size: 22px;
+                    font-weight: 700;
+                    letter-spacing: 1px;
+                }
+
+                .receipt-header .school-info p {
+                    font-size: 13px;
+                    opacity: 0.85;
+                    margin-top: 4px;
+                }
+
+                .receipt-header .badge {
+                    background: rgba(255,255,255,0.2);
+                    border: 2px solid rgba(255,255,255,0.5);
+                    border-radius: 8px;
+                    padding: 10px 18px;
+                    text-align: center;
+                }
+
+                .receipt-header .badge .label {
+                    font-size: 11px;
+                    opacity: 0.8;
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                }
+
+                .receipt-header .badge .code {
+                    font-size: 18px;
+                    font-weight: 700;
+                    margin-top: 4px;
+                }
+
+                .status-bar {
+                    background: #27ae60;
+                    color: white;
+                    text-align: center;
+                    padding: 10px;
+                    font-size: 13px;
+                    font-weight: 600;
+                    letter-spacing: 1px;
+                    text-transform: uppercase;
+                }
+
+                .receipt-body {
+                    padding: 35px 40px;
+                }
+
+                .section {
+                    margin-bottom: 28px;
+                }
+
+                .section-title {
+                    font-size: 11px;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    letter-spacing: 1.5px;
+                    color: #2980b9;
+                    border-bottom: 2px solid #eaf2fb;
+                    padding-bottom: 8px;
+                    margin-bottom: 16px;
+                }
+
+                .info-grid {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 14px;
+                }
+
+                .info-item .label {
+                    font-size: 11px;
+                    color: #95a5a6;
+                    text-transform: uppercase;
+                    letter-spacing: 0.8px;
+                    margin-bottom: 3px;
+                }
+
+                .info-item .value {
+                    font-size: 14px;
+                    color: #2c3e50;
+                    font-weight: 600;
+                }
+
+                .appointment-box {
+                    background: linear-gradient(135deg, #eaf2fb, #d6eaf8);
+                    border-left: 4px solid #2980b9;
+                    border-radius: 8px;
+                    padding: 18px 22px;
+                    display: flex;
+                    align-items: center;
+                    gap: 16px;
+                }
+
+                .appointment-box .icon {
+                    font-size: 32px;
+                }
+
+                .appointment-box .apt-label {
+                    font-size: 11px;
+                    color: #7f8c8d;
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                }
+
+                .appointment-box .apt-date {
+                    font-size: 16px;
+                    font-weight: 700;
+                    color: #1a3c5e;
+                    margin-top: 4px;
+                }
+
+                .notice-box {
+                    background: #fef9e7;
+                    border: 1px solid #f9e79f;
+                    border-radius: 8px;
+                    padding: 16px 20px;
+                }
+
+                .notice-box .notice-title {
+                    font-size: 13px;
+                    font-weight: 700;
+                    color: #d68910;
+                    margin-bottom: 10px;
+                }
+
+                .notice-box ul {
+                    padding-left: 18px;
+                    color: #7d6608;
+                    font-size: 13px;
+                    line-height: 1.9;
+                }
+
+                .receipt-footer {
+                    background: #f8f9fa;
+                    border-top: 1px solid #ecf0f1;
+                    padding: 20px 40px;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                }
+
+                .receipt-footer .generated {
+                    font-size: 11px;
+                    color: #95a5a6;
+                }
+
+                .receipt-footer .orb-brand {
+                    font-size: 13px;
+                    font-weight: 700;
+                    color: #2980b9;
+                }
+
+                @media print {
+                    body { background: white; padding: 0; }
+                    .receipt { box-shadow: none; border-radius: 0; width: 100%; }
+                    .no-print { display: none !important; }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="receipt">
+
+                <div class="receipt-header">
+                    <div class="school-info">
+                        <h1>${data.applicationInstitutionName || 'N/A'}</h1>
+                        <p>Institution Code: ${data.applicationInstitution || 'N/A'}</p>
+                        <p>Application Type: ${data.applicationType || 'N/A'}</p>
+                    </div>
+                    <div class="badge">
+                        <div class="label">Application Code</div>
+                        <div class="code">${data.applicationCode || 'N/A'}</div>
+                    </div>
+                </div>
+
+                <div class="status-bar">
+                    ✓ Application Received — Status: ${data.applicationStatus || 'APPLIED'}
+                </div>
+
+                <div class="receipt-body">
+
+                    <!-- Applicant -->
+                    <div class="section">
+                        <div class="section-title">Applicant Information</div>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <div class="label">Full Name</div>
+                                <div class="value">
+                                    ${data.applicantFirstName || ''} 
+                                    ${data.applicantOtherName || ''} 
+                                    ${data.applicantLastName || ''}
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <div class="label">Gender</div>
+                                <div class="value">${capitalize(data.applicantGender) || 'N/A'}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="label">Date of Birth</div>
+                                <div class="value">${formatReceiptDate(data.applicantDateOfBirth)}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="label">Place of Birth</div>
+                                <div class="value">${data.applicantPlaceOfBirth || 'N/A'}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="label">Nationality</div>
+                                <div class="value">${data.applicantNationality || 'N/A'}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="label">Denomination</div>
+                                <div class="value">${data.applicantDenomination || 'N/A'}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Application Details -->
+                    <div class="section">
+                        <div class="section-title">Application Details</div>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <div class="label">Application Date</div>
+                                <div class="value">${applicationDate}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="label">Application Type</div>
+                                <div class="value">${data.applicationType || 'N/A'}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Appointment -->
+                    <div class="section">
+                        <div class="section-title">Appointment</div>
+                        <div class="appointment-box">
+                            <div class="icon">📅</div>
+                            <div>
+                                <div class="apt-label">Your Appointment Date & Time</div>
+                                <div class="apt-date">${appointmentDate}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Parent/Guardian -->
+                    ${parentInfo ? `
+                    <div class="section">
+                        <div class="section-title">Parent / Guardian</div>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <div class="label">Name</div>
+                                <div class="value">${parentInfo.firstNames || ''} ${parentInfo.lastName || ''}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="label">Relationship</div>
+                                <div class="value">${parentInfo.parentType || 'N/A'}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="label">Contact</div>
+                                <div class="value">${parentInfo.contact1 || 'N/A'}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="label">Email</div>
+                                <div class="value">${parentInfo.email || 'N/A'}</div>
+                            </div>
+                        </div>
+                    </div>
+                    ` : ''}
+
+                    <!-- Notice -->
+                    <div class="notice-box">
+                        <div class="notice-title">⚠ Important — Please Read</div>
+                        <ul>
+                            <li>Keep your application code <strong>${data.applicationCode}</strong> safe for all future correspondence.</li>
+                            <li>Arrive at least <strong>15 minutes</strong> before your appointment time.</li>
+                            <li>Bring the <strong>original birth certificate</strong> and a copy.</li>
+                            <li>Bring <strong>2 passport photographs</strong> of the applicant.</li>
+                        </ul>
+                    </div>
+
+                </div>
+
+                <div class="receipt-footer">
+                    <div class="generated">Generated: ${new Date().toLocaleString('en-GB')}</div>
+                    <div class="orb-brand">ORB · Astromy LLC</div>
+                </div>
+
+            </div>
+        </body>
+        </html>
+    `;
+
+    // Open in new window and trigger print/save as PDF
+    const printWindow = window.open('', '_blank', 'width=800,height=900');
+    printWindow.document.write(receiptHTML);
+    printWindow.document.close();
+    printWindow.focus();
+
+    // Slight delay to ensure content renders before print dialog
+    setTimeout(() => {
+        printWindow.print();
+    }, 500);
+}
+
+// Helpers
+function formatReceiptDate(dateString) {
+    if (!dateString) return 'N/A';
+    return new Date(dateString).toLocaleDateString('en-GB', {
+        year: 'numeric', month: 'long', day: '2-digit'
+    });
+}
+
+function capitalize(str) {
+    if (!str) return '';
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 }

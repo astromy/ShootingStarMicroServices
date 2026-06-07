@@ -1,10 +1,7 @@
 package com.astromyllc.astroorb.controller;
 
 import com.astromyllc.astroorb.dto.paystack.PaystackPaymentResponse;
-import com.astromyllc.astroorb.dto.request.BillRequest;
-import com.astromyllc.astroorb.dto.request.BillingFetchRequest;
-import com.astromyllc.astroorb.dto.request.BillingsRequest;
-import com.astromyllc.astroorb.dto.request.SingleStringRequest;
+import com.astromyllc.astroorb.dto.request.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import lombok.RequiredArgsConstructor;
@@ -13,10 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -26,8 +20,8 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @Slf4j
@@ -35,11 +29,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FinanceController {
 
+    private final HttpClient httpClient = HttpClient.newHttpClient();
+    private final ObjectMapper mapper = new ObjectMapper();
     @Value("${gateway.host}")
     private String backendserve;
 
-
-    @ResponseBody
+/*    @ResponseBody
     @RequestMapping(value = "create-bills", method = RequestMethod.POST)
     public ResponseEntity<String> addfinance(@RequestBody List<BillRequest> jso) throws IOException {
 
@@ -76,6 +71,215 @@ public class FinanceController {
         ResponseEntity<String> response = BACKENDCOMMPOST(webhookData, backendserve + "/api/setup/paystackWebhookResponse");
         return response;
     }
+*/
+
+    // ── HELPER ───────────────────────────────────────────────────────────────
+    private ResponseEntity<String> post(Object body, String url) {
+        log.info("Finance proxy → {}", url);
+        try {
+            HttpRequest req = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(body)))
+                    .build();
+            HttpResponse<String> res = httpClient.send(req, HttpResponse.BodyHandlers.ofString());
+            return ResponseEntity.status(res.statusCode()).body(res.body());
+        } catch (IOException | InterruptedException e) {
+            log.error("Finance proxy error for {}: {}", url, e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("{\"error\":\"" + e.getMessage() + "\"}");
+        }
+    }
+
+    private ResponseEntity<String> get(String url) {
+        try {
+            HttpRequest req = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .header("Content-Type", "application/json")
+                    .GET().build();
+            HttpResponse<String> res = httpClient.send(req, HttpResponse.BodyHandlers.ofString());
+            return ResponseEntity.status(res.statusCode()).body(res.body());
+        } catch (IOException | InterruptedException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("{\"error\":\"" + e.getMessage() + "\"}");
+        }
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // BILLS
+    // ══════════════════════════════════════════════════════════════════════════
+
+    @PostMapping("create-bills")
+    public ResponseEntity<String> createBills(@RequestBody List<BillRequest> body) {
+        return post(body, backendserve + "/api/finance/create-bills");
+    }
+
+    @PostMapping("get-bills-by-institution")
+    public ResponseEntity<String> getBillsByInstitution(@RequestBody SingleStringRequest body) {
+        return post(body, backendserve + "/api/finance/get-bills-by-institution");
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // BILLING (assign fees to students)
+    // ══════════════════════════════════════════════════════════════════════════
+
+    @PostMapping("bill-students-by-institution")
+    public ResponseEntity<String> billStudents(@RequestBody BillingsRequest body) {
+        return post(body, backendserve + "/api/finance/bill-students-by-institution");
+    }
+
+    @PostMapping("get-billing-by-institutionClass")
+    public ResponseEntity<String> getBillingByClass(@RequestBody BillingFetchRequest body) {
+        return post(body, backendserve + "/api/finance/get-billing-by-institutionClass");
+    }
+
+    @PostMapping("getStudentBilling")
+    public ResponseEntity<String> getStudentBilling(@RequestBody BillingFetchRequest body) {
+        return post(body, backendserve + "/api/finance/getStudentBilling");
+    }
+
+    @PostMapping("getClassBilling")
+    public ResponseEntity<String> getClassBilling(@RequestBody BillingFetchRequest body) {
+        return post(body, backendserve + "/api/finance/getClassBilling");
+    }
+
+    @PostMapping("getSchoolBilling")
+    public ResponseEntity<String> getSchoolBilling(@RequestBody BillingFetchRequest body) {
+        return post(body, backendserve + "/api/finance/getSchoolBilling");
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // STUDENT BILL (account summary per student)
+    // ══════════════════════════════════════════════════════════════════════════
+
+    @PostMapping("getStudentBillByIdAndInstitution")
+    public ResponseEntity<String> getStudentBill(@RequestBody StudentBillFetchRequest body) {
+        return post(body, backendserve + "/api/finance/getStudentBillByIdAndInstitution");
+    }
+
+    @PostMapping("getStudentBillsByInstitution")
+    public ResponseEntity<String> getStudentBillsByInstitution(@RequestBody StudentBillFetchRequest body) {
+        return post(body, backendserve + "/api/finance/getStudentBillsByInstitution");
+    }
+
+    @PostMapping("getStudentBillsByInstitutionClass")
+    public ResponseEntity<String> getStudentBillsByClass(@RequestBody StudentBillFetchRequest body) {
+        return post(body, backendserve + "/api/finance/getStudentBillsByInstitutionClass");
+    }
+
+    @PostMapping("getOwingStudents")
+    public ResponseEntity<String> getOwingStudents(@RequestBody StudentBillFetchRequest body) {
+        return post(body, backendserve + "/api/finance/getOwingStudents");
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // PAYMENTS (fee collection)
+    // ══════════════════════════════════════════════════════════════════════════
+
+    @PostMapping("create-billPayment")
+    public ResponseEntity<String> createPayment(@RequestBody Bill_PaymentRequest body) {
+        return post(body, backendserve + "/api/finance/create-billPayment");
+    }
+
+    @PostMapping("create-billPayments")
+    public ResponseEntity<String> createPayments(@RequestBody List<Bill_PaymentRequest> body) {
+        return post(body, backendserve + "/api/finance/create-billPayments");
+    }
+
+    @PostMapping("get-billPayments-by-institution")
+    public ResponseEntity<String> getPaymentsByInstitution(@RequestBody BillFetchRequest body) {
+        return post(body, backendserve + "/api/finance/get-billPayments-by-institution");
+    }
+
+    @PostMapping("get-billPayments-by-student")
+    public ResponseEntity<String> getPaymentsByStudent(@RequestBody BillFetchRequest body) {
+        return post(body, backendserve + "/api/finance/get-billPayments-by-student");
+    }
+
+    @PostMapping("get-billPayments-by-student-term")
+    public ResponseEntity<String> getPaymentsByStudentTerm(@RequestBody Bill_PaymentRequest body) {
+        return post(body, backendserve + "/api/finance/get-billPayments-by-student-term");
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // SALARY / PAYROLL
+    // ══════════════════════════════════════════════════════════════════════════
+
+    @PostMapping("salary-settings/save")
+    public ResponseEntity<String> saveSalarySettings(@RequestBody Map<String, Object> body) {
+        return post(body, backendserve + "/api/finance/salary-settings/save");
+    }
+
+    @PostMapping("salary-settings/get")
+    public ResponseEntity<String> getSalarySettings(@RequestBody Map<String, Object> body) {
+        return post(body, backendserve + "/api/finance/salary-settings/get");
+    }
+
+    @PostMapping("salary/create")
+    public ResponseEntity<String> createSalaryRun(@RequestBody Map<String, Object> body) {
+        return post(body, backendserve + "/api/finance/salary/create");
+    }
+
+    @PostMapping("salary/create-batch")
+    public ResponseEntity<String> createSalaryBatch(@RequestBody List<Map<String, Object>> body) {
+        return post(body, backendserve + "/api/finance/salary/create-batch");
+    }
+
+    @PostMapping("salary/get-by-institution")
+    public ResponseEntity<String> getSalariesByInstitution(@RequestBody Map<String, Object> body) {
+        return post(body, backendserve + "/api/finance/salary/get-by-institution");
+    }
+
+    @PostMapping("salary/payslip")
+    public ResponseEntity<String> getPayslip(@RequestBody Map<String, Object> body) {
+        return post(body, backendserve + "/api/finance/salary/payslip");
+    }
+
+    /**
+     * Approve: POST /salary/approve/{id}?approvedBy=name
+     * The JS calls fetchPost("salary/approve/123?approvedBy=Admin", {})
+     * so we use a wildcard mapping.
+     */
+    @RequestMapping(value = "salary/approve/{salaryId}", method = RequestMethod.POST)
+    public ResponseEntity<String> approveSalary(
+            @PathVariable Long salaryId,
+            @RequestParam String approvedBy,
+            @RequestBody(required = false) String body) {
+        return post(new Object(), backendserve + "/api/finance/salary/approve/" + salaryId + "?approvedBy=" + approvedBy);
+    }
+
+    @RequestMapping(value = "salary/mark-paid/{salaryId}", method = RequestMethod.POST)
+    public ResponseEntity<String> markSalaryPaid(
+            @PathVariable Long salaryId,
+            @RequestParam String processedBy,
+            @RequestParam(required = false) String externalReference,
+            @RequestBody(required = false) String body) {
+        String url = backendserve + "/api/finance/salary/mark-paid/" + salaryId
+                + "?processedBy=" + processedBy
+                + (externalReference != null ? "&externalReference=" + externalReference : "");
+        return post(new Object(), url);
+    }
+
+    @GetMapping("salary/get/{salaryId}")
+    public ResponseEntity<String> getSalaryById(@PathVariable Long salaryId) {
+        return get(backendserve + "/api/finance/salary/get/" + salaryId);
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // PAYSTACK WEBHOOK
+    // ══════════════════════════════════════════════════════════════════════════
+
+    @PostMapping("paystackWebhookResponse")
+    public ResponseEntity<String> paystackWebhook(@RequestBody PaystackPaymentResponse body) {
+        log.info("Paystack webhook received");
+        return post(body, backendserve + "/api/setup/paystackWebhookResponse");
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // CASH FLOW (derived — no separate backend endpoint needed)
+    // Orb calls get-billPayments-by-institution + salary/get-by-institution
+    // and computes cash flow client-side in _financeCashFlow.js
+    // ══════════════════════════════════════════════════════════════════════════
 
 
     private ResponseEntity<String> BACKENDCOMMPOSTLIST(List<Object> jso, String url) {

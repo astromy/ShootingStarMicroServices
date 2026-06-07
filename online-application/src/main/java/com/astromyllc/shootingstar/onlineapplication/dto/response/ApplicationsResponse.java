@@ -33,6 +33,7 @@ public class ApplicationsResponse {
     private String applicationCode;
     private String applicationStatus;
     private String applicationInstitution;
+    private String applicationInstitutionName;
     private String applicationType;
     private LocalDate applicationDate;
     private LocalDateTime appointmentDate;

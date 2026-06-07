@@ -1,13 +1,10 @@
 package com.astromyllc.shootingstar.finance.dto.request;
 
 import jakarta.annotation.Nonnull;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -24,5 +21,14 @@ public class Bill_PaymentRequest {
     private String paidBy;
     private String recieptNum;
     @Nonnull
+    private String term;
+    @Nonnull
+    private String academicYear;
+    @Nonnull
     private String institutionCode;
+    /**
+     * ONLINE | CASH | MOMO | BANK
+     */
+    private String paymentMethod;
+    private String externalReference;
 }

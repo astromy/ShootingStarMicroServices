@@ -22,5 +22,9 @@ public class Bill_Payment {
     private String studentId;
     private String paidBy;
     private String recieptNum;
+    private String term;
+    private String academicYear;
+    private String paymentMethod;
+    private String externalReference;
     private String institutionCode;
 }

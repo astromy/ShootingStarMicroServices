@@ -1,0 +1,45 @@
+package com.astromyllc.astroorb.dto.request;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDate;
+import java.util.List;
+
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Data
+public class Students2Request {
+    private String idapplication;
+    private String firstName;
+    private String otherName;
+    private String lastName;
+    private LocalDate dateOfBirth;
+    private LocalDate dateOfAdmission;
+    private String placeOfBirth;
+    private String gender;
+    private String countryOfBirth;
+    private String nationality;
+    private String picture;
+    private String birthCert;
+    private String denomination;
+    private String applicationType;
+    private String mobilemoney;
+    private String nameOfPreviousSchool;
+    private String institutionCode;
+    private String residentialLocality;
+    private String classOfDeparture;
+    private String reasonForDeparture;
+    private String addressOfPreviousSchool;
+    private String contactOfPreviousSchool;
+    private String status;
+    private String studentClass;
+    private String applicantBirthCert;
+    private String applicantBirthCertFileType;
+    private List<ParentsRequest> studentParents;
+    private List<StudentSubjectsRequest> studentSubjectsList;
+
+}

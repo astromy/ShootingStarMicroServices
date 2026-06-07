@@ -13,6 +13,46 @@ spring:
     sampler:
       probability: 1.0
 
+
+
+
+  mail:
+    host: smtp.zeptomail.com
+    port: 587
+    username: emailapikey
+    password: ${EMAILPASS}
+    protocol: smtp
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+          ssl:
+            protocols: TLSv1.2
+            trust: "smtp.zeptomail.com"
+        debug: false
+
+app:
+  mail:
+    # Email rate limiting configuration
+    rate-limit: 5
+    queue-capacity: 1000
+
+    sender: noreply@astromyllc.com
+    # Retry configuration
+    max-retries: 3
+    retry-delay: 5000
+
+  documents:
+    birthcerts: E:/Astromy LLC Work/Java Projects/ParentShootingStar/online-application/target/classes/static/applicationDocuments/BirthCerts/
+    picture: E:/Astromy LLC Work/Java Projects/ParentShootingStar/online-application/target/classes/static/applicationDocuments/Pictures/
+
+
 server:
   port: 0
 
@@ -51,12 +91,12 @@ resilience4j:
   timelimiter:
     instances:
       application:
-        timeout-duration: 63s
+        timeout-duration: 150s
   retry:
     instances:
       application:
-        max-attempts: 1
-        wait-duration: 35s
+        max-attempts: 3
+        wait-duration: 5s
 
 
 
@@ -65,8 +105,13 @@ logging:
     org:
       springframework:
         security: ERROR
-    root: ERROR
-    org.springframework.web: ERROR
-    org.springframework.security: ERROR
-    org.springframework.boot.autoconfigure: ERROR
-    org.springframework.web.client.RestTemplate: ERROR
+    root: INFO
+    org.springframework.web: INFO
+    org.springframework.security: INFO
+    org.springframework.boot.autoconfigure: INFO
+    org.springframework.web.client.RestTemplate: INFO
+
+
+
+paystack:
+  secrete: ${PAYSTACK_SECRET_KEY}

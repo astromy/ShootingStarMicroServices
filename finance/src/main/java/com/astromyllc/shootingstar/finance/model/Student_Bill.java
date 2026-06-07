@@ -4,7 +4,13 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "studentbill")
+@Table(
+        name = "studentbill",
+        uniqueConstraints = @UniqueConstraint(
+                name = "uq_student_institution",
+                columnNames = {"studentId", "institutionCode"}
+        )
+)
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -15,13 +21,23 @@ public class Student_Bill {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long studentBillId;
-    private Double amountDue;
-    private Double amountPaid;
-    @Column(unique = true)
+
+    @Column(nullable = false)
     private String studentId;
-    private Double amountBalance;
-    private String term;
-    private String studentClass;
-    private Double oldBalance;
+
+    @Column(nullable = false)
     private String institutionCode;
+
+    private String studentClass;
+    private String term;
+
+    private String academicYear;
+
+    private Double amountDue;
+
+    private Double amountPaid;
+
+    private Double amountBalance;
+
+    private Double oldBalance;
 }

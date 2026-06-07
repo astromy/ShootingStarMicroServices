@@ -1,6 +1,6 @@
 package com.astromyllc.shootingstar.finance.dto.response;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Embeddable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,6 +17,7 @@ public class BillingsResponse {
     private Long billingId;
     private LocalDateTime billingDate;
     private String term;
+    private String academicYear;
     private String studentClass;
     private String studentId;
     private String BillDisc;

@@ -1,6 +1,8 @@
 package com.astromyllc.shootingstar.onlineapplication.controller;
 
+import com.astromyllc.shootingstar.onlineapplication.dto.request.ApplicantStudentSkimRequest;
 import com.astromyllc.shootingstar.onlineapplication.dto.request.ApplicationRequest;
+import com.astromyllc.shootingstar.onlineapplication.dto.request.RefundRequest;
 import com.astromyllc.shootingstar.onlineapplication.dto.request.Students2Request;
 import com.astromyllc.shootingstar.onlineapplication.dto.request.alien.AdmissionRequest;
 import com.astromyllc.shootingstar.onlineapplication.dto.response.ApplicationsResponse;
@@ -11,14 +13,22 @@ import io.github.resilience4j.retry.annotation.Retry;
 import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -31,12 +41,16 @@ import java.util.concurrent.CompletableFuture;
 @Slf4j
 public class ApplicationController {
 
-
     private final ApplicationServiceInterface applicationService;
+    @Value("${app.documents.birthcerts}")
+    private String birthCertPath;
+
+    @Value("${app.documents.picture}")
+    private String picture;
 
     @PostMapping("/api/applications/submit-application")
     @ResponseStatus(HttpStatus.CREATED)
-    @CircuitBreaker(name = "application", fallbackMethod = "fallBack0")
+    @CircuitBreaker(name = "application"/*, fallbackMethod = "fallBack0"*/)
     /*
      * If TimerLimiter is Used, It must return a CompletableFuture for both method and fallback
      * */
@@ -55,9 +69,10 @@ public class ApplicationController {
         });
     }
 
+
     @PostMapping("/api/applications/submit-applicationList")
     @ResponseStatus(HttpStatus.CREATED)
-    @CircuitBreaker(name = "application", fallbackMethod = "fallBack1")
+    @CircuitBreaker(name = "application"/*, fallbackMethod = "fallBack1"*/)
     public void SubmitApplicationList(@RequestBody ArrayList<Students2Request> applicationRequest) {
         log.info("Application  Received");
         applicationService.createApplicationList(applicationRequest);
@@ -65,22 +80,22 @@ public class ApplicationController {
 
     @PostMapping("/api/applications/updateApplicationList")
     @ResponseStatus(HttpStatus.OK)
-    @CircuitBreaker(name = "application", fallbackMethod = "fallBack2")
-    public void updateAapplicationList(@RequestBody ArrayList<Students2Request> applicationRequest) {
+    @CircuitBreaker(name = "application"/*, fallbackMethod = "fallBack2"*/)
+    public void updateAapplicationList(@RequestBody ArrayList<ApplicantStudentSkimRequest> applicationRequest) {
         applicationService.UpdateApplicationList(applicationRequest);
     }
 
 
     @PostMapping("/api/applications/getApplicationByCode")
     @ResponseStatus(HttpStatus.OK)
-    @CircuitBreaker(name = "application", fallbackMethod = "fallBack3")
+    @CircuitBreaker(name = "application"/*, fallbackMethod = "fallBack3"*/)
     public Optional<ApplicationsResponse> getApplicationByCode(@RequestBody String code) {
         return applicationService.getApplicationByApplicationCode(code);
     }
 
     @PostMapping("/api/applications/getApplicationById")
     @ResponseStatus(HttpStatus.OK)
-    @CircuitBreaker(name = "application", fallbackMethod = "fallBack3")
+    @CircuitBreaker(name = "application"/*, fallbackMethod = "fallBack3"*/)
     public Optional<ApplicationsResponse> getApplicationById(@RequestBody String applicationId) {
         return applicationService.getApplicationById(applicationId);
     }
@@ -88,7 +103,7 @@ public class ApplicationController {
 
     @PostMapping("/api/applications/getApplicationsBySchool")
     @ResponseStatus(HttpStatus.OK)
-    @CircuitBreaker(name = "application", fallbackMethod = "fallBack3")
+    @CircuitBreaker(name = "application"/*, fallbackMethod = "fallBack3"*/)
     public Optional<List<ApplicationsResponse>> getApplicationsBySchool(@RequestBody String schoolId) {
         return applicationService.getApplicationsBySchool(schoolId);
     }
@@ -96,14 +111,14 @@ public class ApplicationController {
 
     @PostMapping("/api/applications/getProcessedApplicationsBySchool")
     @ResponseStatus(HttpStatus.OK)
-    @CircuitBreaker(name = "application", fallbackMethod = "fallBack3")
+    @CircuitBreaker(name = "application"/*, fallbackMethod = "fallBack3"*/)
     public Optional<List<ProcessedApplicationResponse>> getProcessedApplicationsBySchool(@RequestBody AdmissionRequest admissionRequest) {
         return applicationService.getProcessedApplicationsBySchool(admissionRequest);
     }
 
     @PostMapping("/api/applications/getApplicationsByApplicationDate")
     @ResponseStatus(HttpStatus.OK)
-    @CircuitBreaker(name = "application", fallbackMethod = "fallBack3")
+    @CircuitBreaker(name = "application"/*, fallbackMethod = "fallBack3"*/)
     public List<ApplicationsResponse> getApplicationsByDate(@RequestBody String date1) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MMM-dd");
         LocalDate date = LocalDate.parse(date1, formatter);
@@ -113,32 +128,90 @@ public class ApplicationController {
 
     @PostMapping("/api/applications/getApplicationsByCountry")
     @ResponseStatus(HttpStatus.OK)
-    @CircuitBreaker(name = "application", fallbackMethod = "fallBack3")
+    @CircuitBreaker(name = "application"/*, fallbackMethod = "fallBack3"*/)
     public Optional<List<ApplicationsResponse>> getApplicationsByCountry(@RequestBody String country) {
         return applicationService.getApplicationsByCountry(country);
     }
 
     @PostMapping("/api/applications/getApplicationsByCity")
     @ResponseStatus(HttpStatus.OK)
-    @CircuitBreaker(name = "application", fallbackMethod = "fallBack3")
+    @CircuitBreaker(name = "application"/*, fallbackMethod = "fallBack3"*/)
     public Optional<List<ApplicationsResponse>> getApplicationsByCity(@RequestBody String city) {
         return applicationService.getApplicationsByCity(city);
     }
 
     @PostMapping("/api/applications/getApplicationsByRegion")
     @ResponseStatus(HttpStatus.OK)
-    @CircuitBreaker(name = "application", fallbackMethod = "fallBack3")
+    @CircuitBreaker(name = "application"/*, fallbackMethod = "fallBack3"*/)
     public Optional<List<ApplicationsResponse>> getApplicationsByRegion(@RequestBody String region) {
         return applicationService.getApplicationsByRegion(region);
     }
 
     @PostMapping("/api/applications/getAllApplication")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    @CircuitBreaker(name = "application", fallbackMethod = "fallBack4")
+    @CircuitBreaker(name = "application"/*, fallbackMethod = "fallBack4"*/)
     public Optional<List<ApplicationsResponse>> getAllApplications() {
         return applicationService.getAllApplications();
     }
 
+    @GetMapping("/api/applications/applicationDocuments/Pictures/{filename}")
+    public ResponseEntity<Resource> getApplicantPicture(@PathVariable String filename) {
+        try {
+            File file = new File(
+                    getClass().getClassLoader()
+                            .getResource("static/applicationDocuments/Pictures/")
+                            .toURI()
+            ).toPath().resolve(filename).toFile();
+
+            if (!file.exists()) {
+                return ResponseEntity.notFound().build();
+            }
+
+            Resource resource = new FileSystemResource(file);
+            return ResponseEntity.ok()
+                    .contentType(MediaType.IMAGE_PNG)
+                    .body(resource);
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/api/applications/applicationDocuments/BirthCerts/{filename}")
+    public ResponseEntity<byte[]> getApplicantBirthCert(@PathVariable String filename) {
+        try {
+            // Use an external filesystem path, not classpath
+            // Set this in application.yml: app.documents.birthcerts=/path/to/BirthCerts/
+            Path filePath = Paths.get(birthCertPath).resolve(filename).normalize();
+
+            // Prevent path traversal attacks
+            if (!filePath.startsWith(Paths.get(birthCertPath).normalize())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+
+            if (!Files.exists(filePath)) {
+                log.warn("Birth cert not found: {}", filePath);
+                return ResponseEntity.notFound().build();
+            }
+
+            byte[] bytes = Files.readAllBytes(filePath);
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .header(HttpHeaders.CONTENT_DISPOSITION,
+                            "inline; filename=\"" + filename + "\"")
+                    .body(bytes);
+
+        } catch (Exception e) {
+            log.error("Error serving birth cert {}: {}", filename, e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+
+    @PostMapping("/api/applications/resolve")
+    public Mono<ResponseEntity<String>> refundPayment(@RequestBody RefundRequest refundRequest) {
+        return applicationService.refundPayment(refundRequest);
+    }
 
     public CompletableFuture<String> fallBack0(ApplicationRequest applicationRequest, RuntimeException runtimeException) {
         return CompletableFuture.supplyAsync(() -> "Temporal Failure, Try again after sometime");
@@ -159,5 +232,6 @@ public class ApplicationController {
     public String fallBack4(RuntimeException runtimeException) {
         return "Temporal Failure, Try again after sometime";
     }
+
 
 }

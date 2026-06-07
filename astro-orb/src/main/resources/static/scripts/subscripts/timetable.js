@@ -212,7 +212,7 @@
             '</div>', // end tt-body
 
             // FOOTER
-            '<footer class="tt-footer">',
+            '<footer class="footer">',
             '<i class="far fa-copyright"></i> Astromy LLC 2013–<span id="ttYear"></span>',
             ' &nbsp;|&nbsp; Timetable Scheduler v1.0',
             '</footer>',

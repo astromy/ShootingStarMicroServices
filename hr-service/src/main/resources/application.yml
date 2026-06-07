@@ -27,15 +27,37 @@ spring:
 
 
 
+  #  mail:
+  #    # Email rate limiting configuration
+  #    rate-limit: 5
+  #    queue-capacity: 1000
+
+  #    # Retry configuration
+  #    max-retries: 3
+  #    retry-delay: 5000
+
+  #    host: smtp.zeptomail.com
+  #    port: 587
+  #    username: emailapikey
+  #    password: ${EMAILPASS}
+  #    protocol: smtp
+  #    properties:
+  #      mail:
+  #        smtp:
+  #          auth: true
+  #          starttls:
+  #            enable: true
+  #            required: true
+  #          connectiontimeout: 5000
+  #          timeout: 5000
+  #          writetimeout: 5000
+  #          ssl:
+  #            trust: "smtp.zeptomail.com"
+  #        debug: false
+
+
+
   mail:
-    # Email rate limiting configuration
-    rate-limit: 5
-    queue-capacity: 1000
-
-    # Retry configuration
-    max-retries: 3
-    retry-delay: 5000
-
     host: smtp.zeptomail.com
     port: 587
     username: emailapikey
@@ -52,9 +74,20 @@ spring:
           timeout: 5000
           writetimeout: 5000
           ssl:
+            protocols: TLSv1.2
             trust: "smtp.zeptomail.com"
         debug: false
 
+app:
+  mail:
+    # Email rate limiting configuration
+    rate-limit: 5
+    queue-capacity: 1000
+
+    sender: noreply@astromyllc.com
+    # Retry configuration
+    max-retries: 3
+    retry-delay: 5000
 
 
 server:
@@ -93,11 +126,11 @@ resilience4j:
         failureRateThreshold: 50
         waitDurationInOpenState: 5s
         permittedNumberOfCallsInHalfOpenState: 3
-        authomaticTransitionFromOpenToHalfOpenEnabled: true
+        automaticTransitionFromOpenToHalfOpenEnabled: true
   timelimiter:
     instances:
       setup:
-        timeout-duration: 3s
+        timeout-duration: 15s
 
 
 

@@ -417,41 +417,60 @@ function loadScriptsSequentially(scripts, index, parentTag) {
 }
 
 function dashboardBuild() {
+    // First, populate the wrapper with dashboard HTML content
+    document.getElementById('wrapper').innerHTML = `...your HTML content...`;
 
+    // Remove previous non-default resources
     removeUnwantedResources("script", activeScripts);
     removeUnwantedResources("link", activeLinks);
 
     var amBase = "vendor/amcharts5/";
 
-    // Step 1 — load amCharts core in order
-    loadScript(amBase + "index.js", function () {
-        loadScript(amBase + "xy.js", function () {
-            loadScript(amBase + "radar.js", function () {
-                loadScript(amBase + "hierarchy.js", function () {
-                    loadScript(amBase + "percent.js", function () {
-                        loadScript(amBase + "themes/Animated.js", function () {
-
-                            // Step 2 — am5 is now defined; load charts then dashboard
-                            loadScript("scripts/charts1.js", function () {
-                                loadScript("scripts/subscripts/dashboard.js", function () {
-                                    console.log("[dashboardBuild] All scripts loaded.");
+    // Wait a moment for DOM to update before loading charts
+    setTimeout(() => {
+        // Step 1 — load amCharts core in order
+        loadScript(amBase + "index.js", function () {
+            console.log("index.js loaded, am5 =", typeof am5);
+            loadScript(amBase + "xy.js", function () {
+                console.log("xy.js loaded, am5 =", typeof am5);
+                loadScript(amBase + "radar.js", function () {
+                    loadScript(amBase + "hierarchy.js", function () {
+                        loadScript(amBase + "percent.js", function () {
+                            loadScript(amBase + "themes/Animated.js", function () {
+                                // Step 2 — load charts then dashboard
+                                loadScript("scripts/charts1.js", function () {
+                                    // Wait for DOM to be fully ready before initializing charts
+                                    if (typeof initCharts === "function") {
+                                        // Small delay to ensure DOM elements are rendered
+                                        setTimeout(() => {
+                                            initCharts();
+                                        }, 100);
+                                    }
+                                    loadScript("scripts/subscripts/dashboard.js", function () {
+                                        console.log("[dashboardBuild] All scripts loaded.");
+                                    });
                                 });
                             });
-
                         });
                     });
                 });
             });
         });
-    });
+    }, 50);
 }
 
 // New helper function for reliable script loading
 function loadScript(src, callback) {
     const script = document.createElement('script');
     script.src = src;
-    script.onload = callback;
-    script.onerror = () => console.error(`Failed to load ${src}`);
+    script.onload = function () {
+        console.log("✅ Loaded:", src);
+        callback();
+    };
+    script.onerror = function () {
+        console.error("❌ FAILED to load:", src);
+        // Don't redirect — just log so we can see the failure
+    };
     document.head.appendChild(script);
     activeScripts.add(src);
 }
@@ -979,6 +998,21 @@ function billingBuild() {
 
 function feecollectionBuild() {
 
+    const newScripts = [
+        "scripts/moment.min.js",
+        "vendor/sweetalert/lib/sweet-alert.min.js",
+        "scripts/subscripts/financeFeeCollection.js",
+    ];
+
+    /**========================================= */
+    const newLinks = [
+        "vendor/sweetalert/lib/sweet-alert.css",
+        "vendor/metisMenu/dist/metisMenu.css",
+        "vendor/animate.css/animate.css",
+        "fonts/pe-icon-7-stroke/css/pe-icon-7-stroke.css",
+        "fonts/pe-icon-7-stroke/css/helper.css",
+    ];
+
     // Remove previous non-default scripts/links
     removeUnwantedResources("script", activeScripts);
     removeUnwantedResources("link", activeLinks);
@@ -997,6 +1031,22 @@ function feecollectionBuild() {
 
 function paymenthistoryBuild() {
 
+    const newScripts = [
+        "scripts/moment.min.js",
+        "vendor/sweetalert/lib/sweet-alert.min.js",
+        "scripts/subscripts/financePaymentHistory.js",
+    ];
+
+    /**========================================= */
+    const newLinks = [
+        "vendor/sweetalert/lib/sweet-alert.css",
+        "vendor/metisMenu/dist/metisMenu.css",
+        "vendor/animate.css/animate.css",
+        "fonts/pe-icon-7-stroke/css/pe-icon-7-stroke.css",
+        "fonts/pe-icon-7-stroke/css/helper.css",
+    ];
+
+
     // Remove previous non-default scripts/links
     removeUnwantedResources("script", activeScripts);
     removeUnwantedResources("link", activeLinks);
@@ -1014,6 +1064,21 @@ function paymenthistoryBuild() {
 //-------------------------------------------------------------------------------------------------------
 
 function paymentcheckerBuild() {
+    const newScripts = [
+        "scripts/moment.min.js",
+        "vendor/sweetalert/lib/sweet-alert.min.js",
+        "scripts/subscripts/financePaymentCheker.js",
+    ];
+
+    /**========================================= */
+    const newLinks = [
+        "vendor/sweetalert/lib/sweet-alert.css",
+        "vendor/metisMenu/dist/metisMenu.css",
+        "vendor/animate.css/animate.css",
+        "fonts/pe-icon-7-stroke/css/pe-icon-7-stroke.css",
+        "fonts/pe-icon-7-stroke/css/helper.css",
+    ];
+
 
     // Remove previous non-default scripts/links
     removeUnwantedResources("script", activeScripts);
@@ -1033,6 +1098,22 @@ function paymentcheckerBuild() {
 
 function salarysetupBuild() {
 
+    const newScripts = [
+        "scripts/moment.min.js",
+        "vendor/sweetalert/lib/sweet-alert.min.js",
+        "scripts/subscripts/financeSalary.js",
+    ];
+
+    /**========================================= */
+    const newLinks = [
+        "vendor/sweetalert/lib/sweet-alert.css",
+        "vendor/metisMenu/dist/metisMenu.css",
+        "vendor/animate.css/animate.css",
+        "fonts/pe-icon-7-stroke/css/pe-icon-7-stroke.css",
+        "fonts/pe-icon-7-stroke/css/helper.css",
+    ];
+
+
     // Remove previous non-default scripts/links
     removeUnwantedResources("script", activeScripts);
     removeUnwantedResources("link", activeLinks);
@@ -1050,6 +1131,22 @@ function salarysetupBuild() {
 //-------------------------------------------------------------------------------------------------------
 
 function payslipgenerationBuild() {
+
+    const newScripts = [
+        "scripts/moment.min.js",
+        "vendor/sweetalert/lib/sweet-alert.min.js",
+        "scripts/subscripts/financePaySlip.js",
+    ];
+
+    /**========================================= */
+    const newLinks = [
+        "vendor/sweetalert/lib/sweet-alert.css",
+        "vendor/metisMenu/dist/metisMenu.css",
+        "vendor/animate.css/animate.css",
+        "fonts/pe-icon-7-stroke/css/pe-icon-7-stroke.css",
+        "fonts/pe-icon-7-stroke/css/helper.css",
+    ];
+
 
     // Remove previous non-default scripts/links
     removeUnwantedResources("script", activeScripts);
@@ -1069,6 +1166,22 @@ function payslipgenerationBuild() {
 
 function ledgerbooksBuild() {
 
+    const newScripts = [
+        "scripts/moment.min.js",
+        "vendor/sweetalert/lib/sweet-alert.min.js",
+        "scripts/subscripts/financeLedger.js",
+    ];
+
+    /**========================================= */
+    const newLinks = [
+        "vendor/sweetalert/lib/sweet-alert.css",
+        "vendor/metisMenu/dist/metisMenu.css",
+        "vendor/animate.css/animate.css",
+        "fonts/pe-icon-7-stroke/css/pe-icon-7-stroke.css",
+        "fonts/pe-icon-7-stroke/css/helper.css",
+    ];
+
+
     // Remove previous non-default scripts/links
     removeUnwantedResources("script", activeScripts);
     removeUnwantedResources("link", activeLinks);
@@ -1086,6 +1199,22 @@ function ledgerbooksBuild() {
 //-------------------------------------------------------------------------------------------------------
 
 function incomestatementBuild() {
+
+    const newScripts = [
+        "scripts/moment.min.js",
+        "vendor/sweetalert/lib/sweet-alert.min.js",
+        "scripts/subscripts/financeIncomeStatement.js",
+    ];
+
+    /**========================================= */
+    const newLinks = [
+        "vendor/sweetalert/lib/sweet-alert.css",
+        "vendor/metisMenu/dist/metisMenu.css",
+        "vendor/animate.css/animate.css",
+        "fonts/pe-icon-7-stroke/css/pe-icon-7-stroke.css",
+        "fonts/pe-icon-7-stroke/css/helper.css",
+    ];
+
 
     // Remove previous non-default scripts/links
     removeUnwantedResources("script", activeScripts);
@@ -1122,6 +1251,22 @@ function cashflowBuild() {
 //-------------------------------------------------------------------------------------------------------
 
 function trialbalanaceBuild() {
+
+    const newScripts = [
+        "scripts/moment.min.js",
+        "vendor/sweetalert/lib/sweet-alert.min.js",
+        "scripts/subscripts/financeTrialBalance.js",
+    ];
+
+    /**========================================= */
+    const newLinks = [
+        "vendor/sweetalert/lib/sweet-alert.css",
+        "vendor/metisMenu/dist/metisMenu.css",
+        "vendor/animate.css/animate.css",
+        "fonts/pe-icon-7-stroke/css/pe-icon-7-stroke.css",
+        "fonts/pe-icon-7-stroke/css/helper.css",
+    ];
+
 
     // Remove previous non-default scripts/links
     removeUnwantedResources("script", activeScripts);
@@ -1463,7 +1608,7 @@ function idCardGenerationBuild() {
     // Define new resources specific to this view
     const newScripts = [
         "vendor/sweetalert/lib/sweet-alert.min.js",
-        "scripts/subscripts/studentBulkUpload.js",
+        "scripts/subscripts/adminStudentIDCard.js",
     ];
     const newLinks = [
         "vendor/sweetalert/lib/sweet-alert.css",
@@ -2223,3 +2368,14 @@ function excelDateToJSDate(serial) {
 
     return jsDate.toISOString().split("T")[0]; // Format as "YYYY-MM-DD"
 }
+
+window.handleImgError = function (img) {
+    img.style.display = 'none';
+    var placeholder = img.nextElementSibling;
+    if (placeholder) placeholder.style.display = 'flex';
+}
+
+
+window.addEventListener("load", function () {
+    dashboardBuild();
+});

@@ -67,7 +67,7 @@ resilience4j:
   timelimiter:
     instances:
       setup:
-        timeout-duration: 3s
+        timeout-duration: 15s
 
 
 

@@ -1,86 +1,125 @@
-var instId = $("meta[name='institutionId']").attr("content").split("/")[1];
-fetchInstitutionClasses(instId.split(",")[0]);
+/**
+ * _financePaymentChecker.js  —  Data & logic layer for Payment Checker.
+ *
+ * Provides quick lookup of any student's current bill status —
+ * useful at the gate, examination hall, or any checkpoint.
+ *
+ * Exposes on window:
+ *   pyCheckState
+ *   pyCheckLoad()
+ *   pyCheckLookup(studentId) → { bill, payments, status }
+ *   pyCheckClassLookup(className) → Student_BillResponse[]
+ */
+(function () {
+    'use strict';
 
-$(".saveClassGroup").click(async function () {
-$('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
-  postdata();
-  var jso = buildJson();
-  return fetchPost("addLookUps", jso).then(function (result) {
-    $('.splash').css('display', 'none')
-    swal({
-      title: "Thank you!",
-      text: "Your application is being submitted",
-      type: "success",
-    });
-  });
-});
+    var _raw = (typeof instId !== 'undefined' ? instId : '').split(',')[0];
+    var _inst = _raw.replace(/[\[\]']+/g, '').replace(/\//g, '');
 
-function postdata() {
-  var classGroup = [];
-  classGroup = document.getElementsByClassName("newClassGrouptxt");
-  for (var i = 0; i < classGroup.length; i++) {
-    name[i] = classGroup[i].value;
-  }
-}
-
-function buildJson() {
-  var resultlist = [];
-  for (var i = 0; i < name.length; i++) {
-    var jsonObject = {
-      id: id,
-      name: name[i],
-      type: type,
+    window.pyCheckState = {
+        institutionCode: _inst,
+        classGroups: [],
+        classesRaw: [],
+        lastResult: null,
+        classResults: [],
+        _loaded: false,
     };
-    resultlist.push(jsonObject);
-  }
-  return resultlist;
-}
 
-async function fetchInstitutionClasses(instId) {
-  var v = instId.replace(/[\[\]']+/g, "");
-  v = v.replace(/\//g, "");
-  var instRequest = { val: v };
-  return fetchPost("getInstitutionClasses", instRequest).then(function (result) {
-    fetchLookup(result);
-  });
-}
+    function showSplash() {
+        if ($) $('.splash').css({display: 'block', background: '#ffffff3d'});
+    }
 
-async function fetchLookup(result1) {
-  var instRequest = { val: "ClassGroup" };
-  return fetchPost("getLookUpByType", instRequest).then(function (result) {
-    populateTable(result1);
-    populateClassGroup(result);
-  });
-}
+    function hideSplash() {
+        if ($) $('.splash').css('display', 'none');
+    }
 
-function populateClassGroup(data) {
-  data.forEach(function (d) {
-    var details = "<option value='" + d.id + "'>" + d.name + " </option>";
-    $("#classGroupOptions").append(details);
-  });
-}
+    // ── LOAD ─────────────────────────────────────────────────────────────────
+    window.pyCheckLoad = async function () {
+        try {
+            showSplash();
+            var [groups, inst] = await Promise.all([
+                fetchPost('getLookUpByType', {val: 'ClassGroup'}),
+                fetchPost('getInstitutionByCode', {val: _inst}),
+            ]);
+            if (groups) window.pyCheckState.classGroups = groups;
+            if (inst && inst.classList)
+                window.pyCheckState.classesRaw = inst.classList.map(function (c) {
+                    return {name: c.name, classGroup: c.classGroup || ''};
+                });
+            window.pyCheckState._loaded = true;
+            hideSplash();
+        } catch (e) {
+            hideSplash();
+            window.pyCheckState._loaded = true;
+        }
+    };
 
-function populateTable(data) {
-  var bar = new Promise((resolve, reject) => {
-    data.forEach((d, index, array) => {
-      var details =
-        "<tr> <td hidden>" +
-        d.id +
-        " </td> <td> " +
-        d.name +
-        "</td><td>" +
-        d.classGroup +
-        "</td> </tr>";
-      $("#classesTableBody").append(details);
-      if (index === array.length - 1) resolve();
-    });
-  });
-  bar.then(() => {
-    console.log("All done!");
-    dataTableInit();
-  });
-}
+    // ── SINGLE STUDENT LOOKUP ────────────────────────────────────────────────
+    window.pyCheckLookup = async function (studentId) {
+        if (!studentId) return null;
+        showSplash();
+        try {
+            var [bill, payments] = await Promise.all([
+                fetchPost('getStudentBillByIdAndInstitution', {
+                    institutionCode: _inst,
+                    studentId: studentId,
+                    studentClass: ''
+                }),
+                fetchPost('get-billPayments-by-student', {institutionCode: _inst, name: studentId}),
+            ]);
 
-function dataTableInit() {
-  $("#classTable").dataTable();
-}
+            var result = {
+                studentId: studentId,
+                bill: bill || null,
+                payments: payments || [],
+                status: 'NO_BILL',
+            };
+
+            if (bill) {
+                var bal = bill.amountBalance || 0;
+                result.status = bal <= 0 ? 'CLEARED' : bal < (bill.amountDue * 0.5) ? 'PARTIAL' : 'OWING';
+            }
+
+            window.pyCheckState.lastResult = result;
+            hideSplash();
+            return result;
+        } catch (e) {
+            hideSplash();
+            return null;
+        }
+    };
+
+    // ── CLASS BULK LOOKUP ────────────────────────────────────────────────────
+    window.pyCheckClassLookup = async function (className) {
+        showSplash();
+        try {
+            var result = await fetchPost('getStudentBillsByInstitutionClass', {
+                institutionCode: _inst, studentClass: className,
+            });
+            window.pyCheckState.classResults = result || [];
+            hideSplash();
+            return result || [];
+        } catch (e) {
+            hideSplash();
+            return [];
+        }
+    };
+
+    window.pyCheckClassesByGroup = function (groupName) {
+        return (window.pyCheckState.classesRaw || []).filter(function (c) {
+            return !groupName || (c.classGroup && c.classGroup.toLowerCase() === groupName.toLowerCase());
+        });
+    };
+
+    window.pyCheckFmt = {
+        money: function (v) {
+            return 'GH₵ ' + (parseFloat(v) || 0).toLocaleString('en-GH', {minimumFractionDigits: 2});
+        },
+        date: function (d) {
+            return d ? new Date(d).toLocaleDateString('en-GB', {day: '2-digit', month: 'short', year: 'numeric'}) : '—';
+        },
+    };
+
+    if (window.copyrights) window.copyrights();
+    pyCheckLoad();
+})();

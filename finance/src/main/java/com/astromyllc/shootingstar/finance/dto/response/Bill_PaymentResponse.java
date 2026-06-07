@@ -1,6 +1,5 @@
 package com.astromyllc.shootingstar.finance.dto.response;
 
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,7 +11,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @Data
-@Embeddable
 public class Bill_PaymentResponse {
     private Long billPaymentId;
     private Double paymentAmount;
@@ -20,5 +18,9 @@ public class Bill_PaymentResponse {
     private String studentId;
     private String paidBy;
     private String recieptNum;
+    private String term;
+    private String academicYear;
     private String institutionCode;
+    private String paymentMethod;
+    private String externalReference;
 }

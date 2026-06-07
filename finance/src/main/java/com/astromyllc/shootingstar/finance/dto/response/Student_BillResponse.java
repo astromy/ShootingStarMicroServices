@@ -1,6 +1,6 @@
 package com.astromyllc.shootingstar.finance.dto.response;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Embeddable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,12 +13,13 @@ import lombok.NoArgsConstructor;
 @Embeddable
 public class Student_BillResponse {
     private Long studentBillId;
+    private String studentId;
+    private String institutionCode;
+    private String studentClass;
+    private String term;
+    private String academicYear;
     private Double amountDue;
     private Double amountPaid;
-    private String studentId;
     private Double amountBalance;
-    private String term;
-    private String studentClass;
     private Double oldBalance;
-    private String institutionCode;
 }

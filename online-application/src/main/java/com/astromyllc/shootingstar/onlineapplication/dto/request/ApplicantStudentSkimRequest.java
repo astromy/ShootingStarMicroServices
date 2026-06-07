@@ -1,0 +1,22 @@
+package com.astromyllc.shootingstar.onlineapplication.dto.request;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Data
+public class ApplicantStudentSkimRequest {
+    private String idapplication;
+    private String dateOfBirth;
+    private String dateOfAdmission;
+    private String gender;
+    private String nationality;
+    private String denomination;
+    private String institutionCode;
+    private String applicationCode;
+    private String status;
+}

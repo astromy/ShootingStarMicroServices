@@ -6,12 +6,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@Document(value="appointment")
+@Document(value = "appointment")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -22,4 +20,5 @@ public class Appointment {
     private String applicationCode;
     private String institutionId;
     private LocalDateTime appointmentDateTime;
+    private String applicationType;
 }

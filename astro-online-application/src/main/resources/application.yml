@@ -1,5 +1,9 @@
 server:
   port: 3710
+  tomcat:
+    max-http-form-post-size: 314572800
+    max-swallow-size: 314572800
+    connection-timeout: 300000
 
 
 gateway:
@@ -27,3 +31,8 @@ spring:
 
   application:
     name: astro-online-application
+
+  servlet:
+    multipart:
+      max-file-size: 314572800
+      max-request-size: 314572800

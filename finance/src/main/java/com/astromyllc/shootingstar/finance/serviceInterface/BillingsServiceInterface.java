@@ -9,17 +9,20 @@ import java.util.List;
 import java.util.Optional;
 
 public interface BillingsServiceInterface {
-    public BillingsResponse updateBilling(BillingsRequest billingsRequest);
 
-    public Optional<List<Student_BillResponse>> createBillings(BillingsRequest billingsRequest);
+    BillingsResponse updateBilling(BillingsRequest billingsRequest);
 
-    public Optional<List<BillingsResponse>> fetchBillingsByInstitution(BillingFetchRequest billingFetchRequest);
+    Optional<List<Student_BillResponse>> createBillings(BillingsRequest billingsRequest);
 
-    public Optional<List<BillingsResponse>> fetchBillingByInstitutionAndStudent(BillingFetchRequest billingFetchRequest);
+    Optional<List<BillingsResponse>> fetchBillingsByInstitution(BillingFetchRequest billingFetchRequest);
 
-    public Optional<List<BillingsResponse>> fetchBillingByInstitutionStudentClassTerm(BillingFetchRequest billingFetchRequest);
+    Optional<List<BillingsResponse>> fetchBillingByInstitutionAndStudent(BillingFetchRequest billingFetchRequest);
 
-    public Optional<List<BillingsResponse>> fetchClassBillingByInstitution(BillingFetchRequest billingFetchRequest);
+    Optional<List<BillingsResponse>> fetchBillingByInstitutionStudentClassTerm(BillingFetchRequest billingFetchRequest);
 
-    public Optional<List<BillingsResponse>> fetchSchoolBillingByInstitution(BillingFetchRequest billingFetchRequest);
+    Optional<List<BillingsResponse>> fetchClassBillingByInstitution(BillingFetchRequest billingFetchRequest);
+
+    Optional<List<BillingsResponse>> fetchSchoolBillingByInstitution(BillingFetchRequest billingFetchRequest);
+
+    Optional<List<BillingsResponse>> fetchBillingByInstitutionClass(BillingFetchRequest billingFetchRequest);
 }

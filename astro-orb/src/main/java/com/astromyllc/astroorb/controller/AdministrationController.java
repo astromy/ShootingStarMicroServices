@@ -8,7 +8,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.stereotype.Controller;
@@ -24,10 +26,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Controller
@@ -121,6 +120,30 @@ public class AdministrationController {
     public ResponseEntity<String> getAllApplicants(@RequestBody SingleStringRequest jso) throws IOException {
 
         return BACKENDCOMMPOST(jso, backendserve + "/api/applications/getApplicationsBySchool");
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "updateApplicationStatus", method = RequestMethod.POST)
+    public ResponseEntity<String> updateApplicationStatus(@RequestBody ArrayList<ApplicantStudentSkimRequest> jso) throws IOException {
+
+        return BACKENDCOMMPOST(jso, backendserve + "/api/applications/updateApplicationList");
+    }
+
+    @RequestMapping(value = "getApplicantPicture/{filename}", method = RequestMethod.GET)
+    public ResponseEntity<byte[]> getApplicantPicture(@PathVariable String filename) {
+        return BACKENDCOMMGET(
+                backendserve + "/api/applications/applicationDocuments/Pictures/" + filename,
+                MediaType.IMAGE_PNG
+        );
+    }
+
+    @RequestMapping(value = "getApplicantBirthCert/{filename}", method = RequestMethod.GET)
+    public ResponseEntity<byte[]> getApplicantBirthCert(
+            @PathVariable String filename) throws IOException {
+        return BACKENDRESGET(
+                backendserve + "/api/applications/applicationDocuments/BirthCerts/" + filename,
+                MediaType.APPLICATION_PDF
+        );
     }
 
 
@@ -304,6 +327,73 @@ public class AdministrationController {
             log.error(String.valueOf(e));
         }
         return null;
+    }
+
+    private ResponseEntity<String> BACKENDCOMMGET(String url) {
+
+        log.info("Calling API: {}", url);
+
+        try {
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .header("Content-Type", "application/json")
+                    .GET()
+                    .build();
+
+            log.info("Calling API With REQUEST: {}", request);
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            return ResponseEntity.status(response.statusCode()).body(response.body());
+
+        } catch (IOException | InterruptedException e) {
+            log.error(String.valueOf(e));
+        }
+        return null;
+    }
+
+    private ResponseEntity<byte[]> BACKENDCOMMGET(String url, MediaType mediaType) {
+        log.info("Calling API: {}", url);
+        try {
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .GET()
+                    .build();
+            HttpResponse<byte[]> response = client.send(request, HttpResponse.BodyHandlers.ofByteArray());
+            return ResponseEntity.status(response.statusCode())
+                    .contentType(mediaType)
+                    .body(response.body());
+        } catch (IOException | InterruptedException e) {
+            log.error(String.valueOf(e));
+        }
+        return null;
+    }
+
+    private ResponseEntity<byte[]> BACKENDRESGET(String url, MediaType mediaType) {
+        log.info("Calling API: {}", url);
+        try {
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .GET()
+                    .build();
+            HttpResponse<byte[]> response = client.send(
+                    request, HttpResponse.BodyHandlers.ofByteArray());
+
+            if (response.statusCode() != 200) {
+                log.error("Backend returned {} for URL: {}", response.statusCode(), url);
+                return ResponseEntity.status(response.statusCode()).build();
+            }
+
+            return ResponseEntity.ok()
+                    .contentType(mediaType)
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline")
+                    .body(response.body());
+
+        } catch (IOException | InterruptedException e) {
+            log.error("Failed to fetch from backend: {} — {}", url, e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_GATEWAY).build();
+        }
     }
 
 }

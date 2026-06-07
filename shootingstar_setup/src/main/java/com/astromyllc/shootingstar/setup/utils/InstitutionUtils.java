@@ -125,13 +125,13 @@ public class InstitutionUtils {
                 .subscription(institutionRequest.getSubscription())
                 .crest(institutionRequest.getCrest() != null ?
                         processAndValidateImage(institutionRequest.getCrest(), 200, 512, "PNG")
-                                .map(bytes -> Base64.getEncoder().encodeToString(bytes))
-                                .orElse(null) :
+                        .map(bytes -> Base64.getEncoder().encodeToString(bytes))
+                        .orElse(null) :
                         null)
                 .headSignature(institutionRequest.getHeadSignature() != null ?
                         processAndValidateImage(institutionRequest.getHeadSignature(), 200, 512, "PNG")
-                                .map(bytes -> Base64.getEncoder().encodeToString(bytes))
-                                .orElse(null) :
+                        .map(bytes -> Base64.getEncoder().encodeToString(bytes))
+                        .orElse(null) :
                         null)
                 //.crest(Base64.getEncoder().encodeToString(processAndValidateImage(institutionRequest.getCrest(), 200, 512, "PNG")))
                 //.headSignature(Base64.getEncoder().encodeToString(processAndValidateImage(institutionRequest.getHeadSignature(), 200, 512, "PNG")))
@@ -163,13 +163,13 @@ public class InstitutionUtils {
                 .subscription(institution.getSubscription())
                 .crest(institution.getCrest() != null ?
                         processAndValidateImage(institution.getCrest(), 200, 512, "PNG")
-                                .map(bytes -> Base64.getEncoder().encodeToString(bytes))
-                                .orElse(null) :
+                        .map(bytes -> Base64.getEncoder().encodeToString(bytes))
+                        .orElse(null) :
                         null)
                 .headSignature(institution.getHeadSignature() != null ?
                         processAndValidateImage(institution.getHeadSignature(), 200, 512, "PNG")
-                                .map(bytes -> Base64.getEncoder().encodeToString(bytes))
-                                .orElse(null) :
+                        .map(bytes -> Base64.getEncoder().encodeToString(bytes))
+                        .orElse(null) :
                         null)
                 //.crest(Base64.getEncoder().encodeToString(processAndValidateImage(institution.getCrest(), 200, 512, "PNG")))
                 //.headSignature(Base64.getEncoder().encodeToString(processAndValidateImage(institution.getHeadSignature(), 200, 512, "PNG")))
@@ -178,9 +178,9 @@ public class InstitutionUtils {
                         : null)
                 .classList(institution.getClassList() != null
                         ? institution.getClassList().stream()
-                        .filter(Objects::nonNull)
-                        .map(ClassesUtil::mapClassToClassResponse)
-                        .toList()
+                          .filter(Objects::nonNull)
+                          .map(ClassesUtil::mapClassToClassResponse)
+                          .toList()
                         : Collections.emptyList())
                 .gradingSetting(Optional.ofNullable(institution.getGradingSetting())
                         .map(list -> list.stream()
@@ -193,15 +193,15 @@ public class InstitutionUtils {
 
                 .subjectList(institution.getSubjectList() != null
                         ? institution.getSubjectList().stream()
-                        .filter(Objects::nonNull)
-                        .map(subjectUtil::mapSubject_ToSubjectResponse)
-                        .toList()
+                          .filter(Objects::nonNull)
+                          .map(subjectUtil::mapSubject_ToSubjectResponse)
+                          .toList()
                         : Collections.emptyList())
                 .departmentList(institution.getDepartmentList() != null
                         ? institution.getDepartmentList().stream()
-                        .filter(Objects::nonNull)
-                        .map(DepartmentUtil::mapDepartment_ToDepartmentResponse)
-                        .toList()
+                          .filter(Objects::nonNull)
+                          .map(DepartmentUtil::mapDepartment_ToDepartmentResponse)
+                          .toList()
                         : Collections.emptyList())
                 .build();
     }
@@ -221,22 +221,22 @@ public class InstitutionUtils {
                 .postalAddress(institution.getPostalAddress())
                 .crest(institution.getCrest() != null ?
                         processAndValidateImage(institution.getCrest(), 200, 512, "PNG")
-                                .map(bytes -> Base64.getEncoder().encodeToString(bytes))
-                                .orElse(null) :
+                        .map(bytes -> Base64.getEncoder().encodeToString(bytes))
+                        .orElse(null) :
                         null)
                 //.crest(Base64.getEncoder().encodeToString(processAndValidateImage(institution.getCrest(), 200, 512, "PNG")))
                 .classList(institution.getClassList() != null
                         ? institution.getClassList().stream()
-                        .filter(Objects::nonNull)
-                        .map(ClassesUtil::mapClassToClassResponse)
-                        .toList()
+                          .filter(Objects::nonNull)
+                          .map(ClassesUtil::mapClassToClassResponse)
+                          .toList()
                         : Collections.emptyList())
 
                 .subjectList(institution.getSubjectList() != null
                         ? institution.getSubjectList().stream()
-                        .filter(Objects::nonNull)
-                        .map(subjectUtil::mapSubject_ToSubjectResponse)
-                        .toList()
+                          .filter(Objects::nonNull)
+                          .map(subjectUtil::mapSubject_ToSubjectResponse)
+                          .toList()
                         : Collections.emptyList())
 
                 .admissions(institution.getAdmissions() != null
@@ -267,8 +267,8 @@ public class InstitutionUtils {
                 .pendingBill(getPopulation(institution.getBececode()) *
                         (institution.getSubscription().toLowerCase().contains("free") ? 0.0 :
                                 institution.getSubscription().toLowerCase().contains("basic") ? 20.0 :
-                                        institution.getSubscription().toLowerCase().contains("standard") ? 40.0 :
-                                                institution.getSubscription().toLowerCase().contains("professional") ? 60.0 : 0.0)
+                                institution.getSubscription().toLowerCase().contains("standard") ? 40.0 :
+                                institution.getSubscription().toLowerCase().contains("professional") ? 60.0 : 0.0)
                 )
                 .build();
     }
@@ -290,13 +290,13 @@ public class InstitutionUtils {
         institution.setSubscription(institutionRequest.getSubscription());
         institution.setCrest(institutionRequest.getCrest() != null ?
                 processAndValidateImage(institutionRequest.getCrest(), 200, 512, "PNG")
-                        .map(bytes -> Base64.getEncoder().encodeToString(bytes))
-                        .orElse(null) :
+                .map(bytes -> Base64.getEncoder().encodeToString(bytes))
+                .orElse(null) :
                 null);
         institution.setHeadSignature(institutionRequest.getHeadSignature() != null ?
                 processAndValidateImage(institutionRequest.getHeadSignature(), 200, 512, "PNG")
-                        .map(bytes -> Base64.getEncoder().encodeToString(bytes))
-                        .orElse(null) :
+                .map(bytes -> Base64.getEncoder().encodeToString(bytes))
+                .orElse(null) :
                 null);
         //institution.setCrest(Base64.getEncoder().encodeToString(processAndValidateImage(institutionRequest.getCrest(), 200, 512, "PNG")));
         //institution.setHeadSignature(Base64.getEncoder().encodeToString(processAndValidateImage(institutionRequest.getHeadSignature(), 200, 512, "PNG")));
@@ -329,8 +329,8 @@ public class InstitutionUtils {
                 .creationDate(preOrderInstitution.getCreationDate())
                 .crest(preOrderInstitution.getCrest() != null ?
                         processAndValidateImage(preOrderInstitution.getCrest(), 200, 512, "PNG")
-                                .map(bytes -> Base64.getEncoder().encodeToString(bytes))
-                                .orElse(null) :
+                        .map(bytes -> Base64.getEncoder().encodeToString(bytes))
+                        .orElse(null) :
                         null)
                 //.crest(Base64.getEncoder().encodeToString(processAndValidateImage(preOrderInstitution.getCrest(), 200, 512, "PNG")))
                 .build();
@@ -356,8 +356,8 @@ public class InstitutionUtils {
                 .population(institutionRequest.getPopulation())
                 .crest(institutionRequest.getCrest() != null ?
                         processAndValidateImage(institutionRequest.getCrest(), 200, 512, "PNG")
-                                .map(bytes -> Base64.getEncoder().encodeToString(bytes))
-                                .orElse(null) :
+                        .map(bytes -> Base64.getEncoder().encodeToString(bytes))
+                        .orElse(null) :
                         null)
                 //.crest(Base64.getEncoder().encodeToString(processAndValidateImage(institutionRequest.getCrest(), 200, 512, "PNG")))
                 .build();
@@ -384,8 +384,8 @@ public class InstitutionUtils {
                 .population(institution.getPopulation())
                 .crest(institution.getCrest() != null ?
                         processAndValidateImage(institution.getCrest(), 200, 512, "PNG")
-                                .map(bytes -> Base64.getEncoder().encodeToString(bytes))
-                                .orElse(null) :
+                        .map(bytes -> Base64.getEncoder().encodeToString(bytes))
+                        .orElse(null) :
                         null)
                 //.crest(Base64.getEncoder().encodeToString(processAndValidateImage(institution.getCrest(), 200, 512, "PNG")))
                 .build();
@@ -438,6 +438,7 @@ public class InstitutionUtils {
         permissions.add("Administration suspended");
         permissions.add("Administration dismissed");
         permissions.add("Administration student_list");
+        permissions.add("Administration Applications");
         permissions.add("Administration class_list");
         permissions.add("Administration academic_timetable");
         permissions.add("Administration id_card_generation");
@@ -677,6 +678,7 @@ public class InstitutionUtils {
         permissions.add("Administration suspended");
         permissions.add("Administration dismissed");
         permissions.add("Administration student_list");
+        permissions.add("Administration Applications");
         permissions.add("Administration class_list");
         permissions.add("Administration academic_timetable");
         permissions.add("Administration id_card_generation");

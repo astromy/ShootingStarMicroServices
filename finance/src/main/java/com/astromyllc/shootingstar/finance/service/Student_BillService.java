@@ -14,103 +14,98 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 @Transactional
 public class Student_BillService implements Student_BillServiceInterface {
+
     private final Student_BillRepository studentBillRepository;
     private final Student_BillUtil studentBillUtil;
 
     @Override
-    public List<Student_BillResponse> createStudentsBill(List<Student_BillRequest> studentBillRequest) {
-        return studentBillRequest.stream()
-                .map(request -> {
-                    // Stream through the global list and filter based on institutionCode and studentId from each request
-                    Optional<Student_Bill> studentBill = Student_BillUtil.studentBillsGlobalList.stream()
-                            .filter(s -> s.getInstitutionCode().equalsIgnoreCase(request.getInstitutionCode())
-                                    && s.getStudentId().equalsIgnoreCase(request.getStudentId()))
-                            .findFirst();  // Find the first match or none (returns Optional)
+    public List<Student_BillResponse> createStudentsBill(List<Student_BillRequest> requests) {
+        return requests.stream()
+                .map(r -> {
+                    Optional<Student_Bill> existing = Student_BillUtil.studentBillsGlobalList.stream()
+                            .filter(s -> s.getStudentId().equalsIgnoreCase(r.getStudentId())
+                                    && s.getInstitutionCode().equalsIgnoreCase(r.getInstitutionCode()))
+                            .findFirst();
 
-                    return studentBill.map(existingBill -> {
-                        // If a studentBill is found, update it
-                        Student_Bill updatedBill = studentBillUtil.mapStudentBillRequest_ToStudentBill(request, existingBill);
-                        studentBillRepository.save(updatedBill);
-
-                        // Update the global list with the updated bill
-                        int index = Student_BillUtil.studentBillsGlobalList.indexOf(existingBill);
-                        if (index != -1) {
-                            // Replace the old studentBill with the updated one in the global list
-                            Student_BillUtil.studentBillsGlobalList.set(index, updatedBill);
-                        }
-
-                        // Return the Student_BillResponse for the updated bill
-                        return studentBillUtil.mapStudentBill_ToStudentBillResponse(updatedBill);
+                    return existing.map(bill -> {
+                        // Update: snapshot oldBalance, accumulate amountDue, recalculate balance
+                        Student_Bill updated = studentBillUtil.mapStudentBillRequest_ToStudentBill(r, bill);
+                        studentBillRepository.save(updated);
+                        int idx = Student_BillUtil.studentBillsGlobalList.indexOf(bill);
+                        if (idx >= 0) Student_BillUtil.studentBillsGlobalList.set(idx, updated);
+                        return studentBillUtil.mapStudentBill_ToStudentBillResponse(updated);
                     }).orElseGet(() -> {
-                        // If no studentBill is found, create a new one, save it, and add to the global list
-                        Student_Bill newStudentBill = studentBillUtil.mapStudentBillRequest_ToStudentBill(request);
-                        studentBillRepository.save(newStudentBill);
-                        Student_BillUtil.studentBillsGlobalList.add(newStudentBill);
-
-                        // Return the Student_BillResponse for the new bill
-                        return studentBillUtil.mapStudentBill_ToStudentBillResponse(newStudentBill);
+                        // Create: brand-new account
+                        Student_Bill newBill = studentBillUtil.mapStudentBillRequest_ToStudentBill(r);
+                        studentBillRepository.save(newBill);
+                        Student_BillUtil.studentBillsGlobalList.add(newBill);
+                        return studentBillUtil.mapStudentBill_ToStudentBillResponse(newBill);
                     });
                 })
-                .toList();
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Student_BillResponse createStudentBill(Student_BillRequest studentBillRequest) {
-        Optional<Student_Bill> studentBill = Student_BillUtil.studentBillsGlobalList.stream().filter(s -> s.getInstitutionCode().equalsIgnoreCase(studentBillRequest.getInstitutionCode()) && s.getStudentId().equalsIgnoreCase(studentBillRequest.getStudentId())).findFirst();
-        if (studentBill.isEmpty()) {
-            Student_Bill studentBill1 = studentBillUtil.mapStudentBillRequest_ToStudentBill(studentBillRequest);
-            studentBillRepository.save(studentBill1);
-            Student_BillUtil.studentBillsGlobalList.add(studentBill1);
-            return studentBillUtil.mapStudentBill_ToStudentBillResponse(studentBill1);
-        } else {
-            studentBillRepository.save(studentBillUtil.mapStudentBillRequest_ToStudentBill(studentBillRequest, studentBill.get()));
-        }
-        return null;
-    }
-
-    @Override
-    public Optional<List<Student_BillResponse>> fetchStudentBillsByInstitution(StudentBillFetchRequest studentBillFetchRequest) {
-        return Optional.of(Student_BillUtil.studentBillsGlobalList.stream().filter(
-                        s -> s.getInstitutionCode().equalsIgnoreCase(studentBillFetchRequest.getInstitutionCode()))
-                .map(studentBillUtil::mapStudentBill_ToStudentBillResponse).toList());
-    }
-
-    @Override
-    public Optional<List<Student_BillResponse>> fetchStudentBillsByInstitutionClass(StudentBillFetchRequest studentBillFetchRequest) {
-        return Optional.of(Student_BillUtil.studentBillsGlobalList.stream().filter(
-                        s -> s.getInstitutionCode().equalsIgnoreCase(studentBillFetchRequest.getInstitutionCode())
-                                && s.getStudentClass().equalsIgnoreCase(studentBillFetchRequest.getStudentClass()))
-                .map(studentBillUtil::mapStudentBill_ToStudentBillResponse).toList());
-    }
-
-    @Override
-    public Optional<Student_BillResponse> fetchStudentBillByIdAndInstitution(StudentBillFetchRequest studentBillFetchRequest) {
-        Optional<Student_BillResponse> result = Student_BillUtil.studentBillsGlobalList.stream()
-                .filter(s -> s.getInstitutionCode().equalsIgnoreCase(studentBillFetchRequest.getInstitutionCode())
-                        && s.getStudentId().equalsIgnoreCase(studentBillFetchRequest.getStudentId()))
-                .map(studentBillUtil::mapStudentBill_ToStudentBillResponse)
+    public Student_BillResponse createStudentBill(Student_BillRequest r) {
+        Optional<Student_Bill> existing = Student_BillUtil.studentBillsGlobalList.stream()
+                .filter(s -> s.getStudentId().equalsIgnoreCase(r.getStudentId())
+                        && s.getInstitutionCode().equalsIgnoreCase(r.getInstitutionCode()))
                 .findFirst();
 
-        if (result.isPresent()) {
-            return Optional.of(result.get());
+        if (existing.isPresent()) {
+            Student_Bill updated = studentBillUtil.mapStudentBillRequest_ToStudentBill(r, existing.get());
+            studentBillRepository.save(updated);
+            int idx = Student_BillUtil.studentBillsGlobalList.indexOf(existing.get());
+            if (idx >= 0) Student_BillUtil.studentBillsGlobalList.set(idx, updated);
+            return studentBillUtil.mapStudentBill_ToStudentBillResponse(updated);
         }
 
-        // Log the issue
-        log.warn("No student bill found for institution: {} and student: {}",
-                studentBillFetchRequest.getInstitutionCode(),
-                studentBillFetchRequest.getStudentId());
-
-        return Optional.empty();  // Or throw a custom exception
+        Student_Bill newBill = studentBillUtil.mapStudentBillRequest_ToStudentBill(r);
+        studentBillRepository.save(newBill);
+        Student_BillUtil.studentBillsGlobalList.add(newBill);
+        return studentBillUtil.mapStudentBill_ToStudentBillResponse(newBill);
     }
 
     @Override
-    public Optional<List<Student_BillResponse>> fetchOwingStudentsByInstitution(StudentBillFetchRequest studentBillFetchRequest) {
-        return null;
+    public Optional<List<Student_BillResponse>> fetchStudentBillsByInstitution(StudentBillFetchRequest r) {
+        return Optional.of(Student_BillUtil.studentBillsGlobalList.stream()
+                .filter(s -> s.getInstitutionCode().equalsIgnoreCase(r.getInstitutionCode()))
+                .map(studentBillUtil::mapStudentBill_ToStudentBillResponse)
+                .collect(Collectors.toList()));
+    }
+
+    @Override
+    public Optional<List<Student_BillResponse>> fetchStudentBillsByInstitutionClass(StudentBillFetchRequest r) {
+        return Optional.of(Student_BillUtil.studentBillsGlobalList.stream()
+                .filter(s -> s.getInstitutionCode().equalsIgnoreCase(r.getInstitutionCode())
+                        && s.getStudentClass().equalsIgnoreCase(r.getStudentClass()))
+                .map(studentBillUtil::mapStudentBill_ToStudentBillResponse)
+                .collect(Collectors.toList()));
+    }
+
+    @Override
+    public Optional<Student_BillResponse> fetchStudentBillByIdAndInstitution(StudentBillFetchRequest r) {
+        return Student_BillUtil.studentBillsGlobalList.stream()
+                .filter(s -> s.getInstitutionCode().equalsIgnoreCase(r.getInstitutionCode())
+                        && s.getStudentId().equalsIgnoreCase(r.getStudentId()))
+                .map(studentBillUtil::mapStudentBill_ToStudentBillResponse)
+                .findFirst();
+    }
+
+    @Override
+    public Optional<List<Student_BillResponse>> fetchOwingStudentsByInstitution(StudentBillFetchRequest r) {
+        return Optional.of(Student_BillUtil.studentBillsGlobalList.stream()
+                .filter(s -> s.getInstitutionCode().equalsIgnoreCase(r.getInstitutionCode())
+                        && s.getAmountBalance() != null
+                        && s.getAmountBalance() > 0.0)
+                .map(studentBillUtil::mapStudentBill_ToStudentBillResponse)
+                .collect(Collectors.toList()));
     }
 }

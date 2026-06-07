@@ -29,7 +29,7 @@ public class InstitutionRequest {
     private Integer streams;
     private String subscription;
 
-    private GradingSettingRequest gradingSetting;
+    private List<GradingSettingRequest> gradingSetting;
     private List<SubjectRequest> subjectList;
     private List<ClassesRequest> classList;
     private AdmissionsRequest admissions;

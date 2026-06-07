@@ -1,10 +1,6 @@
 package com.astromyllc.shootingstar.onlineapplication.model;
 
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -55,6 +51,7 @@ public class Applications {
     private String applicationStatus;
     @NonNull
     private String applicationInstitution;
+    private String applicationInstitutionName;
     @NonNull
     private LocalDate applicationDate;
     private LocalDateTime appointmentDate;
@@ -66,8 +63,6 @@ public class Applications {
     private String contactOfPreviousSchool;
 
     @DBRef
-    @OneToMany(fetch = FetchType.EAGER, targetEntity = Parents.class, cascade = CascadeType.ALL)
-    @JoinColumn(name = "parentsList", referencedColumnName = "id")
     private List<Parents> parentsList;
 
 }

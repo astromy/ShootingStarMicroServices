@@ -1,86 +1,104 @@
-var instId = $("meta[name='institutionId']").attr("content").split("/")[1];
-fetchInstitutionClasses(instId.split(",")[0]);
+/**
+ * _financeTrialBalance.js  —  Data & logic layer for Trial Balance.
+ *
+ * The trial balance lists every ledger account with its DEBIT or CREDIT balance.
+ * Total debits must equal total credits — this is the core double-entry check.
+ *
+ * Exposes on window:
+ *   trialBalState
+ *   trialBalLoad()
+ *   trialBalFetch(year, term) → { accounts[], totalDebits, totalCredits, isBalanced }
+ */
+(function () {
+    'use strict';
 
-$(".saveClassGroup").click(async function () {
-$('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
-  postdata();
-  var jso = buildJson();
-  return fetchPost("addLookUps", jso).then(function (result) {
-    $('.splash').css('display', 'none')
-    swal({
-      title: "Thank you!",
-      text: "Your application is being submitted",
-      type: "success",
-    });
-  });
-});
+    var _raw = (typeof instId !== 'undefined' ? instId : '').split(',')[0];
+    var _inst = _raw.replace(/[\[\]']+/g, '').replace(/\//g, '');
 
-function postdata() {
-  var classGroup = [];
-  classGroup = document.getElementsByClassName("newClassGrouptxt");
-  for (var i = 0; i < classGroup.length; i++) {
-    name[i] = classGroup[i].value;
-  }
-}
-
-function buildJson() {
-  var resultlist = [];
-  for (var i = 0; i < name.length; i++) {
-    var jsonObject = {
-      id: id,
-      name: name[i],
-      type: type,
+    window.trialBalState = {
+        institutionCode: _inst,
+        academicYears: [],
+        selectedYear: '',
+        lastResult: null,
+        _loaded: false,
     };
-    resultlist.push(jsonObject);
-  }
-  return resultlist;
-}
 
-async function fetchInstitutionClasses(instId) {
-  var v = instId.replace(/[\[\]']+/g, "");
-  v = v.replace(/\//g, "");
-  var instRequest = { val: v };
-  return fetchPost("getInstitutionClasses", instRequest).then(function (result) {
-    fetchLookup(result);
-  });
-}
+    function buildYears() {
+        var y = new Date().getFullYear(), out = [];
+        for (var i = 3; i >= 0; i--) out.push(String(y - i));
+        window.trialBalState.academicYears = out;
+        window.trialBalState.selectedYear = out[out.length - 1];
+    }
 
-async function fetchLookup(result1) {
-  var instRequest = { val: "ClassGroup" };
-  return fetchPost("getLookUpByType", instRequest).then(function (result) {
-    populateTable(result1);
-    populateClassGroup(result);
-  });
-}
+    function showSplash() {
+        if (typeof $ !== 'undefined') $('.splash').css({display: 'block', background: '#ffffff3d'});
+    }
 
-function populateClassGroup(data) {
-  data.forEach(function (d) {
-    var details = "<option value='" + d.id + "'>" + d.name + " </option>";
-    $("#classGroupOptions").append(details);
-  });
-}
+    function hideSplash() {
+        if (typeof $ !== 'undefined') $('.splash').css('display', 'none');
+    }
 
-function populateTable(data) {
-  var bar = new Promise((resolve, reject) => {
-    data.forEach((d, index, array) => {
-      var details =
-        "<tr> <td hidden>" +
-        d.id +
-        " </td> <td> " +
-        d.name +
-        "</td><td>" +
-        d.classGroup +
-        "</td> </tr>";
-      $("#classesTableBody").append(details);
-      if (index === array.length - 1) resolve();
-    });
-  });
-  bar.then(() => {
-    console.log("All done!");
-    dataTableInit();
-  });
-}
+    window.trialBalLoad = async function () {
+        buildYears();
+        window.trialBalState._loaded = true;
+    };
 
-function dataTableInit() {
-  $("#classTable").dataTable();
-}
+    // ── FETCH ─────────────────────────────────────────────────────────────────
+    window.trialBalFetch = async function (year, term) {
+        showSplash();
+        try {
+            var accounts = await fetchPost('ledger/trial-balance', {
+                institutionCode: _inst,
+                academicYear: year || window.trialBalState.selectedYear,
+                term: (term && term !== 'all') ? term : null,
+            });
+
+            var arr = Array.isArray(accounts) ? accounts : [];
+
+            // Assign each account its normal-balance side and compute debit/credit columns
+            var totalDebits = 0;
+            var totalCredits = 0;
+
+            var rows = arr.map(function (a) {
+                var isDebitNormal = (a.accountType === 'ASSET' || a.accountType === 'EXPENSE');
+                var bal = parseFloat(a.currentBalance) || 0;
+                var debit = 0, credit = 0;
+                if (isDebitNormal) {
+                    if (bal >= 0) debit = bal; else credit = Math.abs(bal);
+                } else {
+                    if (bal >= 0) credit = bal; else debit = Math.abs(bal);
+                }
+                totalDebits += debit;
+                totalCredits += credit;
+                return Object.assign({}, a, {debit: debit, credit: credit});
+            });
+
+            var result = {
+                accounts: rows,
+                totalDebits: totalDebits,
+                totalCredits: totalCredits,
+                isBalanced: Math.abs(totalDebits - totalCredits) < 0.01,
+                year: year,
+                term: term,
+            };
+
+            window.trialBalState.lastResult = result;
+            hideSplash();
+            return result;
+        } catch (e) {
+            hideSplash();
+            console.error('[_financeTrialBalance] fetch error:', e);
+            return null;
+        }
+    };
+
+    window.trialBalFmt = {
+        money: function (v) {
+            var n = parseFloat(v) || 0;
+            return n > 0 ? 'GH₵ ' + n.toLocaleString('en-GH', {minimumFractionDigits: 2}) : '—';
+        },
+    };
+
+    if (window.copyrights) window.copyrights();
+    trialBalFetch();
+})();

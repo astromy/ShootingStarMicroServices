@@ -54,11 +54,11 @@ resilience4j:
         failureRateThreshold: 50
         waitDurationInOpenState: 5s
         permittedNumberOfCallsInHalfOpenState: 3
-        authomaticTransitionFromOpenToHalfOpenEnabled: true
+        automaticTransitionFromOpenToHalfOpenEnabled: true
   timelimiter:
     instances:
       setup:
-        timeout-duration: 3s
+        timeout-duration: 15s
 
 
 

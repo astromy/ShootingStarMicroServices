@@ -279,7 +279,6 @@ function getYear() {
 }
 
 async function fetchAllInstitutions() {
-    debugger;
     try {
         const response = await fetchPost("/fetchAllInstitutions", {});
         const formattedSchools = formatSchoolsData(response);

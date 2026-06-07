@@ -23,105 +23,143 @@ import java.util.stream.Collectors;
 @Slf4j
 @Transactional
 public class BillingsService implements BillingsServiceInterface {
+
     private final BillingsRepository billingsRepository;
     private final BillingsUtil billingsUtil;
     private final Student_BillService student_BillService;
 
     @Override
-    public BillingsResponse updateBilling(BillingsRequest billingsRequest) {
+    public BillingsResponse updateBilling(BillingsRequest r) {
         return null;
     }
 
+    /**
+     * Billing flow per the product owner's definition:
+     * 1. Cross-join studentId list × selected bill names → individual Billings rows.
+     * 2. Persist all rows, add to global list.
+     * 3. Group by studentId → sum billamnt per student.
+     * 4. For each student, call Student_BillService to create or update Student_Bill:
+     * - New student:   amountDue = batch total, oldBalance = 0
+     * - Existing:      oldBalance = current amountDue (snapshot),
+     * amountDue += batch total, balance recalculated
+     * 5. Return the updated Student_Bill records.
+     */
     @Override
-    public Optional<List<Student_BillResponse>> createBillings(BillingsRequest billingsRequest) {
+    public Optional<List<Student_BillResponse>> createBillings(BillingsRequest r) {
 
-     List<Billings> billings = billingsRequest.getStudentId().stream()
-                .flatMap(stud -> BillUtil.billGlobalList.stream()
-                        .filter(bill -> billingsRequest.getInstitutionCode().equalsIgnoreCase(bill.getInstitutionCode()) &&
-                                billingsRequest.getBillname().stream()
-                                        .anyMatch(request -> request.equalsIgnoreCase(bill.getBill_Name()))
+        List<Billings> billings = r.getStudentId().stream()
+                .flatMap(studentId -> BillUtil.billGlobalList.stream()
+                        .filter(bill ->
+                                bill.getInstitutionCode().equalsIgnoreCase(r.getInstitutionCode()) &&
+                                        r.getBillname().stream()
+                                                .anyMatch(name -> name.equalsIgnoreCase(bill.getBill_Name()))
                         )
                         .map(bill -> billingsUtil.mapBillingRequest_ToBilling(
-                                billingsRequest.getInstitutionCode(),
-                                billingsRequest.getStudentClass(),
-                                billingsRequest.getTerm(),
+                                r.getInstitutionCode(),
+                                r.getStudentClass(),
+                                r.getTerm(),
+                                r.getAcademicYear(),      // ← now mapped
                                 bill.getBill_Amount(),
                                 bill.getBill_Amount(),
                                 bill.getBill_Description(),
                                 bill.getBill_Name(),
-                                stud)
-                        )
-                ).toList();
-     billingsRepository.saveAll(billings);
-     BillingsUtil.billingGlobalList.addAll(billings);
+                                studentId
+                        ))
+                )
+                .collect(Collectors.toList());
 
-    return Optional.of( student_BillService.createStudentsBill(billings.stream()
-            .collect(Collectors.groupingBy(Billings::getStudentId))  // Group by studentId
-            .entrySet().stream()  // Stream over the grouped entries
-            .map(entry -> {
-                String studentId = entry.getKey();  // Get studentId from the group
-                String studClass= entry.getValue().get(0).getStudentClass();
-                String instCode= entry.getValue().get(0).getInstitutionCode();
-                String term= entry.getValue().get(0).getTerm();
-                Double totalAmount = entry.getValue().stream()  // Sum the billamnt for the group
-                        .mapToDouble(Billings::getBillamnt)
-                        .sum();
+        billingsRepository.saveAll(billings);
+        BillingsUtil.billingGlobalList.addAll(billings);
 
-                // Now, map the summed data to a Student_BillRequest
-                // We use the mapBilling_ToStudentBill method to convert
-                // Create a new Billings object to pass into the map function
-                Billings summarizedBilling = new Billings();
-                summarizedBilling.setStudentId(studentId);
-                summarizedBilling.setBillamnt(totalAmount);
-                summarizedBilling.setTerm(term);
-                summarizedBilling.setStudentClass(studClass);
-                summarizedBilling.setInstitutionCode(instCode);
+        // Group by student → sum → produce one Student_BillRequest per student
+        List<Student_BillResponse> results = student_BillService.createStudentsBill(
+                billings.stream()
+                        .collect(Collectors.groupingBy(Billings::getStudentId))
+                        .entrySet().stream()
+                        .map(entry -> {
+                            String studentId = entry.getKey();
+                            Billings first = entry.getValue().get(0);
+                            double batchTotal = entry.getValue().stream()
+                                    .mapToDouble(Billings::getBillamnt).sum();
 
-                // Use the existing map function to map to Student_BillRequest
-                return billingsUtil.mapBilling_ToStudentBill(summarizedBilling);
-            })
-            .toList()));
+                            Billings summary = new Billings();
+                            summary.setStudentId(studentId);
+                            summary.setBillamnt(batchTotal);
+                            summary.setBillamntbal(batchTotal);
+                            summary.setTerm(first.getTerm());
+                            summary.setAcademicYear(first.getAcademicYear());
+                            summary.setStudentClass(first.getStudentClass());
+                            summary.setInstitutionCode(first.getInstitutionCode());
+
+                            return billingsUtil.mapBilling_ToStudentBill(summary);
+                        })
+                        .collect(Collectors.toList())
+        );
+
+        return Optional.of(results);
     }
 
     @Override
-    public Optional<List<BillingsResponse>> fetchBillingsByInstitution(BillingFetchRequest billFetchRequest) {
-        return Optional.of(BillingsUtil.billingGlobalList.stream().filter(
-                b -> b.getInstitutionCode().equalsIgnoreCase(billFetchRequest.getInstitutionCode()))
-                .map(billingsUtil::mapBillings_ToBillingResponse).toList());
+    public Optional<List<BillingsResponse>> fetchBillingsByInstitution(BillingFetchRequest r) {
+        return Optional.of(BillingsUtil.billingGlobalList.stream()
+                .filter(b -> b.getInstitutionCode().equalsIgnoreCase(r.getInstitutionCode()))
+                .map(billingsUtil::mapBillings_ToBillingResponse)
+                .collect(Collectors.toList()));
     }
 
     @Override
-    public Optional<List<BillingsResponse>> fetchBillingByInstitutionAndStudent(BillingFetchRequest billingFetchRequest) {
-        return Optional.of(BillingsUtil.billingGlobalList.stream().filter(
-                b -> b.getInstitutionCode().equalsIgnoreCase(billingFetchRequest.getInstitutionCode())
-                        && b.getStudentId().equalsIgnoreCase(billingFetchRequest.getStudentId()))
-                .map(billingsUtil::mapBillings_ToBillingResponse).toList());
+    public Optional<List<BillingsResponse>> fetchBillingByInstitutionAndStudent(BillingFetchRequest r) {
+        return Optional.of(BillingsUtil.billingGlobalList.stream()
+                .filter(b -> b.getInstitutionCode().equalsIgnoreCase(r.getInstitutionCode())
+                        && b.getStudentId().equalsIgnoreCase(r.getStudentId()))
+                .map(billingsUtil::mapBillings_ToBillingResponse)
+                .collect(Collectors.toList()));
     }
 
     @Override
-    public Optional<List<BillingsResponse>> fetchBillingByInstitutionStudentClassTerm(BillingFetchRequest billingFetchRequest) {
-        return Optional.of(BillingsUtil.billingGlobalList.stream().filter(
-                b -> b.getInstitutionCode().equalsIgnoreCase(billingFetchRequest.getInstitutionCode())
-                        && b.getStudentId().equalsIgnoreCase(billingFetchRequest.getStudentId())
-                        && b.getStudentClass().equalsIgnoreCase(billingFetchRequest.getStudentClass())
-                        && b.getTerm().equalsIgnoreCase(billingFetchRequest.getTerm()))
-                .map(billingsUtil::mapBillings_ToBillingResponse).toList());
+    public Optional<List<BillingsResponse>> fetchBillingByInstitutionStudentClassTerm(BillingFetchRequest r) {
+        return Optional.of(BillingsUtil.billingGlobalList.stream()
+                .filter(b -> b.getInstitutionCode().equalsIgnoreCase(r.getInstitutionCode())
+                        && b.getStudentId().equalsIgnoreCase(r.getStudentId())
+                        && b.getStudentClass().equalsIgnoreCase(r.getStudentClass())
+                        && b.getTerm().equalsIgnoreCase(r.getTerm())
+                        && (r.getAcademicYear() == null || b.getAcademicYear() == null
+                        || b.getAcademicYear().equalsIgnoreCase(r.getAcademicYear())))
+                .map(billingsUtil::mapBillings_ToBillingResponse)
+                .collect(Collectors.toList()));
     }
 
     @Override
-    public Optional<List<BillingsResponse>> fetchClassBillingByInstitution(BillingFetchRequest billingFetchRequest) {
-        return Optional.of(BillingsUtil.billingGlobalList.stream().filter(
-                b -> b.getInstitutionCode().equalsIgnoreCase(billingFetchRequest.getInstitutionCode())
-                        && b.getStudentClass().equalsIgnoreCase(billingFetchRequest.getStudentClass())
-                        && b.getTerm().equalsIgnoreCase(billingFetchRequest.getTerm()))
-                .map(billingsUtil::mapBillings_ToBillingResponse).toList());
+    public Optional<List<BillingsResponse>> fetchClassBillingByInstitution(BillingFetchRequest r) {
+        return Optional.of(BillingsUtil.billingGlobalList.stream()
+                .filter(b -> b.getInstitutionCode().equalsIgnoreCase(r.getInstitutionCode())
+                        && b.getStudentClass().equalsIgnoreCase(r.getStudentClass())
+                        && b.getTerm().equalsIgnoreCase(r.getTerm())
+                        && (r.getAcademicYear() == null || b.getAcademicYear() == null
+                        || b.getAcademicYear().equalsIgnoreCase(r.getAcademicYear())))
+                .map(billingsUtil::mapBillings_ToBillingResponse)
+                .collect(Collectors.toList()));
     }
 
     @Override
-    public Optional<List<BillingsResponse>> fetchSchoolBillingByInstitution(BillingFetchRequest billingFetchRequest) {
-        return Optional.of(BillingsUtil.billingGlobalList.stream().filter(
-                b -> b.getInstitutionCode().equalsIgnoreCase(billingFetchRequest.getInstitutionCode())
-                        && b.getTerm().equalsIgnoreCase(billingFetchRequest.getTerm()))
-                .map(billingsUtil::mapBillings_ToBillingResponse).toList());
+    public Optional<List<BillingsResponse>> fetchSchoolBillingByInstitution(BillingFetchRequest r) {
+        return Optional.of(BillingsUtil.billingGlobalList.stream()
+                .filter(b -> b.getInstitutionCode().equalsIgnoreCase(r.getInstitutionCode())
+                        && b.getTerm().equalsIgnoreCase(r.getTerm())
+                        && (r.getAcademicYear() == null || b.getAcademicYear() == null
+                        || b.getAcademicYear().equalsIgnoreCase(r.getAcademicYear())))
+                .map(billingsUtil::mapBillings_ToBillingResponse)
+                .collect(Collectors.toList()));
+    }
+
+    /**
+     * Also used by FinancialBooksService for get-billing-by-institutionClass (Orb UI call)
+     */
+    public Optional<List<BillingsResponse>> fetchBillingByInstitutionClass(BillingFetchRequest r) {
+        return Optional.of(BillingsUtil.billingGlobalList.stream()
+                .filter(b -> b.getInstitutionCode().equalsIgnoreCase(r.getInstitutionCode())
+                        && b.getStudentClass().equalsIgnoreCase(r.getStudentClass()))
+                .map(billingsUtil::mapBillings_ToBillingResponse)
+                .collect(Collectors.toList()));
     }
 }

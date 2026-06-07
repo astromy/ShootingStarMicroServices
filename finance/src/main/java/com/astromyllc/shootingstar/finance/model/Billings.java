@@ -19,6 +19,7 @@ public class Billings {
     private Long billingId;
     private LocalDateTime billingDate;
     private String term;
+    private String academicYear;
     private String studentClass;
     private String studentId;
     private String BillDisc;

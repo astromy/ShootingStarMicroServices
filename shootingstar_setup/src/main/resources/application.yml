@@ -4,24 +4,25 @@ spring:
     url: jdbc:postgresql://localhost:5432/shootingstarsetup  # URL for the created database
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
-    initialization-mode: always
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     show-sql: false
     hibernate:
       ddl-auto: update  # Hibernate will handle schema updates
-      default_schema: public
 
     properties:
       hibernate:
+        default_schema: public
         cache:
           use_second_level_cache: false
 
-  zipkin:
-    base-url: http://localhost:9411
-  sleuth:
-    sampler:
-      probability: 1.0
+  management:
+    tracing:
+      sampling:
+        probability: 1.0
+    zipkin:
+      tracing:
+        endpoint: http://localhost:9411/api/v2/spans
   cloud:
     compatibility-verifier:
       enabled: false
@@ -31,14 +32,6 @@ spring:
 
 
   mail:
-    # Email rate limiting configuration
-    rate-limit: 5
-    queue-capacity: 1000
-
-    # Retry configuration
-    max-retries: 3
-    retry-delay: 5000
-
     host: smtp.zeptomail.com
     port: 587
     username: emailapikey
@@ -55,8 +48,20 @@ spring:
           timeout: 5000
           writetimeout: 5000
           ssl:
+            protocols: TLSv1.2
             trust: "smtp.zeptomail.com"
         debug: false
+
+app:
+  mail:
+    # Email rate limiting configuration
+    rate-limit: 5
+    queue-capacity: 1000
+
+    sender: noreply@astromyllc.com
+    # Retry configuration
+    max-retries: 3
+    retry-delay: 5000
 
 
 
@@ -101,11 +106,11 @@ resilience4j:
         failureRateThreshold: 50
         waitDurationInOpenState: 5s
         permittedNumberOfCallsInHalfOpenState: 3
-        authomaticTransitionFromOpenToHalfOpenEnabled: true
+        automaticTransitionFromOpenToHalfOpenEnabled: true
   timelimiter:
     instances:
       setup:
-        timeout-duration: 3s
+        timeout-duration: 15s
 
 
 
@@ -119,7 +124,7 @@ logging:
         security: INFO
         boot:
           autoconfigure: INFO
-      springframework.web.client.RestTemplate: INFO
+        web.client.RestTemplate: INFO
 
 
 keycloak:

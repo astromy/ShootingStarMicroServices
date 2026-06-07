@@ -12,10 +12,11 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -27,6 +28,7 @@ import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +41,7 @@ public class AdmissionsController {
 
     private final Utils utils;
     private final ObjectMapper objectMapper;
+    private final RestTemplateBuilder restTemplateBuilder;
     @Value("${gateway.host}")
     private String backendserve;
 
@@ -92,7 +95,19 @@ public class AdmissionsController {
     @RequestMapping(value = "/postedStudentApplication", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<String> postedStudentApplication(@RequestBody Students2Request jso) {
-        return BACKENDCOMMPOST(jso, backendserve + "/api/applications/submit-application");
+        log.info("Received application for institution: {}", jso.getInstitutionCode());
+        log.info("Picture base64 length: {}",
+                jso.getPicture() != null ? jso.getPicture().length() : "null");
+        log.info("BirthCert base64 length: {}",
+                jso.getBirthCert() != null ? jso.getBirthCert().length() : "null");
+        return forwardToMicroservice(jso, backendserve + "/api/applications/submit-application");
+    }
+
+
+    @RequestMapping(value = "/resolveApplicationIssue", method = RequestMethod.POST)
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<String> resolveApplicationIssue(@RequestBody Students2Request jso) {
+        return BACKENDCOMMPOST(jso, backendserve + "/api/applications/resolve");
     }
 
 
@@ -128,20 +143,69 @@ public class AdmissionsController {
         log.info("Calling API: {} ", url);
 
         try {
+            String jsonBody = objectMapper.writeValueAsString(jso);
+            log.info("Request body size: {} bytes", jsonBody.length());
 
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
                     .header("Content-Type", "application/json")
+                    .timeout(Duration.ofMinutes(3))
                     .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(jso)))
                     .build();
             log.info("Calling API With REQUEST: {}", request);
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             return ResponseEntity.status(response.statusCode()).body(response.body());
         } catch (IOException | InterruptedException e) {
+            log.error("BACKENDCOMMPOST failed for {}: {}", url, e.getMessage());
             log.error(String.valueOf(e));
         }
         return null;
     }
 
+    // NEW METHOD - Replace your old BACKENDCOMMPOST with this
+    private ResponseEntity<String> forwardToMicroservice(Object jso, String url) {
+        log.info("Forwarding to microservice: {}", url);
+
+        try {
+            String jsonBody = objectMapper.writeValueAsString(jso);
+            double sizeInMB = jsonBody.length() / 1024.0 / 1024.0;
+            log.info("Request body size: {} bytes ({:.2f} MB)", jsonBody.length(), sizeInMB);
+
+            // Log base64 lengths to verify they're not truncated
+            if (jso instanceof Students2Request) {
+                Students2Request request = (Students2Request) jso;
+                log.info("Picture base64 length: {} chars",
+                        request.getPicture() != null ? request.getPicture().length() : 0);
+                log.info("BirthCert base64 length: {} chars",
+                        request.getBirthCert() != null ? request.getBirthCert().length() : 0);
+            }
+
+            // Create RestTemplate with large file support
+            RestTemplate restTemplate = restTemplateBuilder
+                    .setConnectTimeout(Duration.ofSeconds(30))
+                    .setReadTimeout(Duration.ofMinutes(5))
+                    .build();
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<String> entity = new HttpEntity<>(jsonBody, headers);
+
+            long startTime = System.currentTimeMillis();
+            ResponseEntity<String> response = restTemplate.postForEntity(url, entity, String.class);
+            long endTime = System.currentTimeMillis();
+
+            log.info("Microservice response time: {} ms", endTime - startTime);
+            log.info("Response status: {}", response.getStatusCode());
+
+            return response;
+
+        } catch (Exception e) {
+            log.error("Failed to forward to microservice at {}: {}", url, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error forwarding to microservice: " + e.getMessage());
+        }
+    }
 }
+

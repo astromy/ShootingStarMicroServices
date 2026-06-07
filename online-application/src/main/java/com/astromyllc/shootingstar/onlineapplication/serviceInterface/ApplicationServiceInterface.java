@@ -1,10 +1,14 @@
 package com.astromyllc.shootingstar.onlineapplication.serviceInterface;
 
+import com.astromyllc.shootingstar.onlineapplication.dto.request.ApplicantStudentSkimRequest;
+import com.astromyllc.shootingstar.onlineapplication.dto.request.RefundRequest;
 import com.astromyllc.shootingstar.onlineapplication.dto.request.Students2Request;
 import com.astromyllc.shootingstar.onlineapplication.dto.request.alien.AdmissionRequest;
 import com.astromyllc.shootingstar.onlineapplication.dto.response.ApplicationsResponse;
 import com.astromyllc.shootingstar.onlineapplication.dto.response.alien.ProcessedApplicationResponse;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -19,7 +23,7 @@ public interface ApplicationServiceInterface {
 
     public void createApplicationList(ArrayList<Students2Request> applicationRequests);
 
-    public void UpdateApplicationList(ArrayList<Students2Request> requestArrayList);
+    public void UpdateApplicationList(ArrayList<ApplicantStudentSkimRequest> requestArrayList);
 
     public Optional<List<ApplicationsResponse>> getAllApplications();
 
@@ -38,4 +42,7 @@ public interface ApplicationServiceInterface {
     public Optional<List<ApplicationsResponse>> getApplicationsByRegion(String Region);
 
     public Optional<List<ProcessedApplicationResponse>> getProcessedApplicationsBySchool(AdmissionRequest admissionRequest);
+
+    public Mono<ResponseEntity<String>> refundPayment(RefundRequest refundRequest);
+
 }

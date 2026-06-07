@@ -72,8 +72,6 @@ $(function () {
     `
 
 
-
-
     document.getElementById("wrapper").innerHTML = header;
     document.getElementById("wrapper").insertAdjacentHTML('beforeend', staffpermissions);
     document.getElementById("modalopn").addEventListener("click", modalopn);
@@ -87,14 +85,14 @@ $(function () {
 
 });
 
-function modalopn(){
-    document.getElementsByClassName("modalbody")[0].innerHTML="";
+function modalopn() {
+    document.getElementsByClassName("modalbody")[0].innerHTML = "";
     staffpermissionsIndut();
     permissionBuilder();
 
-        const el=document.querySelector('.tabs');
-        el.style.pointerEvents = 'none'; // Disable all clicks/interactions
-        el.style.opacity = '0.5';        // Make it appear disabled (optional)
+    const el = document.querySelector('.tabs');
+    el.style.pointerEvents = 'none'; // Disable all clicks/interactions
+    el.style.opacity = '0.5';        // Make it appear disabled (optional)
 }
 
 function staffpermissionsIndut() {
@@ -292,6 +290,10 @@ function staffpermissionsIndut() {
                             <div class="form-check form-switch col-md-3">
                                 <input class="form-check-input" id="academicTimetablePermission" value="Administration academic_timetable" type="checkbox" />
                                 <label class="check-label" for="academicTimetablePermission"> Academic Timetable </label>
+                            </div>
+                            <div class="form-check form-switch col-md-3">
+                                <input class="form-check-input" id="academicApplicationsPermission" value="Administration Applications" type="checkbox" />
+                                <label class="check-label" for="academicApplicationsPermission"> Applications </label>
                             </div>
                             <div class="form-check form-switch col-md-3">
                                 <input class="form-check-input" id="idCardPermission" value="Administration id_card_generation" type="checkbox" />

@@ -1,7 +1,7 @@
 package com.astromyllc.shootingstar.finance.dto.request;
 
 import jakarta.annotation.Nonnull;
-import jakarta.persistence.*;
+import jakarta.persistence.Embeddable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,6 +23,7 @@ public class Student_BillRequest {
     private Double amountBalance;
     @Nonnull
     private String term;
+    private String academicYear;
     @Nonnull
     private String studentClass;
     private Double oldBalance;

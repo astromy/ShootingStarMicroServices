@@ -67,6 +67,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/public/**", "/resources/**", "/error").permitAll()
                         .requestMatchers(HttpMethod.POST, "/webhook/subscriptionPaymentStatus").permitAll()
+                        .requestMatchers("/api/applications/applicationDocuments/**").permitAll()
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().authenticated()
                 )
