@@ -476,7 +476,7 @@
             '</div>' +
             '</div>' +
             '<button class="process-btn" id="processBtn">' +
-            '<i class="fas fa-receipt"></i> Generate Invoice' +
+            '<i class="fas fa-check-circle"></i> Commit Billing' +
             '</button>';
 
         var pb = document.getElementById("processBtn");
@@ -491,44 +491,135 @@
     }
 
     // ─── INVOICE ──────────────────────────────────────────────────────────────
-    function handleProcess() {
-        if (!window.billingState.selectedStudents.size || !window.billingState.selectedBills.size) {
+    async function handleProcess() {
+        // Must have at least one bill selected
+        if (!window.billingState.selectedBills.size) {
             showInvoiceModal(
                 '<div class="alert-warning-inv"><i class="fas fa-exclamation-triangle"></i> ' +
-                (!window.billingState.selectedStudents.size
-                    ? "Please select at least one student."
-                    : "Please select at least one bill item.") +
+                'Please select at least one bill item.' +
                 '</div>'
             );
             return;
         }
 
-        var students = window.getSelectedStudentsDetails();
-        var bills = window.getSelectedBillsDetails();
-        var perStudent = window.calculateTotalAmount();
-        var grandTotal = perStudent * students.length;
+        // Determine what categories are selected
+        var selectedSet = window.billingState.selectedBills;
+        var generalBills = (window.billingData.billSections.general.bills || [])
+            .filter(function (b) {
+                return selectedSet.has(b.id);
+            });
+        var specificBills = (window.billingData.billSections.specific.bills || [])
+            .filter(function (b) {
+                return selectedSet.has(b.id);
+            });
+
+        var hasGeneral = generalBills.length > 0;
+        var hasSpecific = specificBills.length > 0;
+
+        // General-only or mixed: class must be loaded (students in memory)
+        if (hasGeneral) {
+            var classData = window.billingData.classes[window.billingState.selectedClass];
+            if (!classData || !classData.students || !classData.students.length) {
+                showInvoiceModal(
+                    '<div class="alert-warning-inv"><i class="fas fa-exclamation-triangle"></i> ' +
+                    'General bills require the class to be loaded. Please select a Class Group and Class first.' +
+                    '</div>'
+                );
+                return;
+            }
+        }
+
+        // Specific bills require at least one manually selected student
+        if (hasSpecific && !window.billingState.selectedStudents.size) {
+            showInvoiceModal(
+                '<div class="alert-warning-inv"><i class="fas fa-exclamation-triangle"></i> ' +
+                'Specific bills require at least one student to be selected manually.' +
+                '</div>'
+            );
+            return;
+        }
+
+        // All guards passed — submit
+        try {
+            await window.submitBilling();
+        } catch (err) {
+            showInvoiceModal(
+                '<div class="alert-warning-inv"><i class="fas fa-exclamation-triangle"></i> ' +
+                (err.message || 'Failed to commit billing. Please check the network or backend log.') +
+                '</div>'
+            );
+            return;
+        }
+
+        // ── Build invoice display ─────────────────────────────────────────────
         var classData = window.billingData.classes[window.billingState.selectedClass];
+        var allBills = window.getSelectedBillsDetails();
         var invoiceNo = "INV-" + Date.now();
         var today = new Date();
         var due = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000);
 
-        var billRows = bills.map(function (b) {
-                return '<tr><td>' + b.name + '</td>' +
+        // Students billed for general = full class; for specific = selected only
+        var generalStudents = hasGeneral
+            ? (classData ? classData.students || [] : [])
+            : [];
+        var specificStudents = hasSpecific
+            ? window.getSelectedStudentsDetails()
+            : [];
+
+        // Merge for invoice display (deduplicate by id)
+        var allBilledMap = {};
+        generalStudents.concat(specificStudents).forEach(function (s) {
+            allBilledMap[s.id] = s;
+        });
+        var allBilledStudents = Object.values(allBilledMap);
+
+        var perStudent = window.calculateTotalAmount();
+        var grandTotal = perStudent * allBilledStudents.length;
+
+        // Bill rows — show category badge
+        var billRows = allBills.map(function (b) {
+                var cat = generalBills.find(function (g) {
+                    return g.id === b.id;
+                })
+                    ? '<span style="font-size:0.75rem;background:#eaefff;color:#2f54d4;padding:1px 7px;border-radius:10px;margin-left:6px;">General</span>'
+                    : '<span style="font-size:0.75rem;background:#e2f8f1;color:#0a9e6e;padding:1px 7px;border-radius:10px;margin-left:6px;">Specific</span>';
+                return '<tr><td>' + b.name + cat + '</td>' +
                     '<td class="text-right">GH&#8373; ' + (b.price || 0).toLocaleString() + '</td></tr>';
             }).join("") +
             '<tr><td><strong>Subtotal per student</strong></td>' +
             '<td class="text-right"><strong>GH&#8373; ' + perStudent.toLocaleString() + '</strong></td></tr>';
 
-        var studentRows = students.map(function (s) {
-                return '<tr><td>' + s.id + '</td><td>' + s.name + '</td><td>' + (s.email || "—") + '</td>' +
+        // Student rows — show scope badge
+        var generalIdSet = new Set(generalStudents.map(function (s) {
+            return s.id;
+        }));
+        var specificIdSet = new Set(specificStudents.map(function (s) {
+            return s.id;
+        }));
+
+        var studentRows = allBilledStudents.map(function (s) {
+                var scopeParts = [];
+                if (generalIdSet.has(s.id)) scopeParts.push('<span style="font-size:0.72rem;background:#eaefff;color:#2f54d4;padding:1px 6px;border-radius:10px;">General</span>');
+                if (specificIdSet.has(s.id)) scopeParts.push('<span style="font-size:0.72rem;background:#e2f8f1;color:#0a9e6e;padding:1px 6px;border-radius:10px;">Specific</span>');
+                return '<tr><td>' + s.id + '</td><td>' + s.name + ' ' + scopeParts.join(" ") + '</td>' +
+                    '<td>' + (s.email || "—") + '</td>' +
                     '<td class="text-right">GH&#8373; ' + perStudent.toLocaleString() + '</td></tr>';
             }).join("") +
             '<tr><td colspan="3"><strong>Grand Total</strong></td>' +
             '<td class="text-right"><strong>GH&#8373; ' + grandTotal.toLocaleString() + '</strong></td></tr>';
 
+        // Summary note for mixed billing
+        var mixedNote = (hasGeneral && hasSpecific)
+            ? '<div style="background:#fff3d6;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:0.88rem;">' +
+            '<i class="fas fa-info-circle" style="color:#e08e00;margin-right:6px;"></i>' +
+            '<strong>Split billing applied:</strong> General bills posted to entire class (' + generalStudents.length + ' students), ' +
+            'Specific bills posted to ' + specificStudents.length + ' selected student(s) only.' +
+            '</div>'
+            : '';
+
         showInvoiceModal(
+            mixedNote +
             '<div class="invoice-meta">' +
-            '<strong>Institution:</strong> Astromy University &nbsp;|&nbsp; ' +
             '<strong>Class:</strong> ' + (classData ? classData.className : "—") + '<br>' +
             '<strong>Term:</strong> ' + window.billingState.selectedTerm + ' &nbsp;|&nbsp; ' +
             '<strong>Year:</strong> ' + window.billingState.selectedYear + '<br>' +
@@ -543,7 +634,7 @@
             '<tbody>' + billRows + '</tbody>' +
             '</table>' +
 
-            '<div class="invoice-section-title"><i class="fas fa-users"></i>Students Billed (' + students.length + ')</div>' +
+            '<div class="invoice-section-title"><i class="fas fa-users"></i>Students Billed (' + allBilledStudents.length + ')</div>' +
             '<table class="inv-table">' +
             '<thead><tr><th>ID</th><th>Name</th><th>Email</th><th class="text-right">Amount</th></tr></thead>' +
             '<tbody>' + studentRows + '</tbody>' +
@@ -553,8 +644,11 @@
         );
 
         window.currentInvoiceData = {
-            students: students, bills: bills,
-            perStudent: perStudent, grandTotal: grandTotal, invoiceNo: invoiceNo,
+            students: allBilledStudents,
+            bills: allBills,
+            perStudent: perStudent,
+            grandTotal: grandTotal,
+            invoiceNo: invoiceNo,
             className: classData ? classData.className : "",
             term: window.billingState.selectedTerm,
             year: window.billingState.selectedYear

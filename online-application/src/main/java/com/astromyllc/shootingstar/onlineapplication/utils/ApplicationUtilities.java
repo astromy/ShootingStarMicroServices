@@ -36,6 +36,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static java.util.stream.Collectors.groupingBy;
 
@@ -46,10 +47,10 @@ import static java.util.stream.Collectors.groupingBy;
 public class ApplicationUtilities {
 
 
+    private static final AtomicLong applicantIndex = new AtomicLong(0L);
     public static List<Applications> apl = null;
     public static List<Appointment> appointmentsGlobal = null;
     static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-    private static Long applicantIndex = 0L;
     private final ApplicationsRepository applicationsRepository;
     private final MongoTemplate mongoTemplate;
     private final WebClient.Builder webClientBuilder;
@@ -74,6 +75,19 @@ public class ApplicationUtilities {
         apl = applicationsRepository.findAll().stream()
                 .filter(x -> x.getApplicationDate().getYear() == LocalDate.now().getYear())
                 .collect(java.util.stream.Collectors.toCollection(ArrayList::new)); // ✅ mutable
+
+        long maxIndex = applicationsRepository.findAll().stream()
+                .map(a -> a.getApplicationCode().split("-"))
+                .filter(parts -> parts.length == 3)
+                .mapToLong(parts -> {
+                    try {
+                        return Long.parseLong(parts[2]);
+                    } catch (Exception e) {
+                        return 0L;
+                    }
+                })
+                .max().orElse(0L);
+        applicantIndex.set(maxIndex);
 
     }
 
@@ -115,6 +129,7 @@ public class ApplicationUtilities {
                 .applicantFirstName(applications1.getApplicantFirstName())
                 .applicantOtherName(applications1.getApplicantOtherName())
                 .applicantLastName(applications1.getApplicantLastName())
+                .admissionDate(applications1.getAdmissionDate())
                 .applicantDateOfBirth(applications1.getApplicantDateOfBirth())
                 .applicantPlaceOfBirth(applications1.getApplicantPlaceOfBirth())
                 .applicantGender(applications1.getApplicantGender())
@@ -193,7 +208,10 @@ public class ApplicationUtilities {
     }
 
     public Applications mapApplicationRequest_ToApplications(Students2Request applications1) throws IOException, URISyntaxException {
-        String applicationCode = generateApplicationCode(applications1.getInstitutionCode());
+        String applicationCode = (applications1.getIdapplication() == null
+                || applications1.getIdapplication().isBlank())
+                ? generateApplicationCode(applications1.getInstitutionCode())
+                : applications1.getIdapplication();
         String appointmentDate = setAppointmentDate(applicationCode, applications1.getApplicationType());
         if (appointmentDate == null) return null;
 
@@ -258,6 +276,7 @@ public class ApplicationUtilities {
         if (request.getInstitutionCode() != null && !request.getInstitutionCode().isBlank()) {
             application.setApplicationInstitution(request.getInstitutionCode());
         }
+        application.setAdmissionDate(LocalDate.now());
 
         return application;
     }
@@ -350,11 +369,11 @@ public class ApplicationUtilities {
             throw new RuntimeException("Institution not found for code: " + applicationInstitution);
         }
 
-        long applicantIndex = apl.stream()
+        /*applicantIndex = apl.stream()
                 .filter(x -> x.getApplicationDate().getYear() == LocalDate.now().getYear())
-                .count() + 1;
+                .count() + 1;*/
 
-        return LocalDate.now().getYear() % 100 + "-" + applicationInstitution + "-" + applicantIndex;
+        return LocalDate.now().getYear() % 100 + "-" + applicationInstitution + "-" + applicantIndex.incrementAndGet();
     }
 
     private String setAppointmentDateX(String code, String type) {

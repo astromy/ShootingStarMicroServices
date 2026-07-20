@@ -248,6 +248,31 @@ public class SetupController {
         return response;
     }
 
+    //============================================MOBILE CALLS =============================================================
+
+    @ResponseBody
+    @RequestMapping(value = "api/mobile/getGeofenceBoundary", method = RequestMethod.POST)
+    public ResponseEntity<String> getGeofenceBoundary(@RequestBody SingleStringRequest jso) throws IOException, InterruptedException {
+        ResponseEntity<String> response = BACKENDCOMMPOST(jso, backendserve + "/api/setup/getGeofenceBoundary");
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "api/mobile/saveGeofenceBoundary", method = RequestMethod.POST)
+    public ResponseEntity<String> saveGeofenceBoundary(@RequestBody SaveGeofenceBoundaryRequest jso) throws IOException, InterruptedException {
+        log.info("Persisting GeofenceBoundary Coordinates OF..... {}", jso);
+        ResponseEntity<String> response = BACKENDCOMMPOST(jso, backendserve + "/api/setup/saveGeofenceBoundary");
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "api/mobile/updateGeofenceBoundary", method = RequestMethod.POST)
+    public ResponseEntity<String> updateGeofenceBoundary(@RequestBody SaveGeofenceBoundaryRequest jso) throws IOException, InterruptedException {
+        log.info("Persisting GeofenceBoundary Coordinates OF..... {}", jso);
+        ResponseEntity<String> response = BACKENDCOMMPOST(jso, backendserve + "/api/setup/updateGeofenceBoundary");
+        return response;
+    }
+
 
     private ResponseEntity<String> BACKENDCOMMPOSTLIST(List<Object> jso, String url) {
 

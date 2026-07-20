@@ -28,7 +28,7 @@
         var link = document.createElement("link");
         link.id = "hrLeaveCSS";
         link.rel = "stylesheet";
-        link.href = _base + "../hrLeave.css";
+        link.href = _base + "../../styles/style.css";
         document.head.appendChild(link);
     }
 

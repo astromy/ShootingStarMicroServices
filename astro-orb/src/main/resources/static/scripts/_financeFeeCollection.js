@@ -129,7 +129,7 @@
     window.feeCollFetchStudentBill = async function (studentId) {
         try {
             var result = await fetchPost('getStudentBillByIdAndInstitution', {
-                institutionCode: _inst, studentId: studentId, studentClass: '',
+                institutionCode: _inst, studentId: studentId,
             });
             window.feeCollState.studentBill = result || null;
             return result;
@@ -157,7 +157,7 @@
         try {
             var result = await fetchPost('create-billPayment', {
                 studentId: req.studentId,
-                paymentAmount: req.amount,
+                paymentAmount: parseFloat(req.amount),
                 paidBy: req.paidBy,
                 recieptNum: req.receiptNum,
                 term: req.term,

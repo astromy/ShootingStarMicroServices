@@ -40,7 +40,6 @@
             return;
         }
         loadScript("scripts/charts1.js", function () {
-            console.log("[landing.js] Done.");
         });
     });
 

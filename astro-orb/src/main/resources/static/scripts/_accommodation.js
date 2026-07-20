@@ -98,7 +98,6 @@ function populateTable(data) {
         });
     });
     bar.then(() => {
-        console.log("All done!");
         dataTableInit();
     });
 }

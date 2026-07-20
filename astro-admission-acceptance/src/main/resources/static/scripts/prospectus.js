@@ -291,74 +291,34 @@ async function fetchAllInstitutions() {
 
 async function fetchStudent(studentID, institutionId, institutionName) {
     try {
-        if (studentID.length < 3) {
-            document.querySelector("#studentID").focus();
-            document.querySelector("#studentID").style.border = "1px solid red";
-            return
-        }
         const requestData = {
-            key: ["studentId", "institutionCode"],
-            val: [studentID, institutionId],
+            key: ["studentId", "institutionCode", "applictionCode"],
+            val: [studentID, institutionId, studentID],
         };
         const response = await fetchPost("/fetchStudent", requestData);
 
-        // If response is null (404 or empty response), student not found
-        if (response === null) {
-            swal({
-                title: "Sorry!",
-                text:
-                    "No record of student ID " +
-                    studentID +
-                    " found with Selected Institution " +
-                    institutionName +
-                    "\nPlease check and try again",
-                type: "info",
-            });
-            return null;
-        }
+        // Treat null, empty object, or empty array all as "not found"
+        const notFound =
+            response === null ||
+            (Array.isArray(response) && response.length === 0) ||
+            (response && typeof response === "object" && !Array.isArray(response) && Object.keys(response).length === 0);
 
-        // Handle other empty responses
-        if (
-            response &&
-            typeof response === "object" &&
-            Object.keys(response).length === 0
-        ) {
+        if (notFound) {
             swal({
-                title: "Sorry!",
-                text:
-                    "No record of student ID " +
-                    studentID +
-                    " found with Selected Institution " +
-                    institutionName +
-                    "\nPlease check and try again",
-                type: "info",
-            });
-            return null;
-        }
-
-        if (Array.isArray(response) && response.length === 0) {
-            swal({
-                title: "Sorry!",
-                text:
-                    "No record of student ID " +
-                    studentID +
-                    " found with Selected Institution " +
-                    institutionName +
-                    "\nPlease check and try again",
+                title: "Not Found",
+                text: "No record found for Student ID \"" + studentID + "\" at " + institutionName + ".\nPlease check the ID and try again.",
                 type: "info",
             });
             return null;
         }
 
         currentStudentData = response;
-        // If we get here, we have valid student data
         populateStudentForm(response);
-
         document.querySelector(".next").click();
 
     } catch (error) {
-        // This will now catch only genuine errors (network issues, server errors, etc.)
         console.error("Error fetching student data:", error.message);
+        swal({title: "Error", text: "Could not reach the server. Please try again.", type: "error"});
         return null;
     }
 }
@@ -367,29 +327,106 @@ async function fetchStudent(studentID, institutionId, institutionName) {
 
 document.addEventListener("DOMContentLoaded", async function () {
     const schoolsContainer = document.getElementById("schools-container");
-    const selectedSchoolElement = document.getElementById("selected-school");
-    const compareBtn = document.getElementById("compare-btn");
-    const viewBtn = document.getElementById("view-btn");
     const searchInput = document.getElementById("search-input");
     const regionFilter = document.getElementById("region-filter");
     const programFilter = document.getElementById("program-filter");
+    const studentIDInput = document.getElementById("studentID");
+    const findStudentBtn = document.getElementById("findStudentBtn");
+    const step1Hint = document.getElementById("step1-hint");
 
+    // Track state for both prerequisites
     let selectedSchool = null;
+
+    // ── helper: update button state and hint text ──────────────────────────
+    function updateStep1State() {
+        const hasID = studentIDInput.value.trim().length >= 3;
+        const hasSchool = selectedSchool !== null;
+
+        if (findStudentBtn) {
+            findStudentBtn.disabled = !(hasID && hasSchool);
+        }
+
+        if (step1Hint) {
+            if (!hasID && !hasSchool) {
+                step1Hint.textContent = "Enter your Student ID then select a school.";
+                step1Hint.className = "text-muted";
+            } else if (!hasID) {
+                step1Hint.textContent = "Now enter your Student ID to continue.";
+                step1Hint.className = "text-warning";
+            } else if (!hasSchool) {
+                step1Hint.textContent = "Good — now click your school from the list below.";
+                step1Hint.className = "text-warning";
+            } else {
+                step1Hint.textContent = "Ready! Click Find to look up your record.";
+                step1Hint.className = "text-success";
+            }
+        }
+    }
+
+    // ── trigger fetch (shared by button click and Enter key) ───────────────
+    async function triggerFetch() {
+        if (!selectedSchool) {
+            swal({title: "Select a School", text: "Please click on your school from the list first.", type: "warning"});
+            return;
+        }
+        const id = studentIDInput.value.trim();
+        if (id.length < 3) {
+            studentIDInput.focus();
+            studentIDInput.style.border = "1px solid red";
+            swal({
+                title: "Student ID required",
+                text: "Please enter a valid Student ID (at least 3 characters).",
+                type: "warning"
+            });
+            return;
+        }
+
+        // Show loading state on button
+        if (findStudentBtn) {
+            findStudentBtn.disabled = true;
+            findStudentBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Searching…';
+        }
+
+        await fetchStudent(id, selectedSchool.bececode, selectedSchool.name);
+
+        // Restore button
+        if (findStudentBtn) {
+            findStudentBtn.disabled = false;
+            findStudentBtn.innerHTML = '<i class="fas fa-search"></i> Find';
+        }
+    }
+
+    // ── wire up button and Enter key ───────────────────────────────────────
+    if (findStudentBtn) {
+        findStudentBtn.addEventListener("click", triggerFetch);
+    }
+
+    studentIDInput.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            triggerFetch();
+        }
+    });
+
+    studentIDInput.addEventListener("input", function () {
+        // Clear red border as user types
+        this.style.border = "";
+        updateStep1State();
+    });
 
     const schools = await fetchAllInstitutions();
 
-    // Function to generate school cards
+    // ── generate school cards ──────────────────────────────────────────────
     function generateSchoolCards(schoolsArray) {
         schoolsContainer.innerHTML = "";
 
         if (schoolsArray.length === 0) {
             schoolsContainer.innerHTML = `
-                           <div class="no-results">
-                               <i class="fas fa-search fa-3x mb-3"></i>
-                               <h4>No schools found</h4>
-                               <p>Try adjusting your search or filters</p>
-                           </div>
-                       `;
+                <div class="no-results">
+                    <i class="fas fa-search fa-3x mb-3"></i>
+                    <h4>No schools found</h4>
+                    <p>Try adjusting your search or filters</p>
+                </div>`;
             return;
         }
 
@@ -402,60 +439,49 @@ document.addEventListener("DOMContentLoaded", async function () {
             schoolCard.className = "school-card";
             schoolCard.dataset.id = school.id;
             schoolCard.innerHTML = `
-                           <div class="school-image" style="background-color: ${school.color};">
-                               <img src="${school.logo}" alt="${school.name} Logo" class="school-logo">
-                           </div>
-                           <div class="school-content">
-                               <h3 class="school-name">${school.name}</h3>
-                               <div class="school-location">
-                                   <i class="fas fa-map-marker-alt"></i> ${school.location}
-                               </div>
-                               <span class="school-type">${school.type}</span>
-                               <div class="school-programs">
-                                   ${programTags}
-                               </div>
-                           </div>
-                       `;
+                <div class="school-image" style="background-color: ${school.color};">
+                    <img src="${school.logo}" alt="${school.name} Logo" class="school-logo">
+                </div>
+                <div class="school-content">
+                    <h3 class="school-name">${school.name}</h3>
+                    <div class="school-location">
+                        <i class="fas fa-map-marker-alt"></i> ${school.location}
+                    </div>
+                    <span class="school-type">${school.type}</span>
+                    <div class="school-programs">${programTags}</div>
+                </div>`;
 
             schoolsContainer.appendChild(schoolCard);
         });
 
-        // Add click event to all school cards
+        // Card click → select only; no fetch here
         document.querySelectorAll(".school-card").forEach((card) => {
-            card.addEventListener("click", async function () {
-                // Remove selected class from all cards
-                document
-                    .querySelectorAll(".school-card")
+            card.addEventListener("click", function () {
+                document.querySelectorAll(".school-card")
                     .forEach((c) => c.classList.remove("selected"));
 
-                // Add selected class to clicked card
                 this.classList.add("selected");
 
-                // Update selected school
                 const schoolId = this.dataset.id;
-                selectedSchool = schools.find((school) => school.id == schoolId);
+                selectedSchool = schools.find((s) => s.id == schoolId);
                 institution = selectedSchool.bececode;
 
-                const student = await fetchStudent(
-                    document.querySelector("#studentID").value,
-                    selectedSchool.bececode,
-                    selectedSchool.name
-                );
+                updateStep1State();
 
-                // Enable buttons
-                /*compareBtn.disabled = false;
-                                   viewBtn.disabled = false;*/
+                // If ID is already filled and valid, go straight to fetch
+                if (studentIDInput.value.trim().length >= 3) {
+                    triggerFetch();
+                }
             });
         });
     }
 
-    // Initial rendering of all schools
+    // Initial render
     generateSchoolCards(schools);
+    updateStep1State();
 
-    // Search functionality
+    // Search / filter
     searchInput.addEventListener("input", filterSchools);
-
-    // Filter functionality
     regionFilter.addEventListener("change", filterSchools);
     programFilter.addEventListener("change", filterSchools);
 
@@ -468,14 +494,11 @@ document.addEventListener("DOMContentLoaded", async function () {
             const matchesSearch =
                 school.name.toLowerCase().includes(searchTerm) ||
                 school.location.toLowerCase().includes(searchTerm);
-
             const matchesRegion =
                 regionValue === "" || school.location.includes(regionValue);
-
             const matchesProgram =
                 programValue === "" ||
                 school.programs.some((program) => program === programValue);
-
             return matchesSearch && matchesRegion && matchesProgram;
         });
 
@@ -638,123 +661,78 @@ function formatSchoolsData(originalData) {
 function populateStudentForm(studentData) {
     if (!studentData) return;
 
-    // Populate Basic Student Information
-    document.getElementById("studFName").value = studentData.firstName.trim();
-    document.getElementById("studSurName").value = studentData.lastName.trim();
-    document.getElementById("studOtherName").value = studentData.otherName.trim();
+    // Safe helper — trims only if value is a non-null string, otherwise returns ""
+    const s = (v) => (v != null ? String(v).trim() : "");
 
-    // Set gender
-    if (studentData.gender) {
-        const genderSelect = document.getElementById("studGender");
-        const options = genderSelect.options;
-        for (let i = 0; i < options.length; i++) {
-            if (
-                options[i].text.toLowerCase().includes(studentData.gender.toLowerCase())
-            ) {
-                genderSelect.selectedIndex = i;
+    // Safe setter — only writes to a field if the element exists
+    const set = (id, v) => {
+        const el = document.getElementById(id);
+        if (el) el.value = s(v);
+    };
+
+    // Safe select matcher — finds and selects the option whose text contains `val`
+    const selectOpt = (id, val) => {
+        if (!val) return;
+        const el = document.getElementById(id);
+        if (!el) return;
+        const lower = String(val).toLowerCase();
+        for (let i = 0; i < el.options.length; i++) {
+            if (el.options[i].text.toLowerCase().includes(lower)) {
+                el.selectedIndex = i;
                 break;
             }
         }
-    }
+    };
 
-    // Populate dates
-    document.getElementById("studDOB").value = studentData.dateOfBirth.trim();
-    document.getElementById("studDOA").value = studentData.dateOfAdmission.trim();
+    // ── Basic student fields ─────────────────────────────────────────────────
+    set("studFName", studentData.firstName);
+    set("studSurName", studentData.lastName);
+    set("studOtherName", studentData.otherName);
 
-    // Populate place of birth and residence
-    document.getElementById("placeOfBirth").value =
-        studentData.placeOfBirth.trim();
-    document.getElementById("studResidence").value =
-        studentData.residentialLocality.trim();
+    selectOpt("studGender", studentData.gender);
 
-    // Set country of birth
-    if (studentData.countryOfBirth) {
-        const countrySelect = document.getElementById("cob");
-        const options = countrySelect.options;
-        for (let i = 0; i < options.length; i++) {
-            if (
-                options[i].text
-                    .toLowerCase()
-                    .includes(studentData.countryOfBirth.toLowerCase())
-            ) {
-                countrySelect.selectedIndex = i;
-                break;
-            }
-        }
-    }
+    // dateOfBirth comes as "2019-01-29" (LocalDate) — safe via s()
+    // dateOfAdmission is null from the admission service — leaves field blank
+    set("studDOB", studentData.dateOfBirth);
+    set("studDOA", studentData.dateOfAdmission);
 
-    // Populate denomination
-    document.getElementById("denomination").value =
-        studentData.denomination.trim();
+    set("placeOfBirth", studentData.placeOfBirth);
+    set("studResidence", studentData.residentialLocality);  // null-safe; blank if absent
 
-    // Populate Parent Information if available
+    selectOpt("cob", studentData.countryOfBirth);
+
+    set("denomination", studentData.denomination);
+
+    // ── Parent information ───────────────────────────────────────────────────
     if (studentData.studentParents && studentData.studentParents.length > 0) {
         const parents = studentData.studentParents;
 
-        // Find father (assuming first parent with contact is father)
-        const father =
-            parents.find((p) => p.contact1 && p.contact1.trim()) || parents[0];
+        const father = parents.find((p) => p.contact1 && p.contact1.trim()) || parents[0];
         if (father) {
-            document.getElementById("fatherFirstName").value =
-                father.firstNames.trim();
-            document.getElementById("fatherLastName").value = father.lastName.trim();
-            document.getElementById("fatherEmail").value = father.email.trim();
-            document.getElementById("fatherContact1").value = father.contact1.trim();
-            document.getElementById("fatherContact2").value = father.contact2.trim();
-            document.getElementById("fatherOccupation").value =
-                father.occupation.trim();
-            document.getElementById("fatherPlaceOfWork").value =
-                father.placeOfWork.trim();
-
-            if (father.parentType) {
-                const fatherTypeSelect = document.getElementById("fatherType");
-                const options = fatherTypeSelect.options;
-                for (let i = 0; i < options.length; i++) {
-                    if (
-                        options[i].text
-                            .toLowerCase()
-                            .includes(father.parentType.toLowerCase())
-                    ) {
-                        fatherTypeSelect.selectedIndex = i;
-                        break;
-                    }
-                }
-            }
+            set("fatherFirstName", father.firstNames);
+            set("fatherLastName", father.lastName);
+            set("fatherEmail", father.email);
+            set("fatherContact1", father.contact1);
+            set("fatherContact2", father.contact2);   // null-safe — contact2 can be null
+            set("fatherOccupation", father.occupation);
+            set("fatherPlaceOfWork", father.placeOfWork);
+            selectOpt("fatherType", father.parentType);
         }
 
-        // Find mother (assuming second parent or different type)
-        const mother =
-            parents.find((p) => p !== father) || parents[1] || parents[0];
+        const mother = parents.find((p) => p !== father) || parents[1];
         if (mother && mother !== father) {
-            document.getElementById("motherFirstName").value =
-                mother.firstNames.trim();
-            document.getElementById("motherLastName").value = mother.lastName.trim();
-            document.getElementById("motherEmail").value = mother.email.trim();
-            document.getElementById("motherContact1").value = mother.contact1.trim();
-            document.getElementById("motherContact2").value = mother.contact2.trim();
-            document.getElementById("motherOccupation").value =
-                mother.occupation.trim();
-            document.getElementById("motherPlaceOfWork").value =
-                mother.placeOfWork.trim();
-
-            if (mother.parentType) {
-                const motherTypeSelect = document.getElementById("motherType");
-                const options = motherTypeSelect.options;
-                for (let i = 0; i < options.length; i++) {
-                    if (
-                        options[i].text
-                            .toLowerCase()
-                            .includes(mother.parentType.toLowerCase())
-                    ) {
-                        motherTypeSelect.selectedIndex = i;
-                        break;
-                    }
-                }
-            }
+            set("motherFirstName", mother.firstNames);
+            set("motherLastName", mother.lastName);
+            set("motherEmail", mother.email);
+            set("motherContact1", mother.contact1);
+            set("motherContact2", mother.contact2);   // null-safe
+            set("motherOccupation", mother.occupation);
+            set("motherPlaceOfWork", mother.placeOfWork);
+            selectOpt("motherType", mother.parentType);
         }
     }
 
-    // Auto-select program based on student class
+    // ── Program / class auto-select (subject cards hidden but kept for fallback) ──
     if (studentData.studentClass) {
         const studentClass = studentData.studentClass.toLowerCase();
         let programCard = null;
@@ -785,8 +763,6 @@ function populateStudentForm(studentData) {
 
         if (programCard) {
             programCard.click();
-
-            // Select subjects based on the student's subject data
             if (studentData.studentSubjectsResponse && studentData.studentSubjectsResponse.length > 0) {
                 selectSubjectsBasedOnData(studentData.studentSubjectsResponse, programType);
             } else {
@@ -799,7 +775,37 @@ function populateStudentForm(studentData) {
         displayStudentPicture(studentData.picture);
     }
 
+    // Reveal the items-to-purchase panel now that we have student data
+    showPurchaseItems(studentData);
+
     console.log("Student data populated successfully");
+}
+
+/**
+ * Reveals the Items-to-Purchase panel (Step 4) and optionally injects
+ * school-specific fee rows if the student data carries them.
+ */
+function showPurchaseItems(studentData) {
+    const loading = document.getElementById('purchase-items-loading');
+    const list = document.getElementById('purchase-items-list');
+
+    if (loading) loading.style.display = 'none';
+    if (list) list.style.display = 'block';
+
+    // If the student response carries fee/preorder items, render them
+    if (studentData && studentData.preOrderItems && studentData.preOrderItems.length > 0) {
+        const feesBody = document.getElementById('fees-rows');
+        if (feesBody) {
+            feesBody.innerHTML = '';
+            studentData.preOrderItems.forEach(function (item) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${item.itemName || item.name || '—'}</td>
+                                <td>${item.period || item.frequency || '—'}</td>
+                                <td>${item.amount || item.cost || '—'}</td>`;
+                feesBody.appendChild(tr);
+            });
+        }
+    }
 }
 
 function selectSubjectsBasedOnData(subjectsData, programType) {
@@ -1009,66 +1015,49 @@ async function buildStudentPayload() {
 }
 
 function mergeParentsData(existingParents, uiParents) {
-    if (!existingParents || existingParents.length === 0) {
-        return uiParents;
-    }
+    const stripSlot = (p) => {
+        const {_uiSlot, ...rest} = p;
+        return rest;
+    };
 
+    if (!existingParents || existingParents.length === 0) {
+        return uiParents.map(stripSlot);
+    }
     if (!uiParents || uiParents.length === 0) {
         return existingParents;
     }
 
-    // Create a map of existing parents by type for easy lookup
-    const existingParentsMap = {};
-    existingParents.forEach(parent => {
-        if (parent.parentType) {
-            existingParentsMap[parent.parentType.toLowerCase()] = parent;
-        }
+    const existingFather = existingParents.find(p => p.contact1 && p.contact1.trim()) || existingParents[0];
+    const existingMother = existingParents.find(p => p !== existingFather) || existingParents[1];
+
+    const merged = [];
+    const touchedSlots = new Set();
+
+    uiParents.forEach(uiParent => {
+        const slot = uiParent._uiSlot;
+        touchedSlots.add(slot);
+        const base = slot === 'father' ? existingFather : slot === 'mother' ? existingMother : null;
+        merged.push(stripSlot(base ? {...base, ...uiParent} : uiParent));
     });
 
-    // Merge UI parents with existing parents
-    const mergedParents = uiParents.map(uiParent => {
-        const parentType = uiParent.parentType?.toLowerCase() || '';
+    if (existingFather && !touchedSlots.has('father')) merged.push(existingFather);
+    if (existingMother && existingMother !== existingFather && !touchedSlots.has('mother')) merged.push(existingMother);
 
-        if (existingParentsMap[parentType]) {
-            // Merge UI fields with existing parent data
-            return {
-                ...existingParentsMap[parentType], // Keep all existing fields
-                ...uiParent // Override with UI fields
-            };
-        }
-
-        // New parent from UI
-        return uiParent;
-    });
-
-    // Add any existing parents that weren't modified in UI
-    Object.values(existingParentsMap).forEach(existingParent => {
-        const parentType = existingParent.parentType?.toLowerCase() || '';
-        const existsInUI = uiParents.some(uiParent =>
-            (uiParent.parentType?.toLowerCase() || '') === parentType
-        );
-
-        if (!existsInUI) {
-            mergedParents.push(existingParent);
-        }
-    });
-
-    return mergedParents;
+    return merged;
 }
-
 
 function buildParentsData(studentId) {
     const parents = [];
 
-    // Father's data - only include if fields have values
     const fatherData = buildParentData('father', studentId);
     if (hasParentData(fatherData)) {
+        fatherData._uiSlot = 'father';
         parents.push(fatherData);
     }
 
-    // Mother's data - only include if fields have values
     const motherData = buildParentData('mother', studentId);
     if (hasParentData(motherData)) {
+        motherData._uiSlot = 'mother';
         parents.push(motherData);
     }
 
@@ -1162,11 +1151,7 @@ function validateForm() {
             }
             break;
 
-        case 3: // Subject Selection
-            if (!validateSubjectSelection()) {
-                isValid = false;
-                errorMessages.push("Please select a program and appropriate subjects");
-            }
+        case 3: // Items to Purchase — no validation required, parent reviews the list
             break;
 
         case 4: // Approval

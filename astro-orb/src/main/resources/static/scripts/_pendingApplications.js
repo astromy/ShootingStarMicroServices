@@ -11,6 +11,7 @@ $(function () {
 
     // Load applications when DOM is ready
     loadApplications();
+    fetchInstitution();   // parallel — feeds the class assignment dropdowns in the modal
 
     // Event listeners
     $('#refreshApplicationsBtn').click(() => loadApplications());
@@ -22,6 +23,44 @@ $(function () {
     $('#searchInput').on('keypress', function (e) {
         if (e.which === 13) filterAndDisplayApplications();
     });
+
+    // ============================================================
+    // Institution / Class Data   (mirrors _financeBilling.js)
+    // ============================================================
+
+    window.pendingClassesList = [];   // [{ name, classGroup }] — read by pendingApplications.js
+
+    async function fetchInstitution() {
+        try {
+            const inst = await fetchPost("/getInstitutionByCode", {val: instId});
+            if (!inst) return;
+
+            const raw = inst.classList || inst.classes || inst.courses || [];
+
+            window.pendingClassesList = raw
+                .map(c => ({
+                    name: c.name || c.className || c.class || "",
+                    classGroup: c.classGroup || c.group || c.category || "",
+                }))
+                .filter(c => c.name);
+
+        } catch (err) {
+            console.warn("[_pendingApplications] Could not fetch institution:", err);
+        }
+    }
+
+    /** Unique sorted class-group names */
+    window.getApplicationClassGroups = function () {
+        return [...new Set(window.pendingClassesList.map(c => c.classGroup).filter(Boolean))].sort();
+    };
+
+    /** Classes belonging to a given group */
+    window.getApplicationClassesByGroup = function (groupName) {
+        if (!groupName) return window.pendingClassesList;
+        return window.pendingClassesList.filter(
+            c => c.classGroup.toLowerCase() === groupName.toLowerCase()
+        );
+    };
 
     // ============================================================
     // Data Loading Functions
@@ -258,13 +297,11 @@ $(function () {
 
         function extractFilename(path) {
             if (!path) return null;
-            // Handles "E:\\full\\path\\26-00147-1.png" and "26-00147-1.png"
             return path.split('\\').pop().split('/').pop();
         }
 
         var filename = extractFilename(application.applicantPicture);
 
-        // ✅ Build avatar separately using concatenation — no backtick conflicts
         var avatarHtml = filename
             ? '<img src="/getApplicantPicture/' + filename + '" alt="Student" class="student-img" onerror="handleImgError(this)"><div class="avatar-placeholder" style="display:none">' + (fullName.charAt(0) || 'S') + '</div>'
             : '<div class="avatar-placeholder">' + (fullName.charAt(0) || 'S') + '</div>';
@@ -327,7 +364,6 @@ $(function () {
     function showApplicationDetails(application) {
         const fullName = `${application.applicantFirstName || ''} ${application.applicantLastName || ''}`.trim();
 
-        // ✅ Extract parents from studentParents array
         const parents = application.studentParents || [];
         const father = parents.find(p =>
             p.parentType?.toLowerCase().includes('father') ||
@@ -338,6 +374,27 @@ $(function () {
         const mother = parents.find(p =>
             p.parentType?.toLowerCase().includes('mother')
         ) || (parents.length > 1 ? parents[1] : null);
+
+        const isApproved = (application.applicationStatus || '').toUpperCase() === 'APPROVED';
+
+        // ── Class assignment dropdown state ───────────────────────────────────
+        const groups = window.getApplicationClassGroups();
+        const groupOpts = groups.length
+            ? groups.map(g => `<option value="${g}">${g}</option>`).join('')
+            : '<option value="">No groups available</option>';
+
+        const currentClass = application.assignedClass || '';
+        let preselectedGroup = '';
+        if (currentClass) {
+            const match = window.pendingClassesList.find(c => c.name === currentClass);
+            if (match) preselectedGroup = match.classGroup;
+        }
+
+        const classOpts = preselectedGroup
+            ? window.getApplicationClassesByGroup(preselectedGroup)
+                .map(c => `<option value="${c.name}" ${c.name === currentClass ? 'selected' : ''}>${c.name}</option>`)
+                .join('')
+            : '<option value="">Select group first</option>';
 
         const modalBody = $('#applicationModalBody');
 
@@ -445,8 +502,65 @@ $(function () {
             </div>
             ` : ''}
 
+            <!-- Class Assignment -->
+            <div class="details-section">
+                <h5><i class="fas fa-chalkboard-teacher"></i> Class Assignment</h5>
+                ${!isApproved ? `
+                <div class="alert alert-warning py-2 px-3 small">
+                    <i class="fas fa-lock"></i> Approve this application first to assign a class.
+                </div>` : ''}
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Class Group</label>
+                            <select class="form-control" id="modalClassGroupSelect" ${!isApproved ? 'disabled' : ''}>
+                                <option value="">Select group…</option>
+                                ${groupOpts}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Class</label>
+                            <select class="form-control" id="modalClassSelect" disabled>
+                                ${classOpts}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                ${currentClass ? `
+                <p class="text-success small mb-0">
+                    <i class="fas fa-check-circle"></i> Currently assigned to <strong>${currentClass}</strong>
+                </p>` : ''}
+            </div>
+
         </div>
     `);
+
+        // Pre-select group if already assigned
+        if (preselectedGroup) {
+            $('#modalClassGroupSelect').val(preselectedGroup);
+            $('#modalClassSelect').prop('disabled', !isApproved);
+        }
+
+        // Wire cascading dropdown
+        $('#modalClassGroupSelect').on('change', function () {
+            const selectedGroup = $(this).val();
+            const classSelect = $('#modalClassSelect');
+            if (!selectedGroup) {
+                classSelect.html('<option value="">Select group first</option>').prop('disabled', true);
+                return;
+            }
+            const classes = window.getApplicationClassesByGroup(selectedGroup);
+            if (classes.length) {
+                classSelect.html(
+                    '<option value="">Select class…</option>' +
+                    classes.map(c => `<option value="${c.name}">${c.name}</option>`).join('')
+                ).prop('disabled', false);
+            } else {
+                classSelect.html('<option value="">No classes in this group</option>').prop('disabled', true);
+            }
+        });
 
         $('#applicationModal').data('currentApplication', application);
         $('#applicationModal').modal('show');
@@ -541,14 +655,19 @@ $(function () {
     });
 
     async function updateApplicationStatus(application, status) {
+        const assignedClass = status === 'APPROVED'
+            ? ($('#modalClassSelect').val() || null)
+            : null;
+
         showLoading();
         try {
-            const payload = [          // ← raw array, no wrapper object
+            const payload = [
                 {
                     idapplication: application.idapplication,
                     status: status,
                     institutionCode: application.applicationInstitution,
-                    applicationCode: application.applicationCode
+                    applicationCode: application.applicationCode,
+                    ...(assignedClass ? {assignedClass} : {}),
                 }
             ];
 
@@ -615,35 +734,3 @@ window.handleImgError = function (img) {
     var placeholder = img.nextElementSibling;
     if (placeholder) placeholder.style.display = 'flex';
 };
-
-/*async function fetchPost(url, data) {
-    const csrfToken = document.querySelector("meta[name='_csrf']")?.content;
-    const csrfHeader = document.querySelector("meta[name='_csrf_header']")?.content;
-
-    try {
-        const headers = {
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-        };
-        if (csrfToken && csrfHeader) headers[csrfHeader] = csrfToken;
-
-        const response = await fetch(url, {
-            method: "POST",
-            headers: headers,
-            body: JSON.stringify(data),
-            credentials: "include",
-        });
-
-        if (response.status === 404) return null;
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
-        const contentLength = response.headers.get("content-length");
-        const contentType = response.headers.get("content-type");
-        if (contentLength === "0" || !contentType || !contentType.includes("application/json")) return null;
-
-        return await response.json();
-    } catch (error) {
-        console.error("POST Error:", error.message || error);
-        throw error;
-    }
-}*/

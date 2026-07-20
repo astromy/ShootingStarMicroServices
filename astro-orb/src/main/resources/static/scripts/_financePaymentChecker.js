@@ -63,7 +63,6 @@
                 fetchPost('getStudentBillByIdAndInstitution', {
                     institutionCode: _inst,
                     studentId: studentId,
-                    studentClass: ''
                 }),
                 fetchPost('get-billPayments-by-student', {institutionCode: _inst, name: studentId}),
             ]);
@@ -93,9 +92,12 @@
     window.pyCheckClassLookup = async function (className) {
         showSplash();
         try {
-            var result = await fetchPost('getStudentBillsByInstitutionClass', {
-                institutionCode: _inst, studentClass: className,
+            var payload = buildDynamicStringRequest({
+                studentClass: className || '',
+                institutionCode: _inst,
+                studentId: '',
             });
+            var result = await fetchPost('getStudentBillsByInstitutionClass', payload);
             window.pyCheckState.classResults = result || [];
             hideSplash();
             return result || [];

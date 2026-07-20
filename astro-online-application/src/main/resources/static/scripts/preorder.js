@@ -398,10 +398,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     const searchInput = document.getElementById("search-input");
     const regionFilter = document.getElementById("region-filter");
 
-    // Log for debugging
-    console.log("School Container:", schoolsContainer);
-    console.log("Search Input:", searchInput);
-    console.log("Region Filter:", regionFilter);
 
     if (!schoolsContainer) {
         console.error("schools-container not found!");
@@ -412,7 +408,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     // Fetch schools
     schools = await fetchAllInstitutions();
-    console.log("Schools loaded:", schools ? schools.length : 0);
 
     function generateSchoolCards(schoolsArray) {
         if (!schoolsContainer) return;
@@ -491,18 +486,15 @@ document.addEventListener("DOMContentLoaded", async function () {
             return matchesSearch && matchesRegion;
         });
 
-        console.log("Filtered schools:", filteredSchools.length);
         generateSchoolCards(filteredSchools);
     }
 
     // Attach event listeners for filters
     if (searchInput) {
         searchInput.addEventListener("input", filterSchools);
-        console.log("Search input listener attached");
     }
     if (regionFilter) {
         regionFilter.addEventListener("change", filterSchools);
-        console.log("Region filter listener attached");
     }
 });
 
@@ -938,7 +930,6 @@ function addFormCardEventListeners() {
 }
 
 function handleFormApplication(formType, schoolId, cost) {
-    console.log(`Applying for ${formType} at school ${schoolId}, Cost: GH₵${cost}`);
     swal({
         title: "Starting application",
         text: `Starting application for ${formType} - GH₵${cost}`,
@@ -947,7 +938,6 @@ function handleFormApplication(formType, schoolId, cost) {
 }
 
 function showFormDetails(formType, schoolId) {
-    console.log(`Showing details for ${formType} at school ${schoolId}`);
     swal({
         title: "Form Details",
         text: `Details for ${formType}`,
@@ -1113,7 +1103,6 @@ function populateStudentForm(studentData) {
         displayStudentPicture(studentData.picture);
     }
 
-    console.log("Student data populated successfully");
 }
 
 function selectSubjectsBasedOnData(subjectsData, programType) {
@@ -1251,7 +1240,6 @@ async function buildStudentPayload() {
         }
     });
 
-    console.log("Final payload matching Students2Request:", payload);
     return payload;
 }
 
@@ -1903,7 +1891,6 @@ function handlePdfUpload(event) {
                 base64Data: e.target.result.split(',')[1],
                 uploadDate: new Date().toISOString()
             };
-            console.log('PDF attached:', pdfAttachmentData.fileName);
         };
         reader.onerror = function () {
             alert('Error reading PDF file. Please try again.');

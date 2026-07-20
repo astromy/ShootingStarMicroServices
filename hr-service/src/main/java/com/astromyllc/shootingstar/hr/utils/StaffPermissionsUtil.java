@@ -3,6 +3,7 @@ package com.astromyllc.shootingstar.hr.utils;
 import com.astromyllc.shootingstar.hr.dto.request.StaffPermissionsRequest;
 import com.astromyllc.shootingstar.hr.model.StaffPermissions;
 import com.astromyllc.shootingstar.hr.repository.StaffPermissionsRepository;
+import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
@@ -26,43 +27,25 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
-import jakarta.annotation.PostConstruct;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
 @Transactional
 public class StaffPermissionsUtil {
+    private static final String CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    public static List<StaffPermissions> staffPermissionsGlobalList;
+    static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static String keycloakURL;
+    public final MailUtil mailUtil;
+    public final StaffUtil staffUtil;
+    private final StaffPermissionsRepository staffPermissionsRepository;
+    AtomicBoolean isNewUser = new AtomicBoolean(false);
     @Value("${gateway.host}")
     private String host;
     @Value("${keycloak.address}")
     private String staticKeycloakURL;
-    private static String keycloakURL;
-
-    @PostConstruct
-    private void initStaticKeycloakURL() {
-        keycloakURL=staticKeycloakURL;
-    }
-
-    private final StaffPermissionsRepository staffPermissionsRepository;
-    public static List<StaffPermissions> staffPermissionsGlobalList;
-    public final MailUtil mailUtil;
-    public final StaffUtil staffUtil;
-    static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    private static final String CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    private String generatedPass=null;
-
-    @PostConstruct
-    private void fetchAllPermissions() {
-
-        staffPermissionsGlobalList = staffPermissionsRepository.findAll();
-        log.info("{} RECORDS OF Staff Permissions FETCHED", staffPermissionsGlobalList.size());
-    }
-
-    public void saveAll(List<StaffPermissions> sp) {
-        staffPermissionsRepository.saveAll(sp);
-        staffPermissionsGlobalList.addAll(sp);
-    }
+    private String generatedPass = null;
 
     public static void updateStaffPermissions(StaffPermissions existing, StaffPermissionsRequest requestRecord) {
         existing.setPermission(requestRecord.getPermission());
@@ -81,7 +64,23 @@ public class StaffPermissionsUtil {
                 .build();
     }
 
-    AtomicBoolean isNewUser = new AtomicBoolean(false);
+    @PostConstruct
+    private void initStaticKeycloakURL() {
+        keycloakURL = staticKeycloakURL;
+    }
+
+    @PostConstruct
+    private void fetchAllPermissions() {
+
+        staffPermissionsGlobalList = staffPermissionsRepository.findAll();
+        log.info("{} RECORDS OF Staff Permissions FETCHED", staffPermissionsGlobalList.size());
+    }
+
+    public void saveAll(List<StaffPermissions> sp) {
+        staffPermissionsRepository.saveAll(sp);
+        staffPermissionsGlobalList.addAll(sp);
+    }
+
     public void KeyclaokCreateUserCredentials(List<StaffPermissionsRequest> staffPermissionsRequests) {
         if (staffPermissionsRequests == null || staffPermissionsRequests.isEmpty()) {
             throw new IllegalArgumentException("Staff permissions requests cannot be empty");
@@ -89,6 +88,7 @@ public class StaffPermissionsUtil {
 
         StaffPermissionsRequest request = staffPermissionsRequests.get(0);
         String staffCode = request.getStaffCode();
+        isNewUser.set(false); // Always reset before processing
 
         // Find staff email from global list
         String staffEmail = StaffUtil.staffGlobalList.stream()
@@ -136,35 +136,30 @@ public class StaffPermissionsUtil {
             }
 
 
-            generatedPass=passwordGen();
+            generatedPass = passwordGen();
             String mailBody = "<html><body>" +
                     "Please find herein, your credentials to the Orb School Application.<br>" +
                     "Username: " + staffCode + "<br>" +
                     "Password: " + generatedPass + "<br>" +
                     "Link to the app: <a href='https://orb.astromyllc.com'>https://orb.astromyllc.com</a>" +
                     "</body></html>";
-                    //"Please find herein, your credentials to the Orb School Application.\n\nUsername: " + staffCode + "\n\nPassword: " + staffCode + "!23\n\nLink to the app: https://orb.astromyllc.com";
+            //"Please find herein, your credentials to the Orb School Application.\n\nUsername: " + staffCode + "\n\nPassword: " + staffCode + "!23\n\nLink to the app: https://orb.astromyllc.com";
 
-            // 2. Handle password for new users
+            // 2. Handle password — only for new users
             if (isNewUser.get()) {
                 setInitialPassword(usersResource, userId, staffCode);
 
-                // Send email asynchronously
-               CompletableFuture.runAsync(() -> {
+                // Send credentials email asynchronously for new users only
+                CompletableFuture.runAsync(() -> {
                     try {
-                       String fromEmail=StaffUtil.institutionRequest.getName().replace(" ", ".");
+                        String fromEmail = StaffUtil.institutionRequest.getName().replace(" ", ".");
                         int secondDotIndex = fromEmail.indexOf('.', fromEmail.indexOf('.') + 1);
-                        fromEmail= fromEmail.substring(0, secondDotIndex );
-                        mailUtil.sendTransactionalEmail(staffEmail, "User Credentials to the ORB application", mailBody,fromEmail);
+                        fromEmail = fromEmail.substring(0, secondDotIndex);
+                        mailUtil.sendTransactionalEmail(staffEmail, "User Credentials to the ORB application", mailBody, fromEmail);
                     } catch (Exception e) {
                         log.error("Failed to send email to {}", staffEmail, e);
                     }
                 });
-            }{
-                String fromEmail=staffUtil.getInstitution(request.getInstitutionCode()) .getName().replace(" ", ".");
-                int secondDotIndex = fromEmail.indexOf('.', fromEmail.indexOf('.') + 1);
-                fromEmail= fromEmail.substring(0, secondDotIndex );
-                mailUtil.sendTransactionalEmail(staffEmail, "User Credentials to the ORB application", mailBody,fromEmail);
             }
 
             // 3. Process role assignments
@@ -180,10 +175,16 @@ public class StaffPermissionsUtil {
     }
 
     private UserRepresentation findOrCreateUser(UsersResource usersResource, String staffCode, String staffEmail) {
-        // Try to find existing user first
-        List<UserRepresentation> users = usersResource.search(staffCode, true);
-        if (!users.isEmpty()) {
-            return users.get(0);
+        // Search without exact=true so partial/case-insensitive matches are found.
+        // Then filter to exact username match to avoid false positives.
+        List<UserRepresentation> users = usersResource.search(staffCode);
+        List<UserRepresentation> exactMatch = users.stream()
+                .filter(u -> u.getUsername().equalsIgnoreCase(staffCode))
+                .collect(java.util.stream.Collectors.toList());
+
+        if (!exactMatch.isEmpty()) {
+            isNewUser.set(false);
+            return exactMatch.get(0);
         }
 
         // Create new user if not found
@@ -191,7 +192,6 @@ public class StaffPermissionsUtil {
         newUser.setUsername(staffCode);
         newUser.setEmail(staffEmail);
         newUser.setEnabled(true);
-
 
 
         Response response = usersResource.create(newUser);
@@ -280,7 +280,7 @@ public class StaffPermissionsUtil {
                 .orElse(null);
     }
 
-    private String passwordGen(){
+    private String passwordGen() {
 
         SecureRandom random = new SecureRandom();
         StringBuilder password = new StringBuilder(8);

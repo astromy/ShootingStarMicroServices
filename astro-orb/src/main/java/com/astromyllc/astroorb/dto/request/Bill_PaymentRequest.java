@@ -15,11 +15,15 @@ public class Bill_PaymentRequest {
     @Nonnull
     private Double paymentAmount;
     private String paymentDate;
+    private String academicYear;
+    private String term;
     @Nonnull
     private String studentId;
     @Nonnull
     private String paidBy;
     private String recieptNum;
+    private String externalReference;
+    private String paymentMethod;
     @Nonnull
     private String institutionCode;
 }

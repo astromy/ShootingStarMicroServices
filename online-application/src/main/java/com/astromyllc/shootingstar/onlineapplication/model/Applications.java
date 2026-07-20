@@ -6,7 +6,6 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -20,7 +19,6 @@ import java.util.List;
 public class Applications {
 
     @Id
-    @Field("id")
     private String idapplication;
 
     @NonNull
@@ -54,6 +52,7 @@ public class Applications {
     private String applicationInstitutionName;
     @NonNull
     private LocalDate applicationDate;
+    private LocalDate admissionDate;
     private LocalDateTime appointmentDate;
 
     private String nameOfPreviousSchool;

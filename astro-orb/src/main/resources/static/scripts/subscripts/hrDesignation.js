@@ -39,7 +39,7 @@ $(function () {
     
 
     
-        <div class="modal fade hmodal-info" id="mydesignationModal" tabindex="-1" role="dialog"aria-hidden="true">
+        <div class="modal fade hmodal-info" id="mydesignationModal" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg" style="margin: 100px auto">
                 <div class="modal-content">
                     <div class="color-line"></div>
@@ -86,8 +86,6 @@ $(function () {
     `
 
 
-
-
     document.getElementById("wrapper").innerHTML = header;
     document.getElementById("wrapper").insertAdjacentHTML('beforeend', designation);
     //document.getElementsByClassName("test")[0].addEventListener("click", designationSettingsCriteria);
@@ -104,15 +102,13 @@ $(function () {
 });
 
 //document.getElementById("institution").addEventListener("click", institutionBuild);
-function modalopn(){
-   document.getElementsByClassName("modalbody")[0].innerHTML="";
-   document.getElementsByClassName("modalbody")[1].innerHTML="";
-   designationSettingsCriteria();
-   designationSettingsJobDescription();
+function modalopn() {
+    document.getElementsByClassName("modalbody")[0].innerHTML = "";
+    document.getElementsByClassName("modalbody")[1].innerHTML = "";
+    designationSettingsCriteria();
+    designationSettingsJobDescription();
 
 }
-
-
 
 
 function designationSettingsCriteria() {
@@ -137,174 +133,172 @@ function designationSettingsJobDescription() {
 }
 
 
-    function designationCriteria() {
-        clonable1b=document.createElement("div");
-        clonable1b.classList.add("row", "clonableCriteria");
+function designationCriteria() {
+    clonable1b = document.createElement("div");
+    clonable1b.classList.add("row", "clonableCriteria");
 
-        // Create div elements
-        var ela1 = document.createElement("div");
-        ela1.classList.add("col-sm-3");
+    // Create div elements
+    var ela1 = document.createElement("div");
+    ela1.classList.add("col-sm-3");
 
-        var ela2 = document.createElement("div");
-        ela2.classList.add("row");
+    var ela2 = document.createElement("div");
+    ela2.classList.add("row");
 
-        var ela3 = document.createElement("div");
-        ela3.classList.add("col-md-12");
+    var ela3 = document.createElement("div");
+    ela3.classList.add("col-md-12");
 
-        // Create select and options
-        var ela4 = document.createElement("input");
-        ela4.classList.add("form-control", "newDesignationName");
-        ela4.type = "text";
-        ela4.placeholder = "Enter Designation Name";
+    // Create select and options
+    var ela4 = document.createElement("input");
+    ela4.classList.add("form-control", "newDesignationName");
+    ela4.type = "text";
+    ela4.placeholder = "Enter Designation Name";
 
-        // Build the structure
-        ela3.appendChild(ela4);
-        ela2.appendChild(ela3);
-        ela1.appendChild(ela2);
-        clonable1b.appendChild(ela1);
+    // Build the structure
+    ela3.appendChild(ela4);
+    ela2.appendChild(ela3);
+    ela1.appendChild(ela2);
+    clonable1b.appendChild(ela1);
 
-        // Create second set of elements
-        var el1a = document.createElement("div");
-        el1a.classList.add("col-sm-3");
+    // Create second set of elements
+    var el1a = document.createElement("div");
+    el1a.classList.add("col-sm-3");
 
-        var el2a = document.createElement("div");
-        el2a.classList.add("row");
+    var el2a = document.createElement("div");
+    el2a.classList.add("row");
 
-        var el3a = document.createElement("div");
-        el3a.classList.add("col-md-12");
+    var el3a = document.createElement("div");
+    el3a.classList.add("col-md-12");
 
-        // Create input field
-        var el4a = document.createElement("input");
-        el4a.type = "text";
-        el4a.placeholder = "Designation Code";
-        el4a.classList.add("form-control", "newDesignationCode");
+    // Create input field
+    var el4a = document.createElement("input");
+    el4a.type = "text";
+    el4a.placeholder = "Designation Code";
+    el4a.classList.add("form-control", "newDesignationCode");
 
-        // Append input to structure
-        el3a.appendChild(el4a);
-        el2a.appendChild(el3a);
-        el1a.appendChild(el2a);
-        clonable1b.appendChild(el1a);
-
-
-
-        // Create third set of elements
-        var el1c = document.createElement("div");
-        el1c.classList.add("col-sm-2");
-
-        var el2c = document.createElement("div");
-        el2c.classList.add("row");
-
-        var el3c = document.createElement("div");
-        el3c.classList.add("col-md-12");
-
-        // Create another select with options
-        var el4c = document.createElement("select");
-        el4c.classList.add("form-control", "m-b", "newDesignationDepartment");
-
-        var el4ci = document.createElement("option");
-        el4ci.value = 0;
-        el4ci.textContent = "Department";
-
-        // Append options to select
-        el4c.appendChild(el4ci);
-
-        // Append to the structure
-        el3c.appendChild(el4c);
-        el2c.appendChild(el3c);
-        el1c.appendChild(el2c);
-        clonable1b.appendChild(el1c);
+    // Append input to structure
+    el3a.appendChild(el4a);
+    el2a.appendChild(el3a);
+    el1a.appendChild(el2a);
+    clonable1b.appendChild(el1a);
 
 
-        // Create second set of elements
-        var tsd1 = document.createElement("div");
-        tsd1.classList.add("col-sm-2");
+    // Create third set of elements
+    var el1c = document.createElement("div");
+    el1c.classList.add("col-sm-2");
 
-        var tsd2 = document.createElement("div");
-        tsd2.classList.add("row");
+    var el2c = document.createElement("div");
+    el2c.classList.add("row");
 
-        var tsd3 = document.createElement("div");
-        tsd3.classList.add("col-md-12");
+    var el3c = document.createElement("div");
+    el3c.classList.add("col-md-12");
 
-        // Create input field
-        var tsi1 = document.createElement("input");
-        tsi1.type = "text";
-        tsi1.placeholder = "Total Slots";
-        tsi1.classList.add("form-control", "newDesignationTotalSlots");
+    // Create another select with options
+    var el4c = document.createElement("select");
+    el4c.classList.add("form-control", "m-b", "newDesignationDepartment");
 
-        // Append input to structure
-        tsd3.appendChild(tsi1);
-        tsd2.appendChild(tsd3);
-        tsd1.appendChild(tsd2);
-        clonable1b.appendChild(tsd1);
+    var el4ci = document.createElement("option");
+    el4ci.value = 0;
+    el4ci.textContent = "Department";
 
+    // Append options to select
+    el4c.appendChild(el4ci);
 
-        // Create second set of elements
-        var asd1 = document.createElement("div");
-        asd1.classList.add("col-sm-2");
-
-        var asd2 = document.createElement("div");
-        asd2.classList.add("row");
-
-        var asd3 = document.createElement("div");
-        asd3.classList.add("col-md-12");
-
-        // Create input field
-        var asi1 = document.createElement("input");
-        asi1.type = "text";
-        asi1.placeholder = "Available Slots";
-        asi1.classList.add("form-control", "newDesignationAvailableSlots");
-
-        // Append input to structure
-        asd3.appendChild(asi1);
-        asd2.appendChild(asd3);
-        asd1.appendChild(asd2);
-        clonable1b.appendChild(asd1);
+    // Append to the structure
+    el3c.appendChild(el4c);
+    el2c.appendChild(el3c);
+    el1c.appendChild(el2c);
+    clonable1b.appendChild(el1c);
 
 
+    // Create second set of elements
+    var tsd1 = document.createElement("div");
+    tsd1.classList.add("col-sm-2");
 
-        // Create hr-line-dashed div
-        clonable2 = document.createElement("div");
-        clonable2.classList.add("hr-line-dashed");
+    var tsd2 = document.createElement("div");
+    tsd2.classList.add("row");
 
-        // Append to modal body
-        document.getElementsByClassName("modalbody")[0].appendChild(clonable1b);
-        document.getElementsByClassName("modalbody")[0].appendChild(clonable2);
+    var tsd3 = document.createElement("div");
+    tsd3.classList.add("col-md-12");
 
-    }
+    // Create input field
+    var tsi1 = document.createElement("input");
+    tsi1.type = "text";
+    tsi1.placeholder = "Total Slots";
+    tsi1.classList.add("form-control", "newDesignationTotalSlots");
 
-    function designationJobDescription() {
-       /* let <div> = `*/
+    // Append input to structure
+    tsd3.appendChild(tsi1);
+    tsd2.appendChild(tsd3);
+    tsd1.appendChild(tsd2);
+    clonable1b.appendChild(tsd1);
 
-        clonable= document.createElement("div");
-        clonable.classList.add("row", "clonableJobDescription");
 
-        // Create first set of elements
-        var el1 = document.createElement("div");
-        el1.classList.add("col-sm-12");
+    // Create second set of elements
+    var asd1 = document.createElement("div");
+    asd1.classList.add("col-sm-2");
 
-        var el2 = document.createElement("div");
-        el2.classList.add("row");
+    var asd2 = document.createElement("div");
+    asd2.classList.add("row");
 
-        var el3 = document.createElement("div");
-        el3.classList.add("col-md-12");
+    var asd3 = document.createElement("div");
+    asd3.classList.add("col-md-12");
 
-        var el4 = document.createElement("input");
-        el4.type = "text";
-        el4.placeholder = "Enter Job Description";
-        el4.classList.add("form-control", "newJobDescriptionTxt");
+    // Create input field
+    var asi1 = document.createElement("input");
+    asi1.type = "text";
+    asi1.placeholder = "Available Slots";
+    asi1.classList.add("form-control", "newDesignationAvailableSlots");
 
-        el3.appendChild(el4);
-        el2.appendChild(el3);
-        el1.appendChild(el2);
-        clonable.appendChild(el1);
+    // Append input to structure
+    asd3.appendChild(asi1);
+    asd2.appendChild(asd3);
+    asd1.appendChild(asd2);
+    clonable1b.appendChild(asd1);
 
-        // Create a div for hr-line-dashed
-        clonable2 = document.createElement("div");
-        clonable2.classList.add("hr-line-dashed");
 
-        // Append everything to the modal body
-        document.getElementsByClassName("modalbody")[1].appendChild(clonable);
-        document.getElementsByClassName("modalbody")[1].appendChild(clonable2);
+    // Create hr-line-dashed div
+    clonable2 = document.createElement("div");
+    clonable2.classList.add("hr-line-dashed");
 
-    }
+    // Append to modal body
+    document.getElementsByClassName("modalbody")[0].appendChild(clonable1b);
+    document.getElementsByClassName("modalbody")[0].appendChild(clonable2);
+
+}
+
+function designationJobDescription() {
+    /* let <div> = `*/
+
+    clonable = document.createElement("div");
+    clonable.classList.add("row", "clonableJobDescription");
+
+    // Create first set of elements
+    var el1 = document.createElement("div");
+    el1.classList.add("col-sm-12");
+
+    var el2 = document.createElement("div");
+    el2.classList.add("row");
+
+    var el3 = document.createElement("div");
+    el3.classList.add("col-md-12");
+
+    var el4 = document.createElement("input");
+    el4.type = "text";
+    el4.placeholder = "Enter Job Description";
+    el4.classList.add("form-control", "newJobDescriptionTxt");
+
+    el3.appendChild(el4);
+    el2.appendChild(el3);
+    el1.appendChild(el2);
+    clonable.appendChild(el1);
+
+    // Create a div for hr-line-dashed
+    clonable2 = document.createElement("div");
+    clonable2.classList.add("hr-line-dashed");
+
+    // Append everything to the modal body
+    document.getElementsByClassName("modalbody")[1].appendChild(clonable);
+    document.getElementsByClassName("modalbody")[1].appendChild(clonable2);
+
+}
 

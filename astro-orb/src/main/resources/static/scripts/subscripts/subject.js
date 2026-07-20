@@ -1,4 +1,3 @@
-
 $(function () {
 
     let header = `
@@ -35,7 +34,7 @@ $(function () {
     
 
     
-            <div class="modal fade hmodal-info" id="mysubjectModal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal fade hmodal-info" id="mysubjectModal" tabindex="-1" role="dialog" >
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content">
                         <div class="color-line"></div>
@@ -73,8 +72,6 @@ $(function () {
     `
 
 
-
-
     document.getElementById("wrapper").innerHTML = header;
     document.getElementById("wrapper").insertAdjacentHTML('beforeend', subject);
     document.getElementsByClassName("test")[0].addEventListener("click", subjectIndut);
@@ -91,8 +88,8 @@ $(function () {
 });
 
 //document.getElementById("institution").addEventListener("click", institutionBuild);
-function modalopn(){
-    document.getElementsByClassName("modalbody")[0].innerHTML="";
+function modalopn() {
+    document.getElementsByClassName("modalbody")[0].innerHTML = "";
     subjectIndut();
 }
 
@@ -108,48 +105,47 @@ function subjectIndut() {
 }
 
 
-function createModalElements(){
-clonable=document.createElement("div");
-clonable.setAttribute("class", "row clonable");
+function createModalElements() {
+    clonable = document.createElement("div");
+    clonable.setAttribute("class", "row clonable");
 
-var el1=document.createElement("div");
-el1.setAttribute("class", "col-sm-3");
+    var el1 = document.createElement("div");
+    el1.setAttribute("class", "col-sm-3");
 
-var el2=document.createElement("div");
-el2.setAttribute("class", "row");
+    var el2 = document.createElement("div");
+    el2.setAttribute("class", "row");
 
-var el3=document.createElement("div");
-el3.setAttribute("class", "col-md-12");
+    var el3 = document.createElement("div");
+    el3.setAttribute("class", "col-md-12");
 
-var el4=document.createElement("select");
-el4.setAttribute("class", "form-control m-b classOption");
-el4.setAttribute("name", "classesgroups");
-el4.setAttribute("id", "classGroupOptions");
+    var el4 = document.createElement("select");
+    el4.setAttribute("class", "form-control m-b classOption");
+    el4.setAttribute("name", "classesgroups");
+    el4.setAttribute("id", "classGroupOptions");
 
-var el5=document.createElement("option");
-el5.innerHTML=("Select Class Group");
+    var el5 = document.createElement("option");
+    el5.innerHTML = ("Select Class Group");
 
-el4.appendChild(el5);   // Append default option to select
+    el4.appendChild(el5);   // Append default option to select
     el3.appendChild(el4);   // Append select to col-md-12
     el2.appendChild(el3);   // Append col-md-12 to inner row
     el1.appendChild(el2);   // Append inner row to col-sm-4
     clonable.appendChild(el1); // Append col-sm-4 to outer row (clonable)
 
 
+    var ela = document.createElement("div");
+    ela.setAttribute("class", "col-sm-3");
 
-var ela=document.createElement("div");
-ela.setAttribute("class", "col-sm-3");
+    var elb = document.createElement("div");
+    elb.setAttribute("class", "row");
 
-var elb=document.createElement("div");
-elb.setAttribute("class", "row");
+    var elc = document.createElement("div");
+    elc.setAttribute("class", "col-md-12");
 
-var elc=document.createElement("div");
-elc.setAttribute("class", "col-md-12");
-
-var eld=document.createElement("input");
-eld.setAttribute("class", "form-control newSubjectTxt");
-eld.setAttribute("type", "text");
-eld.setAttribute("placeholder", "Enter Subject Name");
+    var eld = document.createElement("input");
+    eld.setAttribute("class", "form-control newSubjectTxt");
+    eld.setAttribute("type", "text");
+    eld.setAttribute("placeholder", "Enter Subject Name");
 
 
     elc.appendChild(eld);   // Append input to col-md-12
@@ -158,21 +154,19 @@ eld.setAttribute("placeholder", "Enter Subject Name");
     clonable.appendChild(ela); // Append col-sm-4 to outer row (clonable)
 
 
+    var eli = document.createElement("div");
+    eli.setAttribute("class", "col-sm-3");
 
+    var elii = document.createElement("div");
+    elii.setAttribute("class", "row");
 
-var eli=document.createElement("div");
-eli.setAttribute("class", "col-sm-3");
+    var eliii = document.createElement("div");
+    eliii.setAttribute("class", "col-md-12");
 
-var elii=document.createElement("div");
-elii.setAttribute("class", "row");
-
-var eliii=document.createElement("div");
-eliii.setAttribute("class", "col-md-12");
-
-var eliv=document.createElement("input");
-eliv.setAttribute("class", "form-control subjectPref");
-eliv.setAttribute("type", "number");
-eliv.setAttribute("placeholder", "Enter Subject Preference");
+    var eliv = document.createElement("input");
+    eliv.setAttribute("class", "form-control subjectPref");
+    eliv.setAttribute("type", "number");
+    eliv.setAttribute("placeholder", "Enter Subject Preference");
 
 
     eliii.appendChild(eliv);   // Append input to col-md-12
@@ -181,21 +175,19 @@ eliv.setAttribute("placeholder", "Enter Subject Preference");
     clonable.appendChild(eli); // Append col-sm-4 to outer row (clonable)
 
 
+    var eli1 = document.createElement("div");
+    eli1.setAttribute("class", "col-sm-3");
 
+    var elii1 = document.createElement("div");
+    elii1.setAttribute("class", "row");
 
-var eli1=document.createElement("div");
-eli1.setAttribute("class", "col-sm-3");
+    var eliii1 = document.createElement("div");
+    eliii1.setAttribute("class", "col-md-12");
 
-var elii1=document.createElement("div");
-elii1.setAttribute("class", "row");
-
-var eliii1=document.createElement("div");
-eliii1.setAttribute("class", "col-md-12");
-
-var eliv1=document.createElement("input");
-eliv1.setAttribute("class", "form-control subjectType");
-eliv1.setAttribute("type", "text");
-eliv1.setAttribute("placeholder", "Enter Subject Type");
+    var eliv1 = document.createElement("input");
+    eliv1.setAttribute("class", "form-control subjectType");
+    eliv1.setAttribute("type", "text");
+    eliv1.setAttribute("placeholder", "Enter Subject Type");
 
 
     eliii1.appendChild(eliv1);   // Append input to col-md-12
@@ -203,10 +195,9 @@ eliv1.setAttribute("placeholder", "Enter Subject Type");
     eli1.appendChild(elii1);   // Append inner row to col-sm-4
     clonable.appendChild(eli1); // Append col-sm-4 to outer row (clonable)
 
-clonable2=document.createElement("div");
-clonable2.setAttribute("class", "hr-line-dashed");
+    clonable2 = document.createElement("div");
+    clonable2.setAttribute("class", "hr-line-dashed");
 }
-
 
 
 /*$(function () {

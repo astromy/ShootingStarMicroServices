@@ -164,7 +164,6 @@
             populateClassGroup(result);
             hideSplash();
             window.ttData._loaded = true;
-            console.log("[_timetable] Class groups loaded.", window.ttData.classGroups);
         }).catch(function (err) {
             hideSplash();
             window.ttData._loaded = true;

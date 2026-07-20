@@ -96,7 +96,7 @@ public class AdministrationController {
 
     @ResponseBody
     @RequestMapping(value = "getStudentsByClass", method = RequestMethod.POST)
-    public ResponseEntity<String> getStudentsByClass(@RequestBody StudentSkimRequest jso) {
+    public ResponseEntity<String> getStudentsByClass(@RequestBody DynamicStringRequest jso) {
         return BACKENDCOMMPOST(jso, backendserve + "/api/administration-pta/getStudentsByClass");
     }
 
@@ -112,7 +112,13 @@ public class AdministrationController {
         return BACKENDCOMMPOST(jso, backendserve + "/api/administration-pta/postBulkStudentList");
     }
 
-    //----------------------------------------------------------------------------------------------------------------------
+    @ResponseBody
+    @RequestMapping(value = "updateStudentRecord", method = RequestMethod.POST)
+    public ResponseEntity<String> updateStudentRecord(@RequestBody StudentsImportRequest jso) {
+        return BACKENDCOMMPOST(jso, backendserve + "/api/administration-pta/updateStudentRecord");
+    }
+
+    //------------------------------------------ APPLICANT SECTION ---------------------------------------------------------------------------
 
 
     @ResponseBody
@@ -147,13 +153,20 @@ public class AdministrationController {
     }
 
 
-    //---------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------- MOBILE SECTION---------------------------------------------------------------------------
 
     @ResponseBody
     @RequestMapping(value = "api/mobile/getSkimpStudentsByParentContact", method = RequestMethod.POST)
     public ResponseEntity<String> getSkimpStudentsByParentContact(@RequestBody SingleStringRequest jso) {
         ResponseEntity<String> response = BACKENDCOMMPOST(jso, backendserve + "/api/administration-pta/getSkimpStudentsByParentContact");
         return response;
+    }
+
+
+    @ResponseBody
+    @RequestMapping(value = "api/mobile/updateStudentProfile", method = RequestMethod.POST)
+    public ResponseEntity<String> updateStudentProfile(@RequestBody StudentsImportRequest jso) {
+        return BACKENDCOMMPOST(jso, backendserve + "/api/administration-pta/updateStudentRecord");
     }
 
     @ResponseBody
@@ -198,6 +211,52 @@ public class AdministrationController {
     @RequestMapping(value = "api/mobile/deleteVoiceMessage", method = RequestMethod.POST)
     public ResponseEntity<String> deleteVoiceMessage(@RequestBody DynamicStringRequest jso) {
         return BACKENDCOMMPOST(jso, backendserve + "/api/administration-pta/sendReactivationEmail");
+    }
+
+    @PostMapping("verify-payment")
+    public ResponseEntity<Map<String, Object>> verifyPayment(@RequestBody Map<String, String> body) {
+        String reference = body.get("reference");
+        String studentId = body.get("studentId");
+
+        try {
+            // 1. Confirm with Paystack directly (fast, doesn't wait on webhook)
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("https://api.paystack.co/transaction/verify/" + reference))
+                    .header("Authorization", "Bearer " + PAYSTACK_SECRET_KEY)
+                    .GET()
+                    .build();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            Map<String, Object> paystackResult = objectMapper.readValue(response.body(), Map.class);
+            Map<String, Object> data = (Map<String, Object>) paystackResult.get("data");
+            boolean paystackConfirmed = "success".equals(data.get("status"));
+
+            Map<String, Object> result = new HashMap<>();
+            if (!paystackConfirmed) {
+                result.put("success", false);
+                result.put("message", "Payment not confirmed by Paystack");
+                return ResponseEntity.ok(result);
+            }
+
+            // 2. Check with adminpta whether the account is now active
+            //    (the webhook should have already done the activation by the time
+            //    this call happens, or you poll briefly / adminpta can activate
+            //    idempotently here too if the webhook hasn't landed yet)
+            ResponseEntity<String> statusCheck = BACKENDCOMMPOST(
+                    Map.of("studentId", studentId),
+                    backendserve + "/api/administration-pta/checkStudentByID"
+            );
+
+            result.put("success", statusCheck.getStatusCode().is2xxSuccessful());
+            return ResponseEntity.ok(result);
+
+        } catch (Exception e) {
+            log.error("Payment verification error", e);
+            Map<String, Object> result = new HashMap<>();
+            result.put("success", false);
+            result.put("message", e.getMessage());
+            return ResponseEntity.status(500).body(result);
+        }
     }
 
     @ResponseBody

@@ -15,13 +15,16 @@ logging:
         boot:
           autoconfigure: INFO
         cloud:
-          gateway:
-            route:
-              RouteDefinitionLocator: INFO
+          gateway: DEBUG
+          gateway.route:
+            RouteDefinitionLocator: INFO
       springframework.web.client.RestTemplate: INFO
+      reactor.netty: DEBUG
 
 server:
   port: 8083
+  netty:
+    max-chunk-size: 314572800
 
 spring:
   main:
@@ -46,6 +49,10 @@ spring:
           uri: lb://shootingStar-setup
           predicates:
             - Path=/api/setup/**
+          filters:
+            - name: RequestSize
+              args:
+                maxSize: 314572800
 
         - id: online-application
           uri: lb://online-application
@@ -60,36 +67,64 @@ spring:
           uri: lb://HR-Service
           predicates:
             - Path=/api/hr/**
+          filters:
+            - name: RequestSize
+              args:
+                maxSize: 314572800
 
         - id: finance
           uri: lb://finance
           predicates:
             - Path=/api/finance/**
+          filters:
+            - name: RequestSize
+              args:
+                maxSize: 314572800
 
         - id: clinic
           uri: lb://clinic
           predicates:
             - Path=/api/clinic/**
+          filters:
+            - name: RequestSize
+              args:
+                maxSize: 314572800
 
         - id: stores-inventory
           uri: lb://stores-inventory
           predicates:
             - Path=/api/stores_inventory/**
+          filters:
+            - name: RequestSize
+              args:
+                maxSize: 314572800
 
         - id: academics
           uri: lb://shootingStar-academics
           predicates:
             - Path=/api/academics/**
+          filters:
+            - name: RequestSize
+              args:
+                maxSize: 314572800
 
         - id: administration-pta
           uri: lb://administration-pta
           predicates:
             - Path=/api/administration-pta/**
+          filters:
+            - name: RequestSize
+              args:
+                maxSize: 314572800
 
         - id: accommodation
           uri: lb://accommodation
           predicates:
             - Path=/api/accommodation/**
+          filters:
+            - name: RequestSize
+              args:
+                maxSize: 314572800
 
         - id: discovery_server
           uri: http://localhost:8761
@@ -109,6 +144,9 @@ spring:
             - Path=/astro_orb/web
           filters:
             - SetPath=/
+            - name: RequestSize
+              args:
+                maxSize: 314572800
 
         - id: astro_orb_static
           uri: http://localhost:7013

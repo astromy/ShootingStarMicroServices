@@ -1,5 +1,6 @@
 package com.astromyllc.shootingstar.finance.controller;
 
+import com.astromyllc.shootingstar.finance.dto.request.DynamicStringRequest;
 import com.astromyllc.shootingstar.finance.dto.request.StudentBillFetchRequest;
 import com.astromyllc.shootingstar.finance.dto.request.Student_BillRequest;
 import com.astromyllc.shootingstar.finance.dto.response.Student_BillResponse;
@@ -50,7 +51,7 @@ public class StudentBillController {
     @PostMapping
     @RequestMapping("/api/finance/getStudentBillsByInstitutionClass")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<Optional<List<Student_BillResponse>>> getStudentBillsByInstitutionClass(@RequestBody StudentBillFetchRequest studentBillFetchRequest) {
+    public ResponseEntity<Optional<List<Student_BillResponse>>> getStudentBillsByInstitutionClass(@RequestBody DynamicStringRequest studentBillFetchRequest) {
         log.info("Application  Received");
         return ResponseEntity.ok(studentBillServiceInterface.fetchStudentBillsByInstitutionClass(studentBillFetchRequest));
     }

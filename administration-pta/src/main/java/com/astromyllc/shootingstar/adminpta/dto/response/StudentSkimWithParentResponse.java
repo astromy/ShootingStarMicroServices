@@ -19,8 +19,11 @@ public class StudentSkimWithParentResponse {
     private String dateOfAdmission;
     private String gender;
     private String nationality;
+    private String residentialLocality;
     private String institutionCode;
+    private String institutionName;
     private String studentClass;
+    private String denomination;
     private String picture;
     private String status;
     private List<ParentsResponse> parents;

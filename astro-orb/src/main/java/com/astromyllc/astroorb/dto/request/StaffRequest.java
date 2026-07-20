@@ -1,7 +1,5 @@
 package com.astromyllc.astroorb.dto.request;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.annotation.Nonnull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -42,5 +40,8 @@ public class StaffRequest {
     private List<AcademicRecordsRequest> academicRecords;
     private List<ProfessionalRecordsRequest> professionalRecords;
     private List<StaffDocumentsRequest> staffDocuments;
+    private List<DesignationListRequest> staffDesignations;
+    private List<StaffSubjectsRequest> staffSubjects;
+
 
 }

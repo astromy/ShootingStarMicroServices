@@ -1,5 +1,6 @@
 package com.astromyllc.shootingstar.finance.serviceInterface;
 
+import com.astromyllc.shootingstar.finance.dto.request.DynamicStringRequest;
 import com.astromyllc.shootingstar.finance.dto.request.StudentBillFetchRequest;
 import com.astromyllc.shootingstar.finance.dto.request.Student_BillRequest;
 import com.astromyllc.shootingstar.finance.dto.response.Student_BillResponse;
@@ -18,5 +19,5 @@ public interface Student_BillServiceInterface {
 
     public Optional<List<Student_BillResponse>> fetchOwingStudentsByInstitution(StudentBillFetchRequest studentBillFetchRequest);
 
-    public Optional<List<Student_BillResponse>> fetchStudentBillsByInstitutionClass(StudentBillFetchRequest studentBillFetchRequest);
+    public Optional<List<Student_BillResponse>> fetchStudentBillsByInstitutionClass(DynamicStringRequest studentBillFetchRequest);
 }

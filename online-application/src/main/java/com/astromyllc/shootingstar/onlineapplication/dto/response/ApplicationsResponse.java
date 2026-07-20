@@ -36,6 +36,7 @@ public class ApplicationsResponse {
     private String applicationInstitutionName;
     private String applicationType;
     private LocalDate applicationDate;
+    private LocalDate admissionDate;
     private LocalDateTime appointmentDate;
 
     private String nameOfPreviousSchool;

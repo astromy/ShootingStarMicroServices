@@ -38,14 +38,7 @@
             d.rel = 'stylesheet';
             d.href = _base + '../../styles/fc-design-system.css';
             document.head.appendChild(d);
-        }
-        if (!document.getElementById('fcFontAwesome')) {
-            var f = document.createElement('link');
-            f.id = 'fcFontAwesome';
-            f.rel = 'stylesheet';
-            f.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css';
-            document.head.appendChild(f);
-        }
+        }.,
     })();
 
     // ── DOM ──────────────────────────────────────────────────────────────────
@@ -379,7 +372,7 @@
             return;
         }
         var s = document.createElement('script');
-        s.src = _base + '../_adminStudentIDCardGenerator.js';
+        s.src = _base + '../_adminStudentIDCard.js';
         s.onload = function () {
             init();
         };

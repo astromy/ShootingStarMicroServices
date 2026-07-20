@@ -12,12 +12,13 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author Peter Jude Ackon
  */
-@Document(value="students")
+@Document(value = "students")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -59,17 +60,17 @@ public class Students {
     private String status;
 
     @DBRef
-    @OneToMany(fetch = FetchType.EAGER,targetEntity = StudentSubjects.class, cascade = CascadeType.ALL)
-    @JoinColumn(name = "studentSubjects",referencedColumnName = "id")
-    private List<StudentSubjects> studentSubjects;
+    @OneToMany(fetch = FetchType.EAGER, targetEntity = StudentSubjects.class, cascade = CascadeType.ALL)
+    @JoinColumn(name = "studentSubjects", referencedColumnName = "id")
+    private List<StudentSubjects> studentSubjects = new ArrayList<>();
 
     @DBRef
-    @OneToMany(fetch = FetchType.EAGER,targetEntity = StudentAccount.class, cascade = CascadeType.ALL)
-    @JoinColumn(name = "studentAccount",referencedColumnName = "id")
-    private List<StudentAccount> studentAccount;
+    @OneToMany(fetch = FetchType.EAGER, targetEntity = StudentAccount.class, cascade = CascadeType.ALL)
+    @JoinColumn(name = "studentAccount", referencedColumnName = "id")
+    private List<StudentAccount> studentAccount = new ArrayList<>();
 
     @DBRef
-    @OneToMany(fetch = FetchType.EAGER,targetEntity = Parents.class, cascade = CascadeType.ALL)
-    @JoinColumn(name = "parentsList",referencedColumnName = "id")
-    private List<Parents> parentsList;
+    @OneToMany(fetch = FetchType.EAGER, targetEntity = Parents.class, cascade = CascadeType.ALL)
+    @JoinColumn(name = "parentsList", referencedColumnName = "id")
+    private List<Parents> parentsList = new ArrayList<>();
 }

@@ -45,7 +45,7 @@ public class StaffController {
     @RequestMapping("/api/hr/addStaffPermissions")
     @ResponseStatus(HttpStatus.CREATED)
     public Optional<StaffResponse> AddStaffPermissions(@RequestBody List<StaffPermissionsRequest> staffPermissionsRequests) throws IOException, URISyntaxException {
-        log.info("hr received {} records of StaffPermissions",staffPermissionsRequests);
+        log.info("hr received {} records of StaffPermissions", staffPermissionsRequests);
         return staffServiceInterface.addStaffPermissions(staffPermissionsRequests);
     }
 
@@ -53,7 +53,7 @@ public class StaffController {
     @RequestMapping("/api/hr/addStaffSubjects")
     @ResponseStatus(HttpStatus.CREATED)
     public Optional<StaffResponse> UpdateStaffSubjects(@RequestBody List<StaffSubjectsRequest> staffSubjectsRequests) throws IOException, URISyntaxException {
-        log.info("hr received {} records of StaffPermissions",staffSubjectsRequests);
+        log.info("hr received {} records of StaffPermissions", staffSubjectsRequests);
         return staffServiceInterface.addStaffSubjects(staffSubjectsRequests);
     }
 
@@ -72,6 +72,7 @@ public class StaffController {
         log.info("Fetching List of Staff Based on Institution");
         return staffServiceInterface.getStaffByInstitution(staffcodeRequest);
     }
+
     @PostMapping
     @RequestMapping("/api/hr/getStaffByStaffId")
     @ResponseStatus(HttpStatus.OK)
@@ -79,4 +80,5 @@ public class StaffController {
         log.info("Fetching List of Staff Based on Institution");
         return staffServiceInterface.getStaffByStaffCode(staffcodeRequest);
     }
+    
 }

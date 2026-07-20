@@ -1,6 +1,7 @@
 package com.astromyllc.shootingstar.onlineapplication.serviceInterface;
 
 import com.astromyllc.shootingstar.onlineapplication.dto.request.ApplicantStudentSkimRequest;
+import com.astromyllc.shootingstar.onlineapplication.dto.request.DynamicStringRequest;
 import com.astromyllc.shootingstar.onlineapplication.dto.request.RefundRequest;
 import com.astromyllc.shootingstar.onlineapplication.dto.request.Students2Request;
 import com.astromyllc.shootingstar.onlineapplication.dto.request.alien.AdmissionRequest;
@@ -27,7 +28,7 @@ public interface ApplicationServiceInterface {
 
     public Optional<List<ApplicationsResponse>> getAllApplications();
 
-    public Optional<ApplicationsResponse> getApplicationByApplicationCode(String applictionCode);
+    public Optional<ApplicationsResponse> getApplicationByApplicationCode(DynamicStringRequest applictionCode);
 
     public Optional<ApplicationsResponse> getApplicationById(String applicationId);
 

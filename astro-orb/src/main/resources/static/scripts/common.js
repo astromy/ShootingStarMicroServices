@@ -188,156 +188,78 @@ function trackExistingResources(tagName, defaultArray, activeSet) {
     });
 }
 
+// Safely attaches a click listener only if the element exists in the DOM.
+// Elements missing from the DOM mean the user lacks permission — no error thrown.
+function safeOn(id, handler) {
+    var el = document.getElementById(id);
+    if (el) {
+        el.addEventListener("click", handler);
+    }
+}
+
 function addEventListeners() {
 
-    document
-        .getElementById("dashboard")
-        .addEventListener("click", dashboardBuild);
-//SETUP FUNCTIONS
-    document
-        .getElementById("institution")
-        .addEventListener("click", institutionBuild);
-    document
-        .getElementById("classgroup")
-        .addEventListener("click", classgroupnBuild);
-    document.getElementById("classes").addEventListener("click", classesBuild);
-    document.getElementById("subject").addEventListener("click", subjectBuild);
-    document
-        .getElementById("admission")
-        .addEventListener("click", admissionBuild);
-    document
-        .getElementById("department")
-        .addEventListener("click", departmentBuild);
-    document
-        .getElementById("designation")
-        .addEventListener("click", designationBuild);
-    document.getElementById("grading").addEventListener("click", gradingBuild);
-    document
-        .getElementById("permissions")
-        .addEventListener("click", permissionsBuild);
+    // DASHBOARD
+    safeOn("dashboard", dashboardBuild);
 
-//HR FUNCTIONS
-    document
-        .getElementById("onloading")
-        .addEventListener("click", onloadingBuild);
-    document.getElementById("records").addEventListener("click", recordsBuild);
-    document.getElementById("leave").addEventListener("click", leaveBuild);
-    document
-        .getElementById("appraisals")
-        .addEventListener("click", appraisalsBuild);
-    document
-        .getElementById("designation")
-        .addEventListener("click", designationBuild);
-    document
-        .getElementById("offloading")
-        .addEventListener("click", offloadingBuild);
+    // SETUP
+    safeOn("institution", institutionBuild);
+    safeOn("classgroup", classgroupnBuild);
+    safeOn("classes", classesBuild);
+    safeOn("subject", subjectBuild);
+    safeOn("admission", admissionBuild);
+    safeOn("department", departmentBuild);
+    safeOn("designation", designationBuild);
+    safeOn("grading", gradingBuild);
+    safeOn("permissions", permissionsBuild);
 
-//FINANCIAL FUNCTIONS
-    document
-        .getElementById("billcreation")
-        .addEventListener("click", billcreationBuild);
-    document.getElementById("billing").addEventListener("click", billingBuild);
-    document
-        .getElementById("feecollection")
-        .addEventListener("click", feecollectionBuild);
-    document
-        .getElementById("paymenthistory")
-        .addEventListener("click", paymenthistoryBuild);
-    document
-        .getElementById("paymentchecker")
-        .addEventListener("click", paymentcheckerBuild);
-    document
-        .getElementById("salarysetup")
-        .addEventListener("click", salarysetupBuild);
-    document
-        .getElementById("payslipgeneration")
-        .addEventListener("click", payslipgenerationBuild);
-    document
-        .getElementById("ledgerbooks")
-        .addEventListener("click", ledgerbooksBuild);
-    document
-        .getElementById("incomestatement")
-        .addEventListener("click", incomestatementBuild);
-    document.getElementById("cashflow").addEventListener("click", cashflowBuild);
-    document
-        .getElementById("trialbalanace")
-        .addEventListener("click", trialbalanaceBuild);
-    document
+    // HR
+    safeOn("onloading", onloadingBuild);
+    safeOn("records", recordsBuild);
+    safeOn("leave", leaveBuild);
+    safeOn("appraisals", appraisalsBuild);
+    safeOn("offloading", offloadingBuild);
 
-        //ACADEMIC FUNCTIONS
-        .getElementById("scoreUpload")
-        .addEventListener("click", scoreUploadBuild);
-    document
-        .getElementById("terminalReport")
-        .addEventListener("click", terminalReportBuild);
-    document
-        .getElementById("transcript")
-        .addEventListener("click", studentsTranscriptBuild);
-    document
-        .getElementById("broadSheet")
-        .addEventListener("click", broadSheetBuild);
-    document
-        .getElementById("promotionSettings")
-        .addEventListener("click", promotionsBuild);
-    document
-        .getElementById("classTimeTable")
-        .addEventListener("click", classTimeTableBuild);
+    // FINANCIAL
+    safeOn("billcreation", billcreationBuild);
+    safeOn("billing", billingBuild);
+    safeOn("feecollection", feecollectionBuild);
+    safeOn("paymenthistory", paymenthistoryBuild);
+    safeOn("paymentchecker", paymentcheckerBuild);
+    safeOn("salarysetup", salarysetupBuild);
+    safeOn("payslipgeneration", payslipgenerationBuild);
+    safeOn("ledgerbooks", ledgerbooksBuild);
+    safeOn("incomestatement", incomestatementBuild);
+    safeOn("cashflow", cashflowBuild);
+    safeOn("trialbalanace", trialbalanaceBuild);
 
-//ADMINISTRATION FUNCTIONS
-    document
-        .getElementById("studEnrollment")
-        .addEventListener("click", studentBulkUploadBuild);
-    document
-        .getElementById("studRecords")
-        .addEventListener("click", studentRecordsBuild);
-    document
-        .getElementById("studSuspension")
-        .addEventListener("click", suspendedStudentBuild);
-    document
-        .getElementById("pendingApplicants")
-        .addEventListener("click", pendingApplicatsBuild);
-    document
-        .getElementById("studList")
-        .addEventListener("click", studentListBuild);
-    document
-        .getElementById("classList")
-        .addEventListener("click", classListBuild);
-    document
-        .getElementById("academicTT")
-        .addEventListener("click", academicTimeTableBuild);
-    document
-        .getElementById("idGen")
-        .addEventListener("click", idCardGenerationBuild);
+    // ACADEMIC
+    safeOn("scoreUpload", scoreUploadBuild);
+    safeOn("terminalReport", terminalReportBuild);
+    safeOn("transcript", studentsTranscriptBuild);
+    safeOn("broadSheet", broadSheetBuild);
+    safeOn("promotionSettings", promotionsBuild);
+    safeOn("classTimeTable", classTimeTableBuild);
 
+    // ADMINISTRATION
+    safeOn("studEnrollment", studentBulkUploadBuild);
+    safeOn("studRecords", studentRecordsBuild);
+    safeOn("studSuspension", suspendedStudentBuild);
+    safeOn("pendingApplicants", pendingApplicatsBuild);
+    safeOn("studList", studentListBuild);
+    safeOn("classList", classListBuild);
+    safeOn("academicTT", academicTimeTableBuild);
+    safeOn("idGen", idCardGenerationBuild);
 
-    //STAFF FUNCTIONS
-    document
-        .getElementById("staffQuestionUpload")
-        .addEventListener("click", staffQuestionUpload);
-    document
-        .getElementById("staffAssignment")
-        .addEventListener("click", staffAssignment);
-    document.getElementById("staffExams").addEventListener("click", staffExams);
-    document
-        .getElementById("staffScoreUpload")
-        .addEventListener("click", staffScoreUploadBuild);
-    document
-        .getElementById("staffAssignmentReview")
-        .addEventListener("click", staffAssignmentReview);
+    // STAFF
+    safeOn("staffQuestionUpload", staffQuestionUpload);
+    safeOn("staffAssignment", staffAssignment);
+    safeOn("staffExams", staffExams);
+    safeOn("staffScoreUpload", staffScoreUploadBuild);
+    safeOn("staffAssignmentReview", staffAssignmentReview);
 
-    /*document.getElementById("institution").addEventListener("click", institutionBuild);
-      document.getElementById("institution").addEventListener("click", institutionBuild);
-      document.getElementById("institution").addEventListener("click", institutionBuild);
-      document.getElementById("institution").addEventListener("click", institutionBuild);
-      document.getElementById("institution").addEventListener("click", institutionBuild);
-      document.getElementById("institution").addEventListener("click", institutionBuild);
-      document.getElementById("institution").addEventListener("click", institutionBuild);
-      document.getElementById("institution").addEventListener("click", institutionBuild);
-      document.getElementById("institution").addEventListener("click", institutionBuild);
-      document.getElementById("institution").addEventListener("click", institutionBuild);
-      document.getElementById("institution").addEventListener("click", institutionBuild);
-      document.getElementById("institution").addEventListener("click", institutionBuild);
-      document.getElementById("institution").addEventListener("click", institutionBuild);*/
+    // STORES
+    safeOn("storesInventory", storesInventoryBuild);
 }
 
 // Utility to remove unwanted scripts/links
@@ -385,7 +307,6 @@ function addNewResources(tagName, newResources) {
 
 function loadScriptsSequentially(scripts, index, parentTag) {
     if (index >= scripts.length) {
-        console.log('All scripts loaded successfully');
         return;
     }
 
@@ -402,7 +323,6 @@ function loadScriptsSequentially(scripts, index, parentTag) {
     newElement.setAttribute("data-dynamic", "true");
 
     newElement.onload = () => {
-        console.log(`${secureUrl} loaded successfully`);
         // Load the next script only after this one has loaded
         loadScriptsSequentially(scripts, index + 1, parentTag);
     };
@@ -420,9 +340,17 @@ function dashboardBuild() {
     // First, populate the wrapper with dashboard HTML content
     document.getElementById('wrapper').innerHTML = `...your HTML content...`;
 
+    const newLinks = [
+        "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css",
+    ];
+
     // Remove previous non-default resources
     removeUnwantedResources("script", activeScripts);
     removeUnwantedResources("link", activeLinks);
+
+    // Inject stylesheet into <head> and track it for cleanup on next navigation
+    addNewResources("link", newLinks);
+    newLinks.forEach((href) => activeLinks.add(href));
 
     var amBase = "vendor/amcharts5/";
 
@@ -430,24 +358,18 @@ function dashboardBuild() {
     setTimeout(() => {
         // Step 1 — load amCharts core in order
         loadScript(amBase + "index.js", function () {
-            console.log("index.js loaded, am5 =", typeof am5);
             loadScript(amBase + "xy.js", function () {
-                console.log("xy.js loaded, am5 =", typeof am5);
                 loadScript(amBase + "radar.js", function () {
                     loadScript(amBase + "hierarchy.js", function () {
                         loadScript(amBase + "percent.js", function () {
                             loadScript(amBase + "themes/Animated.js", function () {
-                                // Step 2 — load charts then dashboard
+                                // Step 2 — load charts1 utility, then dashboard subscript
+                                // dashboard.js detects role, renders HTML, then loads _dashboard.js
+                                // which fetches real data and renders charts using amCharts
                                 loadScript("scripts/charts1.js", function () {
-                                    // Wait for DOM to be fully ready before initializing charts
-                                    if (typeof initCharts === "function") {
-                                        // Small delay to ensure DOM elements are rendered
-                                        setTimeout(() => {
-                                            initCharts();
-                                        }, 100);
-                                    }
                                     loadScript("scripts/subscripts/dashboard.js", function () {
-                                        console.log("[dashboardBuild] All scripts loaded.");
+                                        // _dashboard.js is loaded dynamically by dashboard.js
+                                        // after it has built the role-specific HTML
                                     });
                                 });
                             });
@@ -464,7 +386,6 @@ function loadScript(src, callback) {
     const script = document.createElement('script');
     script.src = src;
     script.onload = function () {
-        console.log("✅ Loaded:", src);
         callback();
     };
     script.onerror = function () {
@@ -881,23 +802,17 @@ function leaveBuild() {
 
 function appraisalsBuild() {
 
-    // Remove previous non-default scripts/links
-    removeUnwantedResources("script", activeScripts);
-    removeUnwantedResources("link", activeLinks);
-
-    // Add new resources
-    addNewResources("script", newScripts);
-    addNewResources("link", newLinks);
-
-    // Update the active state with new resources
-    newScripts.forEach((src) => activeScripts.add(src));
-
-    newLinks.forEach((href) => activeLinks.add(href));
-}
-
-//-------------------------------------------------------------------------------------------------------
-
-function designationBuild_X() {
+    // Define new resources specific to this view
+    const newScripts = [
+        "vendor/sweetalert/lib/sweet-alert.min.js",
+        "scripts/subscripts/hrAppraisals.js",
+    ];
+    const newLinks = [
+        "vendor/sweetalert/lib/sweet-alert.css",
+        "vendor/metisMenu/dist/metisMenu.css",
+        "vendor/animate.css/animate.css",
+        "vendor/datatables.net-bs/css/dataTables.bootstrap.min.css",
+    ];
 
     // Remove previous non-default scripts/links
     removeUnwantedResources("script", activeScripts);
@@ -916,6 +831,18 @@ function designationBuild_X() {
 //-------------------------------------------------------------------------------------------------------
 
 function offloadingBuild() {
+
+    // Define new resources specific to this view
+    const newScripts = [
+        "vendor/sweetalert/lib/sweet-alert.min.js",
+        "scripts/subscripts/hrOffloading.js",
+    ];
+    const newLinks = [
+        "vendor/sweetalert/lib/sweet-alert.css",
+        "vendor/metisMenu/dist/metisMenu.css",
+        "vendor/animate.css/animate.css",
+        "vendor/datatables.net-bs/css/dataTables.bootstrap.min.css",
+    ];
 
     // Remove previous non-default scripts/links
     removeUnwantedResources("script", activeScripts);
@@ -1234,6 +1161,20 @@ function incomestatementBuild() {
 
 function cashflowBuild() {
 
+    // Define new resources specific to this view
+    const newScripts = [
+        "scripts/moment.min.js",
+        "vendor/sweetalert/lib/sweet-alert.min.js",
+        "scripts/subscripts/financeCashFlow.js",
+    ];
+    const newLinks = [
+        "vendor/sweetalert/lib/sweet-alert.css",
+        "vendor/metisMenu/dist/metisMenu.css",
+        "vendor/animate.css/animate.css",
+        "fonts/pe-icon-7-stroke/css/pe-icon-7-stroke.css",
+        "fonts/pe-icon-7-stroke/css/helper.css",
+    ];
+
     // Remove previous non-default scripts/links
     removeUnwantedResources("script", activeScripts);
     removeUnwantedResources("link", activeLinks);
@@ -1434,7 +1375,7 @@ function studentRecordsBuild() {
     // Define new resources specific to this view
     const newScripts = [
         "vendor/sweetalert/lib/sweet-alert.min.js",
-        "scripts/subscripts/studentBulkUpload.js",
+        "scripts/subscripts/studentRecords.js",
     ];
     const newLinks = [
         "vendor/sweetalert/lib/sweet-alert.css",
@@ -1696,7 +1637,14 @@ function staffQuestionUpload() {
     // Define new resources specific to this view
     const newScripts = [
         "vendor/sweetalert/lib/sweet-alert.min.js",
-        "scripts/subscripts/staffScoreUpload.js",
+        "vendor/pdfmake/build/pdfmake.min.js",
+        "vendor/pdfmake/build/vfs_fonts.js",
+        "vendor/datatables.net-buttons/js/buttons.html5.min.js",
+        "vendor/datatables.net-buttons/js/buttons.print.min.js",
+        "vendor/datatables.net-buttons/js/dataTables.buttons.min.js",
+        "vendor/datatables.net-buttons-bs/js/buttons.bootstrap.min.js",
+        "dataTables/datatables.min.js",
+        "scripts/subscripts/staffQuestionUpload.js",
     ];
     const newLinks = [
         "vendor/sweetalert/lib/sweet-alert.css",
@@ -1725,7 +1673,14 @@ function staffAssignment() {
     // Define new resources specific to this view
     const newScripts = [
         "vendor/sweetalert/lib/sweet-alert.min.js",
-        "scripts/subscripts/staffScoreUpload.js",
+        "vendor/pdfmake/build/pdfmake.min.js",
+        "vendor/pdfmake/build/vfs_fonts.js",
+        "vendor/datatables.net-buttons/js/buttons.html5.min.js",
+        "vendor/datatables.net-buttons/js/buttons.print.min.js",
+        "vendor/datatables.net-buttons/js/dataTables.buttons.min.js",
+        "vendor/datatables.net-buttons-bs/js/buttons.bootstrap.min.js",
+        "dataTables/datatables.min.js",
+        "scripts/subscripts/staffAssignment.js",
     ];
     const newLinks = [
         "vendor/sweetalert/lib/sweet-alert.css",
@@ -1836,7 +1791,39 @@ function staffAssignmentReview() {
     newLinks.forEach((href) => activeLinks.add(href));
 }
 
-//-------------------------------------------------------------------------------------------------------
+//--------------------- STORES -----------------------------------------------------------------------
+
+
+function storesInventoryBuild() {
+
+    // Define new resources specific to this view
+    const newScripts = [
+        "vendor/sweetalert/lib/sweet-alert.min.js",
+        "scripts/subscripts/storesInventory.js",
+    ];
+    const newLinks = [
+        "vendor/sweetalert/lib/sweet-alert.css",
+        "vendor/metisMenu/dist/metisMenu.css",
+        "vendor/animate.css/animate.css",
+        "vendor/datatables.net-bs/css/dataTables.bootstrap.min.css",
+        "styles/switch.css",
+    ];
+
+    // Remove previous non-default scripts/links
+    removeUnwantedResources("script", activeScripts);
+    removeUnwantedResources("link", activeLinks);
+
+    // Add new resources
+    addNewResources("script", newScripts);
+    addNewResources("link", newLinks);
+
+    // Update the active state with new resources
+    newScripts.forEach((src) => activeScripts.add(src));
+
+    newLinks.forEach((href) => activeLinks.add(href));
+}
+
+
 //-------------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------------
 
@@ -1875,7 +1862,6 @@ function HttpPost(url, data) {
 
                 // If it's a CSRF issue, show specific message
                 if (jqXHR.status === 403 && jqXHR.responseText.includes("CSRF")) {
-                    console.log("CSRF token error - refreshing page");
                     location.reload();
                     return;
                 }
@@ -1906,8 +1892,6 @@ function HttpPost(url, data) {
  * @returns {Promise<any>} - The parsed JSON response.
  */
 async function fetchPost(url, data) {
-    console.group(`🌐 API Call to ${url}`);
-    console.log('📋 document.cookie:', document.cookie);
 
     const csrfToken =
         document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
@@ -1922,7 +1906,6 @@ async function fetchPost(url, data) {
 
     if (csrfToken) {
         headers[csrfHeader] = csrfToken;
-        console.log('🛡️ CSRF token added:', csrfHeader);
     } else {
         console.warn('⚠️ No CSRF meta token found');
     }
@@ -1937,9 +1920,6 @@ async function fetchPost(url, data) {
 
         const responseText = await response.text();
 
-        console.log('📥 Response status:', response.status);
-        console.log('📥 Response body:', responseText);
-
         if (!response.ok) {
             throw new Error(`HTTP ${response.status}: ${responseText}`);
         }
@@ -1949,7 +1929,6 @@ async function fetchPost(url, data) {
         console.error("POST Error:", error);
         throw error;
     } finally {
-        console.groupEnd();
     }
 }
 
@@ -2104,8 +2083,6 @@ async function setFileInputFromByteArray(
                 // Create a File object from the Blob
                 const file = new File([blob], fileName, {type: "image/png"});
 
-                console.log(base64Content);
-
                 // Create a DataTransfer object to hold the file
                 const dataTransfer = new DataTransfer();
                 dataTransfer.items.add(file);
@@ -2118,8 +2095,6 @@ async function setFileInputFromByteArray(
                 el.dispatchEvent(event);
                 // uploadPDF(el);
             }
-
-            console.log("File successfully attached:", el.files[0]);
         } catch (error) {
             console.error("Error attaching file:", error);
         }
@@ -2202,13 +2177,6 @@ async function uploadFileAsJSON(dataFile, statuses) {
 
     const file = input.files[0];
 
-    // Check if the selected file is a PDF
-    /* if (file.type !== "application/pdf") {
-                  status.textContent = "Only PDF files are allowed!";
-                  status.style.color = "red";
-                  return;
-              }*/
-
     try {
         // Convert the file to a Base64 string
         const base64File = await convertFileToBase64(file);
@@ -2266,8 +2234,6 @@ async function setAllFileTypeInputFromByteArray(base64String, el, fileName) {
         // Trigger the 'change' event on the file input
         const event = new Event("change", {bubbles: true});
         el.dispatchEvent(event);
-
-        console.log("File successfully attached:", el.files[0]);
     } catch (error) {
         console.error("Error attaching file:", error);
     }
@@ -2368,6 +2334,17 @@ function excelDateToJSDate(serial) {
 
     return jsDate.toISOString().split("T")[0]; // Format as "YYYY-MM-DD"
 }
+
+function buildDynamicStringRequest(fields) {
+    var keys = Object.keys(fields);
+    return {
+        key: keys,
+        val: keys.map(function (k) {
+            return String(fields[k] ?? '');
+        }),
+    };
+}
+
 
 window.handleImgError = function (img) {
     img.style.display = 'none';

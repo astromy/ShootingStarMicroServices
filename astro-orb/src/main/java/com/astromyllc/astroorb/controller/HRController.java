@@ -1,9 +1,7 @@
 package com.astromyllc.astroorb.controller;
 
-import com.astromyllc.astroorb.dto.request.BillingFetchRequest;
-import com.astromyllc.astroorb.dto.request.SingleStringRequest;
-import com.astromyllc.astroorb.dto.request.StaffPermissionsRequest;
-import com.astromyllc.astroorb.dto.request.StaffRequest;
+import com.astromyllc.astroorb.dto.request.*;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import lombok.RequiredArgsConstructor;
@@ -17,15 +15,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.io.*;
-import java.net.HttpURLConnection;
+import java.io.IOException;
 import java.net.URI;
-import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
+import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -41,7 +38,7 @@ public class HRController {
     @RequestMapping(value = "create-staff", method = RequestMethod.POST)
     public ResponseEntity<String> addfinance(@RequestBody List<StaffRequest> jso) throws IOException {
         String url = backendserve + "/api/hr/createStaff";
-        ResponseEntity<String> response = BACKENDCOMMPOSTLIST(Collections.singletonList(jso), url);
+        ResponseEntity<String> response = BACKENDCOMMPOSTLIST(jso, url);
         return response;
     }
 
@@ -49,7 +46,7 @@ public class HRController {
     @RequestMapping(value = "addStaffPermissions", method = RequestMethod.POST)
     public ResponseEntity<String> addStaffPermissions(@RequestBody List<StaffPermissionsRequest> jso) throws IOException {
         String url = backendserve + "/api/hr/addStaffPermissions";
-        ResponseEntity<String> response = BACKENDCOMMPOSTLIST(Collections.singletonList(jso), url);
+        ResponseEntity<String> response = BACKENDCOMMPOSTLIST(jso, url);
         return response;
     }
 
@@ -75,66 +72,107 @@ public class HRController {
         return response;
     }
 
+    @ResponseBody
+    @RequestMapping(value = "api/mobile/staffClockIn", method = RequestMethod.POST)
+    public ResponseEntity<String> staffClockIn(@RequestBody StaffClockInRequest jso) throws IOException, InterruptedException {
+        log.info("REQUEST staffClockIn OF..... {}", jso);
 
-    private ResponseEntity<String> BACKENDCOMMPOSTLIST(List<Object> jso, String url) {
+        List<GeoPoint> boundary = fetchGeofenceBoundary(jso.getInstitutionCode());
+        if (boundary.size() < 3) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("{\"message\":\"No school boundary has been configured yet. Ask an admin to set it up under School Boundary.\"}");
+        }
 
-        HttpURLConnection httpURLConnection = null;
-        StringBuilder response = new StringBuilder();
-        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-        BufferedReader br = null;
+        if (!isPointInPolygon(jso.getLatitude(), jso.getLongitude(), boundary)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("{\"message\":\"You appear to be outside the school boundary. Move closer to campus and try again.\"}");
+        }
+
+        // Inside the boundary — record the clock event on the HR side.
+        return BACKENDCOMMPOST(jso, backendserve + "/api/hr/staffClockIn");
+    }
+
+    // Fetches the institution's saved boundary from the setup service and
+    // parses it into plain points. Returns an empty list if nothing has
+    // been saved yet (setup service returns Optional.empty() -> null body,
+    // or a GeofenceBoundaryResponse with an empty "boundary" array).
+    private List<GeoPoint> fetchGeofenceBoundary(String institutionCode) throws IOException, InterruptedException {
+        ResponseEntity<String> response = BACKENDCOMMPOST(
+                SingleStringRequest.builder().val(institutionCode).build(),
+                backendserve + "/api/setup/getGeofenceBoundary");
+
+        List<GeoPoint> points = new ArrayList<>();
+        if (response == null || response.getBody() == null || response.getBody().isBlank()) {
+            return points;
+        }
+
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode root = mapper.readTree(response.getBody());
+        JsonNode boundaryNode = root.has("boundary") ? root.get("boundary") : root;
+        if (boundaryNode == null || !boundaryNode.isArray()) {
+            return points;
+        }
+
+        for (JsonNode p : boundaryNode) {
+            points.add(new GeoPoint(p.get("latitude").asDouble(), p.get("longitude").asDouble()));
+        }
+        return points;
+    }
+
+    // Ray-casting point-in-polygon test — same algorithm as the mobile
+    // client's utils/geo.js isPointInPolygon, ported so the check is
+    // authoritative server-side rather than trusting the client's own
+    // "am I inside" claim. Polygon is treated as closed automatically.
+    private boolean isPointInPolygon(double lat, double lon, List<GeoPoint> polygon) {
+        boolean inside = false;
+        int n = polygon.size();
+        for (int i = 0, j = n - 1; i < n; j = i++) {
+            double xi = polygon.get(i).getLongitude(), yi = polygon.get(i).getLatitude();
+            double xj = polygon.get(j).getLongitude(), yj = polygon.get(j).getLatitude();
+
+            boolean intersects = ((yi > lat) != (yj > lat))
+                    && (lon < (xj - xi) * (lat - yi) / (yj - yi) + xi);
+            if (intersects) {
+                inside = !inside;
+            }
+        }
+        return inside;
+    }
+
+
+    private ResponseEntity<String> BACKENDCOMMPOSTLIST(Object jso, String url) {
         try {
+            // Strip the outer array wrapper the same way the old code did
 
-            httpURLConnection = (HttpURLConnection) new URL(url).openConnection();
-            httpURLConnection.setRequestMethod("POST");
-            httpURLConnection.setRequestProperty("Content-Type", "application/json");
-            httpURLConnection.setRequestProperty("Accept", "application/json");
-            httpURLConnection.setDoOutput(true);
-            httpURLConnection.setDoInput(true);
+            String json = new ObjectMapper().writer()
+                    .withDefaultPrettyPrinter()
+                    .writeValueAsString(jso);
 
-            DataOutputStream wr = new DataOutputStream(httpURLConnection.getOutputStream());
-            String json = ow.writeValueAsString(jso);
-            json = json.substring(1, json.length() - 1);
-            wr.write(json.getBytes(StandardCharsets.UTF_8));
-            wr.flush();
-            wr.close();
+            ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+            json = ow.writeValueAsString(jso);
 
-            InputStream inputStream;
+            log.info("Calling API: {}", url);
 
-            int status = httpURLConnection.getResponseCode();
+            HttpClient client = HttpClient.newBuilder()
+                    .version(HttpClient.Version.HTTP_1_1)
+                    .connectTimeout(Duration.ofSeconds(30))
+                    .build();
 
-            if (status != HttpURLConnection.HTTP_OK && status != HttpURLConnection.HTTP_ACCEPTED && status != HttpURLConnection.HTTP_CREATED && status != HttpURLConnection.HTTP_NO_CONTENT)
-                inputStream = httpURLConnection.getErrorStream();
-            else
-                inputStream = httpURLConnection.getInputStream();
-            InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .header("Content-Type", "application/json")
+                    .header("Accept", "application/json")
+                    .timeout(Duration.ofSeconds(300))  // large payload needs more time
+                    .POST(HttpRequest.BodyPublishers.ofString(json, StandardCharsets.UTF_8))
+                    .build();
 
-            try (BufferedReader brIn = new BufferedReader(
-                    new InputStreamReader(inputStream, "utf-8"))) {
-                String responseLine = null;
-                while ((responseLine = brIn.readLine()) != null) {
-                    //log.info("Response: {}", responseLine);
-                    response.append(responseLine.trim());
-                }
-            }
-            // System.out.println(response.toString());
-            return ResponseEntity.ok(response.toString());
-        } catch (IOException e) {
-            // Log the error for debugging
-            e.printStackTrace();
-            // Return a generic error response with status 500 Internal Server Error
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            return ResponseEntity.status(response.statusCode()).body(response.body());
+
+        } catch (IOException | InterruptedException e) {
+            log.error("Error calling backend: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error occurred while fetching institution: " + e.getMessage());
-        } finally {
-            if (httpURLConnection != null) {
-                httpURLConnection.disconnect();
-            }
-            if (br != null) {
-                try {
-                    br.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+                    .body("Error calling backend: " + e.getMessage());
         }
     }
 

@@ -1,41 +1,41 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      xmlns:tiles="http://www.thymeleaf.org">
+>
 
 <head>
 
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, maximum-scale=1.0, user-scalable=yes">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, maximum-scale=1.0, user-scalable=yes" name="viewport">
 
-    <meta name="_csrf" th:content="${_csrf.token}" />
-    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
 
     <!-- Page title -->
     <title>Orb | app</title>
 
     <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
-    <link rel="shortcut icon" type="image/ico" href="./images/favicon.ico"/>
+    <link href="./images/favicon.ico" rel="shortcut icon" type="image/ico"/>
 
     <!-- Vendor styles -->
-    <link rel="stylesheet" href="vendor/fontawesome/css/font-awesome.css"/>
+    <link href="vendor/fontawesome/css/font-awesome.css" rel="stylesheet"/>
     <!-- <link rel="stylesheet" href="vendor/metisMenu/dist/metisMenu.css" />-->
-    <link rel="stylesheet" href="vendor/animate.css/animate.css"/>
-    <link rel="stylesheet" href="vendor/bootstrap/dist/css/bootstrap.css"/>
-    <link rel="stylesheet" href="vendor/sweetalert/lib/sweet-alert.css"/>
+    <link href="vendor/animate.css/animate.css" rel="stylesheet"/>
+    <link href="vendor/bootstrap/dist/css/bootstrap.css" rel="stylesheet"/>
+    <link href="vendor/sweetalert/lib/sweet-alert.css" rel="stylesheet"/>
 
     <!-- App styles -->
-    <link rel="stylesheet" href="fonts/pe-icon-7-stroke/css/pe-icon-7-stroke.css"/>
-    <link rel="stylesheet" href="fonts/pe-icon-7-stroke/css/helper.css"/>
-    <link rel="stylesheet" href="styles/style.css">
+    <link href="fonts/pe-icon-7-stroke/css/pe-icon-7-stroke.css" rel="stylesheet"/>
+    <link href="fonts/pe-icon-7-stroke/css/helper.css" rel="stylesheet"/>
+    <link href="styles/style.css" rel="stylesheet">
 
 
-    <link rel="stylesheet" href="vendor/fontawesome/css/font-awesome.css"/>
-    <link rel="stylesheet" href="vendor/metisMenu/dist/metisMenu.css"/>
-    <link rel="stylesheet" href="vendor/animate.css/animate.css"/>
-    <link rel="stylesheet" href="vendor/bootstrap/dist/css/bootstrap.css"/>
-    <link rel="stylesheet" href="vendor/ladda/dist/ladda-themeless.min.css"/>
+    <link href="vendor/fontawesome/css/font-awesome.css" rel="stylesheet"/>
+    <link href="vendor/metisMenu/dist/metisMenu.css" rel="stylesheet"/>
+    <link href="vendor/animate.css/animate.css" rel="stylesheet"/>
+    <link href="vendor/bootstrap/dist/css/bootstrap.css" rel="stylesheet"/>
+    <link href="vendor/ladda/dist/ladda-themeless.min.css" rel="stylesheet"/>
 
 </head>
 <body>
@@ -111,39 +111,41 @@
                                         <div class="col-lg-9">
                                             <div class="row">
                                                 <div class="form-group col-lg-12">
-                                                    <label for="clientName" class="required">Institution</label>
-                                                    <input type="text" required id="clientName" class="form-control mandatory"
-                                                           name="clientName" minlength="3" placeholder="School Name">
+                                                    <label class="required" for="clientName">Institution</label>
+                                                    <input class="form-control mandatory" id="clientName" minlength="3"
+                                                           name="clientName"
+                                                           placeholder="School Name" required type="text">
                                                 </div>
                                                 <div class="form-group col-lg-12">
                                                     <label for="slogan">Slogan of Institution</label>
-                                                    <input type="text" id="slogan" class="form-control"
-                                                           name="slogan" placeholder="School Slogan" minlength="5">
+                                                    <input class="form-control" id="slogan" minlength="5"
+                                                           name="slogan" placeholder="School Slogan" type="text">
                                                 </div>
                                                 <div class="form-group col-lg-6">
-                                                    <label for="country" class="required">Country</label>
-                                                    <select autocomplete="off" id="country"
-                                                           class="form-control mandatory"
+                                                    <label class="required" for="country">Country</label>
+                                                    <select autocomplete="off" class="form-control mandatory"
+                                                            id="country"
                                                             name="country">
                                                         <option value="">Select Country</option>
                                                     </select>
                                                 </div>
                                                 <div class="form-group col-lg-6">
-                                                    <label for="region" class="required">Region</label>
-                                                    <input type="text" autocomplete="off" required id="region"
-                                                           class="form-control mandatory" placeholder="Region" name="region"
-                                                           minlength="3">
+                                                    <label class="required" for="region">Region</label>
+                                                    <input autocomplete="off" class="form-control mandatory" id="region" minlength="3"
+                                                           name="region" placeholder="Region"
+                                                           required
+                                                           type="text">
                                                 </div>
                                                 <div class="form-group col-lg-6">
-                                                    <label for="city" class="required">City</label>
-                                                    <input type="text" required id="city" class="form-control mandatory"
-                                                           placeholder="City" name="city" minlength="5">
+                                                    <label class="required" for="city">City</label>
+                                                    <input class="form-control mandatory" id="city" minlength="5" name="city"
+                                                           placeholder="City" required type="text">
                                                 </div>
                                                 <div class="form-group col-lg-6">
-                                                    <label for="email" class="required">Email</label>
-                                                    <input type="text" autocomplete="off" required id="email"
-                                                           class="form-control mandatory" name="email"
-                                                           placeholder="Official email of school">
+                                                    <label class="required" for="email">Email</label>
+                                                    <input autocomplete="off" class="form-control mandatory" id="email" name="email"
+                                                           placeholder="Official email of school" required
+                                                           type="text">
                                                 </div>
                                             </div>
                                         </div>
@@ -151,63 +153,65 @@
                                     <div class="row">
                                         <div class="col-lg-3 text-center">
                                             <div>
-                                                <label for="crest" class="required">School Crest</label>
+                                                <label class="required" for="crest">School Crest</label>
                                             </div>
-                                            <output class="imageOutput" name="crest" id="crest"
+                                            <output class="imageOutput" id="crest" name="crest"
                                                     style="height: 220px; width:220px; border-radius: 10px;display: inline-block;"></output>
-                                            <input class="imageInput mandatory" type="file"
+                                            <input accept="image/jpeg, image/png, image/jpg" class="imageInput mandatory"
                                                    style="width: 200px;padding: 12px;display: inline;"
-                                                   accept="image/jpeg, image/png, image/jpg">
+                                                   type="file">
                                         </div>
                                         <div class="col-lg-9">
                                             <div class="row">
 
                                                 <div class="form-group col-lg-6">
-                                                    <label for="contact1" class="required">Contact</label>
-                                                    <input type="text" required id="contact1" class="form-control mandatory"
-                                                           placeholder="Main Contact Number" name="contact1"
-                                                           minlength="10">
+                                                    <label class="required" for="contact1">Contact</label>
+                                                    <input class="form-control mandatory" id="contact1" minlength="10"
+                                                           name="contact1"
+                                                           placeholder="Main Contact Number" required
+                                                           type="text">
                                                 </div>
                                                 <div class="form-group col-lg-6">
                                                     <label for="contact2">Alt Contact</label>
-                                                    <input type="text" id="contact2" class="form-control"
-                                                           placeholder="Altanative Contact" name="contact2"
-                                                           minlength="10">
+                                                    <input class="form-control" id="contact2" minlength="10"
+                                                           name="contact2" placeholder="Altanative Contact"
+                                                           type="text">
                                                 </div>
                                                 <div class="form-group col-lg-6">
-                                                    <label for="bececode" class="required">WAEC Code</label>
-                                                    <input type="text" required id="bececode" class="form-control mandatory"
-                                                           placeholder="WAEC Code of School" name="bececode"
-                                                           minlength="5">
+                                                    <label class="required" for="bececode">WAEC Code</label>
+                                                    <input class="form-control mandatory" id="bececode" minlength="5"
+                                                           name="bececode"
+                                                           placeholder="WAEC Code of School" required
+                                                           type="text">
                                                 </div>
                                                 <div class="form-group col-lg-6">
-                                                    <label for="postalAddress" class="required">Postal Address</label>
-                                                    <input type="text" required id="postalAddress"
-                                                           class="form-control mandatory" name="postalAddress"
-                                                           placeholder="Official Postal Address of school"
-                                                           minlength="3">
+                                                    <label class="required" for="postalAddress">Postal Address</label>
+                                                    <input class="form-control mandatory" id="postalAddress" minlength="3"
+                                                           name="postalAddress" placeholder="Official Postal Address of school"
+                                                           required
+                                                           type="text">
                                                 </div>
 
                                                 <div class="form-group col-lg-6">
                                                     <label for="streams">Streams</label>
-                                                    <input type="number" required id="streams" class="form-control"
-                                                           name="streams" placeholder="Number of Streams running">
+                                                    <input class="form-control" id="streams" name="streams" placeholder="Number of Streams running"
+                                                           required type="number">
                                                 </div>
 
                                                 <div class="form-group col-lg-6">
-                                                    <label for="population" class="required">Population</label>
-                                                    <input type="number" required id="population"
-                                                           class="form-control mandatory" name="population"
-                                                           placeholder="Student Population">
+                                                    <label class="required" for="population">Population</label>
+                                                    <input class="form-control mandatory" id="population" name="population"
+                                                           placeholder="Student Population" required
+                                                           type="number">
                                                 </div>
 
                                                 <div class="form-group col-lg-12">
                                                     <label for="website">Website</label>
-                                                    <input type="text" id="website" class="form-control"
-                                                           name="website" placeholder="School website">
+                                                    <input class="form-control" id="website" name="website"
+                                                           placeholder="School website" type="text">
                                                 </div>
                                                 <div>
-                                                    <button id="instSubmit" class="btn btn-sm btn-primary m-t-n-xs"
+                                                    <button class="btn btn-sm btn-primary m-t-n-xs" id="instSubmit"
                                                             style="visibility: hidden;" type="submit">
                                                         <strong>Submit</strong></button>
                                                 </div>
@@ -245,7 +249,8 @@
                                                     </div>
                                                     <div class="panel-body">
                                                         <p class="text-muted">
-                                                            For the everyday school looking for a management tool in this day and age of information.
+                                                            For the everyday school looking for a management tool in
+                                                            this day and age of information.
                                                         </p>
                                                         <table class="table">
                                                             <thead>
@@ -520,72 +525,82 @@
                                                 <div>
                                                     <label for="crest">School Crest</label>
                                                 </div>
-                                                <output class="imageOutput" name="crest" id="crest_"
+                                                <output class="imageOutput" id="crest_" name="crest"
                                                         style="height: 220px; width:220px; border-radius: 10px;display: inline-block;"></output>
-                                                <input class="imageInput" type="file"
+                                                <input accept="image/jpeg, image/png, image/jpg" class="imageInput"
                                                        style="width: 200px;padding: 12px;display: inline;"
-                                                       accept="image/jpeg, image/png, image/jpg">
+                                                       type="file">
                                             </div>
                                             <div class="col-lg-9">
                                                 <div class="row">
                                                     <div class="form-group col-lg-12">
-                                                        <label for="clientName" class="controllabel col-lg-3">Institution: </label>
+                                                        <label class="controllabel col-lg-3" for="clientName">Institution: </label>
                                                         <label name="clientName_"></label>
                                                     </div>
                                                     <div class="form-group col-lg-12">
-                                                        <label for="slogan" class="controllabel col-lg-3">Slogan of Institution: </label>
+                                                        <label class="controllabel col-lg-3" for="slogan">Slogan of
+                                                            Institution: </label>
                                                         <label name="slogan_"></label>
                                                     </div>
                                                     <div class="form-group col-lg-12">
-                                                        <label for="country" class="controllabel col-lg-3">Country: </label>
-                                                        <label  name="country_"></label>
+                                                        <label class="controllabel col-lg-3"
+                                                               for="country">Country: </label>
+                                                        <label name="country_"></label>
                                                     </div>
                                                     <div class="form-group col-lg-12">
-                                                        <label for="region" class="controllabel col-lg-3">Region: </label>
+                                                        <label class="controllabel col-lg-3"
+                                                               for="region">Region: </label>
                                                         <label name="region_"></label>
                                                     </div>
                                                     <div class="form-group col-lg-12">
-                                                        <label for="city" class="controllabel col-lg-3">City: </label>
+                                                        <label class="controllabel col-lg-3" for="city">City: </label>
                                                         <label name="city_"></label>
                                                     </div>
                                                     <div class="form-group col-lg-12">
-                                                        <label for="email" class="controllabel col-lg-3">Email: </label>
+                                                        <label class="controllabel col-lg-3" for="email">Email: </label>
                                                         <label name="email_"></label>
                                                     </div>
 
                                                     <div class="form-group col-lg-12">
-                                                        <label for="contact1" class="controllabel col-lg-3">Contact: </label>
+                                                        <label class="controllabel col-lg-3"
+                                                               for="contact1">Contact: </label>
                                                         <label name="contact1_"></label>
                                                     </div>
                                                     <div class="form-group col-lg-12">
-                                                        <label for="contact2" class="controllabel col-lg-3">Alt Contact: </label>
+                                                        <label class="controllabel col-lg-3" for="contact2">Alt
+                                                            Contact: </label>
                                                         <label name="contact2_"></label>
                                                     </div>
                                                     <div class="form-group col-lg-12">
-                                                        <label for="bececode" class="controllabel col-lg-3">BECE Code: </label>
+                                                        <label class="controllabel col-lg-3" for="bececode">BECE
+                                                            Code: </label>
                                                         <label name="bececode_"></label>
                                                     </div>
                                                     <div class="form-group col-lg-12">
-                                                        <label for="postalAddress" class="controllabel col-lg-3">Postal Address: </label>
+                                                        <label class="controllabel col-lg-3" for="postalAddress">Postal
+                                                            Address: </label>
                                                         <label name="postalAddress_"></label>
                                                     </div>
 
                                                     <div class="form-group col-lg-12">
-                                                        <label for="streams" class="controllabel col-lg-3">Streams: </label>
+                                                        <label class="controllabel col-lg-3"
+                                                               for="streams">Streams: </label>
                                                         <label name="streams_"></label>
                                                     </div>
 
                                                     <div class="form-group col-lg-12">
-                                                        <label for="population" class="controllabel col-lg-3">Population: </label>
+                                                        <label class="controllabel col-lg-3" for="population">Population: </label>
                                                         <label class="" name="population_"></label>
                                                     </div>
 
                                                     <div class="form-group col-lg-12">
-                                                        <label for="website" class="controllabel col-lg-3">Website: </label>
+                                                        <label class="controllabel col-lg-3"
+                                                               for="website">Website: </label>
                                                         <label name="website_"></label>
                                                     </div>
                                                     <div class="form-group col-lg-12">
-                                                        <label for="website" class="controllabel col-lg-3">Subscription Plan: </label>
+                                                        <label class="controllabel col-lg-3" for="website">Subscription
+                                                            Plan: </label>
                                                         <label name="subscription_"></label>
                                                     </div>
                                                 </div>
@@ -609,7 +624,8 @@
                                             agreement between your company <b><span id="client"></span></b>
                                             and Astromy LLC <br/>to treate you as a customer who has placed a
                                             request for our product under the following terms
-                                            <br/><a title="dropdown" class="tnc" data-toggle="modal" data-target="#termsAndConditionsModal">Read Terms</a>
+                                            <br/><a class="tnc" data-target="#termsAndConditionsModal" data-toggle="modal"
+                                                    title="dropdown">Read Terms</a>
                                         </p>
                                     </div>
                                 </div>
@@ -618,8 +634,8 @@
                                 <div class="text-right m-t-xs">
                                     <a class="btn btn-default prev" href="#" title="dropdown">Previous</a>
                                     <a class="btn btn-default next" href="#" title="dropdown">Next</a>
-                                    <button id="submitRequest" type="submit" class="ladda-button btn btn-success"
-                                            data-style="expand-left"><span class="ladda-label">Submit</span><span
+                                    <button class="ladda-button btn btn-success" data-style="expand-left" id="submitRequest"
+                                            type="submit"><span class="ladda-label">Submit</span><span
                                             class="ladda-spinner"></span>
                                         <div class="ladda-progress" style="width: 0px;"></div>
                                     </button>
@@ -639,23 +655,23 @@
 
     </div>
 
-        <div class="modal fade hmodal-info" id="termsAndConditionsModal" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="color-line"></div>
-                    <div class="modal-header">
-                        <h6 class="modal-title">Terms & Conditions</h6>
-                        <small class="font-bold">Terms and conditions governing the contract you are about to enter</small>
-                    </div>
-                    <div class="panel-body modalbody" id="modb">
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default" id="dismiss" data-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary" id="printToPdf">Print Copy</button>
-                    </div>
+    <div class="modal fade hmodal-info" id="termsAndConditionsModal" role="dialog" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="color-line"></div>
+                <div class="modal-header">
+                    <h6 class="modal-title">Terms & Conditions</h6>
+                    <small class="font-bold">Terms and conditions governing the contract you are about to enter</small>
+                </div>
+                <div class="panel-body modalbody" id="modb">
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-default" data-dismiss="modal" id="dismiss" type="button">Close</button>
+                    <button class="btn btn-primary" id="printToPdf" type="button">Print Copy</button>
                 </div>
             </div>
         </div>
+    </div>
 
     <!-- Footer-->
     <footer class="footer">
@@ -694,53 +710,44 @@
 <script>
 
 
-
-$(function () {
+    $(function () {
 
 // Bind normal buttons
-$( '.ladda-button' ).ladda( 'bind', { timeout: 2000 } );
+        $('.ladda-button').ladda('bind', {timeout: 2000});
 
 // Bind progress buttons and simulate loading progress
-Ladda.bind( '.progress-demo .ladda-button',{
-    callback: function( instance ){
-        var progress = 0;
-        var interval = setInterval( function(){
-            progress = Math.min( progress + Math.random() * 0.1, 1 );
-            instance.setProgress( progress );
+        Ladda.bind('.progress-demo .ladda-button', {
+            callback: function (instance) {
+                var progress = 0;
+                var interval = setInterval(function () {
+                    progress = Math.min(progress + Math.random() * 0.1, 1);
+                    instance.setProgress(progress);
 
-            if( progress === 1 ){
-                instance.stop();
-                clearInterval( interval );
+                    if (progress === 1) {
+                        instance.stop();
+                        clearInterval(interval);
+                    }
+                }, 200);
             }
-        }, 200 );
-    }
-});
+        });
 
 
-var l = $( '.ladda-button-demo' ).ladda();
+        var l = $('.ladda-button-demo').ladda();
 
-l.click(function(){
-    // Start loading
-    l.ladda( 'start' );
+        l.click(function () {
+            // Start loading
+            l.ladda('start');
 
-    // Timeout example
-    // Do something in backend and then stop ladda
-    setTimeout(function(){
-        l.ladda('stop');
-    },12000)
-
-
-});
-
-});
+            // Timeout example
+            // Do something in backend and then stop ladda
+            setTimeout(function () {
+                l.ladda('stop');
+            }, 12000)
 
 
+        });
 
-
-
-
-
-
+    });
 
 
 </script>

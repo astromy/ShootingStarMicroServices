@@ -130,3 +130,6 @@ logging:
 keycloak:
   address: ${KeycloakURL:https://keycloak.astromyllc.com}
 
+paystack:
+  secrete: ${PAYSTACK_SECRET_KEY}
+

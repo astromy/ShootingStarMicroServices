@@ -1,4 +1,5 @@
-var selectPlan, institution, slogan, country, region, city, email, contact1, contact2, bececode, postalAddress, streams, population, website;
+var selectPlan, institution, slogan, country, region, city, email, contact1, contact2, bececode, postalAddress, streams,
+    population, website;
 
 $(".selectPlan").on('click', function (event) {
     event.preventDefault();
@@ -60,14 +61,13 @@ $('#submitRequest').click(function () {
                 credentials: "Access-Control-Allow-Origin",
                 mode: "same-origin",
                 method: "post",
-                headers: { "Content-Type": "application/json" },
+                headers: {"Content-Type": "application/json"},
                 body: data
             })
                 .then(resp => {
                     if (resp.status === 200) {
                         return resp.json()
                     } else {
-                        console.log("Status: " + resp.status)
                         return Promise.reject("server")
                     }
                 })
@@ -78,8 +78,6 @@ $('#submitRequest').click(function () {
                     if (err === "server") return
                     console.log(err)
                 })
-
-            console.log(`Received: ${dataReceived}`)
             /*$.ajax({
                 type: "POST",
                 url: "/api/setup/preRequestInstitution",

@@ -72,6 +72,7 @@ public class ParentsUtil {
 
     public static ParentsResponse mapParents_ToParentsResponse(Parents parents) {
         return ParentsResponse.builder()
+                .id(String.valueOf(parents.getId()))
                 .parentType(parents.getParentType())
                 .email(parents.getEmail())
                 .lastName(parents.getLastName())
@@ -205,7 +206,7 @@ public class ParentsUtil {
         return email.matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$");
     }
 
-    /*
+
     public void KeyclaokCreateUserCredentials(ParentsRequest parentsRequests) {
         if (parentsRequests == null || parentsRequests.getContact1() == null) {
             throw new IllegalArgumentException("Parent requests cannot be empty");
@@ -213,12 +214,21 @@ public class ParentsUtil {
 
         ParentsRequest request = parentsRequests;
 
-        // Find staff email from global list
-        String parentContact = parentGlobalList.stream()
-                .filter(s -> s.getStudentId().equalsIgnoreCase(request.getStudentId()))
+        // Find parent from global list or create if doesn't exist
+        Parents existingParent = parentGlobalList.stream()
+                .filter(s -> s.getStudentId().equalsIgnoreCase(request.getStudentId()) && s.getId().equals(parentsRequests.getId()))
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("Parent not found: " + request.getStudentId()))
-                .getContact1();
+                .orElse(null);
+
+        if (existingParent == null) {
+            // Create parent from payload
+            existingParent = mapParentRequest_ToParent(request, request.getStudentId());
+            parentRepository.save(existingParent);
+            parentGlobalList.add(existingParent);
+            log.info("Created new parent from payload for student: {}", request.getStudentId());
+        }
+
+        String parentContact = existingParent.getContact1();
 
         Keycloak keycloak = KeycloakBuilder.builder()
                 .serverUrl(staticKeycloakURL)
@@ -271,25 +281,24 @@ public class ParentsUtil {
             // 2. Handle password for new users
             if (request.getEmail() != null && !request.getEmail().isBlank()) {
                 if (isNewUser.get()) {
-                    setInitialPassword(usersResource, request.getContact1());
-                    // Send email asynchronously
-                    CompletableFuture.runAsync(() -> {
-                        try {
-                            String fromEmail = institutionRequest.getName().replace(" ", ".");
-                            int secondDotIndex = fromEmail.indexOf('.', fromEmail.indexOf('.') + 1);
-                            fromEmail = fromEmail.substring(0, secondDotIndex);
-                            mailUtil.sendTransactionalEmail(parentContact, "User Credentials to the ORB application", mailBody, fromEmail);
-                        } catch (Exception e) {
-                            log.error("Failed to send email to {}", parentContact, e);
-                        }
-                    });
+                    setInitialPassword(usersResource, userId);
                 }
-                {
-                    String fromEmail = getInstitution(request.getInstitutionCode()).getName().replace(" ", ".");
-                    int secondDotIndex = fromEmail.indexOf('.', fromEmail.indexOf('.') + 1);
-                    fromEmail = fromEmail.substring(0, secondDotIndex);
-                    mailUtil.sendTransactionalEmail(parentContact, "User Credentials to the ORB application", mailBody, fromEmail);
+
+                if (institutionRequest == null) {
+                    getInstitution(request.getInstitutionCode());
                 }
+
+                // Send email asynchronously with parent's email address
+                CompletableFuture.runAsync(() -> {
+                    try {
+                        String fromEmail = institutionRequest.getName().replace(" ", ".");
+                        int secondDotIndex = fromEmail.indexOf('.', fromEmail.indexOf('.') + 1);
+                        fromEmail = fromEmail.substring(0, secondDotIndex);
+                        mailUtil.sendTransactionalEmail(request.getEmail(), "User Credentials to the ORB application", mailBody, fromEmail, true);
+                    } catch (Exception e) {
+                        log.error("Failed to send email to {}", request.getEmail(), e);
+                    }
+                });
                 log.info("Successfully processed parent for user: {}", request.getStudentId());
             }
 
@@ -300,7 +309,7 @@ public class ParentsUtil {
         } finally {
             keycloak.close();
         }
-    }*/
+    }
 
     public void bulkCreateKeycloakUsers(List<ParentsRequest> parentRequests) throws ExecutionException, InterruptedException {
         if (parentRequests == null || parentRequests.isEmpty()) {
@@ -370,7 +379,7 @@ public class ParentsUtil {
 
             // Handle password and email if new user
             if (request.getEmail() != null && !request.getEmail().isBlank() && isNewUser.get()) {
-                setInitialPassword(usersResource, request.getContact1());
+                setInitialPassword(usersResource, user.getId());
                 sendCredentialsEmail(request, parentContact);
             }
 
@@ -471,14 +480,14 @@ public class ParentsUtil {
         throw new RuntimeException("User creation verification failed after retries");
     }
 
-    private void setInitialPassword(UsersResource usersResource, String parentContact) {
+    private void setInitialPassword(UsersResource usersResource, String userId) {
         CredentialRepresentation password = new CredentialRepresentation();
         password.setTemporary(true);
         password.setType(CredentialRepresentation.PASSWORD);
         password.setValue(generatedPass);
 
-        usersResource.get(parentContact).resetPassword(password);
-        log.info("Password set successfully for user: {}", parentContact);
+        usersResource.get(userId).resetPassword(password);
+        log.info("Password set successfully for user: {}", userId);
     }
 
     private RoleRepresentation getRoleRepresentation(RealmResource realmResource, String roleName) {

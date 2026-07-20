@@ -203,20 +203,42 @@ public class InstitutionService implements InstitutionServiceInterface {
     public Optional<String> reactivateInstitutionalAccount(PaystackPaymentResponse paystack) {
         String paymentStatus = paystack.getData().getStatus();
         Double paymentAmount = paystack.getData().getAmount();
+        String reference = paystack.getData().getReference();
         String institutionCode = paystack.getData().getMetadata().getCustomFields().get(0).getValue();
-        Institution institution = InstitutionUtils.institutionGlobalList.stream().filter(inst -> inst.getBececode().equalsIgnoreCase(institutionCode)).findFirst().get();
+
+        Institution institution = InstitutionUtils.institutionGlobalList.stream()
+                .filter(inst -> inst.getBececode().equalsIgnoreCase(institutionCode))
+                .findFirst()
+                .orElse(null);
+
+        if (institution == null) {
+            log.warn("Webhook for unknown institution code {} (reference={})", institutionCode, reference);
+            return Optional.empty();
+        }
+
+        if ("active".equalsIgnoreCase(institution.getStatus())) {
+            log.info("Ignoring duplicate webhook — institution {} already active (reference={})", institutionCode, reference);
+            return Optional.of("Account already active for " + institutionCode);
+        }
+
         SkimpInstitutionResponse si = institutionUtils.mapInstitutionToSkimpInstitutionResponse(institution);
 
-        if (paymentStatus.equalsIgnoreCase("success") && Objects.equals(paymentAmount, si.getPendingBill())) {
-            String status = "active";
-            List<InstitutionAccount> sa = new ArrayList<>();
-            sa.add(InstitutionAccountUtil.mapInstitutionAccountRequest_ToInstitutionAccount(new InstitutionAccountRequest(institutionCode, status), institutionCode));
-            institutionAccountUtil.saveAll(sa);
-            institution.setStatus("active");
-            institutionRepository.save(institution);
-            return Optional.of("Account Reactivated for " + institutionCode);
+        if (paymentStatus == null || paymentAmount == null
+                || !paymentStatus.equalsIgnoreCase("success")
+                || !Objects.equals(paymentAmount, si.getPendingBill())) {
+            log.warn("Ignoring webhook: status={}, amount={}, expected={}, reference={}",
+                    paymentStatus, paymentAmount, si.getPendingBill(), reference);
+            return Optional.empty();
         }
-        return Optional.empty();
+
+        List<InstitutionAccount> sa = new ArrayList<>();
+        sa.add(InstitutionAccountUtil.mapInstitutionAccountRequest_ToInstitutionAccount(
+                new InstitutionAccountRequest(institutionCode, "active"), institutionCode));
+        institutionAccountUtil.saveAll(sa);
+        institution.setStatus("active");
+        institutionRepository.save(institution);
+
+        return Optional.of("Account Reactivated for " + institutionCode);
     }
 
 }

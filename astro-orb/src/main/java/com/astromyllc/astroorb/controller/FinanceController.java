@@ -157,13 +157,18 @@ public class FinanceController {
         return post(body, backendserve + "/api/finance/getStudentBillByIdAndInstitution");
     }
 
+    @PostMapping("/api/mobile/getStudentBillDetails")
+    public ResponseEntity<String> getStudentBillMobile(@RequestBody StudentBillFetchRequest body) {
+        return post(body, backendserve + "/api/finance/getStudentBillByIdAndInstitution");
+    }
+
     @PostMapping("getStudentBillsByInstitution")
     public ResponseEntity<String> getStudentBillsByInstitution(@RequestBody StudentBillFetchRequest body) {
         return post(body, backendserve + "/api/finance/getStudentBillsByInstitution");
     }
 
     @PostMapping("getStudentBillsByInstitutionClass")
-    public ResponseEntity<String> getStudentBillsByClass(@RequestBody StudentBillFetchRequest body) {
+    public ResponseEntity<String> getStudentBillsByClass(@RequestBody DynamicStringRequest body) {
         return post(body, backendserve + "/api/finance/getStudentBillsByInstitutionClass");
     }
 
@@ -178,6 +183,11 @@ public class FinanceController {
 
     @PostMapping("create-billPayment")
     public ResponseEntity<String> createPayment(@RequestBody Bill_PaymentRequest body) {
+        return post(body, backendserve + "/api/finance/create-billPayment");
+    }
+
+    @PostMapping("api/mobile/verifyAndRecordPayment")
+    public ResponseEntity<String> verifyAndRecordPayment(@RequestBody Bill_PaymentRequest body) {
         return post(body, backendserve + "/api/finance/create-billPayment");
     }
 
@@ -361,6 +371,41 @@ public class FinanceController {
             log.error(String.valueOf(e));
         }
         return null;
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════
+// LEDGER BOOKS (Chart of Accounts)
+//
+// Used by:
+//   _financeLedgers.js         → ledger/create, ledger/get-by-institution,
+//                                 ledger/get-records
+//   _financeTrialBalance.js    → ledger/trial-balance
+//   _financeIncomeStatement.js → ledger/income-statement
+// ══════════════════════════════════════════════════════════════════════════
+
+    @PostMapping("ledger/create")
+    public ResponseEntity<String> createLedgerAccount(@RequestBody Map<String, Object> body) {
+        return post(body, backendserve + "/api/finance/ledger/create");
+    }
+
+    @PostMapping("ledger/get-by-institution")
+    public ResponseEntity<String> getLedgersByInstitution(@RequestBody Map<String, Object> body) {
+        return post(body, backendserve + "/api/finance/ledger/get-by-institution");
+    }
+
+    @PostMapping("ledger/get-records")
+    public ResponseEntity<String> getLedgerRecords(@RequestBody Map<String, Object> body) {
+        return post(body, backendserve + "/api/finance/ledger/get-records");
+    }
+
+    @PostMapping("ledger/trial-balance")
+    public ResponseEntity<String> getTrialBalance(@RequestBody Map<String, Object> body) {
+        return post(body, backendserve + "/api/finance/ledger/trial-balance");
+    }
+
+    @PostMapping("ledger/income-statement")
+    public ResponseEntity<String> getIncomeStatement(@RequestBody Map<String, Object> body) {
+        return post(body, backendserve + "/api/finance/ledger/income-statement");
     }
 
 }

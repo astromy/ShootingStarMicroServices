@@ -105,6 +105,10 @@ public class AssessmentService implements AssessmentServiceInterface {
                     .filter(a -> a.getStudentId().equalsIgnoreCase(studentID.getVal()))
                     .findAny()
                     .map(Assessment::getInstitutionCode);
+
+            if (institutionCode.isEmpty()) {
+                return Optional.empty();
+            }
             initializeData(institutionCode.get());
         }
 
@@ -124,13 +128,13 @@ public class AssessmentService implements AssessmentServiceInterface {
         return assessments.isEmpty()
                 ? Optional.empty()
                 : Optional.of(buildTerminalReportResponse(assessments))
-                .map(response -> {
-                    if (response.getInstitutionDetail() != null) {
-                        response.getInstitutionDetail().setCrest(null); // Nullify crest
-                        response.getInstitutionDetail().setHeadSignature(null);
-                    }
-                    return response; // Return the modified response
-                });
+                  .map(response -> {
+                      if (response.getInstitutionDetail() != null) {
+                          response.getInstitutionDetail().setCrest(null); // Nullify crest
+                          response.getInstitutionDetail().setHeadSignature(null);
+                      }
+                      return response; // Return the modified response
+                  });
     }
 
     @Override

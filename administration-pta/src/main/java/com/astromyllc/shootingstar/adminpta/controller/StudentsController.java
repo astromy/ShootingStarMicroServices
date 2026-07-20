@@ -39,6 +39,12 @@ public class StudentsController {
         return ResponseEntity.ok(studentServiceInterface.fetchAllStudents());
     }
 
+    @PostMapping("/api/administration-pta/updateStudentRecord")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<Optional<StudentsResponse>> updateStudentRecord(@RequestBody StudentsImportRequest request) {
+        return ResponseEntity.ok(studentServiceInterface.updateStudentRecord(request));
+    }
+
     @PostMapping("/api/administration-pta/getStudentsByInstitution")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Optional<List<StudentsResponse>>> getStudentsByInstitution(@RequestBody SingleStringRequest institution) {
@@ -65,7 +71,7 @@ public class StudentsController {
 
     @PostMapping("/api/administration-pta/getStudentsByClass")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<Optional<List<StudentsResponse>>> getStudentsByClass(@RequestBody ClassListRequest request) {
+    public ResponseEntity<Optional<List<StudentsResponse>>> getStudentsByClass(@RequestBody DynamicStringRequest request) {
         return ResponseEntity.ok(studentServiceInterface.fetchStudentsByClass(request));
     }
 

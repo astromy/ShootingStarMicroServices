@@ -14,7 +14,7 @@ spring:
       probability: 1.0
 
 server:
-  port: 0
+  port: 0                      # random port — Eureka registers it
 
 gateway:
   host: ${APIGATEWAY:http://localhost:8083}
@@ -39,7 +39,7 @@ management:
 resilience4j:
   circuitbreaker:
     instances:
-      setup:
+      finance-ledger:
         registerHealthIndicator: true
         event-consumer-buffer-size: 10
         slidingWindowType: COUNT_BASED
@@ -47,17 +47,9 @@ resilience4j:
         failureRateThreshold: 50
         waitDurationInOpenState: 5s
         permittedNumberOfCallsInHalfOpenState: 3
-        authomaticTransitionFromOpenToHalfOpenEnabled: true
-
-
+        automaticTransitionFromOpenToHalfOpenEnabled: true
 
 logging:
   level:
-    org:
-      springframework:
-        security=ERROR:
-    root: ERROR
-    org.springframework.web: ERROR
-    org.springframework.security: ERROR
-    org.springframework.boot.autoconfigure: ERROR
-    org.springframework.web.client.RestTemplate: ERROR
+    root: WARN
+    com.astromyllc.shootingstar.storesinventory: INFO

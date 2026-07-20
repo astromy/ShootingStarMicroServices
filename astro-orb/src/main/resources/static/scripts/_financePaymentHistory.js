@@ -107,7 +107,7 @@
     window.pyHistFetchStudentBill = async function (studentId) {
         try {
             return await fetchPost('getStudentBillByIdAndInstitution', {
-                institutionCode: _inst, studentId: studentId, studentClass: '',
+                institutionCode: _inst, studentId: studentId,
             });
         } catch (e) {
             return null;

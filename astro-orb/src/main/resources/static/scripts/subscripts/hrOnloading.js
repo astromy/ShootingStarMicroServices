@@ -1,14 +1,12 @@
 $(function () {
 
-let onboarding = `
+    let onboarding = `
     <div class="content animate-panel" id="onboarding">
 
         <div class="row">
             <div class="col-lg-12">
                 <div class="hpanel">
                     <div class="panel-body">
-
-                        <!--<form name="simpleForm" novalidate="novalidate" id="simpleForms" role="form">-->
 
                         <div class="text-center m-b-md" id="wizardControls">
 
@@ -17,13 +15,12 @@ let onboarding = `
                             <a class="btn btn-default wizardTabs" data-toggle="tab">Step 3 - Academic Data</a>
                             <a class="btn btn-default wizardTabs" data-toggle="tab">Step 4 - Professional Data</a>
                             <a class="btn btn-default wizardTabs" data-toggle="tab">Step 5 - Staff Designation</a>
-                            <a class="btn btn-default wizardTabs" data-toggle="tab">Step 5 - Approve & Submit</a>
+                            <a class="btn btn-default wizardTabs" data-toggle="tab">Step 6 - Approve &amp; Submit</a>
 
                         </div>
 
                         <div class="tab-content">
                             <div class="p-m tab-pane staffPane active">
-                                <!-- <form name="simpleForm" id="simpleForms" action="">-->
                                 <form id="staffForm" role="form">
                                     <div class="row">
                                         <div class="col-lg-3 text-center">
@@ -93,7 +90,7 @@ let onboarding = `
                                                       name="staffEmail"
                                                       class="form-control"
                                                       placeholder="Staff Email"
-                                                      pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+                                                      pattern="[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+[.][a-zA-Z]{2,}"
                                                       title="Please enter a valid company email address (e.g., name@company.com)"
                                                       required
                                                       autocomplete="email"
@@ -112,9 +109,9 @@ let onboarding = `
                                             </div>
                                             <output class="imageOutput" name="crest" id="crest"
                                                     style="height: 220px; width:220px; border-radius: 10px;display: inline-block;"></output>
-                                            <input class="imageInput" type="file"
-                                                   style="width: 200px;padding: 12px;display: inline;"
-                                                   accept="image/jpeg, image/png, image/jpg">
+                                            <input class="imageInput" type="file" onchange="imageChange(this)"
+                                                    style="width: 200px;padding: 12px;display: inline;"
+                                                    accept="image/jpeg, image/png, image/jpg">
                                         </div>
                                         <div class="col-lg-9">
                                             <div class="row">
@@ -204,8 +201,6 @@ let onboarding = `
                                         </div>
                                     </div>
                                 </form>
-                                <!-- <input id="fsubmit" type="submit" style="display: none;"></input>
-                                 </form>-->
 
                                 <div class="text-right m-t-xs">
                                     <a class="btn btn-default next">Next</a>
@@ -214,26 +209,23 @@ let onboarding = `
                             </div>
 
                             <div class="p-m tab-pane">
-
                                 <div class="row">
                                     <div class="col-lg-12">
                                         <div class="row">
-
                                             <table id="staffTable_1" class="table table-striped table-bordered table-hover" width="100%">
                                                 <thead>
                                                     <tr>
-                                                        <th >Staff ID</th>
-                                                        <th >Staff Name</th>
-                                                        <th >Staff Gender</th>
-                                                        <th >Staff Contact</th>
-                                                        <th >Date of Employment</th>
-                                                        <th >Designation</th>
-                                                        <th >Nationality</th>
-                                                        <th >Dependants No</th>
+                                                        <th>Staff ID</th>
+                                                        <th>Staff Name</th>
+                                                        <th>Staff Gender</th>
+                                                        <th>Staff Contact</th>
+                                                        <th>Date of Employment</th>
+                                                        <th>Designation</th>
+                                                        <th>Nationality</th>
+                                                        <th>Dependants No</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody id="staffTableBody_1"></tbody>
-
                                             </table>
                                         </div>
                                     </div>
@@ -242,35 +234,30 @@ let onboarding = `
                                     <a class="btn btn-default prev" href="#" title="dropdown">Previous</a>
                                     <a class="btn btn-default next" href="#" title="dropdown">Next</a>
                                 </div>
-
                             </div>
 
                             <div class="p-m tab-pane">
-
                                 <div class="row">
                                     <div class="col-lg-12">
                                         <div class="row">
-
                                             <table id="staffTable_2" class="table table-striped table-bordered table-hover" width="100%">
                                                 <thead>
                                                     <tr>
-                                                        <th >Staff ID</th>
-                                                        <th >Staff Name</th>
-                                                        <th >Staff Gender</th>
-                                                        <th >Staff Contact</th>
-                                                        <th >Date of Employment</th>
-                                                        <th >Designation</th>
-                                                        <th >Nationality</th>
-                                                        <th >Dependants No</th>
+                                                        <th>Staff ID</th>
+                                                        <th>Staff Name</th>
+                                                        <th>Staff Gender</th>
+                                                        <th>Staff Contact</th>
+                                                        <th>Date of Employment</th>
+                                                        <th>Designation</th>
+                                                        <th>Nationality</th>
+                                                        <th>Dependants No</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody id="staffTableBody_2"></tbody>
-
                                             </table>
                                         </div>
                                     </div>
                                 </div>
-
                                 <div class="text-right m-t-xs">
                                     <a class="btn btn-default prev" href="#" title="dropdown">Previous</a>
                                     <a class="btn btn-default next" href="#" title="dropdown">Next</a>
@@ -278,93 +265,103 @@ let onboarding = `
                             </div>
 
                             <div class="p-m tab-pane">
-
                                 <div class="row">
                                     <div class="col-lg-12 text-center">
                                         <div class="row">
-
                                             <table id="staffTable_3" class="table table-striped table-bordered table-hover" width="100%">
                                                 <thead>
                                                     <tr>
-                                                        <th >Staff ID</th>
-                                                        <th >Staff Name</th>
-                                                        <th >Staff Gender</th>
-                                                        <th >Staff Contact</th>
-                                                        <th >Date of Employment</th>
-                                                        <th >Designation</th>
-                                                        <th >Nationality</th>
-                                                        <th >Dependants No</th>
+                                                        <th>Staff ID</th>
+                                                        <th>Staff Name</th>
+                                                        <th>Staff Gender</th>
+                                                        <th>Staff Contact</th>
+                                                        <th>Date of Employment</th>
+                                                        <th>Designation</th>
+                                                        <th>Nationality</th>
+                                                        <th>Dependants No</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody id="staffTableBody_3"></tbody>
-
                                             </table>
                                         </div>
                                     </div>
                                 </div>
-
                                 <div class="text-right m-t-xs">
                                     <a class="btn btn-default prev" href="#" title="dropdown">Previous</a>
                                     <a class="btn btn-default next" href="#" title="dropdown">Next</a>
                                 </div>
                             </div>
 
+                            <!-- STEP 5: Staff Designation (NEW) -->
                             <div class="p-m tab-pane">
-
                                 <div class="row">
                                     <div class="col-lg-12 text-center">
                                         <div class="row">
-
                                             <table id="staffTable_4" class="table table-striped table-bordered table-hover" width="100%">
                                                 <thead>
                                                     <tr>
-                                                        <th >Staff ID</th>
-                                                        <th >Staff Name</th>
-                                                        <th >Staff Gender</th>
-                                                        <th >Staff Contact</th>
-                                                        <th >Date of Employment</th>
-                                                        <th >Designation</th>
-                                                        <th >Nationality</th>
-                                                        <th >Dependants No</th>
+                                                        <th>Staff ID</th>
+                                                        <th>Staff Name</th>
+                                                        <th>Staff Gender</th>
+                                                        <th>Staff Contact</th>
+                                                        <th>Date of Employment</th>
+                                                        <th>Designation</th>
+                                                        <th>Nationality</th>
+                                                        <th>Dependants No</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody id="staffTableBody_4"></tbody>
-
                                             </table>
                                         </div>
                                     </div>
                                 </div>
-
                                 <div class="text-right m-t-xs">
                                     <a class="btn btn-default prev" href="#" title="dropdown">Previous</a>
                                     <a class="btn btn-default next" href="#" title="dropdown">Next</a>
                                 </div>
                             </div>
 
+                            <!-- STEP 6: Approve & Submit -->
                             <div class="tab-pane">
                                 <div class="row text-center m-t-lg m-b-lg">
                                     <div class="col-lg-12">
                                         <div class="row">
-
                                             <table id="staffTable_5" class="table table-striped table-bordered table-hover" width="100%">
                                                 <thead>
                                                     <tr>
-                                                        <th >Staff ID</th>
-                                                        <th >Staff Name</th>
-                                                        <th >Staff Gender</th>
-                                                        <th >Staff Contact</th>
-                                                        <th >Date of Employment</th>
-                                                        <th >Designation</th>
-                                                        <th >Nationality</th>
-                                                        <th >Snnit</th>
+                                                        <th>Staff ID</th>
+                                                        <th>Staff Name</th>
+                                                        <th>Staff Gender</th>
+                                                        <th>Staff Contact</th>
+                                                        <th>Date of Employment</th>
+                                                        <th>Designation</th>
+                                                        <th>Nationality</th>
+                                                        <th>Snnit</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody id="staffTableBody_5"></tbody>
-
                                             </table>
                                         </div>
                                     </div>
-                                    <div class="checkbox col-lg-12">
+
+                                    <!-- Additional Documents Upload (NEW) -->
+                                    <div class="col-lg-12 m-t-md text-left">
+                                        <div class="hpanel">
+                                            <div class="panel-heading">
+                                                <h4>Additional Staff Documents</h4>
+                                                <small>Attach any other relevant documents for this staff member</small>
+                                            </div>
+                                            <div class="panel-body" id="staffDocumentUploadArea">
+                                            </div>
+                                            <div class="panel-footer">
+                                                <button type="button" class="btn btn-sm btn-primary" id="addDocumentBtn">
+                                                    <i class="fa fa-plus-square"></i> Add Document
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="checkbox col-lg-12" style="text-align:left;">
                                         <input type="checkbox" class="i-checks approveCheck" placeholder="approve"
                                                title="approve" name="approve">
                                         Approve this form
@@ -377,53 +374,43 @@ let onboarding = `
                                             class="ladda-spinner"></span>
                                         <div class="ladda-progress" style="width: 0px;"></div>
                                     </button>
-
-                                    <!--<a class="btn btn-success submitWizard" href="#" title="dropdown">Submit</a>-->
                                 </div>
                             </div>
+
                         </div>
-                        <!--</form>-->
 
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 
 
-        <div class="modal fade hmodal-info" id="staffModal" tabindex="-1" role="dialog"aria-hidden="true">
-            <div class="modal-dialog modal-lg" style="margin: 100px auto">
-                <div class="modal-content">
-                    <div class="color-line"></div>
-                        <div class="modal-header">
-                            <h4 class="modal-title">Add Bill Item</h4>
-                            <small class="font-bold"> Create new Bill Item</small>
-                        </div>
-                        <div class="panel-body modalbody" style="border-bottom: 1px solid #a8bede;">
-
-                        </div>
-
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-primary left test"><i class="fa fa-plus-square"><span style="margin-left:5px"/>Add More Dependants</i></button>
-                            <button type="button" class="btn btn-default dismissModal" data-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-primary saveStaffDetails">Save changes</button>
-                        </div>
+    <div class="modal fade hmodal-info" id="staffModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" style="margin: 100px auto">
+            <div class="modal-content">
+                <div class="color-line"></div>
+                    <div class="modal-header">
+                        <h4 class="modal-title">Add Bill Item</h4>
+                        <small class="font-bold"> Create new Bill Item</small>
+                    </div>
+                    <div class="panel-body modalbody" style="border-bottom: 1px solid #a8bede;">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary left test"><i class="fa fa-plus-square"><span style="margin-left:5px"/>Add More</i></button>
+                        <button type="button" class="btn btn-default dismissModal" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary saveStaffDetails">Save changes</button>
                     </div>
                 </div>
             </div>
+        </div>
 
-      <!-- Footer-->
-        <footer class="footer">
-            <span class="pull-right">
-                ORB
-            </span>
-            <span class="fa fa-copyright"></span>
-            Astromy LLC 2013-<span id="copyrightYear"></span>
-        </footer>
+    <footer class="footer">
+        <span class="pull-right">ORB</span>
+        <span class="fa fa-copyright"></span>
+        Astromy LLC 2013-<span id="copyrightYear"></span>
+    </footer>
 `
-
-
 
     document.getElementById("wrapper").innerHTML = onboarding;
 
@@ -434,18 +421,19 @@ let onboarding = `
     document.getElementsByTagName("body")[0].appendChild(script14);
 });
 
+dependantCount = 0;
 
-
-function createDependant(){
- const htmlContent = `
+function createDependant() {
+    const i = dependantCount++;
+    const htmlContent = `
         <div class="dependants">
 
         <div class="row">
             <div class="col-sm-6">
                 <div class="row">
                     <div class="col-md-12">
-                        <label for="dn">Dependant Name</label>
-                        <input id="dn" type="text" placeholder="Dependant Name" class="form-control newDependantName">
+                        <label for="dn_${i}">Dependant Name</label>
+                        <input id="dn_${i}" type="text" placeholder="Dependant Name" class="form-control newDependantName">
                     </div>
                 </div>
             </div>
@@ -453,20 +441,19 @@ function createDependant(){
             <div class="col-sm-6">
                 <div class="row">
                     <div class="col-md-12">
-                        <label for="dob">Date of Birth</label>
-                        <input id="dob" type="date" placeholder="Date of Birth" class="form-control newDependantDOB">
+                        <label for="dob_${i}">Date of Birth</label>
+                        <input id="dob_${i}" type="date" placeholder="Date of Birth" class="form-control newDependantDOB">
                     </div>
                 </div>
             </div>
         </div>
-.
 
         <div class="row">
             <div class="col-sm-6">
                 <div class="row">
                     <div class="col-md-12">
-                        <label for="gender">Gender</label>
-                        <select id="gender" class="form-control m-b newGenderSelect">
+                        <label for="gender_${i}">Gender</label>
+                        <select id="gender_${i}" class="form-control m-b newGenderSelect">
                             <option value="0">Select Gender</option>
                             <option value="1">Male</option>
                             <option value="2">Female</option>
@@ -478,8 +465,8 @@ function createDependant(){
             <div class="col-sm-6">
                 <div class="row">
                     <div class="col-md-12">
-                        <label for="rt">Relationship Type</label>
-                        <select id="rt" class="form-control m-b newRelationshipType">
+                        <label for="rt_${i}">Relationship Type</label>
+                        <select id="rt_${i}" class="form-control m-b newRelationshipType">
                             <option value="0">Select Relationship Type</option>
                             <option value="2">Daughter</option>
                             <option value="3">Son</option>
@@ -518,9 +505,9 @@ function createDependant(){
                         </div>
                         <output class="imageOutput dependantPic" name="crest"
                                 style="height: 120px; width:220px; border-radius: 10px;display: inline-block;"></output>
-                        <input class="imageInput dependantPicInput" type="file"  onchange="imageChange(this)"
+                        <input class="imageInput dependantPicInput" type="file" onchange="imageChange(this)"
                                style="width: 200px;padding: 12px;display: inline;"
-                               accept="image/jpeg, image/png, image/jpg"">
+                               accept="image/jpeg, image/png, image/jpg">
                         <p id="error" class="fileError" style="color: red; display: none;">Only Image files are allowed!</p>
                     </div>
                 </div>
@@ -530,18 +517,21 @@ function createDependant(){
       </div>
         <div class="hr-line-dashed"></div>
     `;
-   return htmlContent;
-   }
+    return htmlContent;
+}
 
-function createAcademicData(){
- const htmlContent = `
+academicDataCount = 0;
+
+function createAcademicData() {
+    const ii = academicDataCount++;
+    const htmlContent = `
         <div class="academic">
                  <div class="row">
                     <div class="col-sm-6">
                         <div class="row">
                             <div class="col-md-12">
-                                <label for="in">Institution Name</label>
-                                <input id="in" type="text" placeholder="Institution Name" class="form-control nameOfInstitution">
+                                <label for="in_${ii}">Institution Name</label>
+                                <input id="in_${ii}" type="text" placeholder="Institution Name" class="form-control nameOfInstitution">
                             </div>
                         </div>
                     </div>
@@ -549,13 +539,12 @@ function createAcademicData(){
                     <div class="col-sm-6">
                         <div class="row">
                             <div class="col-md-12">
-                                <label for="dn">Date of Admission</label>
-                                <input type="date" placeholder="Date of Admission" class="form-control dateOfAdmission">
+                                <label for="doa_${ii}">Date of Admission</label>
+                                <input id="doa_${ii}" type="date" placeholder="Date of Admission" class="form-control dateOfAdmission">
                             </div>
                         </div>
                     </div>
                 </div>
-        .
 
                 <div class="row">
                     <div class="col-sm-6">
@@ -578,7 +567,6 @@ function createAcademicData(){
                 </div>
 
           <div class="row">
-
             <div class="col-sm-6">
                 <div class="row">
                     <div class="col-md-12">
@@ -617,12 +605,12 @@ function createAcademicData(){
       </div>
         <div class="hr-line-dashed"></div>
     `;
-   return htmlContent;
-   }
+    return htmlContent;
+}
 
 
-function createProfessionalData(){
- const htmlContent = `
+function createProfessionalData() {
+    const htmlContent = `
         <div class="professional">
                 <div class="row">
                     <div class="col-sm-6">
@@ -643,7 +631,6 @@ function createProfessionalData(){
                         </div>
                     </div>
                 </div>
-        .
 
                 <div class="row">
                     <div class="col-sm-6">
@@ -696,5 +683,102 @@ function createProfessionalData(){
       </div>
         <div class="hr-line-dashed"></div>
     `;
-   return htmlContent;
-   }
+    return htmlContent;
+}
+
+// ── Designation form (Step 5 modal) ──────────────────────────────────────
+function createDesignationForm(designationName) {
+    const isTeacher = designationName && designationName.toLowerCase().includes('teach');
+    return `
+        <div class="designation-entry">
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label>Designation</label>
+                            <input type="text" class="form-control designationField" value="${designationName || ''}" placeholder="Designation" readonly>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label>Effective Date</label>
+                            <input type="date" class="form-control designationEffectiveDate">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            ${isTeacher ? `
+            <div class="row m-t-sm">
+                <div class="col-sm-6">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label>Class Group</label>
+                            <select class="form-control classGroupSelect">
+                                <option value="">Select Class Group</option>
+                                <option value="Nursery">Nursery</option>
+                                <option value="Kindergarten">Kindergarten</option>
+                                <option value="Primary">Primary</option>
+                                <option value="JHS">JHS</option>
+                                <option value="SHS">SHS</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label>Class</label>
+                            <select class="form-control classAssignedSelect">
+                                <option value="">Select Class</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            ` : ''}
+        </div>
+        <div class="hr-line-dashed"></div>
+    `;
+}
+
+// ── Additional document row (Step 6) ─────────────────────────────────────
+docCount = 0;
+
+function createStaffDocumentRow() {
+    const d = docCount++;
+    return `
+        <div class="staff-document-row row m-b-sm" id="docRow_${d}">
+            <div class="col-sm-4">
+                <input type="text" class="form-control staffDocTitle" placeholder="Document Title">
+            </div>
+            <div class="col-sm-3">
+                <select class="form-control staffDocType">
+                    <option value="">Select Document Type</option>
+                    <option value="Contract">Contract</option>
+                    <option value="Appointment Letter">Appointment Letter</option>
+                    <option value="Medical Report">Medical Report</option>
+                    <option value="Reference Letter">Reference Letter</option>
+                    <option value="Disciplinary Record">Disciplinary Record</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div class="col-sm-4">
+                <input type="file" class="staffDocFile"
+                       accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                       style="padding:6px;">
+            </div>
+            <div class="col-sm-1 text-center">
+                <button type="button" class="btn btn-sm btn-danger" onclick="removeDocumentRow('docRow_${d}')">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+function removeDocumentRow(rowId) {
+    var el = document.getElementById(rowId);
+    if (el) el.remove();
+}

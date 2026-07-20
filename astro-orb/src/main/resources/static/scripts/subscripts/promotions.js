@@ -1,4 +1,3 @@
-
 $(function () {
 
     let header = `
@@ -34,7 +33,7 @@ $(function () {
 
 
 
-                <div class="modal fade hmodal-info" id="myPromotionsModal" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal fade hmodal-info" id="myPromotionsModal" tabindex="-1" role="dialog" >
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="color-line"></div>
@@ -87,8 +86,8 @@ $(function () {
 });
 
 //document.getElementById("institution").addEventListener("click", institutionBuild);
-function modalopn(){
-    document.getElementsByClassName("modalbody")[0].innerHTML="";
+function modalopn() {
+    document.getElementsByClassName("modalbody")[0].innerHTML = "";
     classesIndut();
 }
 
@@ -104,60 +103,59 @@ function classesIndut() {
 
 }
 
-function createModalElements(){
+function createModalElements() {
 
-clonable=document.createElement("div");
-clonable.setAttribute("class", "row clonable");
+    clonable = document.createElement("div");
+    clonable.setAttribute("class", "row clonable");
 
-var el1=document.createElement("div");
-el1.setAttribute("class", "col-sm-6");
+    var el1 = document.createElement("div");
+    el1.setAttribute("class", "col-sm-6");
 
-var el2=document.createElement("div");
-el2.setAttribute("class", "row");
+    var el2 = document.createElement("div");
+    el2.setAttribute("class", "row");
 
-var el3=document.createElement("div");
-el3.setAttribute("class", "col-md-12");
+    var el3 = document.createElement("div");
+    el3.setAttribute("class", "col-md-12");
 
-var el4=document.createElement("select");
-el4.setAttribute("class", "form-control m-b promotionOptions");
-el4.setAttribute("name", "currentClass");
-el4.setAttribute("id", "currentClass");
+    var el4 = document.createElement("select");
+    el4.setAttribute("class", "form-control m-b promotionOptions");
+    el4.setAttribute("name", "currentClass");
+    el4.setAttribute("id", "currentClass");
 
-var el5=document.createElement("option");
-el5.innerHTML=("Select Current Class");
+    var el5 = document.createElement("option");
+    el5.innerHTML = ("Select Current Class");
 
-el4.appendChild(el5);   // Append default option to select
+    el4.appendChild(el5);   // Append default option to select
     el3.appendChild(el4);   // Append select to col-md-12
     el2.appendChild(el3);   // Append col-md-12 to inner row
     el1.appendChild(el2);   // Append inner row to col-sm-6
     clonable.appendChild(el1); // Append col-sm-6 to outer row (clonable)
 
 
+    var ela = document.createElement("div");
+    ela.setAttribute("class", "col-sm-6");
 
-var ela=document.createElement("div");
-ela.setAttribute("class", "col-sm-6");
+    var elb = document.createElement("div");
+    elb.setAttribute("class", "row");
 
-var elb=document.createElement("div");
-elb.setAttribute("class", "row");
+    var elc = document.createElement("div");
+    elc.setAttribute("class", "col-md-12");
 
-var elc=document.createElement("div");
-elc.setAttribute("class", "col-md-12");
+    var eld = document.createElement("select");
+    eld.setAttribute("class", "form-control m-b promotionOptions1");
+    eld.setAttribute("name", "targetClass");
+    eld.setAttribute("id", "targetClass");
 
-var eld=document.createElement("select");
-eld.setAttribute("class", "form-control m-b promotionOptions1");
-eld.setAttribute("name", "targetClass");
-eld.setAttribute("id", "targetClass");
+    var ele = document.createElement("option");
+    ele.innerHTML = ("Select Target Class");
 
-var ele=document.createElement("option");
-ele.innerHTML=("Select Target Class");
-
-eld.appendChild(ele);
+    eld.appendChild(ele);
     elc.appendChild(eld);   // Append input to col-md-12
     elb.appendChild(elc);   // Append col-md-12 to inner row
     ela.appendChild(elb);   // Append inner row to col-sm-6
     clonable.appendChild(ela); // Append col-sm-6 to outer row (clonable)
 
-clonable2=document.createElement("div");
-clonable2.setAttribute("class", "hr-line-dashed");
+    clonable2 = document.createElement("div");
+    clonable2.setAttribute("class", "hr-line-dashed");
 }
 

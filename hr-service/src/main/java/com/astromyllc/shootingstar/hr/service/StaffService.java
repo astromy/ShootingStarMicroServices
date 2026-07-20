@@ -91,119 +91,95 @@ public class StaffService implements StaffServiceInterface {
 
                 Staff s = staffUtil.mapStaffRequest_ToStaff(staffRequest, staff.get());
 
-                List<ProfessionalRecords> updatedProfessionalRecords = staffRequest.getProfessionalRecords().stream()
-                        .map(requestRecord -> {
-                            // Check if the professional record already exists
-                            Optional<ProfessionalRecords> existingRecord = staff.get().getProfessionalRecords().stream()
-                                    .filter(existing -> existing.getNameOfInstitution().equalsIgnoreCase(requestRecord.getNameOfInstitution()) &&
-                                            existing.getDateOfEmployment().equals(requestRecord.getDateOfEmployment()))
-                                    .findFirst();
+                // ── Professional Records ──────────────────────────────────────────────
+                if (staffRequest.getProfessionalRecords() != null && !staffRequest.getProfessionalRecords().isEmpty()) {
+                    List<ProfessionalRecords> updatedProfessionalRecords = staffRequest.getProfessionalRecords().stream()
+                            .map(requestRecord -> {
+                                Optional<ProfessionalRecords> existingRecord = staff.get().getProfessionalRecords() == null ? Optional.empty() :
+                                        staff.get().getProfessionalRecords().stream()
+                                        .filter(existing -> existing.getNameOfInstitution().equalsIgnoreCase(requestRecord.getNameOfInstitution()) &&
+                                                existing.getDateOfEmployment().equals(requestRecord.getDateOfEmployment()))
+                                        .findFirst();
+                                return existingRecord.map(existing -> {
+                                    professionalRecordsUtil.updateProfessionalRecord(existing, requestRecord, s.getStaffCode());
+                                    return existing;
+                                }).orElseGet(() -> ProfessionalRecordsUtil.mapProfessionalRecordRequest_ToProfessionalRecords(requestRecord, staff.get().getStaffCode()));
+                            }).toList();
+                    professionalRecordsUtil.saveAll(updatedProfessionalRecords);
+                    s.setProfessionalRecords(updatedProfessionalRecords);
+                }
 
-                            // If exists, update the record; otherwise, add as new
-                            return existingRecord.map(existing -> {
-                                professionalRecordsUtil.updateProfessionalRecord(existing, requestRecord, s.getStaffCode()); // Assuming an update method exists
-                                return existing;
-                            }).orElseGet(() -> ProfessionalRecordsUtil.mapProfessionalRecordRequest_ToProfessionalRecords(requestRecord, staff.get().getStaffCode()));
-                        })
-                        .toList();
+                // ── Dependants ────────────────────────────────────────────────────────
+                if (staffRequest.getDependants() != null && !staffRequest.getDependants().isEmpty()) {
+                    List<Dependants> updatedDependants = staffRequest.getDependants().stream()
+                            .map(requestDependant -> {
+                                Optional<Dependants> existingDependant = staff.get().getDependants() == null ? Optional.empty() :
+                                        staff.get().getDependants().stream()
+                                        .filter(existing -> existing.getName().equalsIgnoreCase(requestDependant.getName()) &&
+                                                existing.getDateOfBirth().equals(requestDependant.getDateOfBirth()))
+                                        .findFirst();
+                                return existingDependant.map(existing -> {
+                                    DependantsUtil.updateDependants(existing, requestDependant, s.getStaffCode());
+                                    return existing;
+                                }).orElseGet(() -> DependantsUtil.mapDependantsRequest_ToDependants(requestDependant, staff.get().getStaffCode()));
+                            }).toList();
+                    dependantsUtil.saveAll(updatedDependants);
+                    s.setDependants(updatedDependants);
+                }
 
-                // Save the updated list of professional records
-                professionalRecordsUtil.saveAll(updatedProfessionalRecords);
+                // ── Academic Records ──────────────────────────────────────────────────
+                if (staffRequest.getAcademicRecords() != null && !staffRequest.getAcademicRecords().isEmpty()) {
+                    List<AcademicRecords> updatedAcademicRecords = staffRequest.getAcademicRecords().stream()
+                            .map(requestRecord -> {
+                                Optional<AcademicRecords> existingRecord = staff.get().getAcademicRecords() == null ? Optional.empty() :
+                                        staff.get().getAcademicRecords().stream()
+                                        .filter(existing -> existing.getNameOfInstitution().equalsIgnoreCase(requestRecord.getNameOfInstitution()) &&
+                                                existing.getDateOfGraduation().equals(requestRecord.getDateOfGraduation()))
+                                        .findFirst();
+                                return existingRecord.map(existing -> {
+                                    academicRecordsUtil.updateAcademicRecord(existing, requestRecord, s.getStaffCode());
+                                    return existing;
+                                }).orElseGet(() -> AcademicRecordsUtil.mapAcademicRecordRequest_ToAcademicRecords(requestRecord, staff.get().getStaffCode()));
+                            }).toList();
+                    academicRecordsUtil.saveAll(updatedAcademicRecords);
+                    s.setAcademicRecords(updatedAcademicRecords);
+                }
 
-                // Set the updated list on the staff object
-                s.setProfessionalRecords(updatedProfessionalRecords);
+                // ── Staff Designations ────────────────────────────────────────────────
+                if (staffRequest.getStaffDesignations() != null && !staffRequest.getStaffDesignations().isEmpty()) {
+                    List<DesignationList> staffDesignationList = staffRequest.getStaffDesignations().stream()
+                            .map(requestRecord -> {
+                                Optional<DesignationList> existingRecord = staff.get().getStaffDesignations() == null ? Optional.empty() :
+                                        staff.get().getStaffDesignations().stream()
+                                        .filter(existing -> existing.getInstitutionCode().equalsIgnoreCase(requestRecord.getInstitutionCode()) &&
+                                                existing.getDesignation().equals(requestRecord.getDesignation()))
+                                        .findFirst();
+                                return existingRecord.map(existing -> {
+                                    staffDesignationUtil.updateStaffDesignation(existing, requestRecord);
+                                    return existing;
+                                }).orElseGet(() -> StaffDesignationUtil.mapStaffDesignationListRequest_ToStaffDesignationList(requestRecord));
+                            }).toList();
+                    staffDesignationUtil.saveAll(staffDesignationList);
+                    s.setStaffDesignations(staffDesignationList);
+                }
 
-
-                List<Dependants> updatedDependants = staffRequest.getDependants().stream()
-                        .map(requestDependant -> {
-                            // Check if the dependant already exists
-                            Optional<Dependants> existingDependant = staff.get().getDependants().stream()
-                                    .filter(existing -> existing.getName().equalsIgnoreCase(requestDependant.getName()) &&
-                                            existing.getDateOfBirth().equals(requestDependant.getDateOfBirth()))
-                                    .findFirst();
-
-                            // If exists, update the record; otherwise, add as new
-                            return existingDependant.map(existing -> {
-                                DependantsUtil.updateDependants(existing, requestDependant, s.getStaffCode()); // Assuming an update method exists
-                                return existing;
-                            }).orElseGet(() -> DependantsUtil.mapDependantsRequest_ToDependants(requestDependant, staff.get().getStaffCode()));
-                        })
-                        .toList();
-
-                // Save the updated list of dependants
-                dependantsUtil.saveAll(updatedDependants);
-
-                // Set the updated list on the staff object
-                s.setDependants(updatedDependants);
-
-
-                List<AcademicRecords> updatedAcademicRecords = staffRequest.getAcademicRecords().stream()
-                        .map(requestRecord -> {
-                            // Check if the academic record already exists
-                            Optional<AcademicRecords> existingRecord = staff.get().getAcademicRecords().stream()
-                                    .filter(existing -> existing.getNameOfInstitution().equalsIgnoreCase(requestRecord.getNameOfInstitution()) &&
-                                            existing.getDateOfGraduation().equals(requestRecord.getDateOfGraduation()))
-                                    .findFirst();
-
-                            // If exists, update the record; otherwise, add as new
-                            return existingRecord.map(existing -> {
-                                academicRecordsUtil.updateAcademicRecord(existing, requestRecord, s.getStaffCode()); // Assuming an update method exists
-                                return existing;
-                            }).orElseGet(() -> AcademicRecordsUtil.mapAcademicRecordRequest_ToAcademicRecords(requestRecord, staff.get().getStaffCode()));
-                        })
-                        .toList();
-
-                // Save the updated list of academic records
-                academicRecordsUtil.saveAll(updatedAcademicRecords);
-
-                // Set the updated list on the staff object
-                s.setAcademicRecords(updatedAcademicRecords);
-
-
-                List<DesignationList> staffDesignationList = staffRequest.getStaffDesignations().stream()
-                        .map(requestRecord -> {
-                            // Check if the academic record already exists
-                            Optional<DesignationList> existingRecord = staff.get().getStaffDesignations().stream()
-                                    .filter(existing -> existing.getInstitutionCode().equalsIgnoreCase(requestRecord.getInstitutionCode()) &&
-                                            existing.getDesignation().equals(requestRecord.getDesignation()))
-                                    .findFirst();
-
-                            // If exists, update the record; otherwise, add as new
-                            return existingRecord.map(existing -> {
-                                staffDesignationUtil.updateStaffDesignation(existing, requestRecord); // Assuming an update method exists
-                                return existing;
-                            }).orElseGet(() -> StaffDesignationUtil.mapStaffDesignationListRequest_ToStaffDesignationList(requestRecord));
-                        })
-                        .toList();
-
-                // Save the updated list of academic records
-                staffDesignationUtil.saveAll(staffDesignationList);
-
-                // Set the updated list on the staff object
-                s.setStaffDesignations(staffDesignationList);
-
-
-                List<StaffSubjects> staffSubjects = staffRequest.getStaffSubjects().stream()
-                        .map(requestRecord -> {
-                            // Check if the academic record already exists
-                            Optional<StaffSubjects> existingRecord = staff.get().getStaffSubjects().stream()
-                                    .filter(existing -> existing.getInstitutionCode().equalsIgnoreCase(requestRecord.getInstitutionCode()) &&
-                                            existing.getSubject().equals(requestRecord.getSubject()))
-                                    .findFirst();
-
-                            // If exists, update the record; otherwise, add as new
-                            return existingRecord.map(existing -> {
-                                staffSubjectsUtil.updateStaffSubjects(existing, requestRecord); // Assuming an update method exists
-                                return existing;
-                            }).orElseGet(() -> StaffSubjectsUtil.mapStaffSubjectRequest_ToStaffSubjects(requestRecord));
-                        })
-                        .toList();
-
-                // Save the updated list of academic records
-                staffSubjectsUtil.saveAll(staffSubjects);
-
-                // Set the updated list on the staff object
-                s.setStaffSubjects(staffSubjects);
+                // ── Staff Subjects ────────────────────────────────────────────────────
+                if (staffRequest.getStaffSubjects() != null && !staffRequest.getStaffSubjects().isEmpty()) {
+                    List<StaffSubjects> staffSubjects = staffRequest.getStaffSubjects().stream()
+                            .map(requestRecord -> {
+                                Optional<StaffSubjects> existingRecord = staff.get().getStaffSubjects() == null ? Optional.empty() :
+                                        staff.get().getStaffSubjects().stream()
+                                        .filter(existing -> existing.getInstitutionCode().equalsIgnoreCase(requestRecord.getInstitutionCode()) &&
+                                                existing.getSubject().equals(requestRecord.getSubject()))
+                                        .findFirst();
+                                return existingRecord.map(existing -> {
+                                    staffSubjectsUtil.updateStaffSubjects(existing, requestRecord);
+                                    return existing;
+                                }).orElseGet(() -> StaffSubjectsUtil.mapStaffSubjectRequest_ToStaffSubjects(requestRecord));
+                            }).toList();
+                    staffSubjectsUtil.saveAll(staffSubjects);
+                    s.setStaffSubjects(staffSubjects);
+                }
 
                 staffRepository.save(s);
                 return Optional.of(staffUtil.mapStaff_ToStaffResponse(s));

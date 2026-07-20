@@ -1,6 +1,7 @@
 package com.astromyllc.shootingstar.adminpta.service;
 
 import com.astromyllc.shootingstar.adminpta.dto.request.*;
+import com.astromyllc.shootingstar.adminpta.dto.request.alien.DynamicStringRequestUtil;
 import com.astromyllc.shootingstar.adminpta.dto.response.*;
 import com.astromyllc.shootingstar.adminpta.model.Students;
 import com.astromyllc.shootingstar.adminpta.serviceInterface.StudentServiceInterface;
@@ -63,9 +64,10 @@ public class StudentService implements StudentServiceInterface {
     }
 
     @Override
-    public Optional<List<StudentsResponse>> fetchStudentsByClass(ClassListRequest request) {
+    public Optional<List<StudentsResponse>> fetchStudentsByClass(DynamicStringRequest request) {
+        String className = DynamicStringRequestUtil.getValue(request, "className");
         return Optional.of(StudentUtil.studentsGlobalList.stream()
-                .filter(st -> st.getStudentClass().equalsIgnoreCase(request.getStudentClass()))
+                .filter(st -> st.getStudentClass().equalsIgnoreCase(className))
                 .map(studentUtil::mapStudent_ToStudentResponse).toList());
     }
 
@@ -234,6 +236,21 @@ public class StudentService implements StudentServiceInterface {
                         .findFirst()
                         .map(studentUtil::mapStudent_ToStudentStatusResponse)
                 );
+    }
+
+    @Override
+    public Optional<StudentsResponse> updateStudentRecord(StudentsImportRequest request) {
+        return StudentUtil.studentsGlobalList.stream()
+                .filter(x -> x.getStudentId().equalsIgnoreCase(request.getStudentId()))
+                .findFirst()
+                .map(existingStudent -> {
+                    try {
+                        return studentUtil.updateExistingStudents(request, existingStudent);
+                    } catch (URISyntaxException | IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .orElse(Optional.empty());
     }
 
     @Override

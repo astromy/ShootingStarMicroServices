@@ -132,7 +132,7 @@ public class AcademicsController {
     }
 
     @ResponseBody
-    @RequestMapping(value = "mobile/resultsData", method = RequestMethod.POST)
+    @RequestMapping(value = "api/mobile/resultsData", method = RequestMethod.POST)
     public ResponseEntity<String> getStudentResults(@RequestBody SingleStringRequest jso) {
         ResponseEntity<String> response = BACKENDCOMMPOST(jso, backendserve + "/api/academics/getStudentAcademicYearReport");
         return response;
@@ -143,6 +143,96 @@ public class AcademicsController {
     public ResponseEntity<String> generateTimetable(@RequestBody DynamicStringRequest jso) {
         ResponseEntity<String> response = BACKENDCOMMPOST(jso, backendserve + "/api/academics/timetable/generate");
         return response;
+    }
+
+
+    //================================================= QUESTION BANK =====================================================
+
+    @ResponseBody
+    @RequestMapping(value = "submitExamsQuestion", method = RequestMethod.POST)
+    public ResponseEntity<String> submitExamsQuestion(@RequestBody ExamsQuestionsRequest jso) {
+        return BACKENDCOMMPOST(jso, backendserve + "/api/academics/submitExamsQuestion");
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "updateExamsQuestion", method = RequestMethod.POST)
+    public ResponseEntity<String> updateExamsQuestion(@RequestBody ExamsQuestionsRequest jso) {
+        return BACKENDCOMMPOST(jso, backendserve + "/api/academics/updateExamsQuestion");
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "deleteExamsQuestion", method = RequestMethod.POST)
+    public ResponseEntity<String> deleteExamsQuestion(@RequestBody ExamsQuestionsRequest jso) {
+        return BACKENDCOMMPOST(jso, backendserve + "/api/academics/deleteExamsQuestion");
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "fetchQuestionsByInstAndClassAndSubjAndTerm", method = RequestMethod.POST)
+    public ResponseEntity<String> fetchQuestionsByInstAndClassAndSubjAndTerm(@RequestBody ExamsQuestionsRequest jso) {
+        return BACKENDCOMMPOST(jso, backendserve + "/api/academics/fetchQuestionsByInstAndClassAndSubjAndTerm");
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "fetchQuestionsByInstAndClassAndSubj", method = RequestMethod.POST)
+    public ResponseEntity<String> fetchQuestionsByInstAndClassAndSubj(@RequestBody ExamsQuestionsRequest jso) {
+        return BACKENDCOMMPOST(jso, backendserve + "/api/academics/fetchQuestionsByInstAndClassAndSubj");
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "fetchQuestionsByInstAndClass", method = RequestMethod.POST)
+    public ResponseEntity<String> fetchQuestionsByInstAndClass(@RequestBody ExamsQuestionsRequest jso) {
+        return BACKENDCOMMPOST(jso, backendserve + "/api/academics/fetchQuestionsByInstAndClass");
+    }
+
+
+    //================================================= ASSIGNMENT GENERATION =====================================================
+
+    @ResponseBody
+    @RequestMapping(value = "createAssignment", method = RequestMethod.POST)
+    public ResponseEntity<String> createAssignment(@RequestBody AssignmentRequest jso) {
+        return BACKENDCOMMPOST(jso, backendserve + "/api/academics/createAssignment");
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "updateAssignment", method = RequestMethod.POST)
+    public ResponseEntity<String> updateAssignment(@RequestBody AssignmentRequest jso) {
+        return BACKENDCOMMPOST(jso, backendserve + "/api/academics/updateAssignment");
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "deleteAssignment", method = RequestMethod.POST)
+    public ResponseEntity<String> deleteAssignment(@RequestBody AssignmentRequest jso) {
+        return BACKENDCOMMPOST(jso, backendserve + "/api/academics/deleteAssignment");
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "fetchAssignmentsByInstitution", method = RequestMethod.POST)
+    public ResponseEntity<String> fetchAssignmentsByInstitution(@RequestBody AssignmentRequest jso) {
+        return BACKENDCOMMPOST(jso, backendserve + "/api/academics/fetchAssignmentsByInstitution");
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "fetchAssignmentsByClass", method = RequestMethod.POST)
+    public ResponseEntity<String> fetchAssignmentsByClass(@RequestBody AssignmentRequest jso) {
+        return BACKENDCOMMPOST(jso, backendserve + "/api/academics/fetchAssignmentsByClass");
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "fetchAssignmentsByStaff", method = RequestMethod.POST)
+    public ResponseEntity<String> fetchAssignmentsByStaff(@RequestBody AssignmentRequest jso) {
+        return BACKENDCOMMPOST(jso, backendserve + "/api/academics/fetchAssignmentsByStaff");
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "fetchAssignmentsByClassAndSubject", method = RequestMethod.POST)
+    public ResponseEntity<String> fetchAssignmentsByClassAndSubject(@RequestBody AssignmentRequest jso) {
+        return BACKENDCOMMPOST(jso, backendserve + "/api/academics/fetchAssignmentsByClassAndSubject");
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "fetchAssignmentQuestionsByClassAndSubjectAndTerm", method = RequestMethod.POST)
+    public ResponseEntity<String> fetchAssignmentQuestionsByClassAndSubjectAndTerm(@RequestBody AssignmentQuestionsRequest jso) {
+        return BACKENDCOMMPOST(jso, backendserve + "/api/academics/fetchAssignmentQuestionsByClassAndSubjectAndTerm");
     }
 
 

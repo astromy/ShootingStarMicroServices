@@ -18,9 +18,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
 import java.io.*;
 import java.net.URISyntaxException;
@@ -42,21 +40,20 @@ import java.util.stream.Collectors;
 @Slf4j
 @Transactional
 public class StaffUtil {
-    private final StaffRepository staffRepository;
-    private final WebClient.Builder webClientBuilder;
     public static List<Staff> staffGlobalList;
-    private static Long staffIndex = 0L;
     public static InstitutionRequest institutionRequest = null;
     static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    @Value("${gateway.host}")
-    private String host;
-
+    private static Long staffIndex = 0L;
+    private final StaffRepository staffRepository;
+    private final WebClient.Builder webClientBuilder;
     private final ProfessionalRecordsUtil professionalRecordsUtil;
     private final StaffDocumentsUtil staffDocumentsUtil;
     private final DependantsUtil dependantsUtil;
     private final AcademicRecordsUtil academicRecordsUtil;
     private final StaffDesignationUtil staffDesignationUtil;
     private final StaffSubjectsUtil staffSubjectsUtil;
+    @Value("${gateway.host}")
+    private String host;
 
     @PostConstruct
     private void fetchAllStaff() {
@@ -77,18 +74,9 @@ public class StaffUtil {
         institutionRequest =
 
                 webClientBuilder
-                        .baseUrl("http://"+host)
-                        .filter(ExchangeFilterFunction.ofRequestProcessor(clientRequest -> {
-                            System.out.println("Request: " + clientRequest);
-                            return Mono.just(clientRequest);
-                        }))
-                        .filter(ExchangeFilterFunction.ofResponseProcessor(clientResponse -> {
-                            System.out.println("Response: " + clientResponse);
-                            return Mono.just(clientResponse);
-                        }))
                         .build()
                         .post()
-                        .uri("/api/setup/getInstitutionByCode")
+                        .uri(host + "/api/setup/getInstitutionByCode")
                         .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                         .bodyValue(request)
                         .retrieve()
@@ -99,36 +87,36 @@ public class StaffUtil {
                 .filter(x -> x.getInstitutionCode().equalsIgnoreCase(institutionCode))
                 .count() + 1;*/
         staffIndex = staffGlobalList.stream()
+                .filter(x -> x.getInstitutionCode().equalsIgnoreCase(institutionCode))
                 .reduce((first, second) -> second)
                 .map(staff -> {
                     String[] parts = staff.getStaffCode().split("-");
-                    return parts.length > 1 ? Long.parseLong(parts[1]) : null;
+                    if (parts.length > 1) {
+                        try {
+                            return Long.parseLong(parts[1].trim());
+                        } catch (NumberFormatException e) {
+                            return 0L;
+                        }
+                    }
+                    return 0L;
                 })
                 .orElse(0L);
-        staffIndex+=1;
+        staffIndex += 1;
 
         return "S" + institutionCode + "-" + staffIndex;
 
     }
-    public  InstitutionRequest getInstitution(String institutionCode) {
+
+    public InstitutionRequest getInstitution(String institutionCode) {
         SingleStringRequest request = SingleStringRequest.builder()
                 .val(institutionCode)
                 .build();
-      return  institutionRequest =
+        return institutionRequest =
 
                 webClientBuilder
-                        .baseUrl("http://"+host)
-                        .filter(ExchangeFilterFunction.ofRequestProcessor(clientRequest -> {
-                            System.out.println("Request: " + clientRequest);
-                            return Mono.just(clientRequest);
-                        }))
-                        .filter(ExchangeFilterFunction.ofResponseProcessor(clientResponse -> {
-                            System.out.println("Response: " + clientResponse);
-                            return Mono.just(clientResponse);
-                        }))
                         .build()
                         .post()
-                        .uri("/api/setup/getInstitutionByCode")
+                        .uri(host + "/api/setup/getInstitutionByCode")
                         .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                         .bodyValue(request)
                         .retrieve()
@@ -326,7 +314,7 @@ public class StaffUtil {
         Staff updatedStaff = mapStaffRequest_ToStaff(staffRequest, existingStaff);
 
         /*
-        * Update Staff Professional Records
+         * Update Staff Professional Records
          */
         updateRecords(
                 staffRequest.getProfessionalRecords(),
@@ -431,6 +419,7 @@ public class StaffUtil {
             setter.accept(mapped);
         }
     }
+
     private <REQ, ENT> void updateRecords(List<REQ> requestRecords,
                                           List<ENT> existingRecords,
                                           BiFunction<REQ, String, ENT> mapper,
@@ -442,7 +431,7 @@ public class StaffUtil {
         if (requestRecords != null && !requestRecords.isEmpty()) {
             List<ENT> updated = requestRecords.stream()
                     .map(req -> {
-                        Optional<ENT> existing =  Optional.ofNullable(existingRecords)
+                        Optional<ENT> existing = Optional.ofNullable(existingRecords)
                                 .orElse(Collections.emptyList())
                                 .stream()
                                 .filter(e -> matchPredicate.test(e, req))
@@ -458,11 +447,6 @@ public class StaffUtil {
         }
     }
 
-    @FunctionalInterface
-    interface TriConsumer<T, U, V> {
-        void accept(T t, U u, V v);
-    }
-
     private boolean isSameRecord(Object existing, Object incoming) {
         if (existing instanceof ProfessionalRecords e && incoming instanceof ProfessionalRecords r) {
             return e.getNameOfInstitution().equalsIgnoreCase(r.getNameOfInstitution()) &&
@@ -475,6 +459,11 @@ public class StaffUtil {
                     e.getDateOfGraduation().equals(r.getDateOfGraduation());
         }
         return false;
+    }
+
+    @FunctionalInterface
+    interface TriConsumer<T, U, V> {
+        void accept(T t, U u, V v);
     }
 
 }

@@ -32,7 +32,7 @@ public class Institution {
     private String contact1;
     private String contact2;
     private String status;
-    @Column(nullable = false, unique=true)
+    @Column(nullable = false, unique = true)
     private String bececode;
     private LocalDate creationDate;
     private String postalAddress;
@@ -47,26 +47,30 @@ public class Institution {
     private String headSignature;
 
     @ToString.Exclude
-    @OneToMany(mappedBy = "institution",cascade = {CascadeType.ALL, CascadeType.REFRESH}, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "institution", cascade = {CascadeType.ALL, CascadeType.REFRESH}, fetch = FetchType.EAGER)
     private List<GradingSetting> gradingSetting;
 
     @ToString.Exclude
-    @OneToMany(mappedBy = "institution",cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "institution", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Subject> subjectList;
 
     @ToString.Exclude
-    @OneToMany(mappedBy = "institution",cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "institution", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Classes> classList;
 
     @ToString.Exclude
-    @OneToOne(targetEntity = Admissions.class,cascade = {CascadeType.ALL, CascadeType.REFRESH})
+    @OneToOne(targetEntity = Admissions.class, cascade = {CascadeType.ALL, CascadeType.REFRESH})
     private Admissions admissions;
 
     @ToString.Exclude
-    @OneToMany(mappedBy = "institution",cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "institution", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Department> departmentList;
 
     @ToString.Exclude
-    @OneToMany(mappedBy = "institution",cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "institution", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Promotions> promotions;
+
+    @ToString.Exclude
+    @OneToMany(mappedBy = "institution", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+    private List<GeoCoordinate> geoCoordinateList;
 }

@@ -71,48 +71,42 @@ $(function () {
     `
 
 
-
-
     document.getElementById("wrapper").innerHTML = header;
     document.getElementById("wrapper").insertAdjacentHTML('beforeend', reportPublish);
 
-  function loadScript(src, callback) {
-          let script = document.createElement("script");
-          script.setAttribute("type", "text/javascript");
-          script.setAttribute("src", src);
-          script.onload = callback;
-          document.body.appendChild(script);
-      }
+    function loadScript(src, callback) {
+        let script = document.createElement("script");
+        script.setAttribute("type", "text/javascript");
+        script.setAttribute("src", src);
+        script.onload = callback;
+        document.body.appendChild(script);
+    }
 
     loadScript("scripts/jspdf.umd.min.js", function () {
-            console.log("✅ jsPDF Loaded:", window.jspdf);
 
-            // Assign jsPDF explicitly
-            window.jspdf = window.jspdf || window["jspdf"];
+        // Assign jsPDF explicitly
+        window.jspdf = window.jspdf || window["jspdf"];
 
-            // Load autoTable after jsPDF is available
-            loadScript("scripts/jspdf.plugin.autotable.min.js", function () {
-                console.log("✅ AutoTable Loaded:", window.jspdf?.autoTable);
+        // Load autoTable after jsPDF is available
+        loadScript("scripts/jspdf.plugin.autotable.min.js", function () {
 
-                // Ensure autoTable is properly assigned
-                window.jspdf.autoTable = window.jspdf.autoTable || window["autoTable"];
+            // Ensure autoTable is properly assigned
+            window.jspdf.autoTable = window.jspdf.autoTable || window["autoTable"];
 
-                // Load XLSX (Excel Library)
-                loadScript("scripts/xlsx.full.min.js", function () {
-                    console.log("✅ XLSX Loaded");
+            // Load XLSX (Excel Library)
+            loadScript("scripts/xlsx.full.min.js", function () {
 
-                    // Load _terminalReport.js AFTER ALL dependencies are available
-                    loadScript("scripts/_studentsTranscript.js", function () {
-                        console.log("✅ _studentsTranscript.js Loaded, all dependencies are ready.");
-                    });
+                // Load _terminalReport.js AFTER ALL dependencies are available
+                loadScript("scripts/_studentsTranscript.js", function () {
                 });
             });
         });
+    });
 });
 
 //document.getElementById("institution").addEventListener("click", institutionBuild);
-function modalopn(){
-    document.getElementsByClassName("modalbody")[0].innerHTML="";
+function modalopn() {
+    document.getElementsByClassName("modalbody")[0].innerHTML = "";
     reportPublishIndut();
 }
 
@@ -137,10 +131,10 @@ $(function () {
         dom: "<'row'<'col-sm-4'l><'col-sm-4 text-center'B><'col-sm-4'f>>tp",
         "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
         buttons: [
-            { extend: 'copy', className: 'btn-sm' },
-            { extend: 'csv', title: 'ExampleFile', className: 'btn-sm' },
-            { extend: 'pdf', title: 'ExampleFile', className: 'btn-sm' },
-            { extend: 'print', className: 'btn-sm' }
+            {extend: 'copy', className: 'btn-sm'},
+            {extend: 'csv', title: 'ExampleFile', className: 'btn-sm'},
+            {extend: 'pdf', title: 'ExampleFile', className: 'btn-sm'},
+            {extend: 'print', className: 'btn-sm'}
         ]
     });
 });

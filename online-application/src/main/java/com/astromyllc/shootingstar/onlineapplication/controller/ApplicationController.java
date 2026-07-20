@@ -1,15 +1,11 @@
 package com.astromyllc.shootingstar.onlineapplication.controller;
 
-import com.astromyllc.shootingstar.onlineapplication.dto.request.ApplicantStudentSkimRequest;
-import com.astromyllc.shootingstar.onlineapplication.dto.request.ApplicationRequest;
-import com.astromyllc.shootingstar.onlineapplication.dto.request.RefundRequest;
-import com.astromyllc.shootingstar.onlineapplication.dto.request.Students2Request;
+import com.astromyllc.shootingstar.onlineapplication.dto.request.*;
 import com.astromyllc.shootingstar.onlineapplication.dto.request.alien.AdmissionRequest;
 import com.astromyllc.shootingstar.onlineapplication.dto.response.ApplicationsResponse;
 import com.astromyllc.shootingstar.onlineapplication.dto.response.alien.ProcessedApplicationResponse;
 import com.astromyllc.shootingstar.onlineapplication.serviceInterface.ApplicationServiceInterface;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
-import io.github.resilience4j.retry.annotation.Retry;
 import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -55,7 +51,6 @@ public class ApplicationController {
      * If TimerLimiter is Used, It must return a CompletableFuture for both method and fallback
      * */
     @TimeLimiter(name = "application")
-    @Retry(name = "application")
     public CompletableFuture<ApplicationsResponse> SubmitApplication(@RequestBody Students2Request applicationRequest) throws IOException, URISyntaxException {
         log.info("Application  Received");
         return CompletableFuture.supplyAsync(() -> {
@@ -89,7 +84,7 @@ public class ApplicationController {
     @PostMapping("/api/applications/getApplicationByCode")
     @ResponseStatus(HttpStatus.OK)
     @CircuitBreaker(name = "application"/*, fallbackMethod = "fallBack3"*/)
-    public Optional<ApplicationsResponse> getApplicationByCode(@RequestBody String code) {
+    public Optional<ApplicationsResponse> getApplicationByCode(@RequestBody DynamicStringRequest code) {
         return applicationService.getApplicationByApplicationCode(code);
     }
 

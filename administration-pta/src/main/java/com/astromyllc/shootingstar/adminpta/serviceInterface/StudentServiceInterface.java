@@ -14,7 +14,7 @@ public interface StudentServiceInterface {
 
     Optional<List<StudentsResponse>> fetchAllStudents();
 
-    Optional<List<StudentsResponse>> fetchStudentsByClass(ClassListRequest request);
+    Optional<List<StudentsResponse>> fetchStudentsByClass(DynamicStringRequest request);
 
     Optional<List<StudentSkimResponse>> fetchSkimpStudentsByClass(ClassListRequest request);
 
@@ -35,4 +35,6 @@ public interface StudentServiceInterface {
     Optional<Long> getStudentsPopulationByInstitution(SingleStringRequest request);
 
     Optional<StudentStatusResponse> checkStudentByID(SingleStringRequest request);
+
+    Optional<StudentsResponse> updateStudentRecord(StudentsImportRequest request);
 }

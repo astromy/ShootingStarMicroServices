@@ -1,6 +1,5 @@
 package com.astromyllc.astroorb.dto.request;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,8 +18,8 @@ public class StudentsImportRequest {
     private String firstName;
     private String otherName;
     private String lastName;
-    private String dateOfBirth;
-    private String dateOfAdmission;
+    private LocalDate dateOfBirth;
+    private LocalDate dateOfAdmission;
     private String placeOfBirth;
     private String gender;
     private String countryOfBirth;

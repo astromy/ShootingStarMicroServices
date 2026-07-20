@@ -303,10 +303,6 @@ function generatePDF(assessments) {
     const institution = assessments.institutionDetail;
     const studentReports = assessments.studentReportResponseList;
 
-    console.log("jsPDF:", window.jspdf); // Should not be undefined
-    console.log("autoTable:", window.jspdf?.autoTable); // Should be a function
-    console.log("autoTable on jsPDF instance:", typeof new jsPDF().autoTable);
-
     let firstPage = true;
 
     studentReports.forEach((student) => {

@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 public class ApplicantStudentSkimRequest {
     private String idapplication;
-    private String dateOfBirth;
+    private String assignedClass;
     private String dateOfAdmission;
     private String gender;
     private String nationality;

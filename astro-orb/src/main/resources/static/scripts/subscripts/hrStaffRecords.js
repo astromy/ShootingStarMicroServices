@@ -1,6 +1,6 @@
 $(function () {
 
-let onboarding = `
+    let onboarding = `
     <div class="content animate-panel" id="onboarding">
 
         <div class="row">
@@ -54,7 +54,7 @@ let onboarding = `
     </div>
 
 
-        <div class="modal fade hmodal-info" id="staffModal" tabindex="-1" role="dialog"aria-hidden="true">
+        <div class="modal fade hmodal-info" id="staffModal" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg" style="margin: 100px auto">
                 <div class="modal-content">
                     <div class="color-line"></div>
@@ -135,7 +135,7 @@ let onboarding = `
                                                       name="staffEmail"
                                                       class="form-control"
                                                       placeholder="Staff Email"
-                                                      pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+                                                      pattern="[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+[.][a-zA-Z]{2,}"
                                                       title="Please enter a valid company email address (e.g., name@company.com)"
                                                       required
                                                       autocomplete="email"
@@ -277,7 +277,6 @@ let onboarding = `
 `
 
 
-
     document.getElementById("wrapper").innerHTML = onboarding;
 
     var script14 = document.createElement("script");
@@ -288,9 +287,8 @@ let onboarding = `
 });
 
 
-
-function createDependant(){
- const htmlContent = `
+function createDependant() {
+    const htmlContent = `
         <div class="dependants">
 
         <div class="row">
@@ -383,11 +381,11 @@ function createDependant(){
       </div>
         <div class="hr-line-dashed"></div>
     `;
-   return htmlContent;
-   }
+    return htmlContent;
+}
 
-function createAcademicData(){
- const htmlContent = `
+function createAcademicData() {
+    const htmlContent = `
         <div class="academic">
                  <div class="row">
                     <div class="col-sm-6">
@@ -470,12 +468,12 @@ function createAcademicData(){
       </div>
         <div class="hr-line-dashed"></div>
     `;
-   return htmlContent;
-   }
+    return htmlContent;
+}
 
 
-function createProfessionalData(){
- const htmlContent = `
+function createProfessionalData() {
+    const htmlContent = `
         <div class="professional">
                 <div class="row">
                     <div class="col-sm-6">
@@ -549,5 +547,5 @@ function createProfessionalData(){
       </div>
         <div class="hr-line-dashed"></div>
     `;
-   return htmlContent;
-   }
+    return htmlContent;
+}

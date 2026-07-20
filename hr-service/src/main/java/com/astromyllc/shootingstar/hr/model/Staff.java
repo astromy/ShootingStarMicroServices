@@ -1,6 +1,9 @@
 package com.astromyllc.shootingstar.hr.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
 import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -11,8 +14,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.LocalDate;
 import java.util.List;
 
-@Entity
-@Document(collection  = "staff")
+@Document(collection = "staff")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -20,7 +22,6 @@ import java.util.List;
 @EqualsAndHashCode(of = "id")
 public class Staff {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private ObjectId id;
     @Indexed(unique = true)
     private String staffCode;
@@ -49,43 +50,43 @@ public class Staff {
     private String institutionCode;
 
     @DBRef
-    @OneToMany(fetch = FetchType.EAGER,targetEntity =Portfolio.class, cascade = CascadeType.ALL)
-    @JoinColumn(name = "staffPortfolio",referencedColumnName = "id")
+    @OneToMany(fetch = FetchType.EAGER, targetEntity = Portfolio.class, cascade = CascadeType.ALL)
+    @JoinColumn(name = "staffPortfolio", referencedColumnName = "id")
     private List<Portfolio> portfolio;
 
     @DBRef
-    @OneToMany(fetch = FetchType.EAGER,targetEntity =Dependants.class, cascade = CascadeType.ALL)
-    @JoinColumn(name = "staffDependant",referencedColumnName = "id")
+    @OneToMany(fetch = FetchType.EAGER, targetEntity = Dependants.class, cascade = CascadeType.ALL)
+    @JoinColumn(name = "staffDependant", referencedColumnName = "id")
     private List<Dependants> dependants;
 
     @DBRef
-    @OneToMany(fetch = FetchType.EAGER,targetEntity =AcademicRecords.class, cascade = CascadeType.ALL)
-    @JoinColumn(name = "staffAcademicRecords",referencedColumnName = "id")
+    @OneToMany(fetch = FetchType.EAGER, targetEntity = AcademicRecords.class, cascade = CascadeType.ALL)
+    @JoinColumn(name = "staffAcademicRecords", referencedColumnName = "id")
     private List<AcademicRecords> academicRecords;
 
     @DBRef
-    @OneToMany(fetch = FetchType.EAGER,targetEntity =ProfessionalRecords.class, cascade = CascadeType.ALL)
-    @JoinColumn(name = "staffProfessionalRecords",referencedColumnName = "id")
+    @OneToMany(fetch = FetchType.EAGER, targetEntity = ProfessionalRecords.class, cascade = CascadeType.ALL)
+    @JoinColumn(name = "staffProfessionalRecords", referencedColumnName = "id")
     private List<ProfessionalRecords> professionalRecords;
 
     @DBRef
-    @OneToMany(fetch = FetchType.EAGER,targetEntity = StaffDocuments.class, cascade = CascadeType.ALL)
-    @JoinColumn(name = "staffDocs",referencedColumnName = "id")
+    @OneToMany(fetch = FetchType.EAGER, targetEntity = StaffDocuments.class, cascade = CascadeType.ALL)
+    @JoinColumn(name = "staffDocs", referencedColumnName = "id")
     private List<StaffDocuments> staffDocuments;
 
     @DBRef
-    @OneToMany(fetch = FetchType.EAGER,targetEntity = StaffPermissions.class, cascade = CascadeType.ALL)
-    @JoinColumn(name = "staffPermission",referencedColumnName = "id")
+    @OneToMany(fetch = FetchType.EAGER, targetEntity = StaffPermissions.class, cascade = CascadeType.ALL)
+    @JoinColumn(name = "staffPermission", referencedColumnName = "id")
     private List<StaffPermissions> staffPermissions;
 
     @DBRef
-    @OneToMany(fetch = FetchType.EAGER,targetEntity = DesignationList.class, cascade = CascadeType.ALL)
-    @JoinColumn(name = "staffDesignations",referencedColumnName = "id")
+    @OneToMany(fetch = FetchType.EAGER, targetEntity = DesignationList.class, cascade = CascadeType.ALL)
+    @JoinColumn(name = "staffDesignations", referencedColumnName = "id")
     private List<DesignationList> staffDesignations;
 
     @DBRef
-    @OneToMany(fetch = FetchType.EAGER,targetEntity = StaffSubjects.class, cascade = CascadeType.ALL)
-    @JoinColumn(name = "staffSubjects",referencedColumnName = "id")
+    @OneToMany(fetch = FetchType.EAGER, targetEntity = StaffSubjects.class, cascade = CascadeType.ALL)
+    @JoinColumn(name = "staffSubjects", referencedColumnName = "id")
     private List<StaffSubjects> staffSubjects;
 
 }

@@ -96,9 +96,10 @@
 
     // ─── MAPPERS ──────────────────────────────────────────────────────────────
     function mapApiBill(item, index) {
+        var name = item.bill_Name || item.billName || item.name || "";
         return {
-            id: item.billId || item.id || ("BILL-" + index),
-            name: item.bill_Name || item.billName || item.name || "",
+            id: name || item.billId || item.id || ("BILL-" + index), // name is the ID
+            name: name,
             price: parseFloat(item.bill_Amount || item.amount || item.price || 0),
             isMandatory: !!(item.isMandatory || item.mandatory || false),
             _raw: item,
@@ -138,7 +139,6 @@
 
                 // Extract classes from institution object
                 extractClassesFromInstitution(institution);
-                console.log("[_financeBilling] Institution loaded with", window.billingData.classesList.length, "classes");
             }
 
             processClassGroups(groups);
@@ -225,7 +225,6 @@
             return false;
         });
 
-        console.log("[_financeBilling] Filtered classes for group '" + groupText + "':", filtered.length);
         return filtered;
     };
 
@@ -296,24 +295,109 @@
         }
     };
 
+    // ─── HELPERS: split selected bills by category ───────────────────────────
+    function splitBillsByCategory() {
+        var generalBillNames = [];
+        var specificBillNames = [];
+        var selected = window.billingState.selectedBills;
+
+        // general section
+        (window.billingData.billSections.general.bills || []).forEach(function (bill) {
+            if (selected.has(bill.id)) generalBillNames.push(bill.name);
+        });
+
+        // specific section
+        (window.billingData.billSections.specific.bills || []).forEach(function (bill) {
+            if (selected.has(bill.id)) specificBillNames.push(bill.name);
+        });
+
+        return {generalBillNames: generalBillNames, specificBillNames: specificBillNames};
+    }
+
+    // ─── HELPERS: get ALL student IDs in the loaded class ────────────────────
+    function getAllClassStudentIds() {
+        var classData = window.billingData.classes[window.billingState.selectedClass];
+        if (!classData || !classData.students || !classData.students.length) {
+            throw new Error(
+                "No students loaded for class [" + window.billingState.selectedClass + "]. " +
+                "Please select the class from the Class filter first so students are loaded into memory."
+            );
+        }
+        return classData.students.map(function (s) {
+            return s.id;
+        });
+    }
+
     // ─── 5. SUBMIT BILLING ────────────────────────────────────────────────────
+    // Rules:
+    //   General bills  → post ALL students in the loaded class
+    //   Specific bills → post ONLY manually selected students
+    //   Both mixed     → two separate posts (General first, then Specific)
     window.submitBilling = async function () {
+        var split = splitBillsByCategory();
+        var hasGeneral = split.generalBillNames.length > 0;
+        var hasSpecific = split.specificBillNames.length > 0;
+
+        // Guard: at least one bill must be selected
+        if (!hasGeneral && !hasSpecific) {
+            throw new Error("No bills selected.");
+        }
+
+        // Guard: specific bills require at least one student manually selected
+        if (hasSpecific && window.billingState.selectedStudents.size === 0) {
+            throw new Error(
+                "Specific bills require at least one student to be selected manually."
+            );
+        }
+
+        var basePayload = {
+            term: window.billingState.selectedTerm,
+            studentClass: window.billingState.selectedClass,
+            academicYear: window.billingState.selectedYear,
+            institutionCode: _instCode,
+        };
+
+        var results = [];
+
         try {
             showSplash();
-            var result = await fetchPost("bill-students-by-institution", {
-                term: window.billingState.selectedTerm,
-                studentClass: window.billingState.selectedClass,
-                studentId: Array.from(window.billingState.selectedStudents),
-                billname: Array.from(window.billingState.selectedBills),
-                academicYear: window.billingState.selectedYear,
-                institutionCode: _instCode,
-            });
+
+            // ── POST 1: General bills → all students in the class ─────────────
+            if (hasGeneral) {
+                var allStudentIds = getAllClassStudentIds(); // throws if class not loaded
+                var generalPayload = Object.assign({}, basePayload, {
+                    studentId: allStudentIds,
+                    billname: split.generalBillNames,
+                });
+                console.log("[_financeBilling] General billing payload:", generalPayload);
+                var generalResult = await fetchPost("bill-students-by-institution", generalPayload);
+                results.push({type: "general", result: generalResult});
+            }
+
+            // ── POST 2: Specific bills → manually selected students only ──────
+            if (hasSpecific) {
+                var specificPayload = Object.assign({}, basePayload, {
+                    studentId: Array.from(window.billingState.selectedStudents),
+                    billname: split.specificBillNames,
+                });
+                console.log("[_financeBilling] Specific billing payload:", specificPayload);
+                var specificResult = await fetchPost("bill-students-by-institution", specificPayload);
+                results.push({type: "specific", result: specificResult});
+            }
+
             hideSplash();
 
+            // Build summary message
+            var summaryParts = [];
+            if (hasGeneral) summaryParts.push(split.generalBillNames.length + " general bill(s) applied to entire class");
+            if (hasSpecific) summaryParts.push(split.specificBillNames.length + " specific bill(s) applied to " + window.billingState.selectedStudents.size + " selected student(s)");
+
             if (typeof swal === "function") {
-                swal({title: "Success!", text: "Billing submitted successfully.", type: "success"});
+                swal({title: "Success!", text: summaryParts.join("\n"), type: "success"});
             }
-            return result;
+
+            // Return combined results so handleProcess can build the invoice
+            return results;
 
         } catch (err) {
             hideSplash();

@@ -42,8 +42,7 @@ $(function () {
     
 
     
-    <div class="modal fade hmodal-info" id="myclassGroupModal" tabindex="-1" role="dialog"
-    aria-hidden="true">
+    <div class="modal fade hmodal-info" id="myclassGroupModal" tabindex="-1" role="dialog">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="color-line"></div>
@@ -84,8 +83,6 @@ $(function () {
     `
 
 
-
-
     document.getElementById("wrapper").innerHTML = header;
     document.getElementById("wrapper").insertAdjacentHTML('beforeend', classgroup);
     document.getElementsByClassName("test")[0].addEventListener("click", classgroupIndut);
@@ -98,8 +95,8 @@ $(function () {
 });
 
 //document.getElementById("institution").addEventListener("click", institutionBuild);
-function modalopn(){
-    document.getElementsByClassName("modalbody")[0].innerHTML="";
+function modalopn() {
+    document.getElementsByClassName("modalbody")[0].innerHTML = "";
     classgroupIndut();
 }
 
@@ -125,10 +122,10 @@ $(function () {
         dom: "<'row'<'col-sm-4'l><'col-sm-4 text-center'B><'col-sm-4'f>>tp",
         "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
         buttons: [
-            { extend: 'copy', className: 'btn-sm' },
-            { extend: 'csv', title: 'ExampleFile', className: 'btn-sm' },
-            { extend: 'pdf', title: 'ExampleFile', className: 'btn-sm' },
-            { extend: 'print', className: 'btn-sm' }
+            {extend: 'copy', className: 'btn-sm'},
+            {extend: 'csv', title: 'ExampleFile', className: 'btn-sm'},
+            {extend: 'pdf', title: 'ExampleFile', className: 'btn-sm'},
+            {extend: 'print', className: 'btn-sm'}
         ]
     });
 });

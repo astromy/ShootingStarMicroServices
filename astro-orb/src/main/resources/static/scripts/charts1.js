@@ -1,302 +1,454 @@
-// charts1.js — static/scripts/charts1.js
-// Loaded by landing.js AFTER all amCharts vendor scripts are ready.
-// am5 is guaranteed to exist here.
+// charts1.js — scripts/charts1.js
+// Loaded by common.js AFTER all amCharts vendor scripts are ready.
+// Renders all six dashboard charts using the element IDs defined in dashboard.js HTML:
+//   #radarChart              → Subject Performance by Class (radar line)
+//   #doughnutChart           → Grade Distribution (donut)
+//   #lineOptions             → Student Enrollment Trends (line)
+//   #barOptions              → Staff Distribution by Dept & Gender (grouped bar)
+//   #polarOptions            → Subject Performance BECE Level (pie)
+//   #forceDirectedTreeOption → School Org Structure (force-directed)
+
 function initCharts() {
     am5.ready(function () {
-        am5.ready(function () {
 
-            /* ── RADAR ─────────────────────────────────────────── */
-            var root = am5.Root.new("radarChart");
+        /* ── SAFE ROOT HELPER ───────────────────────────────────────────────
+         * Disposes any existing amCharts root on the element before creating
+         * a new one, preventing the "already in use" error on re-navigation.
+         * ─────────────────────────────────────────────────────────────────── */
+        function safeRoot(id) {
+            var el = document.getElementById(id);
+            if (!el) return null;
+            // Dispose previous root if present
+            if (el.__am5root) {
+                try {
+                    el.__am5root.dispose();
+                } catch (e) {
+                }
+            }
+            var root = am5.Root.new(id);
+            el.__am5root = root;
+            return root;
+        }
+
+        /* ── 1. RADAR — Subject Performance by Class ────────────────────── */
+        (function () {
+            var root = safeRoot('radarChart');
+            if (!root) return;
             root.setThemes([am5themes_Animated.new(root)]);
 
-            var radarData = [
-                {category: "Science", Year_1: 8, Year_2: 2, Year_3: 5},
-                {category: "General Arts", Year_1: 11, Year_2: 4, Year_3: 9},
-                {category: "Home Econs", Year_1: 7, Year_2: 6, Year_3: 12},
-                {category: "Visual Arts", Year_1: 13, Year_2: 8, Year_3: 6},
-                {category: "Business", Year_1: 12, Year_2: 10, Year_3: 15}
-            ];
-
-            var radarChart = root.container.children.push(
-                am5radar.RadarChart.new(root, {panX: false, panY: false})
+            var chart = root.container.children.push(
+                am5radar.RadarChart.new(root, {
+                    panX: false, panY: false,
+                    innerRadius: am5.percent(20),
+                    radius: am5.percent(90),
+                })
             );
-            var rc = radarChart.set("cursor", am5radar.RadarCursor.new(root, {behavior: "zoomX"}));
-            rc.lineY.set("visible", false);
 
-            var rxRend = am5radar.AxisRendererCircular.new(root, {cellStartLocation: 0.2, cellEndLocation: 0.8});
-            rxRend.labels.template.setAll({radius: 10});
-            var rxAxis = radarChart.xAxes.push(am5xy.CategoryAxis.new(root, {
-                maxDeviation: 0, categoryField: "category", renderer: rxRend,
-                tooltip: am5.Tooltip.new(root, {})
-            }));
-            rxAxis.data.setAll(radarData);
-            var ryAxis = radarChart.yAxes.push(am5xy.ValueAxis.new(root, {
-                renderer: am5radar.AxisRendererRadial.new(root, {})
-            }));
-            for (var ri = 1; ri <= 3; ri++) {
-                var rs = radarChart.series.push(am5radar.RadarColumnSeries.new(root, {
-                    name: "Year " + ri, xAxis: rxAxis, yAxis: ryAxis,
-                    valueYField: "Year_" + ri, categoryXField: "category"
-                }));
-                rs.columns.template.setAll({tooltipText: "{name}: {valueY}", width: am5.percent(100)});
-                rs.data.setAll(radarData);
-                rs.appear(1000);
-            }
-            radarChart.appear(1000, 100);
-            setTimeout(function () {
-                root.resize();
-            }, 500);
+            var cursor = chart.set('cursor', am5radar.RadarCursor.new(root, {behavior: 'none'}));
+            cursor.lineY.set('visible', false);
 
-            /* ── POLAR ─────────────────────────────────────────── */
-            var polar = am5.Root.new("polarOptions");
-            polar.setThemes([am5themes_Animated.new(polar)]);
-            var polarChart = polar.container.children.push(am5radar.RadarChart.new(polar, {panX: false, panY: false}));
-            var pc = polarChart.set("cursor", am5radar.RadarCursor.new(polar, {behavior: "none"}));
-            pc.lineY.set("visible", false);
-            pc.lineX.set("visible", false);
-            var pxRend = am5radar.AxisRendererCircular.new(polar, {});
-            pxRend.labels.template.setAll({radius: 10});
-            var pxAxis = polarChart.xAxes.push(am5xy.CategoryAxis.new(polar, {
-                maxDeviation: 0, categoryField: "direction", renderer: pxRend
+            var xRenderer = am5radar.AxisRendererCircular.new(root, {});
+            xRenderer.labels.template.setAll({fontSize: 11, radius: 10});
+
+            var xAxis = chart.xAxes.push(
+                am5xy.CategoryAxis.new(root, {
+                    categoryField: 'subject',
+                    renderer: xRenderer,
+                })
+            );
+
+            var yAxis = chart.yAxes.push(
+                am5xy.ValueAxis.new(root, {
+                    renderer: am5radar.AxisRendererRadial.new(root, {}),
+                    min: 0, max: 100,
+                })
+            );
+
+            var subjects = ['Mathematics', 'English', 'Science', 'Social Studies', 'ICT', 'French'];
+            var classNames = ['Primary 4', 'Primary 5', 'Primary 6', 'JHS 1', 'JHS 2', 'JHS 3'];
+            var scores = [
+                [85, 88, 82, 86, 90, 75],
+                [82, 85, 80, 84, 88, 72],
+                [78, 82, 78, 82, 86, 70],
+                [75, 80, 76, 80, 84, 68],
+                [72, 78, 74, 78, 82, 65],
+                [70, 75, 72, 76, 80, 62],
+            ];
+            var colors = [0x0073B7, 0x00A65A, 0xF39C12, 0xDD4B39, 0x605CA8, 0x00C0EF];
+
+            xAxis.data.setAll(subjects.map(function (s) {
+                return {subject: s};
             }));
-            var pyAxis = polarChart.yAxes.push(am5xy.ValueAxis.new(polar, {
-                renderer: am5radar.AxisRendererRadial.new(polar, {})
-            }));
-            var polarSeries = polarChart.series.push(am5radar.RadarLineSeries.new(polar, {
-                xAxis: pxAxis, yAxis: pyAxis, valueYField: "value", categoryXField: "direction",
-                tooltip: am5.Tooltip.new(polar, {labelText: "{categoryX}: {valueY}"})
-            }));
-            polarSeries.strokes.template.set("strokeWidth", 2);
-            polarSeries.bullets.push(function () {
-                return am5.Bullet.new(polar, {
-                    sprite: am5.Circle.new(polar, {
-                        radius: 5, fill: polarSeries.get("fill"),
-                        strokeWidth: 2, stroke: polar.interfaceColors.get("background")
+
+            classNames.forEach(function (name, ci) {
+                var series = chart.series.push(
+                    am5radar.RadarLineSeries.new(root, {
+                        name: name,
+                        xAxis: xAxis, yAxis: yAxis,
+                        valueYField: 'score', categoryXField: 'subject',
+                        stroke: am5.color(colors[ci]),
+                        fill: am5.color(colors[ci]),
+                        tooltip: am5.Tooltip.new(root, {labelText: '{name}: {valueY}%'}),
                     })
+                );
+                series.strokes.template.setAll({strokeWidth: 2});
+                series.fills.template.setAll({visible: true, fillOpacity: 0.08});
+                series.bullets.push(function () {
+                    return am5.Bullet.new(root, {
+                        sprite: am5.Circle.new(root, {
+                            radius: 4,
+                            fill: am5.color(colors[ci]),
+                            stroke: root.interfaceColors.get('background'),
+                            strokeWidth: 1,
+                        }),
+                    });
+                });
+                series.data.setAll(subjects.map(function (s, si) {
+                    return {subject: s, score: scores[ci][si]};
+                }));
+                series.appear(1000);
+            });
+
+            var legend = chart.children.push(
+                am5.Legend.new(root, {centerX: am5.p50, x: am5.p50, marginTop: 10})
+            );
+            legend.labels.template.setAll({fontSize: 11});
+            legend.data.setAll(chart.series.values);
+            chart.appear(1000, 100);
+        })();
+
+        /* ── 2. DONUT — Grade Distribution ──────────────────────────────── */
+        (function () {
+            var root = safeRoot('doughnutChart');
+            if (!root) return;
+            root.setThemes([am5themes_Animated.new(root)]);
+
+            var chart = root.container.children.push(
+                am5percent.PieChart.new(root, {
+                    layout: root.horizontalLayout,
+                    innerRadius: am5.percent(55),
+                    paddingTop: 10, paddingBottom: 10,
+                })
+            );
+
+            var series = chart.series.push(
+                am5percent.PieSeries.new(root, {
+                    categoryField: 'grade', valueField: 'count',
+                    alignLabels: false,
+                    tooltip: am5.Tooltip.new(root, {labelText: '{category}: {value} students'}),
+                })
+            );
+            series.labels.template.set('visible', false);
+            series.ticks.template.set('visible', false);
+            series.slices.template.setAll({
+                strokeWidth: 2,
+                stroke: am5.color(0xffffff),
+                cornerRadiusTL: 3, cornerRadiusTR: 3,
+                cornerRadiusBL: 3, cornerRadiusBR: 3,
+            });
+            series.get('colors').set('colors', [
+                am5.color(0x00A65A), am5.color(0x0073B7),
+                am5.color(0xF39C12), am5.color(0xDD4B39), am5.color(0x932ab6),
+            ]);
+
+            series.data.setAll([
+                {grade: 'A (80–100%)', count: 245},
+                {grade: 'B (70–79%)', count: 386},
+                {grade: 'C (60–69%)', count: 312},
+                {grade: 'D (50–59%)', count: 198},
+                {grade: 'E (Below 50%)', count: 143},
+            ]);
+
+            // Percent labels on big enough slices
+            series.bullets.push(function (r, s, dataItem) {
+                if (dataItem.get('valuePercentTotal') < 8) return;
+                return am5.Bullet.new(root, {
+                    locationRadius: 0.7,
+                    sprite: am5.Label.new(root, {
+                        text: "{valuePercentTotal.formatNumber('0.')}%",
+                        fill: am5.color(0xffffff),
+                        fontSize: 11, fontWeight: '600',
+                        centerX: am5.p50, centerY: am5.p50,
+                        populateText: true,
+                    }),
                 });
             });
-            var polarData = [
-                {direction: "N", value: 8}, {direction: "NE", value: 9},
-                {direction: "E", value: 4.5}, {direction: "SE", value: 3.5},
-                {direction: "S", value: 9.2}, {direction: "SW", value: 8.4},
-                {direction: "W", value: 11.1}, {direction: "NW", value: 10}
-            ];
-            polarSeries.data.setAll(polarData);
-            pxAxis.data.setAll(polarData);
-            polarChart.radarContainer.children.moveValue(polarChart.topGridContainer, 0);
-            polarSeries.appear(1000);
-            polarChart.appear(1000, 100);
-            setTimeout(function () {
-                polar.resize();
-            }, 500);
 
-            /* ── DOUGHNUT ───────────────────────────────────────── */
-            var radius = am5.Root.new("doughnutChart");
-            radius.setThemes([am5themes_Animated.new(radius)]);
-            var pieChart = radius.container.children.push(am5percent.PieChart.new(radius, {layout: radius.verticalLayout}));
-            var pieSeries = pieChart.series.push(am5percent.PieSeries.new(radius, {
-                alignLabels: true, calculateAggregates: true, valueField: "value", categoryField: "category"
-            }));
-            pieSeries.slices.template.setAll({strokeWidth: 3, stroke: am5.color(0xffffff)});
-            pieSeries.labelsContainer.set("paddingTop", 30);
-            pieSeries.slices.template.adapters.add("radius", function (r, target) {
-                var di = target.dataItem, high = pieSeries.getPrivate("valueHigh");
-                if (di) return r * target.dataItem.get("valueWorking", 0) / high;
-                return r;
-            });
-            pieSeries.data.setAll([
-                {value: 10, category: "A1"}, {value: 9, category: "B2"}, {value: 6, category: "B3"},
-                {value: 5, category: "C4"}, {value: 4, category: "C5"}, {value: 3, category: "C6"},
-                {value: 5, category: "D7"}, {value: 4, category: "E8"}, {value: 3, category: "F9"}
-            ]);
-            var pieLegend = pieChart.children.push(am5.Legend.new(radius, {
-                centerX: am5.p50, x: am5.p50, marginTop: 15, marginBottom: 15
-            }));
-            pieLegend.data.setAll(pieSeries.dataItems);
-            pieSeries.appear(1000, 100);
-            setTimeout(function () {
-                radius.resize();
-            }, 500);
-
-            /* ── LINE ───────────────────────────────────────────── */
-            var linear = am5.Root.new("lineOptions");
-            linear.setThemes([am5themes_Animated.new(linear)]);
-            var lineChart = linear.container.children.push(am5xy.XYChart.new(linear, {
-                panX: true, panY: true, wheelX: "panX", wheelY: "zoomX", maxTooltipDistance: 0, pinchZoomX: true
-            }));
-            var lxAxis = lineChart.xAxes.push(am5xy.DateAxis.new(linear, {
-                maxDeviation: 0.2, baseInterval: {timeUnit: "day", count: 1},
-                renderer: am5xy.AxisRendererX.new(linear, {minorGridEnabled: true}),
-                tooltip: am5.Tooltip.new(linear, {})
-            }));
-            var lyAxis = lineChart.yAxes.push(am5xy.ValueAxis.new(linear, {
-                renderer: am5xy.AxisRendererY.new(linear, {})
-            }));
-
-            function genLine(count) {
-                var d = new Date();
-                d.setHours(0, 0, 0, 0);
-                var v = 100;
-                var out = [];
-                for (var i = 0; i < count; i++) {
-                    v = Math.round((Math.random() * 10 - 4.2) + v);
-                    am5.time.add(d, "day", 1);
-                    out.push({date: d.getTime(), value: v});
-                }
-                return out;
-            }
-
-            for (var li = 0; li < 10; li++) {
-                var ls = lineChart.series.push(am5xy.LineSeries.new(linear, {
-                    name: "Series " + li, xAxis: lxAxis, yAxis: lyAxis,
-                    valueYField: "value", valueXField: "date",
-                    tooltip: am5.Tooltip.new(linear, {pointerOrientation: "horizontal", labelText: "{valueY}"})
-                }));
-                ls.data.setAll(genLine(100));
-                ls.appear();
-            }
-            lineChart.set("cursor", am5xy.XYCursor.new(linear, {behavior: "none"}));
-            lineChart.appear(1000, 100);
-            setTimeout(function () {
-                linear.resize();
-            }, 300);
-
-            /* ── BAR ────────────────────────────────────────────── */
-            var barRoot = am5.Root.new("barOptions");
-            barRoot.setThemes([am5themes_Animated.new(barRoot)]);
-            var barChart = barRoot.container.children.push(am5xy.XYChart.new(barRoot, {
-                panX: false, panY: false, paddingLeft: 0, wheelX: "panX", wheelY: "zoomX",
-                layout: barRoot.verticalLayout
-            }));
-            var barLegend = barChart.children.push(am5.Legend.new(barRoot, {centerX: am5.p50, x: am5.p50}));
-            var barData = [
-                {Department: "Science", "Over 50": 2.5, "Under 50": 2.5, "Under 30": 2.1},
-                {Department: "General Arts", "Over 50": 2.6, "Under 50": 2.7, "Under 30": 2.2},
-                {Department: "Home Economics", "Over 50": 2.8, "Under 50": 2.9, "Under 30": 2.4},
-                {Department: "Visual Arts", "Over 50": 2.6, "Under 50": 2.7, "Under 30": 2.2},
-                {Department: "Business", "Over 50": 2.8, "Under 50": 2.9, "Under 30": 2.4}
-            ];
-            var bxRend = am5xy.AxisRendererX.new(barRoot, {cellStartLocation: 0.1, cellEndLocation: 0.9});
-            var bxAxis = barChart.xAxes.push(am5xy.CategoryAxis.new(barRoot, {
-                categoryField: "Department", renderer: bxRend, tooltip: am5.Tooltip.new(barRoot, {})
-            }));
-            bxAxis.data.setAll(barData);
-            var byAxis = barChart.yAxes.push(am5xy.ValueAxis.new(barRoot, {
-                renderer: am5xy.AxisRendererY.new(barRoot, {})
-            }));
-
-            function makeBar(name, field) {
-                var bs = barChart.series.push(am5xy.ColumnSeries.new(barRoot, {
-                    name: name, xAxis: bxAxis, yAxis: byAxis, valueYField: field, categoryXField: "Department"
-                }));
-                bs.columns.template.setAll({tooltipText: "{name}: {valueY}", width: am5.percent(90), strokeOpacity: 0});
-                bs.data.setAll(barData);
-                bs.appear();
-                barLegend.data.push(bs);
-            }
-
-            makeBar("Over 50 yrs", "Over 50");
-            makeBar("Under 50 yrs", "Under 50");
-            makeBar("Under 30 yrs", "Under 30");
-            barChart.appear(1000, 100);
-            setTimeout(function () {
-                barRoot.resize();
-            }, 300);
-
-            /* ── CANDLESTICK ────────────────────────────────────── */
-            var candle = am5.Root.new("candleChartOptions");
-            candle.setThemes([am5themes_Animated.new(candle)]);
-
-            function genCandle() {
-                var out = [], fd = new Date();
-                fd.setDate(fd.getDate() - 200);
-                fd.setHours(0, 0, 0, 0);
-                var v = 1200;
-                for (var i = 0; i < 200; i++) {
-                    var nd = new Date(fd);
-                    nd.setDate(nd.getDate() + i);
-                    v += Math.round((Math.random() < 0.5 ? 1 : -1) * Math.random() * 10);
-                    var o = v + Math.round(Math.random() * 16 - 8);
-                    out.push({
-                        date: nd.getTime(), value: v, open: o,
-                        low: Math.min(v, o) - Math.round(Math.random() * 5),
-                        high: Math.max(v, o) + Math.round(Math.random() * 5)
-                    });
-                }
-                return out;
-            }
-
-            var candleData = genCandle();
-            var candleChart = candle.container.children.push(am5xy.XYChart.new(candle, {
-                focusable: true, panX: true, panY: true, wheelX: "panX", wheelY: "zoomX", paddingLeft: 0
-            }));
-            var cxAxis = candleChart.xAxes.push(am5xy.DateAxis.new(candle, {
-                groupData: true, maxDeviation: 0.5, baseInterval: {timeUnit: "day", count: 1},
-                renderer: am5xy.AxisRendererX.new(candle, {pan: "zoom"}),
-                tooltip: am5.Tooltip.new(candle, {})
-            }));
-            var cyAxis = candleChart.yAxes.push(am5xy.ValueAxis.new(candle, {
-                maxDeviation: 1, renderer: am5xy.AxisRendererY.new(candle, {pan: "zoom"})
-            }));
-            var candleSeries = candleChart.series.push(am5xy.CandlestickSeries.new(candle, {
-                name: "MDXI", xAxis: cxAxis, yAxis: cyAxis,
-                valueYField: "value", openValueYField: "open", lowValueYField: "low", highValueYField: "high",
-                valueXField: "date",
-                tooltip: am5.Tooltip.new(candle, {
-                    labelText: "open: {openValueY}\nlow: {lowValueY}\nhigh: {highValueY}\nclose: {valueY}"
+            var legend = chart.children.push(
+                am5.Legend.new(root, {
+                    centerY: am5.p50, y: am5.p50,
+                    layout: root.verticalLayout,
+                    paddingLeft: 20,
                 })
-            }));
-            var sb = am5xy.XYChartScrollbar.new(candle, {orientation: "horizontal", height: 50});
-            candleChart.set("scrollbarX", sb);
-            var sbx = sb.chart.xAxes.push(am5xy.DateAxis.new(candle, {
-                groupData: true, baseInterval: {timeUnit: "day", count: 1},
-                renderer: am5xy.AxisRendererX.new(candle, {strokeOpacity: 0})
-            }));
-            var sby = sb.chart.yAxes.push(am5xy.ValueAxis.new(candle, {renderer: am5xy.AxisRendererY.new(candle, {})}));
-            sb.chart.series.push(am5xy.LineSeries.new(candle, {
-                xAxis: sbx, yAxis: sby, valueYField: "value", valueXField: "date"
-            })).data.setAll(candleData);
-            candleSeries.data.setAll(candleData);
-            candleSeries.appear(1000);
-            candleChart.appear(1000, 100);
-            setTimeout(function () {
-                candle.resize();
-            }, 300);
+            );
+            legend.labels.template.setAll({fontSize: 12});
+            legend.markers.template.setAll({width: 12, height: 12});
+            legend.data.setAll(series.dataItems);
+            series.appear(1000, 100);
+            chart.appear(1000, 100);
+        })();
 
-            /* ── FORCE DIRECTED ─────────────────────────────────── */
-            var fdt = am5.Root.new("forceDirectedTreeOption");
-            fdt.setThemes([am5themes_Animated.new(fdt)]);
-            var zc = fdt.container.children.push(am5.ZoomableContainer.new(fdt, {
-                width: am5.p100, height: am5.p100, wheelable: true, pinchZoom: true
-            }));
-            zc.children.push(am5.ZoomTools.new(fdt, {target: zc}));
-            var fdSeries = zc.contents.children.push(am5hierarchy.ForceDirected.new(fdt, {
-                singleBranchOnly: false, downDepth: 1, initialDepth: 10,
-                nodePadding: 20, valueField: "value", categoryField: "name", childDataField: "children"
-            }));
-            fdSeries.labels.template.set("minScale", 0);
+        /* ── 3. LINE — Student Enrollment Trends ────────────────────────── */
+        (function () {
+            var root = safeRoot('lineOptions');
+            if (!root) return;
+            root.setThemes([am5themes_Animated.new(root)]);
 
-            function genFDT(data, name, level) {
-                for (var i = 0; i < Math.ceil(3 * Math.random()) + 1; i++) {
-                    var nn = name + "ABCDEFGHIJKLMNOPQRSTUVWXYZ"[i];
-                    var child = level < 1
-                        ? {name: nn + level, children: []}
-                        : {name: name + i, value: Math.round(Math.random() * 100)};
-                    if (child.children) genFDT(child, nn + i, level + 1);
-                    data.children.push(child);
-                }
+            var chart = root.container.children.push(
+                am5xy.XYChart.new(root, {
+                    panX: true, panY: false,
+                    wheelX: 'panX', wheelY: 'zoomX',
+                    pinchZoomX: true,
+                    paddingLeft: 0,
+                })
+            );
+
+            chart.set('cursor', am5xy.XYCursor.new(root, {behavior: 'none'}));
+
+            var xRenderer = am5xy.AxisRendererX.new(root, {minGridDistance: 40});
+            xRenderer.grid.template.setAll({strokeOpacity: 0.05});
+
+            var xAxis = chart.xAxes.push(
+                am5xy.CategoryAxis.new(root, {
+                    categoryField: 'year',
+                    renderer: xRenderer,
+                    tooltip: am5.Tooltip.new(root, {}),
+                })
+            );
+
+            var yAxis = chart.yAxes.push(
+                am5xy.ValueAxis.new(root, {
+                    renderer: am5xy.AxisRendererY.new(root, {}),
+                })
+            );
+
+            var years = ['2019', '2020', '2021', '2022', '2023', '2024'];
+            xAxis.data.setAll(years.map(function (y) {
+                return {year: y};
+            }));
+
+            function makeLine(name, field, color, data) {
+                var series = chart.series.push(
+                    am5xy.LineSeries.new(root, {
+                        name: name,
+                        xAxis: xAxis, yAxis: yAxis,
+                        valueYField: field, categoryXField: 'year',
+                        stroke: am5.color(color), fill: am5.color(color),
+                        tooltip: am5.Tooltip.new(root, {labelText: '{name}: {valueY}'}),
+                    })
+                );
+                series.strokes.template.setAll({strokeWidth: 3});
+                series.fills.template.setAll({visible: true, fillOpacity: 0.08});
+                series.bullets.push(function () {
+                    return am5.Bullet.new(root, {
+                        sprite: am5.Circle.new(root, {
+                            radius: 5, fill: am5.color(color),
+                            stroke: root.interfaceColors.get('background'), strokeWidth: 2,
+                        }),
+                    });
+                });
+                series.data.setAll(data);
+                series.appear(1000);
             }
 
-            var fdData = {name: "Root", children: []};
-            genFDT(fdData, "", 0);
-            fdSeries.data.setAll([fdData]);
-            fdSeries.set("selectedDataItem", fdSeries.dataItems[0]);
-            fdSeries.appear(1000, 100);
-            setTimeout(function () {
-                fdt.resize();
-            }, 300);
+            makeLine('Boys', 'boys', 0x0073B7, [
+                {year: '2019', boys: 520}, {year: '2020', boys: 548},
+                {year: '2021', boys: 567}, {year: '2022', boys: 589},
+                {year: '2023', boys: 612}, {year: '2024', boys: 645},
+            ]);
+            makeLine('Girls', 'girls', 0xDD4B39, [
+                {year: '2019', girls: 498}, {year: '2020', girls: 523},
+                {year: '2021', girls: 541}, {year: '2022', girls: 567},
+                {year: '2023', girls: 589}, {year: '2024', girls: 639},
+            ]);
 
-        }); // end am5.ready
+            var legend = chart.children.push(
+                am5.Legend.new(root, {centerX: am5.p50, x: am5.p50, marginTop: 8})
+            );
+            legend.data.setAll(chart.series.values);
+            chart.appear(1000, 100);
+        })();
 
-    });
+        /* ── 4. GROUPED BAR — Staff Distribution by Dept & Gender ───────── */
+        (function () {
+            var root = safeRoot('barOptions');
+            if (!root) return;
+            root.setThemes([am5themes_Animated.new(root)]);
+
+            var chart = root.container.children.push(
+                am5xy.XYChart.new(root, {
+                    panX: false, panY: false,
+                    paddingLeft: 0,
+                    layout: root.verticalLayout,
+                })
+            );
+
+            var xRenderer = am5xy.AxisRendererX.new(root, {
+                cellStartLocation: 0.1, cellEndLocation: 0.9, minGridDistance: 30,
+            });
+            xRenderer.grid.template.setAll({strokeOpacity: 0.05});
+
+            var xAxis = chart.xAxes.push(
+                am5xy.CategoryAxis.new(root, {
+                    categoryField: 'department',
+                    renderer: xRenderer,
+                    tooltip: am5.Tooltip.new(root, {}),
+                })
+            );
+
+            var yAxis = chart.yAxes.push(
+                am5xy.ValueAxis.new(root, {
+                    renderer: am5xy.AxisRendererY.new(root, {}),
+                })
+            );
+
+            var depts = ['Mathematics', 'English', 'Science', 'Social Studies', 'ICT', 'Languages'];
+            xAxis.data.setAll(depts.map(function (d) {
+                return {department: d};
+            }));
+
+            function makeBar(name, field, color, data) {
+                var series = chart.series.push(
+                    am5xy.ColumnSeries.new(root, {
+                        name: name,
+                        xAxis: xAxis, yAxis: yAxis,
+                        valueYField: field, categoryXField: 'department',
+                        tooltip: am5.Tooltip.new(root, {labelText: '{name}: {valueY}'}),
+                    })
+                );
+                series.columns.template.setAll({
+                    width: am5.percent(90), strokeOpacity: 0,
+                    fill: am5.color(color),
+                    cornerRadiusTL: 4, cornerRadiusTR: 4,
+                });
+                series.data.setAll(data);
+                series.appear();
+                return series;
+            }
+
+            var maleData = [
+                {department: 'Mathematics', male: 8}, {department: 'English', male: 5},
+                {department: 'Science', male: 7}, {department: 'Social Studies', male: 6},
+                {department: 'ICT', male: 4}, {department: 'Languages', male: 3},
+            ];
+            var femaleData = [
+                {department: 'Mathematics', female: 6}, {department: 'English', female: 9},
+                {department: 'Science', female: 5}, {department: 'Social Studies', female: 7},
+                {department: 'ICT', female: 3}, {department: 'Languages', female: 8},
+            ];
+
+            var ms = makeBar('Male Staff', 'male', 0x0073B7, maleData);
+            var fs = makeBar('Female Staff', 'female', 0xDD4B39, femaleData);
+
+            var legend = chart.children.push(
+                am5.Legend.new(root, {centerX: am5.p50, x: am5.p50, marginTop: 8})
+            );
+            legend.data.setAll([ms, fs]);
+            chart.appear(1000, 100);
+        })();
+
+        /* ── 5. PIE — Subject Performance BECE Level ─────────────────────── */
+        (function () {
+            var root = safeRoot('polarOptions');
+            if (!root) return;
+            root.setThemes([am5themes_Animated.new(root)]);
+
+            var chart = root.container.children.push(
+                am5percent.PieChart.new(root, {
+                    layout: root.verticalLayout,
+                    paddingTop: 10, paddingBottom: 0,
+                })
+            );
+
+            var series = chart.series.push(
+                am5percent.PieSeries.new(root, {
+                    categoryField: 'subject', valueField: 'performance',
+                    alignLabels: true,
+                    tooltip: am5.Tooltip.new(root, {labelText: '{category}: {value}%'}),
+                })
+            );
+            series.slices.template.setAll({strokeWidth: 2, stroke: am5.color(0xffffff)});
+            series.get('colors').set('colors', [
+                am5.color(0x0073B7), am5.color(0x00A65A), am5.color(0xF39C12),
+                am5.color(0x605CA8), am5.color(0x00C0EF), am5.color(0xDD4B39),
+            ]);
+
+            series.data.setAll([
+                {subject: 'Mathematics', performance: 82},
+                {subject: 'English', performance: 85},
+                {subject: 'Science', performance: 79},
+                {subject: 'Social Studies', performance: 84},
+                {subject: 'ICT', performance: 88},
+                {subject: 'French', performance: 72},
+            ]);
+
+            var legend = chart.children.push(
+                am5.Legend.new(root, {centerX: am5.p50, x: am5.p50, marginTop: 10})
+            );
+            legend.labels.template.setAll({fontSize: 11});
+            legend.data.setAll(series.dataItems);
+            series.appear(1000, 100);
+            chart.appear(1000, 100);
+        })();
+
+        /* ── 6. FORCE DIRECTED — School Org Structure ───────────────────── */
+        (function () {
+            var root = safeRoot('forceDirectedTreeOption');
+            if (!root) return;
+            root.setThemes([am5themes_Animated.new(root)]);
+
+            var zc = root.container.children.push(
+                am5.ZoomableContainer.new(root, {
+                    width: am5.p100, height: am5.p100,
+                    wheelable: true, pinchZoom: true,
+                })
+            );
+            zc.children.push(am5.ZoomTools.new(root, {target: zc}));
+
+            var series = zc.contents.children.push(
+                am5hierarchy.ForceDirected.new(root, {
+                    singleBranchOnly: false,
+                    downDepth: 2, initialDepth: 2,
+                    nodePadding: 20,
+                    maxRadius: 40, minRadius: 15,
+                    valueField: 'value',
+                    categoryField: 'name',
+                    childDataField: 'children',
+                })
+            );
+            series.labels.template.setAll({fontSize: 10, fontWeight: '600'});
+            series.circles.template.setAll({strokeWidth: 2, stroke: am5.color(0xffffff)});
+
+            series.data.setAll([{
+                name: 'Headmaster', value: 100,
+                children: [
+                    {
+                        name: 'Academics', value: 80,
+                        children: [
+                            {name: 'Mathematics', value: 60}, {name: 'English', value: 60},
+                            {name: 'Science', value: 60}, {name: 'Social Studies', value: 60},
+                        ],
+                    },
+                    {
+                        name: 'Administration', value: 70,
+                        children: [
+                            {name: 'Finance', value: 50}, {name: 'HR', value: 50},
+                            {name: 'Records', value: 50},
+                        ],
+                    },
+                    {
+                        name: 'Student Affairs', value: 60,
+                        children: [
+                            {name: 'Guidance', value: 40}, {name: 'Discipline', value: 40},
+                            {name: 'Sports', value: 40},
+                        ],
+                    },
+                ],
+            }]);
+
+            series.set('selectedDataItem', series.dataItems[0]);
+            series.appear(1000, 100);
+        })();
+
+    }); // end am5.ready
 }

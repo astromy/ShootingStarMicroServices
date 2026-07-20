@@ -1,12 +1,13 @@
 spring:
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/shootingstarfinance
-    username: ${DB_USERNAME_LOCAL}
-    password: ${DB_PASSWORD}
   jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: update
+    properties:
+      hibernate:
+        jdbc:
+          lob:
+            non_contextual_creation: true
   zipkin:
     base-url: http://localhost:9411
   sleuth:
@@ -62,6 +63,8 @@ resilience4j:
 
 
 
+data:
+  connection: localhost:5432
 
 logging:
   level:

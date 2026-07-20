@@ -9,36 +9,36 @@ fetchInstitution(instId.split(",")[0]);
 window.copyrights();
 
 $(".saveClassGroup").click(async function () {
-$('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
-  //postdata();
-  var jso = postdata();
-  return fetchPost("addLookUps", jso).then(function (result) {
-    $("#example1").DataTable().destroy();
-    $(".dismissClassGroup").click();
-    populateTable(result);
-    $('.splash').css('display', 'none')
-    swal({
-      title: "Thank you!",
-      text: "Data Saved Successfully",
-      type: "success",
+    $('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
+    //postdata();
+    var jso = postdata();
+    return fetchPost("addLookUps", jso).then(function (result) {
+        $("#example1").DataTable().destroy();
+        $(".dismissClassGroup").click();
+        populateTable(result);
+        $('.splash').css('display', 'none')
+        swal({
+            title: "Thank you!",
+            text: "Data Saved Successfully",
+            type: "success",
+        });
     });
-  });
 });
 
 function postdata() {
-  resultlist = [];
-  var module = $(".newClassGrouptxt");
-  const classGroup = document.getElementsByClassName("newClassGrouptxt");
-  for (let i = 0; i < classGroup.length; i++) {
-    //name[i]=classGroup[i].value;
-    var jsonObject = {
-      id: $('.newClassGrouptxt').attr('id'),
-      name: classGroup[i].value,
-      type: type,
-    };
-    resultlist.push(jsonObject);
-  }
-  return resultlist;
+    resultlist = [];
+    var module = $(".newClassGrouptxt");
+    const classGroup = document.getElementsByClassName("newClassGrouptxt");
+    for (let i = 0; i < classGroup.length; i++) {
+        //name[i]=classGroup[i].value;
+        var jsonObject = {
+            id: $('.newClassGrouptxt').attr('id'),
+            name: classGroup[i].value,
+            type: type,
+        };
+        resultlist.push(jsonObject);
+    }
+    return resultlist;
 }
 
 /* function buildJson(){
@@ -55,60 +55,59 @@ function postdata() {
     }*/
 
 async function fetchInstitution(instId) {
-  var v = instId.replace(/[\[\]']+/g, "");
-  v = v.replace(/\//g, "");
-  var instRequest = { val: type };
-  return fetchPost("getLookUpByType", instRequest).then(function (result) {
-    populateTable(result);
-    console.log(result);
-  });
+    var v = instId.replace(/[\[\]']+/g, "");
+    v = v.replace(/\//g, "");
+    var instRequest = {val: type};
+    return fetchPost("getLookUpByType", instRequest).then(function (result) {
+        populateTable(result);
+    });
 }
 
 function populateTable(data) {
-  $("#classGroupTable").empty();
-  data.forEach(function (d) {
-    var details =
-      "<tr id=" +
-      d.id +
-      "> <td hidden>" +
-      d.id +
-      " </td> <td> " +
-      d.name +
-      "</td> </tr>";
-    $("#classGroupTable").append(details);
+    $("#classGroupTable").empty();
+    data.forEach(function (d) {
+        var details =
+            "<tr id=" +
+            d.id +
+            "> <td hidden>" +
+            d.id +
+            " </td> <td> " +
+            d.name +
+            "</td> </tr>";
+        $("#classGroupTable").append(details);
 
-    var existing = $("#" + d.id);
+        var existing = $("#" + d.id);
 
-    existing
-      .attr({
-        "data-toggle": "modal",
-        "data-target": "#myclassGroupModal",
-        style: "cursor: pointer",
-      })
-      .on("click", function () {
-        var recordIndex = $(this).data("index");
+        existing
+            .attr({
+                "data-toggle": "modal",
+                "data-target": "#myclassGroupModal",
+                style: "cursor: pointer",
+            })
+            .on("click", function () {
+                var recordIndex = $(this).data("index");
 
-        modalopn();
-        $(".newClassGrouptxt").val(d.name);
-        $('.newClassGrouptxt').attr('id', d.id);
-        $(".modalbody").eq(1).empty();
-      });
-  });
-
-  $(function () {
-    // Initialize Example 1
-    $("#example1").dataTable({
-      dom: "<'row'<'col-sm-4'l><'col-sm-4 text-center'B><'col-sm-4'f>>tp",
-      lengthMenu: [
-        [10, 25, 50, -1],
-        [10, 25, 50, "All"],
-      ],
-      buttons: [
-        { extend: "copy", className: "btn-sm" },
-        { extend: "csv", title: "Lookup List", className: "btn-sm" },
-        { extend: "pdf", title: "Lookup List", className: "btn-sm" },
-        { extend: "print", className: "btn-sm" },
-      ],
+                modalopn();
+                $(".newClassGrouptxt").val(d.name);
+                $('.newClassGrouptxt').attr('id', d.id);
+                $(".modalbody").eq(1).empty();
+            });
     });
-  });
+
+    $(function () {
+        // Initialize Example 1
+        $("#example1").dataTable({
+            dom: "<'row'<'col-sm-4'l><'col-sm-4 text-center'B><'col-sm-4'f>>tp",
+            lengthMenu: [
+                [10, 25, 50, -1],
+                [10, 25, 50, "All"],
+            ],
+            buttons: [
+                {extend: "copy", className: "btn-sm"},
+                {extend: "csv", title: "Lookup List", className: "btn-sm"},
+                {extend: "pdf", title: "Lookup List", className: "btn-sm"},
+                {extend: "print", className: "btn-sm"},
+            ],
+        });
+    });
 }

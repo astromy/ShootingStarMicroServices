@@ -10,7 +10,7 @@ $(document).ready(function () {
     setBodySmall();
 
     // Handle minimalize sidebar menu
-    $('.hide-menu').on('click', function(event){
+    $('.hide-menu').on('click', function (event) {
         event.preventDefault();
         if ($(window).width() < 769) {
             $("body").toggleClass("show-sidebar");
@@ -20,13 +20,13 @@ $(document).ready(function () {
     });
 
     // Initialize metsiMenu plugin to sidebar menu
-   // $('#side-menu').metisMenu();
+    // $('#side-menu').metisMenu();
 
     // Initialize iCheck plugin
     //$('.i-checks').iCheck({
     //    checkboxClass: 'icheckbox_square-green',
-   //     radioClass: 'iradio_square-green'
-   // });
+    //     radioClass: 'iradio_square-green'
+    // });
 
     // Initialize animate panel function
     $('.animate-panel').animatePanel();
@@ -55,17 +55,19 @@ $(document).ready(function () {
         event.preventDefault();
         var hpanel = $(this).closest('div.hpanel');
         hpanel.remove();
-        if($('body').hasClass('fullscreen-panel-mode')) { $('body').removeClass('fullscreen-panel-mode');}
+        if ($('body').hasClass('fullscreen-panel-mode')) {
+            $('body').removeClass('fullscreen-panel-mode');
+        }
     });
 
     // Fullscreen for fullscreen hpanel
-    $('.fullscreen').on('click', function() {
+    $('.fullscreen').on('click', function () {
         var hpanel = $(this).closest('div.hpanel');
         var icon = $(this).find('i:first');
         $('body').toggleClass('fullscreen-panel-mode');
         icon.toggleClass('fa-expand').toggleClass('fa-compress');
         hpanel.toggleClass('fullscreen');
-        setTimeout(function() {
+        setTimeout(function () {
             $(window).trigger('resize');
         }, 100);
     });
@@ -76,10 +78,10 @@ $(document).ready(function () {
     });
 
     // Function for small header
-    $('.small-header-action').on('click', function(event){
+    $('.small-header-action').on('click', function (event) {
         event.preventDefault();
         var icon = $(this).find('i:first');
-        var breadcrumb  = $(this).parent().find('#hbreadcrumb');
+        var breadcrumb = $(this).parent().find('#hbreadcrumb');
         $(this).parent().parent().parent().toggleClass('small-header');
         breadcrumb.toggleClass('m-t-lg');
         icon.toggleClass('fa-arrow-up').toggleClass('fa-arrow-down');
@@ -120,29 +122,28 @@ $(window).bind("resize click", function () {
     }, 300);
 });
 
-/*function fixWrapperHeight() {
+function fixWrapperHeight() {
 
     // Get and set current height
     var headerH = 62;
     var navigationH = $("#navigation").height();
     var contentH = $(".content").height();
 
-    // Set new height when contnet height is less then navigation
+    // Set new height when content height is less than navigation
     if (contentH < navigationH) {
         $("#wrapper").css("min-height", navigationH + 'px');
     }
 
-    // Set new height when contnet height is less then navigation and navigation is less then window
+    // Set new height when content height is less than navigation and navigation is less than window
     if (contentH < navigationH && navigationH < $(window).height()) {
-        $("#wrapper").css("min-height", $(window).height() - headerH  + 'px');
+        $("#wrapper").css("min-height", $(window).height() - headerH + 'px');
     }
 
-    // Set new height when contnet is higher then navigation but less then window
+    // Set new height when content is higher than navigation but less than window
     if (contentH > navigationH && contentH < $(window).height()) {
         $("#wrapper").css("min-height", $(window).height() - headerH + 'px');
     }
-}*/
-
+}
 
 
 function setBodySmall() {
@@ -155,7 +156,7 @@ function setBodySmall() {
 }
 
 // Animate panel function
-$.fn['animatePanel'] = function() {
+$.fn['animatePanel'] = function () {
 
     var element = $(this);
     var effect = $(this).data('effect');
@@ -163,9 +164,19 @@ $.fn['animatePanel'] = function() {
     var child = $(this).data('child');
 
     // Set default values for attrs
-    if(!effect) { effect = 'zoomIn'}
-    if(!delay) { delay = 0.06 } else { delay = delay / 10 }
-    if(!child) { child = '.row > div'} else {child = "." + child}
+    if (!effect) {
+        effect = 'zoomIn'
+    }
+    if (!delay) {
+        delay = 0.06
+    } else {
+        delay = delay / 10
+    }
+    if (!child) {
+        child = '.row > div'
+    } else {
+        child = "." + child
+    }
 
     //Set defaul values for start animation and delay
     var startAnimation = 0;
@@ -192,7 +203,7 @@ $.fn['animatePanel'] = function() {
     });
 
     // Clear animation after finish
-    setTimeout(function(){
+    setTimeout(function () {
         $('.stagger').css('animation', '');
         $('.stagger').removeClass(effect).removeClass('animated-panel').removeClass('stagger');
     }, animateTime)

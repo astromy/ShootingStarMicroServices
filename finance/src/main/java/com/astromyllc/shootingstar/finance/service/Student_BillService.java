@@ -1,11 +1,13 @@
 package com.astromyllc.shootingstar.finance.service;
 
+import com.astromyllc.shootingstar.finance.dto.request.DynamicStringRequest;
 import com.astromyllc.shootingstar.finance.dto.request.StudentBillFetchRequest;
 import com.astromyllc.shootingstar.finance.dto.request.Student_BillRequest;
 import com.astromyllc.shootingstar.finance.dto.response.Student_BillResponse;
 import com.astromyllc.shootingstar.finance.model.Student_Bill;
 import com.astromyllc.shootingstar.finance.repositoy.Student_BillRepository;
 import com.astromyllc.shootingstar.finance.serviceInterface.Student_BillServiceInterface;
+import com.astromyllc.shootingstar.finance.utils.DynamicStringRequestUtil;
 import com.astromyllc.shootingstar.finance.utils.Student_BillUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -82,16 +84,24 @@ public class Student_BillService implements Student_BillServiceInterface {
     }
 
     @Override
-    public Optional<List<Student_BillResponse>> fetchStudentBillsByInstitutionClass(StudentBillFetchRequest r) {
+    public Optional<List<Student_BillResponse>> fetchStudentBillsByInstitutionClass(DynamicStringRequest request) {
+        if (request == null || request.getKey() == null || request.getVal() == null) {
+            return Optional.empty();
+        }
+
+        String institution = DynamicStringRequestUtil.getValue(request, "institutionCode");
+        String studentClass = DynamicStringRequestUtil.getValue(request, "studentClass");
+
         return Optional.of(Student_BillUtil.studentBillsGlobalList.stream()
-                .filter(s -> s.getInstitutionCode().equalsIgnoreCase(r.getInstitutionCode())
-                        && s.getStudentClass().equalsIgnoreCase(r.getStudentClass()))
+                .filter(s -> s.getInstitutionCode().equalsIgnoreCase(institution)
+                        && s.getStudentClass().equalsIgnoreCase(studentClass))
                 .map(studentBillUtil::mapStudentBill_ToStudentBillResponse)
                 .collect(Collectors.toList()));
     }
 
     @Override
     public Optional<Student_BillResponse> fetchStudentBillByIdAndInstitution(StudentBillFetchRequest r) {
+
         return Student_BillUtil.studentBillsGlobalList.stream()
                 .filter(s -> s.getInstitutionCode().equalsIgnoreCase(r.getInstitutionCode())
                         && s.getStudentId().equalsIgnoreCase(r.getStudentId()))

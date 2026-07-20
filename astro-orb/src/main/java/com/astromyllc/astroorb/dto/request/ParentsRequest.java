@@ -1,6 +1,9 @@
 package com.astromyllc.astroorb.dto.request;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -9,22 +12,14 @@ import lombok.*;
 public class ParentsRequest {
 
     private String id;
-    @NonNull
     private String firstNames;
-    @NonNull
     private String lastName;
-    @NonNull
     private String email;
-    @NonNull
     private String contact1;
     private String contact2;
-    @NonNull
     private String occupation;
-    @NonNull
     private String placeOfWork;
-    @NonNull
     private String parentType;
     private String studentId;
-    @NonNull
     private String institutionCode;
 }

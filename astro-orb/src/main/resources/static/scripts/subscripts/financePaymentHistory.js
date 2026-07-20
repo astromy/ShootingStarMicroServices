@@ -115,7 +115,25 @@
         if (!body) return;
 
         if (!payments || !payments.length) {
-            body.innerHTML = '<tr><td colspan="9" class="fc-empty"><i class="fas fa-inbox"></i> No payment records found</td></tr>';
+            var totalAll = (window.pyHistState.allPayments || []).length;
+            if (totalAll > 0) {
+                body.innerHTML = '<tr><td colspan="9" class="fc-empty">' +
+                    '<i class="fas fa-filter"></i> No payments match the current filters ' +
+                    '(' + totalAll + ' total record' + (totalAll === 1 ? '' : 's') + ' on file for this institution). ' +
+                    '<a href="#" id="phClearFiltersLink">Clear filters</a>' +
+                    '</td></tr>';
+                var link = document.getElementById('phClearFiltersLink');
+                if (link) link.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.getElementById('phYearSel').value = 'all';
+                    document.getElementById('phTermSel').value = 'all';
+                    document.getElementById('phMethodSel').value = 'all';
+                    document.getElementById('phSearch').value = '';
+                    applyAndRender();
+                });
+            } else {
+                body.innerHTML = '<tr><td colspan="9" class="fc-empty"><i class="fas fa-inbox"></i> No payment records found</td></tr>';
+            }
             return;
         }
 

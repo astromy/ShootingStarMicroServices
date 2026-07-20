@@ -2,8 +2,6 @@ package com.astromyllc.shootingstar.academics.serviceInterface;
 
 import com.astromyllc.shootingstar.academics.dto.request.ExamsQuestionsRequest;
 import com.astromyllc.shootingstar.academics.dto.response.ExamsQuestionsResponse;
-import com.astromyllc.shootingstar.academics.dto.response.SelectedExamQuestionAnswersResponse;
-import com.astromyllc.shootingstar.academics.dto.response.SelectedExamQuestionsResponse;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,6 +11,10 @@ public interface ExamsQuestionsServiceInterface {
     Optional<ExamsQuestionsResponse> submitQuestion(ExamsQuestionsRequest examsQuestionsRequest);
 
     List<Optional<ExamsQuestionsResponse>> submitQuestions(List<ExamsQuestionsRequest> examsQuestionsRequest);
+
+    Optional<ExamsQuestionsResponse> updateQuestion(ExamsQuestionsRequest examsQuestionsRequest);
+
+    void deleteQuestion(ExamsQuestionsRequest examsQuestionsRequest);
 
     List<Optional<ExamsQuestionsResponse>> fetchQuestionsByClassAndTerm(ExamsQuestionsRequest examsQuestionsRequest);
 

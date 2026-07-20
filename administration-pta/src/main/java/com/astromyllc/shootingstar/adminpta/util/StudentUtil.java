@@ -130,8 +130,8 @@ public class StudentUtil {
     private Student_BillResponse fetchStudentsBalance(StudentBillFetchRequest billFetchRequest) {
         JSONObject json = new JSONObject();
         json.put("institutionCode", billFetchRequest.getInstitutionCode());
-        json.put("applicationDate", billFetchRequest.getStudentClass());
-        json.put("applicationStatus", billFetchRequest.getStudentId());
+        json.put("studentClass", billFetchRequest.getStudentClass());
+        json.put("studentId", billFetchRequest.getStudentId());
         log.info(json.toJSONString());
         return webClientBuilder.build().post()
                 .uri(host + "/api/finance/getStudentBillByIdAndInstitution")
@@ -269,8 +269,8 @@ public class StudentUtil {
     public StudentStatusResponse mapStudent_ToStudentStatusResponse(Students s) {
         Double billBalance = fetchStudentsBalance(new StudentBillFetchRequest(
                 s.getInstitutionCode(),
-                s.getStudentClass(),
-                s.getStudentId()
+                s.getStudentId(),
+                s.getStudentClass()
         )).getAmountBalance();
         return StudentStatusResponse.builder()
                 .institutionCode(s.getInstitutionCode())
@@ -300,14 +300,18 @@ public class StudentUtil {
                 .map(StudentAccountUtil::mapStudentAccount_ToStudentAccountResponse)
                 .toList();
 
+        InstitutionRequest ir = parentsUtil.getSkimpInstitution(s.getInstitutionCode());
         return StudentSkimWithParentResponse.builder()
-                .institutionCode(parentsUtil.getSkimpInstitution(s.getInstitutionCode()).getName())
+                .institutionCode(ir.getBececode())
+                .institutionName(ir.getName())
                 .studentId(s.getStudentId())
                 .dateOfAdmission(String.valueOf(s.getDateOfAdmission()))
                 .lastName(s.getLastName())
                 .firstName(s.getFirstName())
                 .gender(s.getGender())
-                .nationality(s.getResidentialLocality())
+                .nationality(s.getCountryOfBirth())
+                .denomination(s.getDenomination())
+                .residentialLocality(s.getResidentialLocality())
                 .otherName(s.getOtherName())
                 .picture(s.getPicture())
                 .status(s.getStatus())
@@ -319,6 +323,7 @@ public class StudentUtil {
 
     public ParentsResponse mapParent_ToParentResponse(Parents p) {
         return ParentsResponse.builder()
+                .id(p.getId() != null ? p.getId().toString() : null)
                 .studentId(p.getStudentId())
                 .institutionCode(p.getInstitutionCode())
                 .parentType(p.getParentType())
@@ -364,6 +369,9 @@ public class StudentUtil {
                 .institutionCode(s.getInstitutionCode())
                 .picture(s.getPicture())
                 .birthCert(s.getBirthCert())
+                .parentsList(parentsList)
+                .studentSubjects(new ArrayList<>())
+                .studentAccount(new ArrayList<>())
                 .build();
     }
 
@@ -388,6 +396,7 @@ public class StudentUtil {
                 .institutionCode(s.getInstitutionCode())
                 .picture(s.getPicture())
                 .birthCert(s.getBirthCert())
+                .parentsList(parentsList)
                 .build();
     }
 
@@ -427,6 +436,9 @@ public class StudentUtil {
                     .institutionCode(s.getInstitutionCode())
                     .picture(s.getPicture())
                     .birthCert(s.getBirthCert())
+                    .parentsList(parentsList)
+                    .studentSubjects(new ArrayList<>())
+                    .studentAccount(new ArrayList<>())
                     .build();
 
         } else {
@@ -434,21 +446,26 @@ public class StudentUtil {
             String studentId = es.getStudentId();
 
             // Update the existing student's fields instead of creating new ones
-            es.setFirstName(s.getFirstName());
-            es.setOtherName(s.getOtherName());
-            es.setLastName(s.getLastName());
-            es.setGender(s.getGender());
-            es.setDateOfBirth(s.getDateOfBirth());
-            es.setPlaceOfBirth(s.getPlaceOfBirth());
-            es.setCountryOfBirth(s.getCountryOfBirth());
-            es.setDateOfAdmission(s.getDateOfAdmission());
-            es.setResidentialLocality(s.getResidentialLocality());
-            es.setStudentClass(s.getStudentClass());
-            es.setDenomination(s.getDenomination());
-            es.setStatus(s.getStatus());
-            es.setInstitutionCode(s.getInstitutionCode());
-            es.setPicture(s.getPicture());
-            es.setBirthCert(s.getBirthCert());
+            // Only fields that are non-null in the incoming request are updated -
+            // null means "leave as-is", not "clear this field".
+            if (s.getFirstName() != null && !s.getFirstName().isBlank()) es.setFirstName(s.getFirstName());
+            if (s.getOtherName() != null && !s.getOtherName().isBlank()) es.setOtherName(s.getOtherName());
+            if (s.getLastName() != null && !s.getLastName().isBlank()) es.setLastName(s.getLastName());
+            if (s.getGender() != null && !s.getGender().isBlank()) es.setGender(s.getGender());
+            if (s.getDateOfBirth() != null) es.setDateOfBirth(s.getDateOfBirth());
+            if (s.getPlaceOfBirth() != null && !s.getPlaceOfBirth().isBlank()) es.setPlaceOfBirth(s.getPlaceOfBirth());
+            if (s.getCountryOfBirth() != null && !s.getCountryOfBirth().isBlank())
+                es.setCountryOfBirth(s.getCountryOfBirth());
+            if (s.getDateOfAdmission() != null) es.setDateOfAdmission(s.getDateOfAdmission());
+            if (s.getResidentialLocality() != null && !s.getResidentialLocality().isBlank())
+                es.setResidentialLocality(s.getResidentialLocality());
+            if (s.getStudentClass() != null && !s.getStudentClass().isBlank()) es.setStudentClass(s.getStudentClass());
+            if (s.getDenomination() != null && !s.getDenomination().isBlank()) es.setDenomination(s.getDenomination());
+            if (s.getStatus() != null && !s.getStatus().isBlank()) es.setStatus(s.getStatus());
+            if (s.getInstitutionCode() != null && !s.getInstitutionCode().isBlank())
+                es.setInstitutionCode(s.getInstitutionCode());
+            if (s.getPicture() != null && !s.getPicture().isBlank()) es.setPicture(s.getPicture());
+            if (s.getBirthCert() != null && !s.getBirthCert().isBlank()) es.setBirthCert(s.getBirthCert());
 
             return es;
         }
@@ -492,6 +509,9 @@ public class StudentUtil {
                     .institutionCode(s.getInstitutionCode())
                     .picture(Base64.getEncoder().encodeToString(processAndValidateImage(s.getPicture(), 150, 256)))
                     .birthCert(s.getBirthCert())
+                    .parentsList(parentsList)
+                    .studentSubjects(studentSubjectsList)
+                    .studentAccount(new ArrayList<>())
                     .build();
 
         } else {
@@ -540,16 +560,23 @@ public class StudentUtil {
 
     public Optional<StudentsResponse> createNewStudents(Students2Request studentsRequest) throws URISyntaxException, IOException {
         Students newStudents = mapStudentsRequest_To_Students(studentsRequest);
+        List<Parents> parents = new ArrayList<>();
 
-        processRecords(studentsRequest.getStudentParents(),
-                (r -> ParentsUtil.mapParentRequest_ToParent(r, newStudents.getStudentId())),
-                parentsUtil::saveAll,
-                newStudents::setParentsList);
+        studentsRequest.getStudentParents().forEach(r -> {
+            Parents parent = ParentsUtil.mapParentRequest_ToParent(r, newStudents.getStudentId());
+            parentsUtil.KeyclaokCreateUserCredentials(r);
+            parents.add(parent);
+        });
 
-        processRecords(studentsRequest.getStudentSubjectsList(),
+        if (!parents.isEmpty()) {
+            parentsUtil.saveAll(parents);
+            newStudents.getParentsList().addAll(parents);
+        }
+
+        /*processRecords(studentsRequest.getStudentSubjectsList(),
                 r -> StudentSubjectUtil.mapStudentsSubjectRequest_ToStudentsSubjects(r, newStudents.getStudentId()),
                 studentSubjectUtil::saveAll,
-                newStudents::setStudentSubjects);
+                newStudents::setStudentSubjects);*/
 
         studentRepository.save(newStudents);
         studentsGlobalList.add(newStudents);
@@ -563,16 +590,20 @@ public class StudentUtil {
         // 1. Update basic student info (preserving the same studentId)
         Students updatedStudents = mapStudentsRequest_To_Students(studentsImportRequest, existingStudent);
 
+        List<Parents> existingParents = StudentUtil.parentsGlobalList.stream()
+                .filter(p -> p.getStudentId().equalsIgnoreCase(existingStudent.getStudentId()))
+                .collect(Collectors.toList());
+
         // 2. Handle parents - works whether existingStudent.getParentsList() is null/empty or not
         this.<ParentsRequest, Parents>updateRecords(
                 studentsImportRequest.getParentsRequests(),
-                existingStudent.getParentsList() != null ? existingStudent.getParentsList() : Collections.emptyList(),
+                existingParents,
                 ParentsUtil::mapParentRequest_ToParent,
                 parentsUtil::updateParents,
                 parentsUtil::saveAll,
                 updatedStudents::setParentsList,
                 updatedStudents.getStudentId(),
-                (ent, req) -> ent.getParentType().equalsIgnoreCase(req.getParentType())
+                this::parentsMatch
         );
 
         // 3. Handle Student Account - works whether existingStudent.getParentsList() is null/empty or not
@@ -618,8 +649,7 @@ public class StudentUtil {
                 parentsUtil::saveAll,
                 updatedStudents::setParentsList,
                 updatedStudents.getStudentId(),
-                (ent, req) -> ent.getParentType().equalsIgnoreCase(req.getParentType())
-                        && ent.getContact1().equalsIgnoreCase(req.getContact1())
+                this::parentsMatch
         );
 
         // 4. Handle subjects similarly
@@ -675,6 +705,58 @@ public class StudentUtil {
             saveFn.accept(updated);
             setter.accept(updated);
         }
+    }
+
+    /**
+     * Decides whether an incoming ParentsRequest refers to an already-existing Parents
+     * record for this student, so partial updates don't get misread as brand-new parents
+     * (which is what was causing duplicate parent records).
+     * <p>
+     * Falls through several identifiers in order of reliability, since most incoming
+     * requests won't have an `id` set:
+     * 1. id            - exact match, most reliable when the client has it
+     * 2. contact1       - phone numbers are effectively unique per person and rarely blank
+     * 3. email          - decent fallback when contact1 is missing
+     * 4. parentType+firstNames+lastName - last resort, weakest signal, but still better
+     *                      than parentType alone (which collides whenever a student has
+     *                      two parents of the same type, e.g. two "Biological" parents).
+     */
+    /**
+     * Decides whether an incoming ParentsRequest refers to an already-existing Parents
+     * record for this student.
+     * <p>
+     * Matches on (studentId, firstNames, lastName). This is safe specifically because
+     * parent names are NOT editable in this system - unlike email/contact1/parentType,
+     * which parents can change, so using them as an identity key would make a legitimate
+     * edit look like "this parent is gone, create a new one." Name + studentId is the one
+     * combination guaranteed to stay constant across updates.
+     * <p>
+     * `id` is still checked first when present, since it's an even more exact match and
+     * costs nothing extra to check.
+     */
+    private boolean parentsMatch(Parents ent, ParentsRequest req) {
+        if (req.getId() != null && !req.getId().isBlank()) {
+            return ent.getId() != null && ent.getId().toString().equalsIgnoreCase(req.getId());
+        }
+
+        boolean nameProvided = req.getFirstNames() != null && !req.getFirstNames().isBlank()
+                && req.getLastName() != null && !req.getLastName().isBlank();
+
+        if (nameProvided) {
+            return ent.getFirstNames() != null && ent.getLastName() != null
+                    && ent.getFirstNames().equalsIgnoreCase(req.getFirstNames())
+                    && ent.getLastName().equalsIgnoreCase(req.getLastName())
+                    && ent.getStudentId() != null && ent.getStudentId().equalsIgnoreCase(req.getStudentId());
+        }
+
+        // Name wasn't actually supplied on this request (null OR blank) - the primary
+        // key can't be used, so fall back to contact1 as a last resort rather than
+        // guaranteeing a duplicate. Less reliable since contact1 can change, but far
+        // better than creating a blank-named parent record.
+        return req.getContact1() != null && !req.getContact1().isBlank()
+                && ent.getContact1() != null
+                && ent.getContact1().equalsIgnoreCase(req.getContact1())
+                && ent.getStudentId() != null && ent.getStudentId().equalsIgnoreCase(req.getStudentId());
     }
 
     private boolean isSameRecord(Object existing, Object incoming) {

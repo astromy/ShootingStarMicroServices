@@ -1,6 +1,9 @@
 server:
   port: 7013
   max-http-header-size: 32KB
+  netty:
+    max-initial-line-length: 19192
+    max-chunk-size: 92428800  # 50MB
 
 gateway:
   host: ${APIGATEWAY:http://localhost:8083}

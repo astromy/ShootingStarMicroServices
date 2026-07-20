@@ -5,9 +5,9 @@
 <head>
 
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, maximum-scale=1.0, user-scalable=yes">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, maximum-scale=1.0, user-scalable=yes" name="viewport">
 
     <meta name="_csrf" th:content="${_csrf.token}"/>
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
@@ -16,14 +16,14 @@
     <title>Prospectus | Orb</title>
 
     <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
-    <link rel="shortcut icon" type="image/ico" href="./images/favicon.ico"/>
+    <link href="./images/favicon.ico" rel="shortcut icon" type="image/ico"/>
 
-    <link rel="stylesheet" href="vendor/animate.css/animate.css"/>
-    <link rel="stylesheet" href="vendor/sweetalert/lib/sweet-alert.css"/>
-    <link rel="stylesheet" href="styles/style.css">
-    <link rel="stylesheet" href="styles/font-awsome.css">
-    <link rel="stylesheet" href="vendor/bootstrap/dist/css/bootstrap.css"/>
-    <link rel="stylesheet" href="vendor/ladda/dist/ladda-themeless.min.css"/>
+    <link href="vendor/animate.css/animate.css" rel="stylesheet"/>
+    <link href="vendor/sweetalert/lib/sweet-alert.css" rel="stylesheet"/>
+    <link href="styles/style.css" rel="stylesheet">
+    <link href="styles/font-awsome.css" rel="stylesheet">
+    <link href="vendor/bootstrap/dist/css/bootstrap.css" rel="stylesheet"/>
+    <link href="vendor/ladda/dist/ladda-themeless.min.css" rel="stylesheet"/>
 
 </head>
 <body>
@@ -77,7 +77,7 @@
                             <a class="btn btn-primary wizardTabs" data-toggle="tab">Step 1 - School Selection</a>
                             <a class="btn btn-default wizardTabs" data-toggle="tab">Step 2 - Student Bio Data</a>
                             <a class="btn btn-default wizardTabs" data-toggle="tab">Step 3 - Parent Bio Data</a>
-                            <a class="btn btn-default wizardTabs" data-toggle="tab">Step 4 - Subject Selection</a>
+                            <a class="btn btn-default wizardTabs" data-toggle="tab">Step 4 - Items to Purchase</a>
                             <a class="btn btn-default wizardTabs" data-toggle="tab">Step 5 - Approval</a>
 
                         </div>
@@ -92,8 +92,9 @@
                                             <div class="col-md-5 mb-3">
                                                 <div class="search-box">
                                                     <i class="fas fa-search"></i>
-                                                    <input type="text" class="form-control" id="search-input"
-                                                           placeholder="Search schools by name or location...">
+                                                    <input class="form-control" id="search-input"
+                                                           placeholder="Search schools by name or location..."
+                                                           type="text">
                                                 </div>
                                             </div>
                                             <div class="col-md-2 mb-3">
@@ -125,8 +126,9 @@
                                             <div class="col-md-3 mb-3">
                                                 <div class="search-box">
                                                     <i class="fas fa-id-card"></i>
-                                                    <input type="text" class="form-control" id="studentID"
-                                                           placeholder="Enter Student ID">
+                                                    <input class="form-control" id="studentID"
+                                                           placeholder="Enter Student ID"
+                                                           type="text">
                                                 </div>
                                             </div>
                                         </div>
@@ -164,27 +166,29 @@
                                             <div class="row">
                                                 <div class="form-group col-lg-6">
                                                     <label for="studFName">First Name</label>
-                                                    <input type="text" autocomplete="off" id="studFName"
-                                                           class="form-control" placeholder="Student First Name"
-                                                           name="studFName" minlength="2">
+                                                    <input autocomplete="off" class="form-control" id="studFName"
+                                                           minlength="2" name="studFName"
+                                                           placeholder="Student First Name" type="text">
                                                 </div>
                                                 <div class="form-group col-lg-6">
                                                     <label for="studSurName">Sur Name</label>
-                                                    <input type="text" autocomplete="off" required id="studSurName"
-                                                           class="form-control" placeholder="Student Last Name"
-                                                           name="studSurName"
-                                                           minlength="3">
+                                                    <input autocomplete="off" class="form-control" id="studSurName"
+                                                           minlength="3"
+                                                           name="studSurName" placeholder="Student Last Name"
+                                                           required
+                                                           type="text">
                                                 </div>
                                                 <div class="form-group col-lg-6">
                                                     <label for="studOtherName">Other Name</label>
-                                                    <input type="text" required id="studOtherName" class="form-control"
-                                                           placeholder="Student Other Name(s)" name="studOtherName"
-                                                           minlength="5">
+                                                    <input class="form-control" id="studOtherName" minlength="5"
+                                                           name="studOtherName"
+                                                           placeholder="Student Other Name(s)" required
+                                                           type="text">
                                                 </div>
                                                 <div class="form-group col-lg-6">
                                                     <label for="studGender">Gender</label>
-                                                    <select autocomplete="off" required id="studGender"
-                                                            class="form-control" name="studGender">
+                                                    <select autocomplete="off" class="form-control" id="studGender"
+                                                            name="studGender" required>
                                                         <option> Select Student Gender</option>
                                                         <option value="male"> Male</option>
                                                         <option value="female"> Female</option>
@@ -198,56 +202,60 @@
                                             <div>
                                                 <label for="studPic">Student Picture</label>
                                             </div>
-                                            <output class="imageOutput" name="studPic" id="studPic"
+                                            <output class="imageOutput" id="studPic" name="studPic"
                                                     style="height: 220px; width:220px; border-radius: 10px;display: inline-block;"></output>
-                                            <input class="imageInput" type="file" id="studentPicture"
+                                            <input accept="image/jpeg, image/png, image/jpg" class="imageInput"
+                                                   id="studentPicture"
                                                    style="width: 200px;padding: 12px;display: inline;"
-                                                   accept="image/jpeg, image/png, image/jpg">
+                                                   type="file">
                                         </div>
                                         <div class="col-lg-9">
                                             <div class="row">
                                                 <div class="form-group col-lg-6">
                                                     <label for="studDOB">Date of Birth</label>
-                                                    <input type="text" id="studDOB" class="form-control"
-                                                           placeholder="Date of Birth" name="studDOB"
-                                                           minlength="10">
+                                                    <input class="form-control" id="studDOB" minlength="10"
+                                                           name="studDOB" placeholder="Date of Birth"
+                                                           type="text">
                                                 </div>
 
                                                 <div class="form-group col-lg-6">
                                                     <label for="studDOA">Date of Admission</label>
-                                                    <input type="text" required id="studDOA" class="form-control"
-                                                           placeholder="Date of Admission" name="studDOA"
-                                                           minlength="10">
+                                                    <input class="form-control" id="studDOA" minlength="10"
+                                                           name="studDOA"
+                                                           placeholder="Date of Admission" required
+                                                           type="text">
                                                 </div>
                                                 <div class="form-group col-lg-6">
                                                     <label for="placeOfBirth">Plae of Birth</label>
-                                                    <input type="text" required id="placeOfBirth" class="form-control"
-                                                           placeholder="Place of Birth" name="placeOfBirth"
-                                                           minlength="5">
+                                                    <input class="form-control" id="placeOfBirth" minlength="5"
+                                                           name="placeOfBirth"
+                                                           placeholder="Place of Birth" required
+                                                           type="text">
                                                 </div>
                                                 <div class="form-group col-lg-6">
                                                     <label for="cob">Country of Birth</label>
-                                                    <select required id="cob"
-                                                            class="form-control" name="cob">
+                                                    <select class="form-control" id="cob"
+                                                            name="cob" required>
                                                         <option>Select Country of Birth</option>
                                                     </select>
                                                 </div>
 
                                                 <div class="form-group col-lg-6">
                                                     <label for="studResidence">Residential Locality</label>
-                                                    <input type="text" required id="studResidence" class="form-control"
-                                                           name="studResidence" placeholder="Place of Residence">
+                                                    <input class="form-control" id="studResidence" name="studResidence"
+                                                           placeholder="Place of Residence"
+                                                           required type="text">
                                                 </div>
 
                                                 <div class="form-group col-lg-6">
                                                     <label for="denomination">Denomination</label>
-                                                    <input type="text" required id="denomination"
-                                                           class="form-control" name="denomination"
-                                                           placeholder="Student Denomination">
+                                                    <input class="form-control" id="denomination" name="denomination"
+                                                           placeholder="Student Denomination" required
+                                                           type="text">
                                                 </div>
 
                                                 <div>
-                                                    <button id="instSubmit" class="btn btn-sm btn-primary m-t-n-xs"
+                                                    <button class="btn btn-sm btn-primary m-t-n-xs" id="instSubmit"
                                                             style="visibility: hidden;" type="submit">
                                                         <strong>Submit</strong></button>
                                                 </div>
@@ -295,48 +303,55 @@
                                             <div class="col-lg-8">
                                                 <div class="row">
                                                     <div class="col-md-6 mb-3">
-                                                        <label for="fatherFirstName" class="form-label required-field">First
+                                                        <label class="form-label required-field" for="fatherFirstName">First
                                                             Name</label>
-                                                        <input type="text" class="form-control" id="fatherFirstName"
-                                                               placeholder="Father's first name" required>
+                                                        <input class="form-control" id="fatherFirstName"
+                                                               placeholder="Father's first name"
+                                                               required type="text">
                                                     </div>
                                                     <div class="col-md-6 mb-3">
-                                                        <label for="fatherLastName" class="form-label required-field">Last
+                                                        <label class="form-label required-field" for="fatherLastName">Last
                                                             Name</label>
-                                                        <input type="text" class="form-control" id="fatherLastName"
-                                                               placeholder="Father's last name" required>
+                                                        <input class="form-control" id="fatherLastName"
+                                                               placeholder="Father's last name"
+                                                               required type="text">
                                                     </div>
                                                     <div class="col-md-6 mb-3">
-                                                        <label for="fatherEmail" class="form-label required-field">Email
+                                                        <label class="form-label required-field" for="fatherEmail">Email
                                                             Address</label>
-                                                        <input type="email" class="form-control" id="fatherEmail"
-                                                               placeholder="Father's email address" required>
+                                                        <input class="form-control" id="fatherEmail"
+                                                               placeholder="Father's email address"
+                                                               required type="email">
                                                     </div>
                                                     <div class="col-md-6 mb-3">
-                                                        <label for="fatherContact1" class="form-label required-field">Primary
+                                                        <label class="form-label required-field" for="fatherContact1">Primary
                                                             Contact</label>
-                                                        <input type="tel" class="form-control" id="fatherContact1"
-                                                               placeholder="Primary phone number" required>
+                                                        <input class="form-control" id="fatherContact1"
+                                                               placeholder="Primary phone number"
+                                                               required type="tel">
                                                     </div>
                                                     <div class="col-md-6 mb-3">
-                                                        <label for="fatherContact2" class="form-label">Secondary
+                                                        <label class="form-label" for="fatherContact2">Secondary
                                                             Contact</label>
-                                                        <input type="tel" class="form-control" id="fatherContact2"
-                                                               placeholder="Secondary phone number">
+                                                        <input class="form-control" id="fatherContact2"
+                                                               placeholder="Secondary phone number"
+                                                               type="tel">
                                                     </div>
                                                     <div class="col-md-6 mb-3">
-                                                        <label for="fatherOccupation" class="form-label required-field">Occupation</label>
-                                                        <input type="text" class="form-control" id="fatherOccupation"
-                                                               placeholder="Father's occupation" required>
+                                                        <label class="form-label required-field" for="fatherOccupation">Occupation</label>
+                                                        <input class="form-control" id="fatherOccupation"
+                                                               placeholder="Father's occupation"
+                                                               required type="text">
                                                     </div>
                                                     <div class="col-md-6 mb-3">
-                                                        <label for="fatherPlaceOfWork"
-                                                               class="form-label required-field">Place of Work</label>
-                                                        <input type="text" class="form-control" id="fatherPlaceOfWork"
-                                                               placeholder="Father's place of work" required>
+                                                        <label class="form-label required-field"
+                                                               for="fatherPlaceOfWork">Place of Work</label>
+                                                        <input class="form-control" id="fatherPlaceOfWork"
+                                                               placeholder="Father's place of work"
+                                                               required type="text">
                                                     </div>
                                                     <div class="col-md-6 mb-3">
-                                                        <label for="fatherType" class="form-label required-field">Parent
+                                                        <label class="form-label required-field" for="fatherType">Parent
                                                             Type</label>
                                                         <select class="form-control" id="fatherType" required>
                                                             <option value="">Select parent type</option>
@@ -373,48 +388,55 @@
                                             <div class="col-lg-8">
                                                 <div class="row">
                                                     <div class="col-md-6 mb-3">
-                                                        <label for="motherFirstName" class="form-label required-field">First
+                                                        <label class="form-label required-field" for="motherFirstName">First
                                                             Name</label>
-                                                        <input type="text" class="form-control" id="motherFirstName"
-                                                               placeholder="Mother's first name" required>
+                                                        <input class="form-control" id="motherFirstName"
+                                                               placeholder="Mother's first name"
+                                                               required type="text">
                                                     </div>
                                                     <div class="col-md-6 mb-3">
-                                                        <label for="motherLastName" class="form-label required-field">Last
+                                                        <label class="form-label required-field" for="motherLastName">Last
                                                             Name</label>
-                                                        <input type="text" class="form-control" id="motherLastName"
-                                                               placeholder="Mother's last name" required>
+                                                        <input class="form-control" id="motherLastName"
+                                                               placeholder="Mother's last name"
+                                                               required type="text">
                                                     </div>
                                                     <div class="col-md-6 mb-3">
-                                                        <label for="motherEmail" class="form-label required-field">Email
+                                                        <label class="form-label required-field" for="motherEmail">Email
                                                             Address</label>
-                                                        <input type="email" class="form-control" id="motherEmail"
-                                                               placeholder="Mother's email address" required>
+                                                        <input class="form-control" id="motherEmail"
+                                                               placeholder="Mother's email address"
+                                                               required type="email">
                                                     </div>
                                                     <div class="col-md-6 mb-3">
-                                                        <label for="motherContact1" class="form-label required-field">Primary
+                                                        <label class="form-label required-field" for="motherContact1">Primary
                                                             Contact</label>
-                                                        <input type="tel" class="form-control" id="motherContact1"
-                                                               placeholder="Primary phone number" required>
+                                                        <input class="form-control" id="motherContact1"
+                                                               placeholder="Primary phone number"
+                                                               required type="tel">
                                                     </div>
                                                     <div class="col-md-6 mb-3">
-                                                        <label for="motherContact2" class="form-label">Secondary
+                                                        <label class="form-label" for="motherContact2">Secondary
                                                             Contact</label>
-                                                        <input type="tel" class="form-control" id="motherContact2"
-                                                               placeholder="Secondary phone number">
+                                                        <input class="form-control" id="motherContact2"
+                                                               placeholder="Secondary phone number"
+                                                               type="tel">
                                                     </div>
                                                     <div class="col-md-6 mb-3">
-                                                        <label for="motherOccupation" class="form-label required-field">Occupation</label>
-                                                        <input type="text" class="form-control" id="motherOccupation"
-                                                               placeholder="Mother's occupation" required>
+                                                        <label class="form-label required-field" for="motherOccupation">Occupation</label>
+                                                        <input class="form-control" id="motherOccupation"
+                                                               placeholder="Mother's occupation"
+                                                               required type="text">
                                                     </div>
                                                     <div class="col-md-6 mb-3">
-                                                        <label for="motherPlaceOfWork"
-                                                               class="form-label required-field">Place of Work</label>
-                                                        <input type="text" class="form-control" id="motherPlaceOfWork"
-                                                               placeholder="Mother's place of work" required>
+                                                        <label class="form-label required-field"
+                                                               for="motherPlaceOfWork">Place of Work</label>
+                                                        <input class="form-control" id="motherPlaceOfWork"
+                                                               placeholder="Mother's place of work"
+                                                               required type="text">
                                                     </div>
                                                     <div class="col-md-6 mb-3">
-                                                        <label for="motherType" class="form-label required-field">Parent
+                                                        <label class="form-label required-field" for="motherType">Parent
                                                             Type</label>
                                                         <select class="form-control" id="motherType" required>
                                                             <option value="">Select parent type</option>
@@ -437,17 +459,215 @@
                                 </div>
                             </div>
 
-                            <div class="p-m tab-pane">
+                            <div class="p-m tab-pane" id="items-to-purchase-pane">
 
                                 <div class="container">
                                     <div class="selection-info">
-                                        <h4><i class="fas fa-info-circle me-2"></i>Selection Instructions</h4>
-                                        <p class="mb-1">- Click on any subject to select your program</p>
-                                        <p class="mb-1">- Select up to 4 elective subjects from your chosen program</p>
-                                        <p class="mb-0">- You cannot select subjects from multiple programs</p>
+                                        <h4><i class="fas fa-shopping-cart me-2"></i>Items to Purchase Upon Acceptance
+                                        </h4>
+                                        <p class="mb-1">The following items are required to be purchased once you accept
+                                            this admission offer.</p>
+                                        <p class="mb-0">Please review the list carefully and ensure all items are ready
+                                            before the resumption date.</p>
                                     </div>
 
-                                    <div class="row">
+                                    <div id="purchase-items-container">
+                                        <!-- Items will be dynamically loaded here when student data is populated -->
+                                        <div class="text-center p-4" id="purchase-items-loading">
+                                            <i class="fas fa-spinner fa-spin fa-2x text-muted"></i>
+                                            <p class="text-muted mt-2">Loading required items&hellip;</p>
+                                        </div>
+
+                                        <!-- Static fallback list shown until dynamic data loads -->
+                                        <div id="purchase-items-list" style="display:none;">
+                                            <div class="row">
+                                                <!-- Uniforms -->
+                                                <div class="col-lg-6 col-md-6 mb-4">
+                                                    <div class="card">
+                                                        <div class="card-header" style="background:#3c8dbc;color:#fff;">
+                                                            <i class="fas fa-tshirt me-2"></i><strong>School
+                                                            Uniforms</strong>
+                                                        </div>
+                                                        <div class="card-body p-0">
+                                                            <table class="table table-striped mb-0" id="uniform-table">
+                                                                <thead>
+                                                                <tr>
+                                                                    <th>Item</th>
+                                                                    <th>Qty</th>
+                                                                    <th>Est. Cost</th>
+                                                                </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                <tr>
+                                                                    <td>School Uniform (Day)</td>
+                                                                    <td>2</td>
+                                                                    <td>—</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>P.E Kit</td>
+                                                                    <td>1</td>
+                                                                    <td>—</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>School Sandals / Shoes</td>
+                                                                    <td>1</td>
+                                                                    <td>—</td>
+                                                                </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Stationery & Books -->
+                                                <div class="col-lg-6 col-md-6 mb-4">
+                                                    <div class="card">
+                                                        <div class="card-header" style="background:#00a65a;color:#fff;">
+                                                            <i class="fas fa-book me-2"></i><strong>Stationery &amp;
+                                                            Books</strong>
+                                                        </div>
+                                                        <div class="card-body p-0">
+                                                            <table class="table table-striped mb-0"
+                                                                   id="stationery-table">
+                                                                <thead>
+                                                                <tr>
+                                                                    <th>Item</th>
+                                                                    <th>Qty</th>
+                                                                    <th>Est. Cost</th>
+                                                                </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                <tr>
+                                                                    <td>Exercise Books (80 pg)</td>
+                                                                    <td>10</td>
+                                                                    <td>—</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>Textbooks (as prescribed)</td>
+                                                                    <td>—</td>
+                                                                    <td>—</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>Mathematical Set</td>
+                                                                    <td>1</td>
+                                                                    <td>—</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>Pencils, Pens &amp; Ruler</td>
+                                                                    <td>1 set</td>
+                                                                    <td>—</td>
+                                                                </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Bedding & Personal Items (Boarding) -->
+                                                <div class="col-lg-6 col-md-6 mb-4">
+                                                    <div class="card">
+                                                        <div class="card-header" style="background:#f39c12;color:#fff;">
+                                                            <i class="fas fa-bed me-2"></i><strong>Bedding &amp;
+                                                            Personal Items</strong>
+                                                        </div>
+                                                        <div class="card-body p-0">
+                                                            <table class="table table-striped mb-0" id="bedding-table">
+                                                                <thead>
+                                                                <tr>
+                                                                    <th>Item</th>
+                                                                    <th>Qty</th>
+                                                                    <th>Est. Cost</th>
+                                                                </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                <tr>
+                                                                    <td>Mattress / Foam</td>
+                                                                    <td>1</td>
+                                                                    <td>—</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>Bed Sheets</td>
+                                                                    <td>2</td>
+                                                                    <td>—</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>Pillow &amp; Pillowcase</td>
+                                                                    <td>1</td>
+                                                                    <td>—</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>Blanket / Coverlet</td>
+                                                                    <td>1</td>
+                                                                    <td>—</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>Mosquito Net</td>
+                                                                    <td>1</td>
+                                                                    <td>—</td>
+                                                                </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Fees & Levies -->
+                                                <div class="col-lg-6 col-md-6 mb-4">
+                                                    <div class="card">
+                                                        <div class="card-header" style="background:#d9534f;color:#fff;">
+                                                            <i class="fas fa-money-bill-wave me-2"></i><strong>School
+                                                            Fees &amp; Levies</strong>
+                                                        </div>
+                                                        <div class="card-body p-0">
+                                                            <table class="table table-striped mb-0" id="fees-table">
+                                                                <thead>
+                                                                <tr>
+                                                                    <th>Item</th>
+                                                                    <th>Period</th>
+                                                                    <th>Amount</th>
+                                                                </tr>
+                                                                </thead>
+                                                                <tbody id="fees-rows">
+                                                                <tr>
+                                                                    <td>Basic School Fees</td>
+                                                                    <td>Per Term</td>
+                                                                    <td>—</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>PTA Levy</td>
+                                                                    <td>Per Term</td>
+                                                                    <td>—</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>Examination / Assessment Fee</td>
+                                                                    <td>Per Year</td>
+                                                                    <td>—</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>Sports &amp; Cultural Levy</td>
+                                                                    <td>Per Year</td>
+                                                                    <td>—</td>
+                                                                </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </div><!-- /.row -->
+
+                                            <div class="alert alert-info m-t-md">
+                                                <i class="fas fa-info-circle me-2"></i>
+                                                <strong>Note:</strong> Exact amounts and the full list of required items
+                                                will be provided by the school upon confirmation of acceptance. The
+                                                items above represent the standard requirements; your school may add
+                                                programme-specific items.
+                                            </div>
+                                        </div><!-- /#purchase-items-list -->
+                                    </div><!-- /#purchase-items-container -->
+
+                                    <!-- OLD SUBJECT SELECTION REMOVED - replaced by Items to Purchase above -->
+                                    <div class="row" style="display:none;">
                                         <!-- General Arts -->
                                         <div class="col-lg-6 col-md-6 mb-4">
                                             <div class="program-card card" id="arts-card">
@@ -460,50 +680,50 @@
                                                     <h5 class="card-title">Elective Subjects (Select up to 4):</h5>
                                                     <div class="subject-grid">
                                                         <div class="subject-item">
-                                                            <input type="checkbox" class="form-check-input arts-subject"
-                                                                   id="arts1" name="arts-subject">
+                                                            <input class="form-check-input arts-subject" id="arts1"
+                                                                   name="arts-subject" type="checkbox">
                                                             <label class="form-check-label ms-2" for="arts1">Literature
                                                                 in English</label>
                                                         </div>
                                                         <div class="subject-item">
-                                                            <input type="checkbox" class="form-check-input arts-subject"
-                                                                   id="arts2" name="arts-subject">
+                                                            <input class="form-check-input arts-subject" id="arts2"
+                                                                   name="arts-subject" type="checkbox">
                                                             <label class="form-check-label ms-2" for="arts2">Ghanaian
                                                                 Language</label>
                                                         </div>
                                                         <div class="subject-item">
-                                                            <input type="checkbox" class="form-check-input arts-subject"
-                                                                   id="arts3" name="arts-subject">
+                                                            <input class="form-check-input arts-subject" id="arts3"
+                                                                   name="arts-subject" type="checkbox">
                                                             <label class="form-check-label ms-2"
                                                                    for="arts3">French</label>
                                                         </div>
                                                         <div class="subject-item">
-                                                            <input type="checkbox" class="form-check-input arts-subject"
-                                                                   id="arts4" name="arts-subject">
+                                                            <input class="form-check-input arts-subject" id="arts4"
+                                                                   name="arts-subject" type="checkbox">
                                                             <label class="form-check-label ms-2"
                                                                    for="arts4">Music</label>
                                                         </div>
                                                         <div class="subject-item">
-                                                            <input type="checkbox" class="form-check-input arts-subject"
-                                                                   id="arts5" name="arts-subject">
+                                                            <input class="form-check-input arts-subject" id="arts5"
+                                                                   name="arts-subject" type="checkbox">
                                                             <label class="form-check-label ms-2"
                                                                    for="arts5">Economics</label>
                                                         </div>
                                                         <div class="subject-item">
-                                                            <input type="checkbox" class="form-check-input arts-subject"
-                                                                   id="arts6" name="arts-subject">
+                                                            <input class="form-check-input arts-subject" id="arts6"
+                                                                   name="arts-subject" type="checkbox">
                                                             <label class="form-check-label ms-2"
                                                                    for="arts6">Geography</label>
                                                         </div>
                                                         <div class="subject-item">
-                                                            <input type="checkbox" class="form-check-input arts-subject"
-                                                                   id="arts7" name="arts-subject">
+                                                            <input class="form-check-input arts-subject" id="arts7"
+                                                                   name="arts-subject" type="checkbox">
                                                             <label class="form-check-label ms-2"
                                                                    for="arts7">History</label>
                                                         </div>
                                                         <div class="subject-item">
-                                                            <input type="checkbox" class="form-check-input arts-subject"
-                                                                   id="arts8" name="arts-subject">
+                                                            <input class="form-check-input arts-subject" id="arts8"
+                                                                   name="arts-subject" type="checkbox">
                                                             <label class="form-check-label ms-2"
                                                                    for="arts8">Government</label>
                                                         </div>
@@ -528,50 +748,50 @@
                                                     <h5 class="card-title">Elective Subjects (Select up to 4):</h5>
                                                     <div class="subject-grid">
                                                         <div class="subject-item">
-                                                            <input type="checkbox"
-                                                                   class="form-check-input science-subject"
-                                                                   id="science1" name="science-subject">
+                                                            <input class="form-check-input science-subject"
+                                                                   id="science1"
+                                                                   name="science-subject" type="checkbox">
                                                             <label class="form-check-label ms-2"
                                                                    for="science1">Physics</label>
                                                         </div>
                                                         <div class="subject-item">
-                                                            <input type="checkbox"
-                                                                   class="form-check-input science-subject"
-                                                                   id="science2" name="science-subject">
+                                                            <input class="form-check-input science-subject"
+                                                                   id="science2"
+                                                                   name="science-subject" type="checkbox">
                                                             <label class="form-check-label ms-2" for="science2">Chemistry</label>
                                                         </div>
                                                         <div class="subject-item">
-                                                            <input type="checkbox"
-                                                                   class="form-check-input science-subject"
-                                                                   id="science3" name="science-subject">
+                                                            <input class="form-check-input science-subject"
+                                                                   id="science3"
+                                                                   name="science-subject" type="checkbox">
                                                             <label class="form-check-label ms-2"
                                                                    for="science3">Biology</label>
                                                         </div>
                                                         <div class="subject-item">
-                                                            <input type="checkbox"
-                                                                   class="form-check-input science-subject"
-                                                                   id="science4" name="science-subject">
+                                                            <input class="form-check-input science-subject"
+                                                                   id="science4"
+                                                                   name="science-subject" type="checkbox">
                                                             <label class="form-check-label ms-2" for="science4">Elective
                                                                 Mathematics</label>
                                                         </div>
                                                         <div class="subject-item">
-                                                            <input type="checkbox"
-                                                                   class="form-check-input science-subject"
-                                                                   id="science5" name="science-subject">
+                                                            <input class="form-check-input science-subject"
+                                                                   id="science5"
+                                                                   name="science-subject" type="checkbox">
                                                             <label class="form-check-label ms-2" for="science5">Agriculture
                                                                 Science</label>
                                                         </div>
                                                         <div class="subject-item">
-                                                            <input type="checkbox"
-                                                                   class="form-check-input science-subject"
-                                                                   id="science6" name="science-subject">
+                                                            <input class="form-check-input science-subject"
+                                                                   id="science6"
+                                                                   name="science-subject" type="checkbox">
                                                             <label class="form-check-label ms-2" for="science6">Animal
                                                                 Husbandry</label>
                                                         </div>
                                                         <div class="subject-item">
-                                                            <input type="checkbox"
-                                                                   class="form-check-input science-subject"
-                                                                   id="science7" name="science-subject">
+                                                            <input class="form-check-input science-subject"
+                                                                   id="science7"
+                                                                   name="science-subject" type="checkbox">
                                                             <label class="form-check-label ms-2" for="science7">Fisheries</label>
                                                         </div>
                                                     </div>
@@ -595,43 +815,43 @@
                                                     <h5 class="card-title">Elective Subjects (Select up to 4):</h5>
                                                     <div class="subject-grid">
                                                         <div class="subject-item">
-                                                            <input type="checkbox"
-                                                                   class="form-check-input business-subject"
-                                                                   id="business1" name="business-subject">
+                                                            <input class="form-check-input business-subject"
+                                                                   id="business1"
+                                                                   name="business-subject" type="checkbox">
                                                             <label class="form-check-label ms-2" for="business1">Financial
                                                                 Accounting</label>
                                                         </div>
                                                         <div class="subject-item">
-                                                            <input type="checkbox"
-                                                                   class="form-check-input business-subject"
-                                                                   id="business2" name="business-subject">
+                                                            <input class="form-check-input business-subject"
+                                                                   id="business2"
+                                                                   name="business-subject" type="checkbox">
                                                             <label class="form-check-label ms-2" for="business2">Cost
                                                                 Accounting</label>
                                                         </div>
                                                         <div class="subject-item">
-                                                            <input type="checkbox"
-                                                                   class="form-check-input business-subject"
-                                                                   id="business3" name="business-subject">
+                                                            <input class="form-check-input business-subject"
+                                                                   id="business3"
+                                                                   name="business-subject" type="checkbox">
                                                             <label class="form-check-label ms-2" for="business3">Business
                                                                 Management</label>
                                                         </div>
                                                         <div class="subject-item">
-                                                            <input type="checkbox"
-                                                                   class="form-check-input business-subject"
-                                                                   id="business4" name="business-subject">
+                                                            <input class="form-check-input business-subject"
+                                                                   id="business4"
+                                                                   name="business-subject" type="checkbox">
                                                             <label class="form-check-label ms-2" for="business4">Economics</label>
                                                         </div>
                                                         <div class="subject-item">
-                                                            <input type="checkbox"
-                                                                   class="form-check-input business-subject"
-                                                                   id="business5" name="business-subject">
+                                                            <input class="form-check-input business-subject"
+                                                                   id="business5"
+                                                                   name="business-subject" type="checkbox">
                                                             <label class="form-check-label ms-2" for="business5">Elective
                                                                 Mathematics</label>
                                                         </div>
                                                         <div class="subject-item">
-                                                            <input type="checkbox"
-                                                                   class="form-check-input business-subject"
-                                                                   id="business6" name="business-subject">
+                                                            <input class="form-check-input business-subject"
+                                                                   id="business6"
+                                                                   name="business-subject" type="checkbox">
                                                             <label class="form-check-label ms-2" for="business6">Office
                                                                 Practice</label>
                                                         </div>
@@ -656,44 +876,44 @@
                                                     <h5 class="card-title">Elective Subjects (Select up to 4):</h5>
                                                     <div class="subject-grid">
                                                         <div class="subject-item">
-                                                            <input type="checkbox"
-                                                                   class="form-check-input visual-arts-subject"
-                                                                   id="visual1" name="visual-arts-subject">
+                                                            <input class="form-check-input visual-arts-subject"
+                                                                   id="visual1"
+                                                                   name="visual-arts-subject" type="checkbox">
                                                             <label class="form-check-label ms-2" for="visual1">General
                                                                 Knowledge in Art</label>
                                                         </div>
                                                         <div class="subject-item">
-                                                            <input type="checkbox"
-                                                                   class="form-check-input visual-arts-subject"
-                                                                   id="visual2" name="visual-arts-subject">
+                                                            <input class="form-check-input visual-arts-subject"
+                                                                   id="visual2"
+                                                                   name="visual-arts-subject" type="checkbox">
                                                             <label class="form-check-label ms-2" for="visual2">Graphic
                                                                 Design</label>
                                                         </div>
                                                         <div class="subject-item">
-                                                            <input type="checkbox"
-                                                                   class="form-check-input visual-arts-subject"
-                                                                   id="visual3" name="visual-arts-subject">
+                                                            <input class="form-check-input visual-arts-subject"
+                                                                   id="visual3"
+                                                                   name="visual-arts-subject" type="checkbox">
                                                             <label class="form-check-label ms-2" for="visual3">Picture
                                                                 Making</label>
                                                         </div>
                                                         <div class="subject-item">
-                                                            <input type="checkbox"
-                                                                   class="form-check-input visual-arts-subject"
-                                                                   id="visual4" name="visual-arts-subject">
+                                                            <input class="form-check-input visual-arts-subject"
+                                                                   id="visual4"
+                                                                   name="visual-arts-subject" type="checkbox">
                                                             <label class="form-check-label ms-2"
                                                                    for="visual4">Sculpture</label>
                                                         </div>
                                                         <div class="subject-item">
-                                                            <input type="checkbox"
-                                                                   class="form-check-input visual-arts-subject"
-                                                                   id="visual5" name="visual-arts-subject">
+                                                            <input class="form-check-input visual-arts-subject"
+                                                                   id="visual5"
+                                                                   name="visual-arts-subject" type="checkbox">
                                                             <label class="form-check-label ms-2"
                                                                    for="visual5">Textiles</label>
                                                         </div>
                                                         <div class="subject-item">
-                                                            <input type="checkbox"
-                                                                   class="form-check-input visual-arts-subject"
-                                                                   id="visual6" name="visual-arts-subject">
+                                                            <input class="form-check-input visual-arts-subject"
+                                                                   id="visual6"
+                                                                   name="visual-arts-subject" type="checkbox">
                                                             <label class="form-check-label ms-2"
                                                                    for="visual6">Basketry</label>
                                                         </div>
@@ -718,44 +938,44 @@
                                                     <h5 class="card-title">Elective Subjects (Select up to 4):</h5>
                                                     <div class="subject-grid">
                                                         <div class="subject-item">
-                                                            <input type="checkbox"
-                                                                   class="form-check-input home-economics-subject"
-                                                                   id="home-eco1" name="home-economics-subject">
+                                                            <input class="form-check-input home-economics-subject"
+                                                                   id="home-eco1"
+                                                                   name="home-economics-subject" type="checkbox">
                                                             <label class="form-check-label ms-2" for="home-eco1">Management
                                                                 in Living</label>
                                                         </div>
                                                         <div class="subject-item">
-                                                            <input type="checkbox"
-                                                                   class="form-check-input home-economics-subject"
-                                                                   id="home-eco2" name="home-economics-subject">
+                                                            <input class="form-check-input home-economics-subject"
+                                                                   id="home-eco2"
+                                                                   name="home-economics-subject" type="checkbox">
                                                             <label class="form-check-label ms-2" for="home-eco2">Food
                                                                 and Nutrition</label>
                                                         </div>
                                                         <div class="subject-item">
-                                                            <input type="checkbox"
-                                                                   class="form-check-input home-economics-subject"
-                                                                   id="home-eco3" name="home-economics-subject">
+                                                            <input class="form-check-input home-economics-subject"
+                                                                   id="home-eco3"
+                                                                   name="home-economics-subject" type="checkbox">
                                                             <label class="form-check-label ms-2" for="home-eco3">Clothing
                                                                 and Textiles</label>
                                                         </div>
                                                         <div class="subject-item">
-                                                            <input type="checkbox"
-                                                                   class="form-check-input home-economics-subject"
-                                                                   id="home-eco4" name="home-economics-subject">
+                                                            <input class="form-check-input home-economics-subject"
+                                                                   id="home-eco4"
+                                                                   name="home-economics-subject" type="checkbox">
                                                             <label class="form-check-label ms-2" for="home-eco4">General
                                                                 Knowledge in Art</label>
                                                         </div>
                                                         <div class="subject-item">
-                                                            <input type="checkbox"
-                                                                   class="form-check-input home-economics-subject"
-                                                                   id="home-eco5" name="home-economics-subject">
+                                                            <input class="form-check-input home-economics-subject"
+                                                                   id="home-eco5"
+                                                                   name="home-economics-subject" type="checkbox">
                                                             <label class="form-check-label ms-2"
                                                                    for="home-eco5">Biology</label>
                                                         </div>
                                                         <div class="subject-item">
-                                                            <input type="checkbox"
-                                                                   class="form-check-input home-economics-subject"
-                                                                   id="home-eco6" name="home-economics-subject">
+                                                            <input class="form-check-input home-economics-subject"
+                                                                   id="home-eco6"
+                                                                   name="home-economics-subject" type="checkbox">
                                                             <label class="form-check-label ms-2" for="home-eco6">Chemistry</label>
                                                         </div>
                                                     </div>
@@ -779,44 +999,44 @@
                                                     <h5 class="card-title">Elective Subjects (Select up to 4):</h5>
                                                     <div class="subject-grid">
                                                         <div class="subject-item">
-                                                            <input type="checkbox"
-                                                                   class="form-check-input technical-subject" id="tech1"
-                                                                   name="technical-subject">
+                                                            <input class="form-check-input technical-subject"
+                                                                   id="tech1" name="technical-subject"
+                                                                   type="checkbox">
                                                             <label class="form-check-label ms-2" for="tech1">Technical
                                                                 Drawing</label>
                                                         </div>
                                                         <div class="subject-item">
-                                                            <input type="checkbox"
-                                                                   class="form-check-input technical-subject" id="tech2"
-                                                                   name="technical-subject">
+                                                            <input class="form-check-input technical-subject"
+                                                                   id="tech2" name="technical-subject"
+                                                                   type="checkbox">
                                                             <label class="form-check-label ms-2"
                                                                    for="tech2">Metalwork</label>
                                                         </div>
                                                         <div class="subject-item">
-                                                            <input type="checkbox"
-                                                                   class="form-check-input technical-subject" id="tech3"
-                                                                   name="technical-subject">
+                                                            <input class="form-check-input technical-subject"
+                                                                   id="tech3" name="technical-subject"
+                                                                   type="checkbox">
                                                             <label class="form-check-label ms-2"
                                                                    for="tech3">Woodwork</label>
                                                         </div>
                                                         <div class="subject-item">
-                                                            <input type="checkbox"
-                                                                   class="form-check-input technical-subject" id="tech4"
-                                                                   name="technical-subject">
+                                                            <input class="form-check-input technical-subject"
+                                                                   id="tech4" name="technical-subject"
+                                                                   type="checkbox">
                                                             <label class="form-check-label ms-2" for="tech4">Applied
                                                                 Electricity</label>
                                                         </div>
                                                         <div class="subject-item">
-                                                            <input type="checkbox"
-                                                                   class="form-check-input technical-subject" id="tech5"
-                                                                   name="technical-subject">
+                                                            <input class="form-check-input technical-subject"
+                                                                   id="tech5" name="technical-subject"
+                                                                   type="checkbox">
                                                             <label class="form-check-label ms-2"
                                                                    for="tech5">Electronics</label>
                                                         </div>
                                                         <div class="subject-item">
-                                                            <input type="checkbox"
-                                                                   class="form-check-input technical-subject" id="tech6"
-                                                                   name="technical-subject">
+                                                            <input class="form-check-input technical-subject"
+                                                                   id="tech6" name="technical-subject"
+                                                                   type="checkbox">
                                                             <label class="form-check-label ms-2" for="tech6">Auto
                                                                 Mechanics</label>
                                                         </div>
@@ -841,43 +1061,43 @@
                                                     <h5 class="card-title">Elective Subjects (Select up to 4):</h5>
                                                     <div class="subject-grid">
                                                         <div class="subject-item">
-                                                            <input type="checkbox"
-                                                                   class="form-check-input agriculture-subject"
-                                                                   id="agri1" name="agriculture-subject">
+                                                            <input class="form-check-input agriculture-subject"
+                                                                   id="agri1"
+                                                                   name="agriculture-subject" type="checkbox">
                                                             <label class="form-check-label ms-2" for="agri1">Crop
                                                                 Husbandry</label>
                                                         </div>
                                                         <div class="subject-item">
-                                                            <input type="checkbox"
-                                                                   class="form-check-input agriculture-subject"
-                                                                   id="agri2" name="agriculture-subject">
+                                                            <input class="form-check-input agriculture-subject"
+                                                                   id="agri2"
+                                                                   name="agriculture-subject" type="checkbox">
                                                             <label class="form-check-label ms-2" for="agri2">Horticulture</label>
                                                         </div>
                                                         <div class="subject-item">
-                                                            <input type="checkbox"
-                                                                   class="form-check-input agriculture-subject"
-                                                                   id="agri3" name="agriculture-subject">
+                                                            <input class="form-check-input agriculture-subject"
+                                                                   id="agri3"
+                                                                   name="agriculture-subject" type="checkbox">
                                                             <label class="form-check-label ms-2" for="agri3">Animal
                                                                 Husbandry</label>
                                                         </div>
                                                         <div class="subject-item">
-                                                            <input type="checkbox"
-                                                                   class="form-check-input agriculture-subject"
-                                                                   id="agri4" name="agriculture-subject">
+                                                            <input class="form-check-input agriculture-subject"
+                                                                   id="agri4"
+                                                                   name="agriculture-subject" type="checkbox">
                                                             <label class="form-check-label ms-2"
                                                                    for="agri4">Fisheries</label>
                                                         </div>
                                                         <div class="subject-item">
-                                                            <input type="checkbox"
-                                                                   class="form-check-input agriculture-subject"
-                                                                   id="agri5" name="agriculture-subject">
+                                                            <input class="form-check-input agriculture-subject"
+                                                                   id="agri5"
+                                                                   name="agriculture-subject" type="checkbox">
                                                             <label class="form-check-label ms-2"
                                                                    for="agri5">Forestry</label>
                                                         </div>
                                                         <div class="subject-item">
-                                                            <input type="checkbox"
-                                                                   class="form-check-input agriculture-subject"
-                                                                   id="agri6" name="agriculture-subject">
+                                                            <input class="form-check-input agriculture-subject"
+                                                                   id="agri6"
+                                                                   name="agriculture-subject" type="checkbox">
                                                             <label class="form-check-label ms-2" for="agri6">Agricultural
                                                                 Economics</label>
                                                         </div>
@@ -893,9 +1113,6 @@
                                 </div>
 
                                 <div class="text-right m-t-xs">
-                                    <button class="btn btn-outline-secondary" id="reset-btn">
-                                        <i class="fas fa-undo me-2"></i>Reset Selection
-                                    </button>
                                     <a class="btn btn-default prev" href="#" title="dropdown">Previous</a>
                                     <a class="btn btn-default next" href="#" title="dropdown">Next</a>
                                 </div>
@@ -910,8 +1127,9 @@
                                             agreement between your company <b><span id="client"></span></b>
                                             and Astromy LLC <br/>to treate you as a customer who has placed a
                                             request for our product under the following terms
-                                            <br/><a title="dropdown" class="tnc" data-toggle="modal"
-                                                    data-target="#termsAndConditionsModal">Read Terms</a>
+                                            <br/><a class="tnc" data-target="#termsAndConditionsModal"
+                                                    data-toggle="modal"
+                                                    title="dropdown">Read Terms</a>
                                         </p>
                                     </div>
                                 </div>
@@ -920,8 +1138,9 @@
                                 <div class="text-right m-t-xs">
                                     <a class="btn btn-default prev" href="#" title="dropdown">Previous</a>
                                     <a class="btn btn-default next" href="#" title="dropdown">Next</a>
-                                    <button id="submitRequest" type="submit" class="ladda-button btn btn-success"
-                                            data-style="expand-left"><span class="ladda-label">Submit</span><span
+                                    <button class="ladda-button btn btn-success" data-style="expand-left"
+                                            id="submitRequest"
+                                            type="submit"><span class="ladda-label">Submit</span><span
                                             class="ladda-spinner"></span>
                                         <div class="ladda-progress" style="width: 0px;"></div>
                                     </button>
@@ -939,7 +1158,7 @@
 
     </div>
 
-    <div class="modal fade hmodal-info" id="termsAndConditionsModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal fade hmodal-info" id="termsAndConditionsModal" role="dialog" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="color-line"></div>
@@ -950,8 +1169,8 @@
                 <div class="panel-body modalbody" id="modb">
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default" id="dismiss" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" id="printToPdf">Print Copy</button>
+                    <button class="btn btn-default" data-dismiss="modal" id="dismiss" type="button">Close</button>
+                    <button class="btn btn-primary" id="printToPdf" type="button">Print Copy</button>
                 </div>
             </div>
         </div>
@@ -977,47 +1196,46 @@
 <script src="vendor/ladda/dist/ladda.min.js"></script>
 <script src="vendor/ladda/dist/ladda.jquery.min.js"></script>
 <script src="scripts/homer.js"></script>
-<script src="scripts/preorder.js"></script>
+<script src="scripts/prospectus.js"></script>
 
 <script>
 
-$(function () {
+    $(function () {
 
 // Bind normal buttons
-$( '.ladda-button' ).ladda( 'bind', { timeout: 2000 } );
+        $('.ladda-button').ladda('bind', {timeout: 2000});
 
 // Bind progress buttons and simulate loading progress
-Ladda.bind( '.progress-demo .ladda-button',{
-    callback: function( instance ){
-        var progress = 0;
-        var interval = setInterval( function(){
-            progress = Math.min( progress + Math.random() * 0.1, 1 );
-            instance.setProgress( progress );
+        Ladda.bind('.progress-demo .ladda-button', {
+            callback: function (instance) {
+                var progress = 0;
+                var interval = setInterval(function () {
+                    progress = Math.min(progress + Math.random() * 0.1, 1);
+                    instance.setProgress(progress);
 
-            if( progress === 1 ){
-                instance.stop();
-                clearInterval( interval );
+                    if (progress === 1) {
+                        instance.stop();
+                        clearInterval(interval);
+                    }
+                }, 200);
             }
-        }, 200 );
-    }
-});
+        });
 
 
-var l = $( '.ladda-button-demo' ).ladda();
+        var l = $('.ladda-button-demo').ladda();
 
-l.click(function(){
-    // Start loading
-    l.ladda( 'start' );
+        l.click(function () {
+            // Start loading
+            l.ladda('start');
 
-    // Timeout example
-    // Do something in backend and then stop ladda
-    setTimeout(function(){
-        l.ladda('stop');
-    },12000)
-});
+            // Timeout example
+            // Do something in backend and then stop ladda
+            setTimeout(function () {
+                l.ladda('stop');
+            }, 12000)
+        });
 
-});
-
+    });
 
 
 </script>

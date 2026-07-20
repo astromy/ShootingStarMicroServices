@@ -30,6 +30,7 @@
         l.id = 'feeCollCSS';
         l.rel = 'stylesheet';
         l.href = _base + '../../styles/style.css';
+        l.setAttribute('data-dynamic', 'true');
         document.head.appendChild(l);
     })();
 
@@ -90,12 +91,13 @@
             '<div class="fc-card-head"><i class="fas fa-file-invoice-dollar"></i> Student Account</div>',
             '<div class="fc-card-body">',
             '<div class="fc-student-name" id="fcStudentName"></div>',
-            '<div class="fc-bill-grid">',
+            '<div class="fc-bill-grid" id="fcBillGrid">',
             '<div class="fc-bill-item"><div class="fc-bill-label">Total Billed</div><div class="fc-bill-val" id="fcAmtDue">—</div></div>',
             '<div class="fc-bill-item"><div class="fc-bill-label">Total Paid</div><div class="fc-bill-val fc-paid" id="fcAmtPaid">—</div></div>',
             '<div class="fc-bill-item"><div class="fc-bill-label">Balance</div><div class="fc-bill-val fc-balance" id="fcBalance">—</div></div>',
             '<div class="fc-bill-item"><div class="fc-bill-label">Previous Balance</div><div class="fc-bill-val fc-old" id="fcOldBal">—</div></div>',
             '</div>',
+            '<div class="fc-empty" id="fcBillEmptyMsg" style="display:none">No bill has been generated for this student yet.</div>',
             '</div></div>',
             '</div>',  // end left col
 
@@ -129,14 +131,14 @@
             '</div>',
             '<div class="fc-field">',
             '<label>Academic Year <span class="req">*</span></label>',
-            '<select id="fcYear">' + yearOpts + '</select>',
+            '<select id="fcAcademicYearSel">' + yearOpts + '</select>',
             '</div>',
             '</div>',
 
             '<div class="fc-fields-row">',
             '<div class="fc-field">',
-            '<label>Received By <span class="req">*</span></label>',
-            '<input type="text" id="fcPaidBy" placeholder="Cashier name">',
+            '<label>Paid By <span class="req">*</span></label>',
+            '<input type="text" id="fcPaidBy" placeholder="Payee name">',
             '</div>',
             '<div class="fc-field">',
             '<label>Receipt / Reference No.</label>',
@@ -200,13 +202,13 @@
             '<div class="fc-toast" id="fcToast"></div>',
 
             '<footer class="footer">',
-            '<i class="far fa-copyright"></i> Astromy LLC 2013–<span id="fcYear"></span> | Fee Collection',
+            '<i class="far fa-copyright"></i> Astromy LLC 2013–<span id="fcCopyrightYear"></span> | Fee Collection',
             '</footer>',
 
             '</div>',
         ].join('');
 
-        document.getElementById('fcYear').textContent = new Date().getFullYear();
+        document.getElementById('fcCopyrightYear').textContent = new Date().getFullYear();
     }
 
     // ── POPULATE GROUP DROPDOWN ──────────────────────────────────────────────
@@ -222,10 +224,21 @@
 
     // ── RENDER BILL SUMMARY ──────────────────────────────────────────────────
     function renderBill(bill, studentName) {
+        var card = document.getElementById('fcBillCard');
+        var grid = document.getElementById('fcBillGrid');
+        var emptyMsg = document.getElementById('fcBillEmptyMsg');
+
         if (!bill) {
-            document.getElementById('fcBillCard').style.display = 'none';
+            card.style.display = '';
+            document.getElementById('fcStudentName').textContent = studentName || '';
+            grid.style.display = 'none';
+            emptyMsg.style.display = '';
             return;
         }
+
+        grid.style.display = '';
+        emptyMsg.style.display = 'none';
+
         var fmt = window.feeCollFmt;
         document.getElementById('fcStudentName').textContent = studentName || bill.studentId;
         document.getElementById('fcAmtDue').textContent = fmt.money(bill.amountDue || 0);
@@ -237,7 +250,7 @@
         balEl.className = 'fc-bill-val ' + (bal > 0 ? 'fc-balance fc-owing' : 'fc-balance fc-clear');
 
         document.getElementById('fcOldBal').textContent = fmt.money(bill.oldBalance || 0);
-        document.getElementById('fcBillCard').style.display = '';
+        card.style.display = '';
 
         // Pre-fill amount with outstanding balance
         var amtInput = document.getElementById('fcAmount');
@@ -270,6 +283,33 @@
         }).join('');
     }
 
+    // ── LOAD BILL (amount due, paid, balance) + HISTORY FOR A STUDENT ───────
+    async function loadBillForStudent(studentId, studentName) {
+        if (!studentId) return;
+        window.feeCollState.selectedStudent = {id: studentId, name: studentName};
+
+        // Show an immediate "loading" state so the amount due area responds
+        // as soon as a student is picked, before the bill data arrives.
+        var billCard = document.getElementById('fcBillCard');
+        billCard.style.display = '';
+        document.getElementById('fcStudentName').textContent = studentName;
+        document.getElementById('fcBillGrid').style.display = '';
+        document.getElementById('fcBillEmptyMsg').style.display = 'none';
+        ['fcAmtDue', 'fcAmtPaid', 'fcBalance', 'fcOldBal'].forEach(function (id) {
+            document.getElementById(id).textContent = '…';
+        });
+        document.getElementById('fcBalance').className = 'fc-bill-val fc-balance';
+
+        var [bill, history] = await Promise.all([
+            window.feeCollFetchStudentBill(studentId),
+            window.feeCollFetchHistory(studentId),
+        ]);
+
+        renderBill(bill, studentName);
+        renderHistory(history);
+        document.getElementById('fcPayBtn').disabled = false;
+    }
+
     // ── RECEIPT MODAL ────────────────────────────────────────────────────────
     function showReceipt(payment, studentName) {
         var fmt = window.feeCollFmt;
@@ -290,7 +330,7 @@
             '<div class="fc-receipt-divider"></div>',
             '<div class="fc-receipt-row fc-receipt-amount"><span>Amount Paid</span><strong>' + fmt.money(payment.paymentAmount) + '</strong></div>',
             '<div class="fc-receipt-row"><span>Method</span><strong>' + (payment.paymentMethod || 'CASH') + '</strong></div>',
-            '<div class="fc-receipt-row"><span>Received By</span><strong>' + (payment.paidBy || '—') + '</strong></div>',
+            '<div class="fc-receipt-row"><span>Paid By</span><strong>' + (payment.paidBy || '—') + '</strong></div>',
             bill ? '<div class="fc-receipt-divider"></div>' +
                 '<div class="fc-receipt-row"><span>New Balance</span><strong>' + fmt.money(bill.amountBalance) + '</strong></div>' : '',
             '<div class="fc-receipt-footer">Thank you. Please keep this receipt for your records.</div>',
@@ -337,28 +377,30 @@
             studSel.disabled = false;
         });
 
-        // Student selected → enable load button
+        // Student selected → immediately show amount due (and rest of the bill)
         document.getElementById('fcStudentSel').addEventListener('change', function () {
-            document.getElementById('fcLoadBillBtn').disabled = !this.value;
+            var studentId = this.value;
+            var studentName = this.options[this.selectedIndex]?.dataset.name || studentId;
+
+            document.getElementById('fcLoadBillBtn').disabled = !studentId;
+
+            if (studentId) {
+                loadBillForStudent(studentId, studentName);
+            } else {
+                window.feeCollState.selectedStudent = null;
+                document.getElementById('fcBillCard').style.display = 'none';
+                document.getElementById('fcHistoryCard').style.display = 'none';
+                document.getElementById('fcPayBtn').disabled = true;
+            }
         });
 
-        // Load bill button
-        document.getElementById('fcLoadBillBtn').addEventListener('click', async function () {
+        // Load bill button — manual refresh of the currently selected student's bill
+        document.getElementById('fcLoadBillBtn').addEventListener('click', function () {
             var studSel = document.getElementById('fcStudentSel');
             var studentId = studSel.value;
             var studentName = studSel.options[studSel.selectedIndex]?.dataset.name || studentId;
-
             if (!studentId) return;
-            window.feeCollState.selectedStudent = {id: studentId, name: studentName};
-
-            var [bill, history] = await Promise.all([
-                window.feeCollFetchStudentBill(studentId),
-                window.feeCollFetchHistory(studentId),
-            ]);
-
-            renderBill(bill, studentName);
-            renderHistory(history);
-            document.getElementById('fcPayBtn').disabled = false;
+            loadBillForStudent(studentId, studentName);
         });
 
         // Method → show/hide Paystack email field
@@ -380,26 +422,19 @@
             var paidBy = document.getElementById('fcPaidBy').value.trim();
             var receipt = document.getElementById('fcReceipt').value.trim();
             var term = document.getElementById('fcTerm').value;
-            var year = document.getElementById('fcYear') ? document.getElementById('fcYear').textContent : document.getElementById('fcYear')?.textContent;
-            var yearVal = document.getElementById('fcYearSel') ? document.getElementById('fcYearSel').value : window.feeCollState.selectedYear;
+            var yearVal = document.getElementById('fcAcademicYearSel').value;
             var method = document.getElementById('fcMethod').value;
-
-            // Use the correct year select id
-            var yearSel = document.querySelector('#fcYear, select[id="fcYear"]');
-            yearVal = window.feeCollState.selectedYear;
-            var yrEl = document.getElementById('fcYear');
-            // fcYear is the footer span — use a different approach
-            var yrInputs = document.querySelectorAll('.fc-page select');
-            yrInputs.forEach(function (s) {
-                if (s.id === 'fcYearSel') yearVal = s.value;
-            });
 
             if (!amount || amount <= 0) {
                 toast('Enter a valid payment amount.', 'error');
                 return;
             }
             if (!paidBy) {
-                toast('Enter the name of the cashier.', 'error');
+                toast('Enter the name of the Payee.', 'error');
+                return;
+            }
+            if (!yearVal) {
+                toast('Select an academic year.', 'error');
                 return;
             }
 
@@ -517,6 +552,7 @@
         }
         var s = document.createElement('script');
         s.src = _base + '../_financeFeeCollection.js';
+        s.setAttribute('data-dynamic', 'true');
         s.onload = function () {
             init();
         };

@@ -56,7 +56,7 @@ $(function () {
     
 
     
-    <div class="modal fade hmodal-info" id="mygradingModal" tabindex="-1" role="dialog"aria-hidden="true">
+    <div class="modal fade hmodal-info" id="mygradingModal" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="color-line"></div>
@@ -105,8 +105,6 @@ $(function () {
     `
 
 
-
-
     document.getElementById("wrapper").innerHTML = header;
     document.getElementById("wrapper").insertAdjacentHTML('beforeend', grading);
     document.getElementsByClassName("test")[0].addEventListener("click", gradebrackets);
@@ -120,9 +118,9 @@ $(function () {
 });
 
 //document.getElementById("institution").addEventListener("click", institutionBuild);
-function modalopn(){
-    document.getElementsByClassName("modalbody")[0].innerHTML="";
-    document.getElementsByClassName("modalbody")[1].innerHTML="";
+function modalopn() {
+    document.getElementsByClassName("modalbody")[0].innerHTML = "";
+    document.getElementsByClassName("modalbody")[1].innerHTML = "";
     gradesettings();
     gradebrackets();
 }

@@ -304,10 +304,12 @@
 .fa-barcode:before {
   content: "\f02a";
 }
-.fa-tag:before {
-  content: "\f02b";
-}
-.fa-tags:before {
+/* Redirect legacy vendor/fontawesome reference to the consolidated stylesheet.
+  Many subscripts and the dynamic loader check for links containing
+  "font-awesome" or "fontawesome". To keep compatibility while using the
+  modern consolidated stylesheet (`styles/all.min.css`) we import it here.
+*/
+@import url('/styles/all.min.css');
   content: "\f02c";
 }
 .fa-book:before {

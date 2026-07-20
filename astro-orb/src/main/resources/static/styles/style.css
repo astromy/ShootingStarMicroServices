@@ -5104,7 +5104,7 @@ ul.h-list li:hover a {
 
 .detail-item label {
     font-weight: 600;
-    color: #555;
+    color: #b1b1b3;
     font-size: 12px;
     display: block;
     margin-bottom: 3px;
@@ -7707,7 +7707,7 @@ ul.h-list li:hover a {
 }
 
 /* ── BUTTONS ─────────────────────────────────────────────────────────────── */
-.fc-btn {
+/*.fc-btn {
     display: inline-flex;
     align-items: center;
     gap: 6px;
@@ -7719,7 +7719,7 @@ ul.h-list li:hover a {
     cursor: pointer;
     transition: filter .15s, transform .1s;
     white-space: nowrap;
-}
+}*/
 
 .fc-btn:active {
     transform: scale(0.97);
@@ -9152,5 +9152,231 @@ ul.h-list li:hover a {
     .fc-header, .ph-controls, .ps-generate-bar, .ph-stats, .fc-footer,
     .ph-header-actions, .fc-btn, .fc-toast {
         display: none !important;
+    }
+}
+
+/* ── financePayslip.js  CSS additions ────────────────────────────────────────
+   ──────────────────────────────────────────────────────────────────────── */
+
+/* Staff ID search row */
+.ps-id-wrap {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.ps-id-wrap input {
+    flex: 1;
+}
+
+/* Autocomplete dropdown */
+.ps-staff-dropdown {
+    position: absolute;
+    z-index: 200;
+    background: #fff;
+    border: 1px solid #dce3ec;
+    border-radius: 6px;
+    box-shadow: 0 4px 16px rgba(26, 58, 92, 0.12);
+    max-height: 220px;
+    overflow-y: auto;
+    width: 100%;
+    margin-top: 2px;
+}
+
+/* Wrap the fc-field containing the search to allow absolute positioning */
+.fc-field {
+    position: relative;
+}
+
+.ps-staff-option {
+    padding: 9px 14px;
+    cursor: pointer;
+    font-size: 13px;
+    color: #1A3A5C;
+    border-bottom: 1px solid #f0f4f8;
+    transition: background 0.12s;
+}
+
+.ps-staff-option:last-child {
+    border-bottom: none;
+}
+
+.ps-staff-option:hover {
+    background: #eef4fb;
+}
+
+.ps-staff-option strong {
+    color: #0F2340;
+}
+
+.ps-staff-option small {
+    color: #7a9ab8;
+    margin-left: 4px;
+}
+
+/* Idle placeholder card */
+.ps-idle-card {
+    background: #f8fafd;
+    border: 1.5px dashed #d0dde8;
+    border-radius: 10px;
+    min-height: 260px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ps-idle {
+    text-align: center;
+    color: #8aa6c0;
+    padding: 32px;
+}
+
+.ps-idle i {
+    font-size: 48px;
+    margin-bottom: 16px;
+    display: block;
+    opacity: 0.45;
+}
+
+.ps-idle p {
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* Preview card header actions */
+.ps-preview-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Status badge in preview header */
+.ps-status-badge {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 12px;
+}
+
+/* Payslip preview sections */
+.ps-preview-section {
+    margin-bottom: 18px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #eef1f5;
+}
+
+.ps-preview-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.ps-preview-section-title {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: #2A5282;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #e8eef5;
+}
+
+.ps-preview-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 5px 0;
+    font-size: 13px;
+    color: #374151;
+    border-bottom: 1px solid #f5f7fa;
+}
+
+.ps-preview-row:last-child {
+    border-bottom: none;
+}
+
+.ps-preview-row span {
+    color: #6b7280;
+}
+
+.ps-preview-row strong {
+    color: #1A3A5C;
+    font-weight: 600;
+}
+
+/* Line items (earnings/deductions) */
+.ps-line-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    font-size: 13px;
+    border-bottom: 1px solid #f5f7fa;
+}
+
+.ps-line-item.ps-basic strong {
+    color: #1A3A5C;
+    font-weight: 700;
+}
+
+.ps-line-item.ps-allow strong {
+    color: #0a7a42;
+}
+
+.ps-line-item.ps-deduct strong {
+    color: #c0392b;
+}
+
+.ps-preview-subtotal {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 8px 0 0;
+    margin-top: 4px;
+}
+
+/* Net pay banner */
+.ps-net-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #0F2340;
+    color: #fff;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 18px;
+    font-size: 15px;
+}
+
+.ps-net-bar span {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    opacity: 0.75;
+}
+
+.ps-net-bar strong {
+    font-size: 22px;
+    font-weight: 800;
+    color: #fff;
+}
+
+/* Summary card (left column — reuse fc-bill-grid but override net label) */
+.ps-summary-card .fc-bill-val {
+    font-size: 15px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .ps-id-wrap {
+        flex-direction: row;
+    }
+
+    .ps-net-bar strong {
+        font-size: 17px;
     }
 }

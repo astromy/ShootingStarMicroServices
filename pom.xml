@@ -48,6 +48,7 @@
         <!-- <spring-cloud.version>2021.0.3</spring-cloud.version>-->
 
         <username>astromyllc</username>
+        <DOCKER_PASSWORD>${env.DOCKER_PASSWORD}</DOCKER_PASSWORD>
         <password>${DOCKER_PASSWORD}</password>
     </properties>
 
@@ -136,7 +137,7 @@
                     <to>
                         <image>registry.hub.docker.com/astromyllc/${project.artifactId}</image>
                         <tags>
-                            <tag>0.012b</tag>
+                            <tag>0.013</tag>
                         </tags>
                         <auth>
                             <username>astromyllc</username>

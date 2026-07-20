@@ -134,11 +134,6 @@ $(function () {
             script.async = true;
             script.onload = () => {
                 performance.mark(`${src}-loaded`);
-                console.log(
-                    `✅ ${src.split("/").pop()} loaded in ${performance
-                        .measure(`${src}-duration`, "navigationStart", `${src}-loaded`)
-                        .duration.toFixed(2)}ms`
-                );
                 resolve();
             };
             script.onerror = () => reject(new Error(`Failed to load ${src}`));
@@ -165,8 +160,6 @@ $(function () {
             // Load terminal report (depends on all previous)
             await loadScript("scripts/_terminalReport.js");
 
-            console.log("🚀 All dependencies loaded and ready");
-
             // Optional: Dispatch custom event when everything is loaded
             document.dispatchEvent(new CustomEvent("terminalReportReady"));
         } catch (error) {
@@ -183,9 +176,6 @@ $(function () {
             "totalScriptLoading",
             "scriptLoadingStart",
             "scriptLoadingEnd"
-        );
-        console.log(
-            `⏱ Total script loading time: ${measure.duration.toFixed(2)}ms`
         );
     });
 });

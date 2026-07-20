@@ -1,9 +1,11 @@
 package com.astromyllc.shootingstar.onlineapplication.service;
 
 import com.astromyllc.shootingstar.onlineapplication.dto.request.ApplicantStudentSkimRequest;
+import com.astromyllc.shootingstar.onlineapplication.dto.request.DynamicStringRequest;
 import com.astromyllc.shootingstar.onlineapplication.dto.request.RefundRequest;
 import com.astromyllc.shootingstar.onlineapplication.dto.request.Students2Request;
 import com.astromyllc.shootingstar.onlineapplication.dto.request.alien.AdmissionRequest;
+import com.astromyllc.shootingstar.onlineapplication.dto.request.alien.DynamicStringRequestUtil;
 import com.astromyllc.shootingstar.onlineapplication.dto.response.ApplicationsResponse;
 import com.astromyllc.shootingstar.onlineapplication.dto.response.alien.ProcessedApplicationResponse;
 import com.astromyllc.shootingstar.onlineapplication.model.Applications;
@@ -38,6 +40,15 @@ public class ApplicationService implements ApplicationServiceInterface {
     private final ApplicationUtilities util;
 
     public ApplicationsResponse createApplication(Students2Request applicationRequest) throws IOException, URISyntaxException {
+        if (applicationRequest.getIdapplication() != null) {
+            Optional<Applications> existing = util.apl.stream()
+                    .filter(a -> applicationRequest.getIdapplication()
+                            .equalsIgnoreCase(a.getIdapplication()))
+                    .findFirst();
+            if (existing.isPresent()) {
+                return util.mapApplications_ToApplicationResponse(existing.get());
+            }
+        }
         Applications app = util.mapApplicationRequest_ToApplications(applicationRequest);
         /* Adds to The Bean List with the current new record*/
         if (app != null) {
@@ -68,6 +79,7 @@ public class ApplicationService implements ApplicationServiceInterface {
                     }
                 }
 
+                return util.mapApplications_ToApplicationResponse(saved);
             } catch (Exception e) {
                 log.error("Failed to save application: {}", e.getMessage(), e); // ← what error?
             }
@@ -183,24 +195,35 @@ public class ApplicationService implements ApplicationServiceInterface {
     }
 
     @Override
-    public Optional<ApplicationsResponse> getApplicationByApplicationCode(String applictionCode) {
-        String finalApplictionCode = applictionCode.split("\"")[3];
+    public Optional<ApplicationsResponse> getApplicationByApplicationCode(DynamicStringRequest applictionCode) {
+        if (applictionCode == null || applictionCode.getKey() == null || applictionCode.getVal() == null) {
+            log.warn("Invalid activation request - null input");
+            return Optional.empty();
+        }
 
-        return Optional.ofNullable(util.apl.stream().filter(x -> x.getApplicationCode().equalsIgnoreCase(finalApplictionCode)).findFirst().map(x -> util.mapApplications_ToApplicationResponse(x)))
+        // Get required fields
+        String finalApplictionCode = DynamicStringRequestUtil.getValue(applictionCode, "applictionCode");
+        //String finalApplictionCode = applictionCode.split("\"")[3];
+
+        return Optional.of(util.apl.stream()
+                        .filter(x -> x.getApplicationCode().equalsIgnoreCase(finalApplictionCode)
+                                && x.getApplicationStatus().equalsIgnoreCase("Approved"))
+                        .findFirst().map(util::mapApplications_ToApplicationResponse))
                 .orElseThrow(() -> new RuntimeException(String.format("No Record of Application with Application Code %s", finalApplictionCode)));
+
     }
 
     @Override
     public Optional<ApplicationsResponse> getApplicationById(String applicationId) {
         String finalApplictionId = applicationId.split("\"")[3];
-        return Optional.ofNullable(util.apl.stream().filter(x -> x.getIdapplication().equalsIgnoreCase(finalApplictionId)).findFirst().map(x -> util.mapApplications_ToApplicationResponse(x)))
+        return Optional.of(util.apl.stream().filter(x -> x.getIdapplication().equalsIgnoreCase(finalApplictionId)).findFirst().map(x -> util.mapApplications_ToApplicationResponse(x)))
                 .orElseThrow(() -> new RuntimeException(String.format("No Record of Application with Application Code %s", finalApplictionId)));
     }
 
     @Override
     public Optional<List<ApplicationsResponse>> getApplicationsBySchool(String schoolId) {
         String finalschoolId = schoolId.split("\"")[3];//.split("\"")[1];
-        return Optional.ofNullable(Optional.ofNullable(util.apl.stream().filter(x -> x.getApplicationInstitution().equalsIgnoreCase(finalschoolId)).toList().stream().map(x -> util.mapApplications_ToApplicationResponse(x)).toList())
+        return Optional.of(Optional.of(util.apl.stream().filter(x -> x.getApplicationInstitution().equalsIgnoreCase(finalschoolId)).toList().stream().map(x -> util.mapApplications_ToApplicationResponse(x)).toList())
                 .orElseThrow(() -> new RuntimeException(String.format("No Record of Application with Application School %s", finalschoolId))));
     }
 

@@ -87,7 +87,7 @@
         } catch (e) {
             hideSplash();
             window.idCardState._loaded = true;
-            console.error('[_adminStudentIDCardGenerator] load error:', e);
+            console.error('[_adminStudentIDCard] load error:', e);
         }
     };
 
@@ -103,10 +103,18 @@
 
         showSplash();
         try {
+            var _filters = [
+                {key: 'classGroup', val: classGroup || ''},
+                {key: 'className', val: className || ''},
+                {key: 'institutionCode', val: _inst},
+            ];
             var result = await fetchPost('getStudentsByClass', {
-                classGroup: classGroup || '',
-                className: className || '',
-                institutionCode: _inst,
+                key: _filters.map(function (f) {
+                    return f.key;
+                }),
+                val: _filters.map(function (f) {
+                    return f.val;
+                }),
             });
             var students = Array.isArray(result) ? result : [];
             window.idCardData.students[cacheKey] = students;
@@ -114,7 +122,7 @@
             return students;
         } catch (e) {
             hideSplash();
-            console.error('[_adminStudentIDCardGenerator] fetch students error:', e);
+            console.error('[_adminStudentIDCard] fetch students error:', e);
             return [];
         }
     };

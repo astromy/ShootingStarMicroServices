@@ -4,14 +4,18 @@ import com.astromyllc.shootingstar.setup.dto.paystack.PaystackPaymentResponse;
 import com.astromyllc.shootingstar.setup.dto.request.*;
 import com.astromyllc.shootingstar.setup.dto.response.*;
 import com.astromyllc.shootingstar.setup.serviceInterface.*;
+import com.astromyllc.shootingstar.setup.utils.PaystackSignatureVerifier;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -27,6 +31,9 @@ public class InstitutionController {
     private final JobDescriptionServiceInterface jobDescriptionServiceInterface;
     private final AdmissionsServiceInterface admissionsServiceInterface;
     private final PromotionsServiceInterface promotionsServiceInterface;
+    private final PaystackSignatureVerifier paystackSignatureVerifier;
+    private final GeoCoordinateServiceInterface geoCoordinateServiceInterface;
+    private final ObjectMapper objectMapper;
 
 //=============================== INSTITUTION ========================================================
 
@@ -67,16 +74,48 @@ public class InstitutionController {
     }
 
     @PostMapping("/api/setup/reactivateInstitutionalAccount")
-    @ResponseStatus(HttpStatus.OK)
-    public Optional<String> reactivateInstitutionalAccount(@RequestBody PaystackPaymentResponse paystack) {
-        return institutionService.reactivateInstitutionalAccount(paystack);
+    public ResponseEntity<Optional<String>> reactivateInstitutionalAccount(
+            @RequestBody String rawBody,
+            @RequestHeader(value = "x-paystack-signature", required = false) String signature) {
+
+        if (!paystackSignatureVerifier.isValid(rawBody, signature)) {
+            log.warn("Rejected Paystack webhook: invalid or missing signature");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Optional.of("Invalid signature"));
+        }
+
+        try {
+            PaystackPaymentResponse paystack = objectMapper.readValue(rawBody, PaystackPaymentResponse.class);
+            return ResponseEntity.ok(institutionService.reactivateInstitutionalAccount(paystack));
+        } catch (Exception e) {
+            log.error("Failed to parse Paystack webhook payload", e);
+            return ResponseEntity.badRequest().body(Optional.of("Malformed payload"));
+        }
     }
 
-    @GetMapping("/api/setup/getInstitutionByCode?institutionCode")
+    @PostMapping("/api/setup/getGeofenceBoundary")
     @ResponseStatus(HttpStatus.OK)
-    public Optional<InstitutionResponse> getInstitutionByBeceCodePath(@PathVariable("institutionCode") SingleStringRequest beceCode) throws IOException {
-        log.error("REQUEST getInstitutionByBeceCodePath OF..... {}", beceCode);
-        return institutionService.getInstitutionByBeceCode(beceCode);
+    public Optional<GeofenceBoundaryResponse> getInstitutionByBeceCodePath(@RequestBody SingleStringRequest beceCode) throws IOException {
+        log.error("REQUEST getGeofenceBoundary OF..... {}", beceCode);
+        List<GeoCoordinateResponse> boundary = geoCoordinateServiceInterface.getGeoCoordinatesByInstitution(beceCode)
+                .stream()
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
+        return Optional.ofNullable(GeofenceBoundaryResponse.builder().boundary(boundary).build());
+    }
+
+    @PostMapping("/api/setup/saveGeofenceBoundary")
+    @ResponseStatus(HttpStatus.CREATED)
+    public List<Optional<GeoCoordinateResponse>> AddGeoCoordinates(@RequestBody SaveGeofenceBoundaryRequest request) {
+        log.error("REQUEST AddGeoCoordinates OF..... {}", request);
+        return geoCoordinateServiceInterface.addGeoCoordinates(request);
+    }
+
+    @PostMapping("/api/setup/updateGeofenceBoundary")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Optional<GeoCoordinateResponse>> UpdateGeoCoordinates(@RequestBody SaveGeofenceBoundaryRequest request) {
+        log.error("REQUEST UpdateGeoCoordinates OF..... {}", request);
+        return geoCoordinateServiceInterface.updateGeoCoordinates(request);
     }
 
 
