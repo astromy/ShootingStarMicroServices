@@ -1,5 +1,6 @@
 package com.astromyllc.shootingstar.hr.service;
 
+import com.astromyllc.shootingstar.hr.config.StaffNotEligibleException;
 import com.astromyllc.shootingstar.hr.dto.request.StaffClockInRequest;
 import com.astromyllc.shootingstar.hr.dto.response.ClockEventResponse;
 import com.astromyllc.shootingstar.hr.model.ClockEvent;
@@ -22,19 +23,19 @@ public class ClockEventService implements ClockEventServiceInterface {
     private final ClockEventRepository clockEventRepository;
 
     @Override
-    public Optional<ClockEventResponse> recordClockEvent(StaffClockInRequest request) {
+    public ClockEventResponse recordClockEvent(StaffClockInRequest request) throws StaffNotEligibleException {
         Optional<Staff> staff = StaffUtil.staffGlobalList.stream()
                 .filter(s -> s.getStaffCode().equalsIgnoreCase(request.getStaffId()))
                 .findFirst();
 
         if (staff.isEmpty()) {
             log.warn("Clock event rejected: no staff found for staffCode {}", request.getStaffId());
-            return Optional.empty();
+            throw new StaffNotEligibleException("No staff record found for this account. Contact your admin.");
         }
         if (!staff.get().getInstitutionCode().equalsIgnoreCase(request.getInstitutionCode())) {
             log.warn("Clock event rejected: staff {} does not belong to institution {}",
                     request.getStaffId(), request.getInstitutionCode());
-            return Optional.empty();
+            throw new StaffNotEligibleException("This staff account isn't registered to this school.");
         }
 
         ClockEvent event = ClockEventUtil.mapRequest_ToClockEvent(request);
@@ -42,6 +43,6 @@ public class ClockEventService implements ClockEventServiceInterface {
         log.info("Clock event recorded: staff {} {} at institution {}",
                 request.getStaffId(), request.getType(), request.getInstitutionCode());
 
-        return Optional.of(ClockEventUtil.mapClockEvent_ToClockEventResponse(event));
+        return ClockEventUtil.mapClockEvent_ToClockEventResponse(event);
     }
 }

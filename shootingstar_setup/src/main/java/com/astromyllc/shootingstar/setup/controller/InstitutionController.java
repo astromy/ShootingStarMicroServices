@@ -33,6 +33,7 @@ public class InstitutionController {
     private final PromotionsServiceInterface promotionsServiceInterface;
     private final PaystackSignatureVerifier paystackSignatureVerifier;
     private final GeoCoordinateServiceInterface geoCoordinateServiceInterface;
+    private final BusServiceInterface busServiceInterface;
     private final ObjectMapper objectMapper;
 
 //=============================== INSTITUTION ========================================================
@@ -116,6 +117,22 @@ public class InstitutionController {
     public List<Optional<GeoCoordinateResponse>> UpdateGeoCoordinates(@RequestBody SaveGeofenceBoundaryRequest request) {
         log.error("REQUEST UpdateGeoCoordinates OF..... {}", request);
         return geoCoordinateServiceInterface.updateGeoCoordinates(request);
+    }
+
+    //========================== BUSES (TRANSPORT) ===============================================
+
+    @PostMapping("/api/setup/addBuses")
+    @ResponseStatus(HttpStatus.CREATED)
+    public List<Optional<BusResponse>> addBuses(@RequestBody BusRequest busRequest) {
+        log.info("REQUEST addBuses OF..... {}", busRequest);
+        return busServiceInterface.createBuses(busRequest);
+    }
+
+    @PostMapping("/api/setup/getInstitutionBuses")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Optional<BusResponse>> getInstitutionBuses(@RequestBody SingleStringRequest beceCode) {
+        log.info("REQUEST getInstitutionBuses OF..... {}", beceCode);
+        return busServiceInterface.getBusesByInstitution(beceCode);
     }
 
 

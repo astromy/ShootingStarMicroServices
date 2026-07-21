@@ -1,7 +1,10 @@
 package com.astromyllc.shootingstar.adminpta.controller;
 
+import com.astromyllc.shootingstar.adminpta.config.StudentNotEligibleException;
 import com.astromyllc.shootingstar.adminpta.dto.request.*;
 import com.astromyllc.shootingstar.adminpta.dto.response.*;
+import com.astromyllc.shootingstar.adminpta.serviceInterface.BusBoardingEventServiceInterface;
+import com.astromyllc.shootingstar.adminpta.serviceInterface.GateEventServiceInterface;
 import com.astromyllc.shootingstar.adminpta.serviceInterface.StudentServiceInterface;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +16,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -20,6 +24,8 @@ import java.util.Optional;
 @Slf4j
 public class StudentsController {
     private final StudentServiceInterface studentServiceInterface;
+    private final GateEventServiceInterface gateEventServiceInterface;
+    private final BusBoardingEventServiceInterface busBoardingEventServiceInterface;
 
     @PostMapping("/api/administration-pta/conduct-admissions")
     @ResponseStatus(HttpStatus.OK)
@@ -104,6 +110,19 @@ public class StudentsController {
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Optional<StudentStatusResponse>> checkStudentByID(@RequestBody SingleStringRequest request) {
         return ResponseEntity.ok(studentServiceInterface.checkStudentByID(request));
+    }
+
+    @PostMapping("/api/administration-pta/recordGateEvent")
+    public ResponseEntity<?> recordGateEvent(@RequestBody GateCheckRequest request) {
+        log.info("Recording gate event for student {}", request.getStudentId());
+        try {
+            GateEventResponse response = gateEventServiceInterface.recordGateEvent(request);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (StudentNotEligibleException e) {
+            // Message is written to be shown to the user as-is — apiService.js
+            // on the mobile side reads error.response.data.message directly.
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", e.getMessage()));
+        }
     }
 
     @PostMapping("/api/administration-pta/getInstitutionPopulationByCode")
