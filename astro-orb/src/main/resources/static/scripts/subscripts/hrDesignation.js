@@ -66,7 +66,7 @@ $(function () {
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-primary left test"><i class="fa fa-plus-square"><span style="margin-left:5px"/>Add More Job Description</i></button>
+                            <button type="button" class="btn btn-primary left test"><i class="fa fa-plus-square"></i> Add More Job Description</button>
                             <button type="button" class="btn btn-default dismissDesignation" data-dismiss="modal">Close</button>
                             <button type="button" class="btn btn-primary saveDesignation">Save changes</button>
                         </div>

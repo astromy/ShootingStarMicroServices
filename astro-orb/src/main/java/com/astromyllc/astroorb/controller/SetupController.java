@@ -250,6 +250,16 @@ public class SetupController {
 
     //============================================MOBILE CALLS =============================================================
 
+
+    @ResponseBody
+    @RequestMapping(value = "api/mobile/getInstitutionClasses", method = RequestMethod.POST)
+    public ResponseEntity<String> getInstitutionClassesForMobile(@RequestBody SingleStringRequest jso) throws IOException, InterruptedException {
+        log.info("REQUEST GET INSTITUTION CLASSES OF..... {}", jso);
+        ResponseEntity<String> response = BACKENDCOMMPOST(jso, backendserve + "/api/setup/getInstitutionClasses");
+        log.info("Classes Feed from Setup  \n ==> {}", response.getStatusCode());
+        return response;
+    }
+
     @ResponseBody
     @RequestMapping(value = "api/mobile/getGeofenceBoundary", method = RequestMethod.POST)
     public ResponseEntity<String> getGeofenceBoundary(@RequestBody SingleStringRequest jso) throws IOException, InterruptedException {
@@ -271,6 +281,44 @@ public class SetupController {
         log.info("Persisting GeofenceBoundary Coordinates OF..... {}", jso);
         ResponseEntity<String> response = BACKENDCOMMPOST(jso, backendserve + "/api/setup/updateGeofenceBoundary");
         return response;
+    }
+
+    // Bus/route master data — an admin (or a conductor on the fly, from the
+    // Bus Boarding screen) adds buses here; getInstitutionBuses feeds the
+    // bus picker on that same screen.
+    @ResponseBody
+    @RequestMapping(value = "api/mobile/addBuses", method = RequestMethod.POST)
+    public ResponseEntity<String> addBuses(@RequestBody BusRequest jso) throws IOException, InterruptedException {
+        log.info("REQUEST addBuses OF..... {}", jso);
+        return BACKENDCOMMPOST(jso, backendserve + "/api/setup/addBuses");
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "api/mobile/getInstitutionBuses", method = RequestMethod.POST)
+    public ResponseEntity<String> getInstitutionBuses(@RequestBody SingleStringRequest jso) throws IOException, InterruptedException {
+        log.info("REQUEST getInstitutionBuses OF..... {}", jso);
+        return BACKENDCOMMPOST(jso, backendserve + "/api/setup/getInstitutionBuses");
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "api/mobile/updateBus", method = RequestMethod.POST)
+    public ResponseEntity<String> updateBus(@RequestBody BusDetails jso) throws IOException, InterruptedException {
+        log.info("REQUEST updateBus OF..... {}", jso);
+        return BACKENDCOMMPOST(jso, backendserve + "/api/setup/updateBus");
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "api/mobile/addRoutes", method = RequestMethod.POST)
+    public ResponseEntity<String> addRoutes(@RequestBody RouteRequest jso) throws IOException, InterruptedException {
+        log.info("REQUEST addRoutes OF..... {}", jso);
+        return BACKENDCOMMPOST(jso, backendserve + "/api/setup/addRoutes");
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "api/mobile/getInstitutionRoutes", method = RequestMethod.POST)
+    public ResponseEntity<String> getInstitutionRoutes(@RequestBody SingleStringRequest jso) throws IOException, InterruptedException {
+        log.info("REQUEST getInstitutionRoutes OF..... {}", jso);
+        return BACKENDCOMMPOST(jso, backendserve + "/api/setup/getInstitutionRoutes");
     }
 
 

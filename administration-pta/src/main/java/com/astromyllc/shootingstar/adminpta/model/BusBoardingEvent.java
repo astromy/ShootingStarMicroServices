@@ -24,9 +24,10 @@ public class BusBoardingEvent {
     @Indexed
     private String institutionCode;
 
-    // idBus from the setup service's Bus entity — identifies which bus/route
     private Long busId;
     private String busName;
+    private Long routeId;
+    private String routeName;
 
     // staffCode of the conductor/driver performing the scan
     private String recordedBy;
@@ -34,6 +35,8 @@ public class BusBoardingEvent {
     // "BOARD" or "ALIGHT"
     private String type;
 
-    // Set server-side at insert time, never trusted from the client.
+    private boolean routeMismatch;
+    private String expectedRouteName;
+
     private Instant timestamp;
 }

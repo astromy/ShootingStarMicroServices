@@ -24,21 +24,29 @@ public class BusBoardingEventService implements BusBoardingEventServiceInterface
 
     @Override
     public BusBoardingResponse recordBusBoardingEvent(BusBoardingRequest request) throws StudentNotEligibleException {
-        Optional<Students> student = StudentUtil.studentsGlobalList.parallelStream()
+        Optional<Students> studentOpt = StudentUtil.studentsGlobalList.parallelStream()
                 .filter(s -> s.getStudentId().equalsIgnoreCase(request.getStudentId()))
                 .findFirst();
 
-        if (student.isEmpty()) {
+        if (studentOpt.isEmpty()) {
             log.warn("Bus boarding event rejected: no student found for studentId {}", request.getStudentId());
             throw new StudentNotEligibleException("No student record found for this ID.");
         }
-        if (!student.get().getInstitutionCode().equalsIgnoreCase(request.getInstitutionCode())) {
+        Students student = studentOpt.get();
+        if (!student.getInstitutionCode().equalsIgnoreCase(request.getInstitutionCode())) {
             log.warn("Bus boarding event rejected: student {} does not belong to institution {}",
                     request.getStudentId(), request.getInstitutionCode());
             throw new StudentNotEligibleException("This student isn't registered to this school.");
         }
 
-        BusBoardingEvent event = BusBoardingEventUtil.mapRequest_ToBusBoardingEvent(request);
+        boolean routeMismatch = BusBoardingEventUtil.isRouteMismatch(student.getAssignedRouteId(), request.getRouteId());
+        if (routeMismatch) {
+            log.warn("Route mismatch: student {} (route {}) {} bus on route {}",
+                    request.getStudentId(), student.getAssignedRouteName(), request.getType(), request.getRouteName());
+        }
+
+        BusBoardingEvent event = BusBoardingEventUtil.mapRequest_ToBusBoardingEvent(
+                request, routeMismatch, student.getAssignedRouteName());
         busBoardingEventRepository.save(event);
         log.info("Bus boarding event recorded: student {} {} on bus {} at institution {} (by {})",
                 request.getStudentId(), request.getType(), request.getBusName(),

@@ -34,6 +34,7 @@ public class InstitutionController {
     private final PaystackSignatureVerifier paystackSignatureVerifier;
     private final GeoCoordinateServiceInterface geoCoordinateServiceInterface;
     private final BusServiceInterface busServiceInterface;
+    private final RouteServiceInterface routeServiceInterface;
     private final ObjectMapper objectMapper;
 
 //=============================== INSTITUTION ========================================================
@@ -133,6 +134,29 @@ public class InstitutionController {
     public List<Optional<BusResponse>> getInstitutionBuses(@RequestBody SingleStringRequest beceCode) {
         log.info("REQUEST getInstitutionBuses OF..... {}", beceCode);
         return busServiceInterface.getBusesByInstitution(beceCode);
+    }
+
+    @PostMapping("/api/setup/updateBus")
+    @ResponseStatus(HttpStatus.OK)
+    public Optional<BusResponse> updateBus(@RequestBody BusDetails busDetails) {
+        log.info("REQUEST updateBus OF..... {}", busDetails);
+        return busServiceInterface.updateBus(busDetails);
+    }
+
+    //========================== ROUTES (TRANSPORT) ===============================================
+
+    @PostMapping("/api/setup/addRoutes")
+    @ResponseStatus(HttpStatus.CREATED)
+    public List<Optional<RouteResponse>> addRoutes(@RequestBody RouteRequest routeRequest) {
+        log.info("REQUEST addRoutes OF..... {}", routeRequest);
+        return routeServiceInterface.createRoutes(routeRequest);
+    }
+
+    @PostMapping("/api/setup/getInstitutionRoutes")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Optional<RouteResponse>> getInstitutionRoutes(@RequestBody SingleStringRequest beceCode) {
+        log.info("REQUEST getInstitutionRoutes OF..... {}", beceCode);
+        return routeServiceInterface.getRoutesByInstitution(beceCode);
     }
 
 

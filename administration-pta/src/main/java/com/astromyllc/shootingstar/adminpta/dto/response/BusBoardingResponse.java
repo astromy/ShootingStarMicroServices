@@ -19,4 +19,6 @@ public class BusBoardingResponse {
     private String recordedBy;
     private String type;
     private Instant timestamp;
+    private boolean routeMismatch;
+    private String expectedRouteName;
 }

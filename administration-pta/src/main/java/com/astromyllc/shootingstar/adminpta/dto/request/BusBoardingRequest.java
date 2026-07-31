@@ -14,6 +14,8 @@ public class BusBoardingRequest {
     private String institutionCode;
     private Long busId;
     private String busName;
+    private Long routeId;
+    private String routeName;
     private String recordedBy; // staffCode of the conductor/driver performing the scan
     private String type;       // "BOARD" or "ALIGHT"
 }

@@ -4657,7 +4657,7 @@ ul.h-list li:hover a {
     margin: 5% auto;
     padding: 25px;
     width: 80%;
-    max-width: 800px;
+    /*max-width: 800px;*/
     border-radius: 8px;
     position: relative;
     transform: translateY(-20px);
@@ -7675,7 +7675,7 @@ ul.h-list li:hover a {
     align-items: center;
     justify-content: space-between;
     padding: 20px 28px 16px;
-    background: var(--fc-navy);
+    background: #bbd7f6;
     border-bottom: 3px solid var(--fc-gold);
     flex-wrap: wrap;
     gap: 12px;
@@ -7684,13 +7684,13 @@ ul.h-list li:hover a {
 .fc-header h1 {
     font-size: 20px;
     font-weight: 700;
-    color: #fff;
+    /*color: #fff;*/
     margin: 0;
     letter-spacing: 0.3px;
 }
 
 .fc-header p {
-    color: rgba(255, 255, 255, 0.65);
+    /*color: rgba(255, 255, 255, 0.65);*/
     font-size: 13px;
     margin: 3px 0 0;
 }
@@ -7952,7 +7952,7 @@ ul.h-list li:hover a {
     background: #f8fafc;
     border: 1px solid var(--fc-border);
     border-left: 4px solid var(--fc-navy);
-    border-radius: 8px;
+    /*border-radius: 8px;*/
     padding: 12px 18px;
     flex: 1 1 160px;
     min-width: 0;

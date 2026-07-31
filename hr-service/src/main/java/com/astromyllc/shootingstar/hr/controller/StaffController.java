@@ -1,11 +1,10 @@
 package com.astromyllc.shootingstar.hr.controller;
 
-import com.astromyllc.shootingstar.hr.dto.request.SingleStringRequest;
-import com.astromyllc.shootingstar.hr.dto.request.StaffPermissionsRequest;
-import com.astromyllc.shootingstar.hr.dto.request.StaffRequest;
-import com.astromyllc.shootingstar.hr.dto.request.StaffSubjectsRequest;
+import com.astromyllc.shootingstar.hr.dto.request.*;
 import com.astromyllc.shootingstar.hr.dto.request.api.StaffCodeRequest;
+import com.astromyllc.shootingstar.hr.dto.response.StaffContactResponse;
 import com.astromyllc.shootingstar.hr.dto.response.StaffResponse;
+import com.astromyllc.shootingstar.hr.serviceInterface.PushTokenServiceInterface;
 import com.astromyllc.shootingstar.hr.serviceInterface.StaffServiceInterface;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +23,7 @@ public class StaffController {
 
 
     private final StaffServiceInterface staffServiceInterface;
+    private final PushTokenServiceInterface pushTokenServiceInterface;
 
     @PostMapping
     @RequestMapping("/api/hr/createStaff")
@@ -80,5 +80,25 @@ public class StaffController {
         log.info("Fetching List of Staff Based on Institution");
         return staffServiceInterface.getStaffByStaffCode(staffcodeRequest);
     }
-    
+
+    @PostMapping
+    @RequestMapping("/api/hr/getAdminStaffByInstitution")
+    @ResponseStatus(HttpStatus.OK)
+    public List<StaffContactResponse> getAdminStaffByInstitution(@RequestBody SingleStringRequest institutionCode) {
+        return staffServiceInterface.getAdminStaffByInstitution(institutionCode);
+    }
+
+    @PostMapping
+    @RequestMapping("/api/hr/registerPushToken")
+    @ResponseStatus(HttpStatus.OK)
+    public void registerPushToken(@RequestBody RegisterPushTokenRequest request) {
+        pushTokenServiceInterface.registerToken(request);
+    }
+
+    @PostMapping
+    @RequestMapping("/api/hr/sendPushToStaff")
+    @ResponseStatus(HttpStatus.OK)
+    public void sendPushToStaff(@RequestBody SendPushRequest request) {
+        pushTokenServiceInterface.sendPushToStaff(request);
+    }
 }

@@ -209,6 +209,7 @@ function addEventListeners() {
     safeOn("subject", subjectBuild);
     safeOn("admission", admissionBuild);
     safeOn("department", departmentBuild);
+    safeOn("transport", transportBuild);
     safeOn("designation", designationBuild);
     safeOn("grading", gradingBuild);
     safeOn("permissions", permissionsBuild);
@@ -260,6 +261,10 @@ function addEventListeners() {
 
     // STORES
     safeOn("storesInventory", storesInventoryBuild);
+
+    // LIBRARY
+    safeOn("libraryCatalogue", libraryCatalogueBuild);
+    safeOn("libraryCirculation", libraryCirculationBuild);
 }
 
 // Utility to remove unwanted scripts/links
@@ -571,6 +576,37 @@ function departmentBuild() {
         "vendor/sweetalert/lib/sweet-alert.min.js",
         //"vendor/jquery-validation/jquery.validate.min.js",
         "scripts/subscripts/department.js",
+    ];
+    const newLinks = [
+        "vendor/sweetalert/lib/sweet-alert.css",
+        "vendor/metisMenu/dist/metisMenu.css",
+        "vendor/animate.css/animate.css",
+        "vendor/datatables.net-bs/css/dataTables.bootstrap.min.css",
+    ];
+
+    // Remove previous non-default scripts/links
+    removeUnwantedResources("script", activeScripts);
+    removeUnwantedResources("link", activeLinks);
+
+    // Add new resources
+    addNewResources("script", newScripts);
+    addNewResources("link", newLinks);
+
+    // Update the active state with new resources
+    newScripts.forEach((src) => activeScripts.add(src));
+
+    newLinks.forEach((href) => activeLinks.add(href));
+}
+
+//-------------------------------------------------------------------------------------------------------
+
+function transportBuild() {
+
+    // Define new resources specific to this view
+    const newScripts = [
+        "scripts/moment.min.js",
+        "vendor/sweetalert/lib/sweet-alert.min.js",
+        "scripts/subscripts/transport.js",
     ];
     const newLinks = [
         "vendor/sweetalert/lib/sweet-alert.css",
@@ -1820,6 +1856,54 @@ function storesInventoryBuild() {
     // Update the active state with new resources
     newScripts.forEach((src) => activeScripts.add(src));
 
+    newLinks.forEach((href) => activeLinks.add(href));
+}
+
+function libraryCatalogueBuild() {
+
+    const newScripts = [
+        "vendor/sweetalert/lib/sweet-alert.min.js",
+        "scripts/subscripts/libraryCatalogue.js",
+    ];
+    const newLinks = [
+        "vendor/sweetalert/lib/sweet-alert.css",
+        "vendor/metisMenu/dist/metisMenu.css",
+        "vendor/animate.css/animate.css",
+        "vendor/datatables.net-bs/css/dataTables.bootstrap.min.css",
+        "styles/switch.css",
+    ];
+
+    removeUnwantedResources("script", activeScripts);
+    removeUnwantedResources("link", activeLinks);
+
+    addNewResources("script", newScripts);
+    addNewResources("link", newLinks);
+
+    newScripts.forEach((src) => activeScripts.add(src));
+    newLinks.forEach((href) => activeLinks.add(href));
+}
+
+function libraryCirculationBuild() {
+
+    const newScripts = [
+        "vendor/sweetalert/lib/sweet-alert.min.js",
+        "scripts/subscripts/libraryCirculation.js",
+    ];
+    const newLinks = [
+        "vendor/sweetalert/lib/sweet-alert.css",
+        "vendor/metisMenu/dist/metisMenu.css",
+        "vendor/animate.css/animate.css",
+        "vendor/datatables.net-bs/css/dataTables.bootstrap.min.css",
+        "styles/switch.css",
+    ];
+
+    removeUnwantedResources("script", activeScripts);
+    removeUnwantedResources("link", activeLinks);
+
+    addNewResources("script", newScripts);
+    addNewResources("link", newLinks);
+
+    newScripts.forEach((src) => activeScripts.add(src));
     newLinks.forEach((href) => activeLinks.add(href));
 }
 

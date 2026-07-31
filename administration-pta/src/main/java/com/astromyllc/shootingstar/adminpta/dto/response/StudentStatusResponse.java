@@ -22,5 +22,7 @@ public class StudentStatusResponse {
     private String picture;
     private String status;
     private String feeBalance;
+    private Long assignedRouteId;
+    private String assignedRouteName;
 
 }

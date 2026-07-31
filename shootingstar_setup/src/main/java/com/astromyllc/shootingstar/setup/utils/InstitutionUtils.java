@@ -403,6 +403,7 @@ public class InstitutionUtils {
         permissions.add("setup institution");
         permissions.add("setup classgroup");
         permissions.add("setup promotion");
+        permissions.add("setup transport");
         permissions.add("setup accommodation");
 
         permissions.add("Human_Resource onboarding");
@@ -465,6 +466,9 @@ public class InstitutionUtils {
         permissions.add("Accommodation management");
         permissions.add("Accommodation check-in");
         permissions.add("Accommodation exeats");
+
+        permissions.add("Library catalogue");
+        permissions.add("Library circulation");
 
         Keycloak kc = KeycloakBuilder.builder()
                 .serverUrl(keycloakURL)
@@ -644,6 +648,7 @@ public class InstitutionUtils {
         permissions.add("setup classgroup");
         permissions.add("setup accommodation");
         permissions.add("setup promotion");
+        permissions.add("setup transport");
 
         permissions.add("Human_Resource onboarding");
         permissions.add("Human_Resource records");
@@ -706,6 +711,9 @@ public class InstitutionUtils {
         permissions.add("Teaching assignment");
         permissions.add("Teaching score_upload");
         permissions.add("Teaching assignment_review");
+
+        permissions.add("Library catalogue");
+        permissions.add("Library circulation");
 
 
         Keycloak kc = KeycloakBuilder.builder()

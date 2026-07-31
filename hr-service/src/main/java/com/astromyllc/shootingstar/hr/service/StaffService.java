@@ -5,6 +5,7 @@ import com.astromyllc.shootingstar.hr.dto.request.StaffPermissionsRequest;
 import com.astromyllc.shootingstar.hr.dto.request.StaffRequest;
 import com.astromyllc.shootingstar.hr.dto.request.StaffSubjectsRequest;
 import com.astromyllc.shootingstar.hr.dto.request.api.StaffCodeRequest;
+import com.astromyllc.shootingstar.hr.dto.response.StaffContactResponse;
 import com.astromyllc.shootingstar.hr.dto.response.StaffResponse;
 import com.astromyllc.shootingstar.hr.model.*;
 import com.astromyllc.shootingstar.hr.repository.StaffRepository;
@@ -358,5 +359,17 @@ public class StaffService implements StaffServiceInterface {
         return null;
     }
 
+    @Override
+    public List<StaffContactResponse> getAdminStaffByInstitution(SingleStringRequest institutionCode) {
+        return StaffUtil.staffGlobalList.stream()
+                .filter(s -> s.getInstitutionCode().equalsIgnoreCase(institutionCode.getVal()))
+                .filter(s -> "Admin".equalsIgnoreCase(s.getDesignation()))
+                .map(s -> StaffContactResponse.builder()
+                        .staffCode(s.getStaffCode())
+                        .staffEmail(s.getStaffEmail())
+                        .designation(s.getDesignation())
+                        .build())
+                .collect(Collectors.toList());
+    }
 
 }

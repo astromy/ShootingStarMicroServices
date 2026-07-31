@@ -51,7 +51,7 @@ $(function () {
                                 </div>
                             </div>
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-primary left test"><i class="fa fa-plus-square"><span style="margin-left:5px"/>Add More</i></button>
+                                <button type="button" class="btn btn-primary left test"><i class="fa fa-plus-square"></i> Add More</button>
                                 <button type="button" class="btn btn-default dismissClass" data-dismiss="modal">Close</button>
                                 <button type="button" class="btn btn-primary saveClass">Save changes</button>
                             </div>

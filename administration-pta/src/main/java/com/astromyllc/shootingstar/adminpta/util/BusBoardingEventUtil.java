@@ -5,17 +5,26 @@ import com.astromyllc.shootingstar.adminpta.dto.response.BusBoardingResponse;
 import com.astromyllc.shootingstar.adminpta.model.BusBoardingEvent;
 
 import java.time.Instant;
+import java.util.Objects;
 
 public class BusBoardingEventUtil {
 
-    public static BusBoardingEvent mapRequest_ToBusBoardingEvent(BusBoardingRequest request) {
+    public static boolean isRouteMismatch(Long studentAssignedRouteId, Long busRouteId) {
+        return studentAssignedRouteId != null && !Objects.equals(studentAssignedRouteId, busRouteId);
+    }
+
+    public static BusBoardingEvent mapRequest_ToBusBoardingEvent(BusBoardingRequest request, boolean routeMismatch, String expectedRouteName) {
         return BusBoardingEvent.builder()
                 .studentId(request.getStudentId())
                 .institutionCode(request.getInstitutionCode())
                 .busId(request.getBusId())
                 .busName(request.getBusName())
+                .routeId(request.getRouteId())
+                .routeName(request.getRouteName())
                 .recordedBy(request.getRecordedBy())
                 .type(request.getType())
+                .routeMismatch(routeMismatch)
+                .expectedRouteName(expectedRouteName)
                 .timestamp(Instant.now())
                 .build();
     }
@@ -28,6 +37,8 @@ public class BusBoardingEventUtil {
                 .busName(event.getBusName())
                 .recordedBy(event.getRecordedBy())
                 .type(event.getType())
+                .routeMismatch(event.isRouteMismatch())
+                .expectedRouteName(event.getExpectedRouteName())
                 .timestamp(event.getTimestamp())
                 .build();
     }

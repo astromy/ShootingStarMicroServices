@@ -126,6 +126,15 @@ spring:
               args:
                 maxSize: 314572800
 
+        - id: library
+          uri: lb://library
+          predicates:
+            - Path=/api/library/**
+          filters:
+            - name: RequestSize
+              args:
+                maxSize: 314572800
+
         - id: discovery_server
           uri: http://localhost:8761
           predicates:

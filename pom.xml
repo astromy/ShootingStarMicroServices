@@ -37,6 +37,7 @@
         <module>astro-preorder</module>
         <module>astro-admission-acceptance</module>
         <module>astro-online-application</module>
+        <module>library</module>
         <module>astro-orb</module>
     </modules>
 

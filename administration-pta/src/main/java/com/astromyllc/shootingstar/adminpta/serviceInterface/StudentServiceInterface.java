@@ -36,5 +36,7 @@ public interface StudentServiceInterface {
 
     Optional<StudentStatusResponse> checkStudentByID(SingleStringRequest request);
 
+    Optional<StudentStatusResponse> setStudentRoute(SetStudentRouteRequest request);
+
     Optional<StudentsResponse> updateStudentRecord(StudentsImportRequest request);
 }

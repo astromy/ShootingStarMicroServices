@@ -69,9 +69,9 @@ public class SubjectUtil {
         String lc = s.getClassGroup().getName();
         return Optional.ofNullable(SubjectResponse.builder()
                 .id(s.getIdSubject())
-                .classGroup(s.getClassGroup().getName())
+                .classGroup(String.valueOf(s.getClassGroup().getIdLookup()))
                 .name(s.getName())
-                .classGroupName(s.getName())/*(l.getLookUpById(s.getClassGroup()).get().get().getName())*/
+                .classGroupName(s.getClassGroup().getName())/*(l.getLookUpById(s.getClassGroup()).get().get().getName())*/
                 .preference(s.getPreference())
                 .build());
     }

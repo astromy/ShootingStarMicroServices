@@ -1,5 +1,6 @@
 package com.astromyllc.shootingstar.setup.serviceInterface;
 
+import com.astromyllc.shootingstar.setup.dto.request.BusDetails;
 import com.astromyllc.shootingstar.setup.dto.request.BusRequest;
 import com.astromyllc.shootingstar.setup.dto.request.SingleStringRequest;
 import com.astromyllc.shootingstar.setup.dto.response.BusResponse;
@@ -11,4 +12,7 @@ public interface BusServiceInterface {
     List<Optional<BusResponse>> createBuses(BusRequest busRequest);
 
     List<Optional<BusResponse>> getBusesByInstitution(SingleStringRequest beceCode);
+
+    // idBus in details identifies which bus to update; returns empty if not found.
+    Optional<BusResponse> updateBus(BusDetails busDetails);
 }

@@ -1,13 +1,16 @@
 package com.astromyllc.shootingstar.setup.service;
 
+import com.astromyllc.shootingstar.setup.dto.request.BusDetails;
 import com.astromyllc.shootingstar.setup.dto.request.BusRequest;
 import com.astromyllc.shootingstar.setup.dto.request.SingleStringRequest;
 import com.astromyllc.shootingstar.setup.dto.response.BusResponse;
 import com.astromyllc.shootingstar.setup.model.Bus;
+import com.astromyllc.shootingstar.setup.model.Route;
 import com.astromyllc.shootingstar.setup.repository.BusRepository;
 import com.astromyllc.shootingstar.setup.serviceInterface.BusServiceInterface;
 import com.astromyllc.shootingstar.setup.utils.BusUtil;
 import com.astromyllc.shootingstar.setup.utils.InstitutionUtils;
+import com.astromyllc.shootingstar.setup.utils.RouteUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +29,15 @@ import java.util.stream.Collectors;
 public class BusService implements BusServiceInterface {
     private final BusRepository busRepository;
 
+    private Optional<Route> findRoute(Long routeId) {
+        if (routeId == null || RouteUtil.routeGlobalList == null) {
+            return Optional.empty();
+        }
+        return RouteUtil.routeGlobalList.stream()
+                .filter(r -> r.getIdRoute().equals(routeId))
+                .findFirst();
+    }
+
     @Override
     public List<Optional<BusResponse>> createBuses(BusRequest busRequest) {
         return InstitutionUtils.institutionGlobalList.stream()
@@ -40,6 +52,7 @@ public class BusService implements BusServiceInterface {
                             .map(d -> {
                                 Bus b = BusUtil.mapBusRequest_ToBus(d);
                                 b.setInstitution(inst);
+                                findRoute(d.getRouteId()).ifPresent(b::setRoute);
                                 return b;
                             })
                             .filter(b -> inst.getBusList().stream().noneMatch(existing -> existing.getName().equalsIgnoreCase(b.getName())))
@@ -70,5 +83,21 @@ public class BusService implements BusServiceInterface {
                                 .map(BusUtil::mapBus_ToBusResponse)
                                 .collect(Collectors.toList())))
                 .orElse(Collections.emptyList());
+    }
+
+    @Override
+    public Optional<BusResponse> updateBus(BusDetails busDetails) {
+        if (busDetails.getIdBus() == null || BusUtil.busGlobalList == null) {
+            return Optional.empty();
+        }
+        return BusUtil.busGlobalList.stream()
+                .filter(b -> b.getIdBus().equals(busDetails.getIdBus()))
+                .findFirst()
+                .map(bus -> {
+                    BusUtil.applyUpdate(bus, busDetails);
+                    findRoute(busDetails.getRouteId()).ifPresentOrElse(bus::setRoute, () -> bus.setRoute(null));
+                    busRepository.save(bus);
+                    return BusUtil.mapBus_ToBusResponse(bus).orElse(null);
+                });
     }
 }

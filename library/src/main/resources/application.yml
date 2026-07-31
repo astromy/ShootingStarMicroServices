@@ -1,0 +1,42 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/library-service
+  application:
+    name: library
+  cloud:
+    compatibility-verifier:
+      enabled: false
+  zipkin:
+    base-url: http://localhost:9411
+  sleuth:
+    sampler:
+      probability: 1.0
+
+server:
+  port: 0                      # random port — Eureka registers it
+
+gateway:
+  host: ${APIGATEWAY:http://localhost:8083}
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://${EUREKA_USERNAME}:${EUREKA_PASSWORD}@localhost:8761/eureka
+
+management:
+  health:
+    circuitbreakers:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    root: WARN
+    com.astromyllc.shootingstar.library: INFO

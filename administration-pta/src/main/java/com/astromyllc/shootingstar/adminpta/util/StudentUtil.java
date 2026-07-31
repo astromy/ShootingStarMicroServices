@@ -285,7 +285,19 @@ public class StudentUtil {
                 .status(s.getStatus())
                 .studentClass(s.getStudentClass())
                 .feeBalance(billBalance.toString())
+                .assignedRouteId(s.getAssignedRouteId())
+                .assignedRouteName(s.getAssignedRouteName())
                 .build();
+    }
+
+    // Sets (or clears, if request.getRouteId() is null) the student's
+    // assigned transport route and persists it. studentsGlobalList holds
+    // this same object reference, so the cache stays correct in place.
+    public Students applyRouteAssignment(Students student, SetStudentRouteRequest request) {
+        student.setAssignedRouteId(request.getRouteId());
+        student.setAssignedRouteName(request.getRouteName());
+        studentRepository.save(student);
+        return student;
     }
 
     public StudentSkimWithParentResponse mapStudent_ToStudentSkimWithParentResponse(Students s) {

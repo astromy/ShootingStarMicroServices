@@ -9,8 +9,8 @@
 
     <meta name="_csrf" th:content="${_csrf}" />
     <meta name="_csrf_header" th:content="${_csrf_headerName}" />
-  <!--    <meta name="accessToken" th:content="${accessToken}" />
-    <meta name="scope" th:content="${access}" />-->
+    <!--    <meta name="accessToken" th:content="${accessToken}" />
+      <meta name="scope" th:content="${access}" />-->
     <meta name="institutionId" th:content="${institutions}" />
     <meta name="cd4" th:content="${cd4}" />
 
@@ -20,7 +20,7 @@
     <link rel="stylesheet" href="styles/style.css">
 
     <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
-    <link rel="icon" type="image/x-icon"  href="images/favicon.ico" />
+    <link rel="icon" type="image/x-icon"  href="images/favicon.svg" />
 
     <!-- Vendor styles -->
     <link rel="stylesheet" href="vendor/metisMenu/dist/metisMenu.css" />
@@ -123,7 +123,7 @@
         </div>
 
         <ul class="nav" id="side-menu">
-          <li class="active">
+            <li class="active">
                 <a id="dashboard"> <span class="nav-label">Dashboard</span> <span class="label label-success pull-right">v.1</span> </a>
             </li>
             <!--  <li>
@@ -138,6 +138,7 @@
                     <li><a id="subject" class="functionalGroup"><span class="fa fa-book"></span>  Subject</a></li>
                     <li><a id="admission" class="functionalGroup"><span class="fa fa-plus-square"></span>  Admission</a></li>
                     <li><a id="department" class="functionalGroup"><img src="images/16px/015-apartment-building.png" class="flaticons"/>  Department</a></li>
+                    <li><a id="transport" class="functionalGroup"><span class="fa fa-bus"></span>  Transport</a></li>
                     <li><a id="grading" class="functionalGroup"><img src="images/16px/082-exam-results.png" class="flaticons"/> Grading</a></li>
                     <li><a id="promotionSettings"  class="functionalGroup"><img src="images/16px/067-promotional-material.png" class="flaticons"/>  Promotion </a></li>
                     <li><a id="permissions" class="functionalGroup"><span class="fa fa-shield"></span>  Permissions</a></li>
@@ -226,9 +227,17 @@
                 </ul>
             </li>
             <li>
+                <a href="#" class=" departmentGroup"><span class="nav-label">Library</span><span class="fa arrow"></span> </a>
+                <ul class="nav nav-second-level">
+                    <li><a  class="functionalGroup" id="libraryCatalogue"><span class="fa fa-book"></span> Catalogue </a></li>
+                    <li><a  class="functionalGroup" id="libraryCirculation"><span class="fa fa-exchange"></span> Circulation </a></li>
+
+                </ul>
+            </li>
+            <li>
                 <a href="widgets.html" class=" departmentGroup"> <span class="nav-label">Question Upload</span> <span class="label label-success pull-right">Special</span></a>
             </li>
-           <li>
+            <li>
                 <a href="#" class=" departmentGroup"><span class="nav-label">Teaching Staff</span><span class="fa arrow"></span> </a>
                 <ul class="nav nav-second-level">
                     <li><a id="staffQuestionUpload"  class="functionalGroup"><img src="images/16px/075-upload-file.png" class="flaticons"/>  Question Upload</a></li>
@@ -277,7 +286,7 @@
 <script type="text/javascript" src="vendor/ladda/dist/ladda.min.js"></script>
 <script type="text/javascript" src="vendor/ladda/dist/ladda.jquery.min.js"></script>
 
-                        <!--DATA TABLES-->
+<!--DATA TABLES-->
 <script type="text/javascript" src="dataTables/datatables.min.js"></script>
 <!-- DataTables -->
 <script src="vendor/datatables/media/js/jquery.dataTables.min.js"></script>

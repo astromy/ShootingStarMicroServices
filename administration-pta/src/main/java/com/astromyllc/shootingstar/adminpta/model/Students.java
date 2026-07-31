@@ -59,6 +59,14 @@ public class Students {
     @NonNull
     private String status;
 
+    // Cross-service reference — Route lives in the setup service (JPA/Postgres),
+    // Students lives here (Mongo), so this is a plain denormalized id/name
+    // pair rather than a real relation. Set via setStudentRoute, intended to
+    // be called from the Academix app when a parent/student self-selects
+    // their route.
+    private Long assignedRouteId;
+    private String assignedRouteName;
+
     @DBRef
     @OneToMany(fetch = FetchType.EAGER, targetEntity = StudentSubjects.class, cascade = CascadeType.ALL)
     @JoinColumn(name = "studentSubjects", referencedColumnName = "id")

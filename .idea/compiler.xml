@@ -16,6 +16,7 @@
         <module name="shootingstar_setup" />
         <module name="astro-online-application" />
         <module name="astro-orb" />
+        <module name="library" />
         <module name="online-application" />
         <module name="administration-pta" />
         <module name="accommodation" />
@@ -44,6 +45,7 @@
       <module name="discoveryserver" options="-parameters" />
       <module name="finance" options="-parameters" />
       <module name="hr-service" options="-parameters" />
+      <module name="library" options="-parameters" />
       <module name="online-application" options="-parameters" />
       <module name="shootingstar_setup" options="-parameters" />
       <module name="stores-inventory" options="-parameters" />

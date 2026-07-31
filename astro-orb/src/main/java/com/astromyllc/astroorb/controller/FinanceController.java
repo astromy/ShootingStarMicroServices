@@ -162,6 +162,11 @@ public class FinanceController {
         return post(body, backendserve + "/api/finance/getStudentBillByIdAndInstitution");
     }
 
+    @PostMapping("/api/mobile/getInstitutionBillOverview")
+    public ResponseEntity<String> getStudentBillsByInstitutionMobile(@RequestBody StudentBillFetchRequest body) {
+        return post(body, backendserve + "/api/finance/getStudentBillsByInstitution");
+    }
+
     @PostMapping("getStudentBillsByInstitution")
     public ResponseEntity<String> getStudentBillsByInstitution(@RequestBody StudentBillFetchRequest body) {
         return post(body, backendserve + "/api/finance/getStudentBillsByInstitution");

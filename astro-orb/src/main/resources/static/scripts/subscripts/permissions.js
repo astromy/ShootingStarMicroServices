@@ -108,6 +108,7 @@ function staffpermissionsIndut() {
                     <li class=""><a data-toggle="tab" href="#administrationtab"> ADMINISTRATION </a></li>
                     <li class=""><a data-toggle="tab" href="#infirmarytab"> INFIRMARY </a></li>
                     <li class=""><a data-toggle="tab" href="#storestab"> STORES </a></li>
+                    <li class=""><a data-toggle="tab" href="#libraryTab"> Library </a></li>
                     <li class=""><a data-toggle="tab" href="#teachingtab"> TEACHING </a></li>
                 </ul>
                 <div class="tab-content">
@@ -122,28 +123,36 @@ function staffpermissionsIndut() {
                                 <label class="check-label" for="classgrouppermission"> Class Groups </label>
                             </div>
                             <div class="form-check form-switch col-md-3">
-                                <input class="form-check-input" id="classpermission" value="setup classes" type="checkbox" />
-                                <label class="check-label" for="classpermission"> Classes </label>
+                                <input class="form-check-input" id="classPermission" value="setup classes" type="checkbox" />
+                                <label class="check-label" for="classPermission"> Classes </label>
                             </div>
                             <div class="form-check form-switch col-md-3">
-                                <input class="form-check-input" id="subjectpermission" value="setup subject" type="checkbox" />
-                                <label class="check-label" for="subjectpermission"> Subjects </label>
+                                <input class="form-check-input" id="subjectPermission" value="setup subject" type="checkbox" />
+                                <label class="check-label" for="subjectPermission"> Subjects </label>
                             </div>
                             <div class="form-check form-switch col-md-3">
-                                <input class="form-check-input" id="departmentpermission" value="setup department" type="checkbox" />
-                                <label class="check-label" for="departmentpermission"> Departments </label>
+                                <input class="form-check-input" id="departmentPermission" value="setup department" type="checkbox" />
+                                <label class="check-label" for="departmentPermission"> Departments </label>
                             </div>
                             <div class="form-check form-switch col-md-3">
-                                <input class="form-check-input" id="admissionspermission" value="setup admission" type="checkbox" />
-                                <label class="check-label" for="admissionspermission"> Admissions </label>
+                                <input class="form-check-input" id="admissionsPermission" value="setup admission" type="checkbox" />
+                                <label class="check-label" for="admissionsPermission"> Admissions </label>
                             </div>
                             <div class="form-check form-switch col-md-3">
-                                <input class="form-check-input" id="gradingpermission" value="setup grading" type="checkbox" />
-                                <label class="check-label" for="gradingpermission"> Grading </label>
+                                <input class="form-check-input" id="gradingPermission" value="setup grading" type="checkbox" />
+                                <label class="check-label" for="gradingPermission"> Grading </label>
                             </div>
                             <div class="form-check form-switch col-md-3">
-                                <input class="form-check-input" id="permissionpermission" value="setup permissions" type="checkbox" />
-                                <label class="check-label" for="permissionpermission"> Permissions </label>
+                                <input class="form-check-input" id="permissionPermission" value="setup permissions" type="checkbox" />
+                                <label class="check-label" for="permissionPermission"> Permissions </label>
+                            </div>
+                            <div class="form-check form-switch col-md-3">
+                                <input class="form-check-input" id="accommodationPermission" value="setup accommodation" type="checkbox" />
+                                <label class="check-label" for="accommodationPermission"> Accommodation </label>
+                            </div>
+                            <div class="form-check form-switch col-md-3">
+                                <input class="form-check-input" id="transportPermission" value="setup transport" type="checkbox" />
+                                <label class="check-label" for="transportPermission"> Transport </label>
                             </div>
                         </div>
                     </div>
@@ -155,24 +164,24 @@ function staffpermissionsIndut() {
                                 <label class="check-label" for="onloadingPermission"> On Loading </label>
                             </div>
                             <div class="form-check form-switch col-md-3">
-                                <input class="form-check-input" id="recordspermission" value="Human_Resource records" type="checkbox" />
-                                <label class="check-label" for="recordspermission"> Records </label>
+                                <input class="form-check-input" id="recordsPermission" value="Human_Resource records" type="checkbox" />
+                                <label class="check-label" for="recordsPermission"> Records </label>
                             </div>
                             <div class="form-check form-switch col-md-3">
-                                <input class="form-check-input" id="leavepermission" value="Human_Resource leave" type="checkbox" />
-                                <label class="check-label" for="leavepermission"> Leave </label>
+                                <input class="form-check-input" id="leavePermission" value="Human_Resource leave" type="checkbox" />
+                                <label class="check-label" for="leavePermission"> Leave </label>
                             </div>
                             <div class="form-check form-switch col-md-3">
-                                <input class="form-check-input" id="apraisalpermission" value="Human_Resource appraisals" type="checkbox" />
-                                <label class="check-label" for="apraisalpermission"> Apraisal </label>
+                                <input class="form-check-input" id="appraisalPermission" value="Human_Resource appraisals" type="checkbox" />
+                                <label class="check-label" for="appraisalPermission"> Appraisals </label>
                             </div>
                             <div class="form-check form-switch col-md-3">
-                                <input class="form-check-input" id="designationpermission" value="Human_Resource designation" type="checkbox" />
-                                <label class="check-label" for="designationpermission"> Designation </label>
+                                <input class="form-check-input" id="designationPermission" value="Human_Resource designation" type="checkbox" />
+                                <label class="check-label" for="designationPermission"> Designation </label>
                             </div>
                             <div class="form-check form-switch col-md-3">
-                                <input class="form-check-input" id="offloadingpermission" value="Human_Resource offboarding" type="checkbox" />
-                                <label class="check-label" for="offloadingpermission"> Off Loading </label>
+                                <input class="form-check-input" id="offloadingPermission" value="Human_Resource offboarding" type="checkbox" />
+                                <label class="check-label" for="offloadingPermission"> Off Loading </label>
                             </div>
                         </div>
                     </div>
@@ -200,8 +209,8 @@ function staffpermissionsIndut() {
                                 <label class="check-label" for="paymentCheckerPermission"> Payment Checker </label>
                             </div>
                             <div class="form-check form-switch col-md-3">
-                                <input class="form-check-input" id="offloadingpermission" value="Finance salary_setup" type="checkbox" />
-                                <label class="check-label" for="offloadingpermission"> Salary Setup </label>
+                                <input class="form-check-input" id="offloadingPermission" value="Finance salary_setup" type="checkbox" />
+                                <label class="check-label" for="offloadingPermission"> Salary Setup </label>
                             </div>
                             <div class="form-check form-switch col-md-3">
                                 <input class="form-check-input" id="payslipGenerationPermission" value="Finance payslip" type="checkbox" />
@@ -338,6 +347,19 @@ function staffpermissionsIndut() {
                         </div>
                     </div>
                 
+                    <div id="libraryTab" class="tab-pane">
+                        <div class="panel-body">
+
+                            <div class="form-check form-switch col-md-3">
+                                <input class="form-check-input" id="cataloguePermission" value="Library catalogue" type="checkbox" />
+                                <label class="check-label" for="cataloguePermission"> Catalogue </label>
+                             </div>
+                            <div class="form-check form-switch col-md-3">
+                                <input class="form-check-input" id="circulationPermission" value="Library circulation" type="checkbox" />
+                                <label class="check-label" for="circulationPermission"> Circulation </label>
+                             </div>
+                        </div>
+                    </div>
                     <div id="teachingtab" class="tab-pane">
                         <div class="panel-body">
 

@@ -183,34 +183,121 @@ public class AdministrationController {
         return response;
     }
 
+    // NOTE: "/api/administration-pta/recordGateEvent" is an assumed endpoint
+    // name/payload — no administration-pta source has been shared yet, so
+    // this hasn't been confirmed against real backend code the way
+    // getStudentsStatusByID above has. Confirm the real contract there and
+    // adjust if needed.
+    @ResponseBody
+    @RequestMapping(value = "api/mobile/gateCheck", method = RequestMethod.POST)
+    public ResponseEntity<String> gateCheck(@RequestBody GateCheckRequest jso) {
+        log.info("REQUEST gateCheck OF..... {}", jso);
+        return BACKENDCOMMPOST(jso, backendserve + "/api/administration-pta/recordGateEvent");
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "api/mobile/busBoarding", method = RequestMethod.POST)
+    public ResponseEntity<String> busBoarding(@RequestBody BusBoardingRequest jso) {
+        log.info("REQUEST busBoarding OF..... {}", jso);
+        return BACKENDCOMMPOST(jso, backendserve + "/api/administration-pta/recordBusBoardingEvent");
+    }
+
+    // Called from the Academix app when a parent/student self-selects a
+    // route — not currently called from Pulse, but exposed the same way
+    // since astro-orb is the shared BFF for both.
+    @ResponseBody
+    @RequestMapping(value = "api/mobile/setStudentRoute", method = RequestMethod.POST)
+    public ResponseEntity<String> setStudentRoute(@RequestBody SetStudentRouteRequest jso) {
+        log.info("REQUEST setStudentRoute OF..... {}", jso);
+        return BACKENDCOMMPOST(jso, backendserve + "/api/administration-pta/setStudentRoute");
+    }
+
     @ResponseBody
     @RequestMapping(value = "api/mobile/sendReactivationEmail", method = RequestMethod.POST)
     public ResponseEntity<String> sendReactivationEmail(@RequestBody DynamicStringRequest jso) {
         return BACKENDCOMMPOST(jso, backendserve + "/api/administration-pta/sendReactivationEmail");
     }
 
+    // NOTE (fixed): all four of these were previously wired to
+    // "/api/administration-pta/sendReactivationEmail" — a copy-paste error
+    // where the target URL was never changed from whatever template this
+    // was cloned from. Each now points to its own real endpoint, and each
+    // takes a proper typed DTO instead of the generic DynamicStringRequest
+    // that was standing in for a real request shape.
+    // The endpoint Academix is actually calling. Now takes recipientContact
+    // too, so administration-pta can compute each item's `read` state
+    // against that specific parent's read receipts.
+    @ResponseBody
+    @RequestMapping(value = "api/mobile/getNotifications", method = RequestMethod.POST)
+    //public ResponseEntity<String> getNotifications(@RequestBody GetNotificationsRequest jso) {
+    public ResponseEntity<String> getNotifications(@RequestBody SingleStringRequest jso) {
+        return BACKENDCOMMPOST(jso, backendserve + "/api/administration-pta/getNotifications");
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "api/mobile/markNotificationRead", method = RequestMethod.POST)
+    public ResponseEntity<String> markNotificationRead(@RequestBody MarkNotificationReadRequest jso) {
+        return BACKENDCOMMPOST(jso, backendserve + "/api/administration-pta/markNotificationRead");
+    }
+
     @ResponseBody
     @RequestMapping(value = "api/mobile/sendVoiceMessage", method = RequestMethod.POST)
-    public ResponseEntity<String> sendVoiceMessage(@RequestBody DynamicStringRequest jso) {
-        return BACKENDCOMMPOST(jso, backendserve + "/api/administration-pta/sendReactivationEmail");
+    public ResponseEntity<String> sendVoiceMessage(@RequestBody VoiceMessageRequest jso) {
+        log.info("REQUEST sendVoiceMessage OF..... institution={} sentBy={} durationSeconds={}",
+                jso.getInstitutionCode(), jso.getSentBy(), jso.getDurationSeconds());
+        return BACKENDCOMMPOST(jso, backendserve + "/api/administration-pta/sendVoiceMessage");
     }
 
     @ResponseBody
     @RequestMapping(value = "api/mobile/getSentVoiceMessages", method = RequestMethod.POST)
-    public ResponseEntity<String> getSentVoiceMessages(@RequestBody DynamicStringRequest jso) {
-        return BACKENDCOMMPOST(jso, backendserve + "/api/administration-pta/sendReactivationEmail");
+    public ResponseEntity<String> getSentVoiceMessages(@RequestBody SingleStringRequest jso) {
+        return BACKENDCOMMPOST(jso, backendserve + "/api/administration-pta/getSentVoiceMessages");
+    }
+
+    // Audio bytes are deliberately NOT part of getSentVoiceMessages' response
+    // (that stays metadata-only so listing messages is cheap) — fetch this
+    // separately, per message, only when something is actually being played.
+    @ResponseBody
+    @RequestMapping(value = "api/mobile/getVoiceMessageAudio", method = RequestMethod.POST)
+    public ResponseEntity<String> getVoiceMessageAudio(@RequestBody SingleStringRequest jso) {
+        return BACKENDCOMMPOST(jso, backendserve + "/api/administration-pta/getVoiceMessageAudio");
     }
 
     @ResponseBody
     @RequestMapping(value = "api/mobile/markVoiceMessageListened", method = RequestMethod.POST)
-    public ResponseEntity<String> markVoiceMessageListened(@RequestBody DynamicStringRequest jso) {
-        return BACKENDCOMMPOST(jso, backendserve + "/api/administration-pta/sendReactivationEmail");
+    public ResponseEntity<String> markVoiceMessageListened(@RequestBody MarkVoiceMessageListenedRequest jso) {
+        return BACKENDCOMMPOST(jso, backendserve + "/api/administration-pta/markVoiceMessageListened");
     }
 
     @ResponseBody
     @RequestMapping(value = "api/mobile/deleteVoiceMessage", method = RequestMethod.POST)
-    public ResponseEntity<String> deleteVoiceMessage(@RequestBody DynamicStringRequest jso) {
-        return BACKENDCOMMPOST(jso, backendserve + "/api/administration-pta/sendReactivationEmail");
+    public ResponseEntity<String> deleteVoiceMessage(@RequestBody SingleStringRequest jso) {
+        return BACKENDCOMMPOST(jso, backendserve + "/api/administration-pta/deleteVoiceMessage");
+    }
+
+    // Text-based announcements — visible to whichever parents fall under
+    // targetClassIds (empty/omitted = every parent at the institution).
+    @ResponseBody
+    @RequestMapping(value = "api/mobile/sendAnnouncement", method = RequestMethod.POST)
+    public ResponseEntity<String> sendAnnouncement(@RequestBody AnnouncementRequest jso) {
+        log.info("REQUEST sendAnnouncement OF..... {}", jso);
+        return BACKENDCOMMPOST(jso, backendserve + "/api/administration-pta/sendAnnouncement");
+    }
+
+    // High-priority, school-wide alert. adminpta forces targetClassIds to
+    // empty (everyone) server-side regardless of what's sent here — see
+    // AnnouncementService.sendEmergencyAlert in that service.
+    @ResponseBody
+    @RequestMapping(value = "api/mobile/sendEmergencyAlert", method = RequestMethod.POST)
+    public ResponseEntity<String> sendEmergencyAlert(@RequestBody AnnouncementRequest jso) {
+        log.warn("REQUEST sendEmergencyAlert OF..... {}", jso);
+        return BACKENDCOMMPOST(jso, backendserve + "/api/administration-pta/sendEmergencyAlert");
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "api/mobile/getAnnouncements", method = RequestMethod.POST)
+    public ResponseEntity<String> getAnnouncements(@RequestBody SingleStringRequest jso) {
+        return BACKENDCOMMPOST(jso, backendserve + "/api/administration-pta/getAnnouncements");
     }
 
     @PostMapping("verify-payment")

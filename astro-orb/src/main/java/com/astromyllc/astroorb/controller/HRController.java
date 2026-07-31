@@ -72,6 +72,22 @@ public class HRController {
         return response;
     }
 
+    // Mobile calls this once it has an Expo push token (e.g. after login,
+    // or whenever the token refreshes) so admin staff can receive transport
+    // compliance alerts and similar notifications.
+    @ResponseBody
+    @RequestMapping(value = "api/mobile/registerPushToken", method = RequestMethod.POST)
+    public ResponseEntity<String> registerPushToken(@RequestBody RegisterPushTokenRequest jso) throws IOException, InterruptedException {
+        log.info("REQUEST registerPushToken OF..... {}", jso);
+        return BACKENDCOMMPOST(jso, backendserve + "/api/hr/registerPushToken");
+    }
+
+    // NOTE: "/api/hr/staffClockIn" on the HR microservice is an assumed
+    // endpoint name/payload — it doesn't exist in any HR-service code shared
+    // so far. Confirm the real contract there and adjust the forwarded body
+    // below if needed. The geofence check itself is real and self-contained:
+    // it calls the setup service directly, so it works regardless of what
+    // the HR side ultimately expects.
     @ResponseBody
     @RequestMapping(value = "api/mobile/staffClockIn", method = RequestMethod.POST)
     public ResponseEntity<String> staffClockIn(@RequestBody StaffClockInRequest jso) throws IOException, InterruptedException {

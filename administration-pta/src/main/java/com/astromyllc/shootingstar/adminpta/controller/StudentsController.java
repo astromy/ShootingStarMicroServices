@@ -112,6 +112,12 @@ public class StudentsController {
         return ResponseEntity.ok(studentServiceInterface.checkStudentByID(request));
     }
 
+    @PostMapping("/api/administration-pta/setStudentRoute")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<Optional<StudentStatusResponse>> setStudentRoute(@RequestBody SetStudentRouteRequest request) {
+        return ResponseEntity.ok(studentServiceInterface.setStudentRoute(request));
+    }
+
     @PostMapping("/api/administration-pta/recordGateEvent")
     public ResponseEntity<?> recordGateEvent(@RequestBody GateCheckRequest request) {
         log.info("Recording gate event for student {}", request.getStudentId());
@@ -121,6 +127,17 @@ public class StudentsController {
         } catch (StudentNotEligibleException e) {
             // Message is written to be shown to the user as-is — apiService.js
             // on the mobile side reads error.response.data.message directly.
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/api/administration-pta/recordBusBoardingEvent")
+    public ResponseEntity<?> recordBusBoardingEvent(@RequestBody BusBoardingRequest request) {
+        log.info("Recording bus boarding event for student {}", request.getStudentId());
+        try {
+            BusBoardingResponse response = busBoardingEventServiceInterface.recordBusBoardingEvent(request);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (StudentNotEligibleException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", e.getMessage()));
         }
     }

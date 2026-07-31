@@ -239,6 +239,16 @@ public class StudentService implements StudentServiceInterface {
     }
 
     @Override
+    public Optional<StudentStatusResponse> setStudentRoute(SetStudentRouteRequest request) {
+        return StudentUtil.studentsGlobalList.stream()
+                .filter(x -> x.getStudentId().equalsIgnoreCase(request.getStudentId()))
+                .findFirst()
+                .map(student -> studentUtil.mapStudent_ToStudentStatusResponse(
+                        studentUtil.applyRouteAssignment(student, request)
+                ));
+    }
+
+    @Override
     public Optional<StudentsResponse> updateStudentRecord(StudentsImportRequest request) {
         return StudentUtil.studentsGlobalList.stream()
                 .filter(x -> x.getStudentId().equalsIgnoreCase(request.getStudentId()))
