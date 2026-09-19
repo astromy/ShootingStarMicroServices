@@ -5,6 +5,11 @@ server:
 gateway:
   host: ${APIGATEWAY:http://localhost:8083}
 
+orb:
+  uploads:
+    # Adjust these to wherever admin-pta actually writes the files.
+    # If it's a shared docker volume, point at that mount path.
+    base: ${ORB_UPLOADS_BASE:static/applicationDocuments}
 
 logging:
   level:

@@ -59,7 +59,7 @@
             showSplash();
             var [groups, payments] = await Promise.all([
                 fetchPost('getLookUpByType', {val: 'ClassGroup'}),
-                fetchPost('get-billPayments-by-institution', {institutionCode: _inst}),
+                fetchPost('get-billPayments-by-institution', {val: _inst}),
             ]);
             if (groups) window.pyHistData.classGroups = groups;
             if (payments) window.pyHistState.allPayments = payments;
@@ -91,14 +91,23 @@
     };
 
     // ── REFETCH (after filter changes) ───────────────────────────────────────
+    // Was posting {institutionCode: _inst} to this endpoint while pyHistLoad
+    // (above) posts {val: _inst} to the exact same endpoint - given this
+    // backend's DTOs reject shapes they don't declare (see the earlier
+    // get-billPayments-by-student 400s), this mismatched call likely failed
+    // silently on every Refresh/Filter click (no logging in the old catch
+    // block either), leaving the table showing stale data from the initial
+    // load rather than actually refreshing. Matched to pyHistLoad's working
+    // shape, and added logging so a future failure here is visible.
     window.pyHistFetch = async function (filters) {
         showSplash();
         try {
-            var result = await fetchPost('get-billPayments-by-institution', {institutionCode: _inst});
+            var result = await fetchPost('get-billPayments-by-institution', {val: _inst});
             window.pyHistState.allPayments = result || [];
             hideSplash();
         } catch (e) {
             hideSplash();
+            console.error('[_financePaymentHistory] pyHistFetch error:', e);
         }
         return window.pyHistFilter(filters || {});
     };
@@ -111,6 +120,29 @@
             });
         } catch (e) {
             return null;
+        }
+    };
+
+    // ── STUDENT PAYMENT HISTORY (for the "Student Account" modal) ───────────
+    // The eye icon correctly passes only the clicked row's student - the gap
+    // was that nothing then went and fetched the REST of that student's
+    // payments, so "ALL PAYMENTS" only ever showed the one row it was opened
+    // from. This mirrors feeCollFetchHistory in _financeFeeCollection.js
+    // (same endpoint, same confirmed BillFetchRequest shape:
+    // {institutionCode, name}) so the modal can show a student's full
+    // history the same way the Fee Collection page already does. Whatever
+    // builds the modal needs to call this with the clicked row's studentId
+    // and render its result into "ALL PAYMENTS" instead of just that one row
+    // - that part isn't in this file.
+    window.pyHistFetchStudentPayments = async function (studentId) {
+        try {
+            var result = await fetchPost('get-billPayments-by-student', {
+                institutionCode: _inst, name: studentId,
+            });
+            return result || [];
+        } catch (e) {
+            console.error('[_financePaymentHistory] pyHistFetchStudentPayments error:', e);
+            return [];
         }
     };
 

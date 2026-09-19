@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta name="_csrf" th:content="${_csrf}"/>
+    <meta name="_csrf_header" th:content="${_csrf_header}"/>
+    <meta name="institutionId" th:content="${institutionId}"/>
+    <meta name="paystack-public-key" th:content="${paystackPublicKey}">
+    <meta name="email" th:content="${email}"/>
+    <title>Upgrade Required</title>
+    <script src="https://js.paystack.co/v1/inline.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: #343a40;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .upgrade-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: #f0ad4e;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .plan-pill {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-weight: bold;
+        }
+
+        .plan-current {
+            background-color: #f1f1f1;
+            color: #6c757d;
+        }
+
+        .plan-required {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .btn-row a, .btn-row button {
+            display: inline-block;
+            margin: 6px 6px 0 6px;
+            padding: 12px 24px;
+            border-radius: 5px;
+            font-size: 1rem;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .quote-btn {
+            background-color: #f0ad4e;
+            color: white;
+        }
+
+        .quote-btn:hover {
+            background-color: #ec971f;
+        }
+
+        .pay-btn {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .pay-btn:hover {
+            background-color: #218838;
+        }
+
+        .pay-btn:disabled {
+            background-color: #a3d9b1;
+            cursor: not-allowed;
+        }
+
+        .back-btn {
+            background-color: #e9ecef;
+            color: #343a40;
+        }
+
+        .back-btn:hover {
+            background-color: #dee2e6;
+        }
+
+        .quote-box {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            text-align: left;
+            font-size: 0.95rem;
+        }
+
+        .quote-box div {
+            display: flex;
+            justify-content: space-between;
+            padding: 3px 0;
+        }
+
+        .quote-box .total {
+            font-weight: bold;
+            border-top: 1px solid #dee2e6;
+            margin-top: 6px;
+            padding-top: 6px;
+        }
+
+        .quote-error {
+            color: #dc3545;
+            font-size: 0.9rem;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<div class="upgrade-container">
+    <h1>Upgrade Required</h1>
+    <p>
+        This feature needs the
+        <span class="plan-pill plan-required" th:text="${requiredPlan}">Growth</span>
+        plan or higher. Your institution is currently on the
+        <span class="plan-pill plan-current" th:text="${currentPlan}">Starter</span>
+        plan.
+    </p>
+
+    <div class="btn-row hidden" id="planPicker">
+        <button class="quote-btn" id="quoteGrowthBtn">See Growth pricing</button>
+        <button class="quote-btn" id="quoteEnterpriseBtn">See Enterprise pricing</button>
+    </div>
+
+    <div class="hidden" id="quoteLoading">Checking pricing…</div>
+
+    <div class="quote-error hidden" id="quoteError"></div>
+
+    <div class="quote-box hidden" id="quoteBox">
+        <div><span>Students</span><span id="qPopulation"></span></div>
+        <div><span>Rate per student</span><span id="qRate"></span></div>
+        <div class="total"><span>Total</span><span id="qTotal"></span></div>
+    </div>
+
+    <div class="btn-row">
+        <button class="pay-btn hidden" id="payBtn">Pay with Paystack</button>
+        <a class="back-btn" href="/">Back to Dashboard</a>
+    </div>
+
+    <p class="hidden" id="postPaymentMessage" style="margin-top: 1rem;">
+        Payment received — your upgrade is being processed. This usually takes a few
+        seconds; refresh the dashboard shortly to see the new plan reflected.
+    </p>
+</div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const institutionId = /*[[${institutionId}]]*/ null;
+    const email = /*[[${email}]]*/ null;
+    const requiredPlanRaw = /*[[${requiredPlan}]]*/ null;
+
+    const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content') || 'X-XSRF-TOKEN';
+
+    const planPicker = document.getElementById('planPicker');
+    const quoteLoading = document.getElementById('quoteLoading');
+    const quoteError = document.getElementById('quoteError');
+    const quoteBox = document.getElementById('quoteBox');
+    const payBtn = document.getElementById('payBtn');
+    const postPaymentMessage = document.getElementById('postPaymentMessage');
+
+    let currentQuote = null;
+
+    async function fetchQuote(targetPlan) {
+        quoteError.classList.add('hidden');
+        quoteBox.classList.add('hidden');
+        payBtn.classList.add('hidden');
+        planPicker.classList.add('hidden');
+        quoteLoading.classList.remove('hidden');
+
+        const headers = {'Content-Type': 'application/json', 'Accept': 'application/json'};
+        if (csrfToken) {
+            headers[csrfHeader] = csrfToken;
+        }
+
+        try {
+            const response = await fetch('/getUpgradeQuote', {
+                method: 'POST',
+                headers,
+                credentials: 'include',
+                body: JSON.stringify({institutionCode: institutionId, targetPlan: targetPlan}),
+            });
+
+            const body = await response.json().catch(() => null);
+
+            if (!response.ok) {
+                // The backend returns Optional<String> error bodies, which serialize as
+                // a plain JSON string (or null) - not an object.
+                const message = typeof body === 'string' && body.length > 0
+                    ? body
+                    : 'Could not fetch pricing for that plan.';
+                throw new Error(message);
+            }
+
+            currentQuote = body;
+            quoteLoading.classList.add('hidden');
+
+            document.getElementById('qPopulation').textContent = body.population;
+            document.getElementById('qRate').textContent = 'GHS ' + body.ratePerStudent + ' / student';
+            document.getElementById('qTotal').textContent = 'GHS ' + body.totalAmount;
+
+            quoteBox.classList.remove('hidden');
+            if (institutionId && email) {
+                payBtn.classList.remove('hidden');
+            }
+        } catch (err) {
+            quoteLoading.classList.add('hidden');
+            quoteError.textContent = err.message || 'Something went wrong fetching pricing.';
+            quoteError.classList.remove('hidden');
+        }
+    }
+
+    payBtn.addEventListener('click', function () {
+        if (!currentQuote || !institutionId || !email) {
+            return;
+        }
+
+        payBtn.disabled = true;
+
+        const handler = PaystackPop.setup({
+            key: document.querySelector('meta[name="paystack-public-key"]').getAttribute('content'),
+            email: email,
+            amount: currentQuote.amountInSubunit,
+            currency: currentQuote.currency || 'GHS',
+            ref: 'UPGRADE_' + institutionId + '_' + new Date().getTime(),
+            metadata: {
+                custom_fields: [
+                    {
+                        display_name: 'institutionCode',
+                        variable_name: 'institutionCode',
+                        value: institutionId,
+                    },
+                    {
+                        display_name: 'targetPlan',
+                        variable_name: 'targetPlan',
+                        value: currentQuote.targetPlan,
+                    },
+                ],
+            },
+            onClose: function () {
+                payBtn.disabled = false;
+            },
+            callback: function () {
+                quoteBox.classList.add('hidden');
+                payBtn.classList.add('hidden');
+                postPaymentMessage.classList.remove('hidden');
+            },
+        });
+        handler.openIframe();
+    });
+
+    document.getElementById('quoteGrowthBtn').addEventListener('click', () => fetchQuote('GROWTH'));
+    document.getElementById('quoteEnterpriseBtn').addEventListener('click', () => fetchQuote('ENTERPRISE'));
+
+    // If we know exactly which plan was required (the normal case - the person got
+    // redirected here from a blocked feature), skip the picker and fetch that quote
+    // directly. Only fall back to letting them choose if requiredPlan wasn't a real
+    // plan name (e.g. someone navigated here directly without redirect context).
+    if (institutionId) {
+        if (requiredPlanRaw === 'GROWTH' || requiredPlanRaw === 'ENTERPRISE') {
+            fetchQuote(requiredPlanRaw);
+        } else {
+            planPicker.classList.remove('hidden');
+        }
+    } else {
+        quoteError.textContent = 'Could not determine your institution - try reloading the dashboard first.';
+        quoteError.classList.remove('hidden');
+    }
+    /*]]>*/
+</script>
+</body>
+</html>
+

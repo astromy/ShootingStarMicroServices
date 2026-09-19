@@ -109,7 +109,82 @@ async function fetchStaffList(instId) {
             });
             bar.then(() => {
             });
+
+            populateUsersTable(result);
         }
+    });
+}
+
+// Renders every staff member into the Permissions table. Clicking a row (or
+// its "Manage" button) opens the Set Permissions modal pre-selected for that
+// user, with whatever permissions they already have checked.
+function populateUsersTable(data) {
+    var tbody = $("#permissionsTableBody");
+    tbody.empty();
+
+    data.forEach(function (staff) {
+        var name = (staff.firstNames || "") + " " + (staff.lastName || "");
+        var row = $("<tr>", {"data-staff-code": staff.staffCode, style: "cursor:pointer"});
+        row.append($("<td>").text(staff.staffCode || ""));
+        row.append($("<td>").text(name.trim()));
+        row.append($("<td>").text(staff.designation || ""));
+        row.append($("<td>").text(staff.staffEmail || ""));
+        row.append(
+            $("<td>").append(
+                $("<button>", {
+                    type: "button",
+                    class: "btn btn-info btn-sm manage-permissions-btn",
+                    text: "Manage Permissions",
+                })
+            )
+        );
+        tbody.append(row);
+    });
+
+    dataTableInit();
+}
+
+// Whole row is clickable, and so is the button inside it - both resolve to
+// the same staffCode via the row's data attribute, so either works.
+$(document).on("click", "#permissionsTable tbody tr", function (event) {
+    var staffCode = $(this).data("staff-code");
+    if (staffCode) {
+        openPermissionsFor(String(staffCode));
+    }
+});
+
+function openPermissionsFor(staffCode) {
+    // Open the modal first - this rebuilds the tabs/checkboxes fresh via
+    // modalopn()/staffpermissionsIndut(), which the StaffList "change"
+    // handler below relies on already existing (it toggles .tabs, which
+    // only exists once the modal body has been rendered).
+    document.getElementById("modalopn").click();
+
+    var staffList = document.getElementById("StaffList");
+    staffList.value = staffCode;
+    staffList.dispatchEvent(new Event("change"));
+
+    fetchExistingPermissions(staffCode);
+}
+
+// Pre-checks whichever permission checkboxes match what this staff member
+// already has, without emitting "change" events - so the pre-check itself
+// doesn't get treated as a pending edit by permissionBuilder(). Only actual
+// clicks by the admin after this point get queued into staffPermissionList.
+async function fetchExistingPermissions(staffCode) {
+    var request = {val: staffCode};
+    return fetchPost("get-permissions-by-staff", request).then(function (result) {
+        if (!result) {
+            return;
+        }
+        result.forEach(function (perm) {
+            var checkbox = document.querySelector(
+                'input[type="checkbox"][value="' + perm.permissionCode + '"]'
+            );
+            if (checkbox) {
+                checkbox.checked = true;
+            }
+        });
     });
 }
 

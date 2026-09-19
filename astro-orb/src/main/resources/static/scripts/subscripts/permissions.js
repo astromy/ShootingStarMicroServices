@@ -22,14 +22,14 @@ $(function () {
                 <table id="permissionsTable" class="table table-striped table-bordered table-hover" width="100%">
                     <thead>
                     <tr>
+                        <th>Staff Code</th>
                         <th>Name</th>
-                        <th>Position</th>
-                        <th>Office</th>
-                        <th width="15%">Age</th>
-                        <th width="15%">Start date</th>
-                        <th width="15%">Salary</th>
+                        <th>Designation</th>
+                        <th>Email</th>
+                        <th width="15%">Permissions</th>
                     </tr>
                     </thead>
+                    <tbody id="permissionsTableBody"></tbody>
                 </table>
             </div>
         </div>
@@ -325,6 +325,10 @@ function staffpermissionsIndut() {
                             <div class="form-check form-switch col-md-3">
                                 <input class="form-check-input" id="medicalHistoryPermission" value="Infirmary medical_history" type="checkbox" />
                                 <label class="check-label" for="medicalHistoryPermission"> Medical History </label>
+                            </div>
+                            <div class="form-check form-switch col-md-3">
+                                <input class="form-check-input" id="pharmacyStockPermission" value="Infirmary pharmacy_stock" type="checkbox" />
+                                <label class="check-label" for="pharmacyStockPermission"> Pharmacy &amp; Stock </label>
                             </div>
                         </div>
                     </div>

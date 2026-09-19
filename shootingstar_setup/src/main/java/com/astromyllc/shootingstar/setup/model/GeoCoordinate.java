@@ -22,6 +22,10 @@ public class GeoCoordinate {
     @Column(nullable = false)
     private Double longitude;
 
+    @Column(nullable = true)
+    @Builder.Default
+    private String campusName = "Main Campus";
+
     @ManyToOne
     @JoinColumn(name = "idInstitution")
     private Institution institution;

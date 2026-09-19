@@ -2,6 +2,7 @@ package com.astromyllc.shootingstar.finance.service;
 
 import com.astromyllc.shootingstar.finance.dto.request.BillFetchRequest;
 import com.astromyllc.shootingstar.finance.dto.request.Bill_PaymentRequest;
+import com.astromyllc.shootingstar.finance.dto.request.SingleStringRequest;
 import com.astromyllc.shootingstar.finance.dto.response.Bill_PaymentResponse;
 import com.astromyllc.shootingstar.finance.model.Bill_Payment;
 import com.astromyllc.shootingstar.finance.model.Student_Bill;
@@ -82,10 +83,10 @@ public class Bill_PaymentService implements Bill_PaymentServiceInterface {
     }
 
     @Override
-    public Optional<List<Bill_PaymentResponse>> fetchBillPaymentsByInstitution(BillFetchRequest r) {
+    public Optional<List<Bill_PaymentResponse>> fetchBillPaymentsByInstitution(SingleStringRequest r) {
         return Optional.of(
                 Bill_PaymentUtil.billPaymentGlobalList.stream()
-                        .filter(p -> p.getInstitutionCode().equalsIgnoreCase(r.getInstitutionCode()))
+                        .filter(p -> p.getInstitutionCode().equalsIgnoreCase(r.getVal()))
                         .map(billPaymentUtil::mapPayment_ToResponse)
                         .collect(Collectors.toList())
         );

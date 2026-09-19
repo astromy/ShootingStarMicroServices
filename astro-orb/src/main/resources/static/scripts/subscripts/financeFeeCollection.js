@@ -24,15 +24,7 @@
     })();
 
     // ── CSS ──────────────────────────────────────────────────────────────────
-    (function () {
-        if (document.getElementById('feeCollCSS')) return;
-        var l = document.createElement('link');
-        l.id = 'feeCollCSS';
-        l.rel = 'stylesheet';
-        l.href = _base + '../../styles/style.css';
-        l.setAttribute('data-dynamic', 'true');
-        document.head.appendChild(l);
-    })();
+    // style.css is already loaded globally by the base template.
 
     // ── DOM ──────────────────────────────────────────────────────────────────
     function buildDOM() {

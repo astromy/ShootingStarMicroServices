@@ -13,6 +13,7 @@ public class SaveGeofenceBoundaryRequest {
     @NonNull
     private String institution;
     private List<GeoPoint> boundary;
+    private String campusName;
 
     @NoArgsConstructor
     @AllArgsConstructor

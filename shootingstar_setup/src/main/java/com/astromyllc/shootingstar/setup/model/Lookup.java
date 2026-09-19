@@ -21,4 +21,5 @@ public class Lookup {
     private String name;
     @NonNull
     private String type;
+    private String status;
 }

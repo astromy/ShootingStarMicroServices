@@ -3,6 +3,7 @@ package com.astromyllc.shootingstar.setup.serviceInterface;
 import com.astromyllc.shootingstar.setup.dto.request.SaveGeofenceBoundaryRequest;
 import com.astromyllc.shootingstar.setup.dto.request.SingleStringRequest;
 import com.astromyllc.shootingstar.setup.dto.response.GeoCoordinateResponse;
+import com.astromyllc.shootingstar.setup.dto.response.GeofenceBoundaryResponse;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,4 +14,10 @@ public interface GeoCoordinateServiceInterface {
     List<Optional<GeoCoordinateResponse>> updateGeoCoordinates(SaveGeofenceBoundaryRequest request);
 
     List<Optional<GeoCoordinateResponse>> getGeoCoordinatesByInstitution(SingleStringRequest beceCode);
+
+    GeofenceBoundaryResponse getGeofenceBoundariesByInstitution(String beceCode);
+
+    List<String> getCampusNames(String beceCode);
+
+    boolean deleteCampus(String beceCode, String campusName);
 }

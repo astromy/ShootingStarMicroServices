@@ -3,6 +3,7 @@ package com.astromyllc.shootingstar.setup.config;
 import com.astromyllc.shootingstar.setup.model.Institution;
 import com.astromyllc.shootingstar.setup.model.InstitutionAccount;
 import com.astromyllc.shootingstar.setup.repository.InstitutionRepository;
+import com.astromyllc.shootingstar.setup.subscription.SubscriptionPlan;
 import com.astromyllc.shootingstar.setup.utils.InstitutionAccountUtil;
 import com.astromyllc.shootingstar.setup.utils.InstitutionUtils;
 import lombok.RequiredArgsConstructor;
@@ -26,13 +27,23 @@ public class Cron {
     private final InstitutionAccountUtil institutionAccountUtils;
     private final InstitutionRepository institutionRepository;
 
-    // @Scheduled(cron = "0 */5 * * * ?")
+    //@Scheduled(cron = "0 */3 * * * ?")
     @Scheduled(cron = "0 1 0 * * ?")
     public void updateInstitutionStatus() {
         LocalDate currentDate = LocalDate.now();
         // Pre-compute the payment period (Sept previous year to Aug current year)
         LocalDate paymentStart = LocalDate.of(currentDate.getYear() - 1, Month.SEPTEMBER, 1);
         LocalDate paymentEnd = LocalDate.of(currentDate.getYear(), Month.AUGUST, 31);
+
+
+        // Early-renewal window: Sept 1 this year -> Jan 1 next year. The
+        // September suspend check runs right as a new cycle opens, so an
+        // institution that renews right at (or shortly after) that point - like
+        // institution 00147, whose only payments are Sept 9-14, 2026, entirely
+        // after the primary window's Aug 31 cutoff - needs that payment
+        // recognized immediately rather than waiting for next year's window.
+        LocalDate earlyRenewalStart = LocalDate.of(currentDate.getYear(), Month.SEPTEMBER, 1);
+        LocalDate earlyRenewalEnd = LocalDate.of(currentDate.getYear() + 1, Month.JANUARY, 1);
 
         // Create lookup map for faster institution account access
         Map<String, List<InstitutionAccount>> accountsByInstitution = InstitutionAccountUtil.institutionAccountsGlobalList.stream()
@@ -43,7 +54,8 @@ public class Cron {
             List<InstitutionAccount> accounts = accountsByInstitution.get(beceCode);
 
             boolean hasPayment = accounts != null && accounts.stream()
-                    .anyMatch(account -> isWithinPaymentPeriod(account.getActivationDate(), paymentStart, paymentEnd));
+                    .anyMatch(account -> isWithinPaymentPeriod(account.getActivationDate(), paymentStart, paymentEnd)
+                            || isWithinPaymentPeriod(account.getActivationDate(), earlyRenewalStart, earlyRenewalEnd));
 
             if (!hasPayment && shouldSuspend(institution, currentDate)) {
                 institution.setStatus("suspended");
@@ -53,22 +65,34 @@ public class Cron {
     }
 
     private boolean isWithinPaymentPeriod(String activationDate, LocalDate start, LocalDate end) {
+
         try {
-            LocalDate date = LocalDate.parse(activationDate);
-            return !date.isBefore(start) && !date.isAfter(end);
+            return isWithinRange(LocalDate.parse(activationDate), start, end);
+        } catch (Exception ignored) {
+            // fall through to LocalDateTime parsing below
+        }
+        try {
+            return isWithinRange(java.time.LocalDateTime.parse(activationDate).toLocalDate(), start, end);
         } catch (Exception e) {
             return false; // Handle invalid dates as non-payment
         }
     }
 
+    private boolean isWithinRange(LocalDate date, LocalDate start, LocalDate end) {
+        return !date.isBefore(start) && !date.isAfter(end);
+    }
+
     private boolean shouldSuspend(Institution institution, LocalDate currentDate) {
         LocalDate creationDate = institution.getCreationDate();
         Month currentMonth = currentDate.getMonth();
-        String subscription = institution.getSubscription();
 
-        return (!subscription.contains("Free") &&
-                ((currentMonth == Month.SEPTEMBER && creationDate.isBefore(currentDate.minusMonths(5)))
-                        || (currentMonth == Month.MARCH)));
+        SubscriptionPlan plan = SubscriptionPlan.fromLabel(institution.getSubscription());
+        if (plan == SubscriptionPlan.STARTER) {
+            return false;
+        }
+
+        return ((currentMonth == Month.SEPTEMBER && creationDate.isBefore(currentDate.minusMonths(5)))
+                || (currentMonth == Month.MARCH));
     }
 
 }

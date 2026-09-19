@@ -13,6 +13,10 @@ public class SaveGeofenceBoundaryRequest {
     private List<GeoPoint> boundary;
     @NonNull
     private String institution;
+    // Which campus this boundary belongs to. Omitted/blank defaults to
+    // "Main Campus" (see GeoCoordinateService) so existing single-campus
+    // callers don't need to change anything.
+    private String campusName;
 
     @NoArgsConstructor
     @AllArgsConstructor

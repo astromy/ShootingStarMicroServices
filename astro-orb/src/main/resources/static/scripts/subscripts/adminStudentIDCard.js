@@ -24,22 +24,9 @@
     })();
 
     // ── CSS ──────────────────────────────────────────────────────────────────
-    (function () {
-        if (!document.getElementById('admIDCSS')) {
-            var l = document.createElement('link');
-            l.id = 'admIDCSS';
-            l.rel = 'stylesheet';
-            l.href = _base + '../../styles/style.css';
-            document.head.appendChild(l);
-        }
-        if (!document.getElementById('fcDesignCSS')) {
-            var d = document.createElement('link');
-            d.id = 'fcDesignCSS';
-            d.rel = 'stylesheet';
-            d.href = _base + '../../styles/fc-design-system.css';
-            document.head.appendChild(d);
-        }.,
-    })();
+    // style.css is already loaded globally by the base template; no need to
+    // re-inject it here. (Also removed a dead reference to a
+    // styles/fc-design-system.css file that doesn't exist in this project.)
 
     // ── DOM ──────────────────────────────────────────────────────────────────
     function buildDOM() {

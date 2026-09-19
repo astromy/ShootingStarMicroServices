@@ -147,6 +147,7 @@
             window.feeCollState.paymentHistory = result || [];
             return result || [];
         } catch (e) {
+            console.error('[_financeFeeCollection] feeCollFetchHistory error:', e);
             return [];
         }
     };
@@ -219,5 +220,32 @@
 
     if (window.copyrights) window.copyrights();
     feeCollLoad();
+
+
+    // ── DIRECT STUDENT ID SEARCH ─────────────────────────────────────────────
+    window.feeCollFetchByStudentId = async function (studentId) {
+        if (!studentId) return null;
+        showSplash();
+        try {
+            var [bill, history] = await Promise.all([
+                fetchPost('getStudentBillByIdAndInstitution', {
+                    institutionCode: _inst,
+                    studentId: studentId,
+                }),
+                fetchPost('get-billPayments-by-student', {
+                    institutionCode: _inst,
+                    name: studentId,
+                }),
+            ]);
+            window.feeCollState.studentBill = bill || null;
+            window.feeCollState.paymentHistory = history || [];
+            hideSplash();
+            return {bill: bill, history: history || []};
+        } catch (e) {
+            hideSplash();
+            console.error('[_financeFeeCollection] fetchByStudentId error:', e);
+            return null;
+        }
+    };
 
 })();

@@ -13,4 +13,5 @@ public class GeoCoordinateResponse {
     private Long idGeoCoordinate;
     private Double latitude;
     private Double longitude;
+    private String campusName;
 }

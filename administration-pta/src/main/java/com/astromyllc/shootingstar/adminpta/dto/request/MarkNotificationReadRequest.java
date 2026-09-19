@@ -13,5 +13,5 @@ public class MarkNotificationReadRequest {
     private String institutionCode;
     private String recipientContact;
     private String notificationId;
-    private String kind; // "ANNOUNCEMENT" | "EMERGENCY" | "VOICE"
+    private String kind;
 }

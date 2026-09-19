@@ -130,7 +130,7 @@ $(function () {
 
     <!-- Add / Edit Question Modal -->
     <div class="modal fade hmodal-info" id="questionModal" tabindex="-1" role="dialog">
-        <div class="modal-dialog" style="margin: 60px auto; width: 700px;">
+        <div class="modal-dialog modal-lg" style="margin: 60px auto; width: 700px;">
             <div class="modal-content">
                 <div class="color-line"></div>
                 <div class="modal-header">

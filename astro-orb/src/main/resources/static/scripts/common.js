@@ -88,6 +88,33 @@ links.forEach((anchor) => {
     }
 });
 
+// ─── Subscription-tier gating ──────────────────────────────────────────────
+// Same idea as the permission-based hiding above, but keyed off the
+// institution's subscription plan instead of the logged-in staff member's
+// role. Elements (either a whole module <li> or a single .functionalGroup
+// link) tagged with data-required-plan="GROWTH"/"ENTERPRISE" are hidden
+// unless the institution's current plan meets that tier, regardless of
+// whether the user otherwise has permission to see them.
+//
+// This is UI-level only, same as the permission hiding above — a user could
+// still reach an un-permitted or un-subscribed page by guessing the URL.
+// The real gate is server-side: SubscriptionEnforcementInterceptor rejects
+// the request either way. This just keeps the nav from advertising features
+// the institution hasn't subscribed to.
+const PLAN_LEVELS = {STARTER: 0, GROWTH: 1, ENTERPRISE: 2};
+const subscriptionPlanMeta = $("meta[name='subscriptionPlan']").attr("content");
+const currentPlanLevel = PLAN_LEVELS.hasOwnProperty(subscriptionPlanMeta)
+    ? PLAN_LEVELS[subscriptionPlanMeta]
+    : PLAN_LEVELS.ENTERPRISE; // unknown/missing plan -> fail open, mirrors the backend's fallback
+
+document.querySelectorAll("[data-required-plan]").forEach((el) => {
+    const requiredPlan = el.getAttribute("data-required-plan");
+    const requiredLevel = PLAN_LEVELS.hasOwnProperty(requiredPlan) ? PLAN_LEVELS[requiredPlan] : 0;
+    if (currentPlanLevel < requiredLevel) {
+        el.style.display = "none";
+    }
+});
+
 depGroups.forEach((anchor) => {
     const plainText = anchor.textContent.trim().toLowerCase();
     if (
@@ -265,6 +292,15 @@ function addEventListeners() {
     // LIBRARY
     safeOn("libraryCatalogue", libraryCatalogueBuild);
     safeOn("libraryCirculation", libraryCirculationBuild);
+
+    // CLINIC (existing "Infairmary" sidebar section — vitals_recording /
+    // medical_history / diagnosis_recording were markup-only with no
+    // handler wired up; all three open the same clinic desk page below,
+    // since check-in/vitals/diagnosis are all captured on that one screen)
+    safeOn("vitals_recording", clinicBuild);
+    safeOn("medical_history", clinicBuild);
+    safeOn("diagnosis_recording", clinicBuild);
+    safeOn("clinicPharmacy", clinicPharmacyBuild);
 }
 
 // Utility to remove unwanted scripts/links
@@ -1888,6 +1924,77 @@ function libraryCirculationBuild() {
     const newScripts = [
         "vendor/sweetalert/lib/sweet-alert.min.js",
         "scripts/subscripts/libraryCirculation.js",
+    ];
+    const newLinks = [
+        "vendor/sweetalert/lib/sweet-alert.css",
+        "vendor/metisMenu/dist/metisMenu.css",
+        "vendor/animate.css/animate.css",
+        "vendor/datatables.net-bs/css/dataTables.bootstrap.min.css",
+        "styles/switch.css",
+    ];
+
+    removeUnwantedResources("script", activeScripts);
+    removeUnwantedResources("link", activeLinks);
+
+    addNewResources("script", newScripts);
+    addNewResources("link", newLinks);
+
+    newScripts.forEach((src) => activeScripts.add(src));
+    newLinks.forEach((href) => activeLinks.add(href));
+}
+
+
+//-------------------------------------------------------------------------------------------------------
+//--------------------- CLINIC -----------------------------------------------------------------------
+
+function clinicBuild(event) {
+
+    // Which sidebar item triggered this decides which tab the Clinic page
+    // opens on — vitals_recording/medical_history/diagnosis_recording are
+    // three distinct views inside one shared page, not the same screen
+    // three times over. See clinic.js for the tab definitions.
+    var sourceId = event && event.currentTarget && event.currentTarget.id;
+    var TAB_BY_MENU_ID = {
+        vitals_recording: 'checkin',
+        diagnosis_recording: 'diagnosis',
+        medical_history: 'history',
+    };
+    window.clinicStartTab = TAB_BY_MENU_ID[sourceId] || 'checkin';
+
+    // Only scripts/subscripts/clinic.js needs to be listed here — it loads
+    // scripts/_clinic.js itself at runtime, same as storesInventoryBuild()
+    // only lists storesInventory.js (which loads _storesInventory.js).
+    const newScripts = [
+        "vendor/sweetalert/lib/sweet-alert.min.js",
+        "scripts/subscripts/clinic.js",
+    ];
+    const newLinks = [
+        "vendor/sweetalert/lib/sweet-alert.css",
+        "vendor/metisMenu/dist/metisMenu.css",
+        "vendor/animate.css/animate.css",
+        "vendor/datatables.net-bs/css/dataTables.bootstrap.min.css",
+        "styles/switch.css",
+    ];
+
+    removeUnwantedResources("script", activeScripts);
+    removeUnwantedResources("link", activeLinks);
+
+    addNewResources("script", newScripts);
+    addNewResources("link", newLinks);
+
+    newScripts.forEach((src) => activeScripts.add(src));
+    newLinks.forEach((href) => activeLinks.add(href));
+}
+
+
+//-------------------------------------------------------------------------------------------------------
+//--------------------- PHARMACY -------------------------------------------------------------------------
+
+function clinicPharmacyBuild() {
+
+    const newScripts = [
+        "vendor/sweetalert/lib/sweet-alert.min.js",
+        "scripts/subscripts/clinicPharmacy.js",
     ];
     const newLinks = [
         "vendor/sweetalert/lib/sweet-alert.css",

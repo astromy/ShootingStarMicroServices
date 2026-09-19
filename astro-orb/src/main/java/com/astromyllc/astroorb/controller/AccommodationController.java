@@ -1,5 +1,8 @@
 package com.astromyllc.astroorb.controller;
 
+import com.astromyllc.astroorb.subscription.RequiresPlan;
+import com.astromyllc.astroorb.subscription.SubscriptionPlan;
+
 import com.astromyllc.astroorb.dto.request.BlockRequest;
 import com.astromyllc.astroorb.dto.request.SingleStringRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,6 +32,7 @@ import java.util.List;
 @Slf4j
 @ResponseBody
 @RequiredArgsConstructor
+@RequiresPlan(SubscriptionPlan.GROWTH)
 public class AccommodationController {
 
     @Value("${gateway.host}")

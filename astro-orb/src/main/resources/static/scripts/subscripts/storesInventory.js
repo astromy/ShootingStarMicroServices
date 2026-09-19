@@ -34,15 +34,8 @@
         return el.src.substring(0, el.src.lastIndexOf('/') + 1);
     })();
 
-    // ─── INJECT CSS / FONT AWESOME ──────────────────────────────────────────
-    (function injectCSS() {
-        if (document.getElementById('storesInventoryCSS')) return;
-        var link = document.createElement('link');
-        link.id = 'storesInventoryCSS';
-        link.rel = 'stylesheet';
-        link.href = _scriptBase + '../../styles/style.css';
-        document.head.appendChild(link);
-    })();
+    // ─── CSS ─────────────────────────────────────────────────────────────────
+    // style.css is already loaded globally by the base template.
 
     if (!document.querySelector('link[href*="font-awesome"], link[href*="fontawesome"]')) {
         var fa = document.createElement('link');

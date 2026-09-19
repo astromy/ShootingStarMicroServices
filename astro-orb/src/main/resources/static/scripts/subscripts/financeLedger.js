@@ -20,14 +20,7 @@
         return el && el.src ? el.src.substring(0, el.src.lastIndexOf('/') + 1) : '';
     })();
 
-    (function () {
-        if (document.getElementById('ledgerCSS')) return;
-        var l = document.createElement('link');
-        l.id = 'ledgerCSS';
-        l.rel = 'stylesheet';
-        l.href = _base + '../../styles/style.css';
-        document.head.appendChild(l);
-    })();
+    // style.css is already loaded globally by the base template.
 
     // ── TYPE META ─────────────────────────────────────────────────────────────
     var TYPE_META = {

@@ -37,7 +37,7 @@ public class AdministrationController {
     private final ObjectMapper objectMapper;
     @Value("${gateway.host}")
     private String backendserve;
-    @Value("${paystack.secrete}")
+    @Value("${paystack.secrete-key}")
     private String PAYSTACK_SECRET_KEY;
 
     private static String bytesToHex(byte[] bytes) {
@@ -366,6 +366,8 @@ public class AdministrationController {
                     serviceResponse = BACKENDCOMMPOST(jso, backendserve + "/api/administration-pta/subscriptionPaymentStatus");
                 } else if (jso.getData().getReference().contains("APPLICANT_")) {
                     serviceResponse = BACKENDCOMMPOST(jso, backendserve + "/api/administration-pta/subscriptionPaymentStatus");
+                } else if (jso.getData().getReference().toUpperCase().contains("UPGRADE")) {
+                    serviceResponse = BACKENDCOMMPOST(jso, backendserve + "/api/setup/upgradeSubscriptionPaymentStatus");
                 } else {
                     serviceResponse = BACKENDCOMMPOST(jso, backendserve + "/api/setup/reactivateInstitutionalAccount");
                 }

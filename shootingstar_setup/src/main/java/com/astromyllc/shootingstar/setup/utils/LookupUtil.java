@@ -3,23 +3,21 @@ package com.astromyllc.shootingstar.setup.utils;
 import com.astromyllc.shootingstar.setup.dto.request.LookupRequest;
 import com.astromyllc.shootingstar.setup.dto.response.LookupResponse;
 import com.astromyllc.shootingstar.setup.model.Lookup;
-import com.astromyllc.shootingstar.setup.repository.InstitutionRepository;
 import com.astromyllc.shootingstar.setup.repository.LookUpRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class LookupUtil {
-    private final LookUpRepository lookUpRepository;
     public static List<Lookup> lookupGlobalList = null;
+    private final LookUpRepository lookUpRepository;
 
     @PostConstruct
     private void findAllLookups() {
@@ -32,6 +30,7 @@ public class LookupUtil {
                 .id(l.getIdLookup())
                 .name(l.getName())
                 .type(l.getType())
+                .status(l.getStatus())
                 .build());
     }
 
@@ -40,6 +39,7 @@ public class LookupUtil {
                 .idLookup(l.getId())
                 .type(l.getType())
                 .name(l.getName())
+                .status(l.getStatus())
                 .build();
     }
 

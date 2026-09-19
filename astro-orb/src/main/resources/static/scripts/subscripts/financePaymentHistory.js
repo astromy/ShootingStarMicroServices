@@ -15,14 +15,7 @@
         return el && el.src ? el.src.substring(0, el.src.lastIndexOf('/') + 1) : '';
     })();
 
-    (function () {
-        if (document.getElementById('pyHistCSS')) return;
-        var l = document.createElement('link');
-        l.id = 'pyHistCSS';
-        l.rel = 'stylesheet';
-        l.href = _base + '../../styles/style.css';
-        document.head.appendChild(l);
-    })();
+    // style.css is already loaded globally by the base template.
 
     // ── DOM ──────────────────────────────────────────────────────────────────
     function buildDOM() {
@@ -151,12 +144,15 @@
                 '</tr>';
         }).join('');
 
-        // Wire drill-down buttons
+        // Wire drill-down buttons - the student is passed through by ID, as
+        // it always was, but the drill-down itself now fetches that
+        // student's history directly rather than being handed this table's
+        // (possibly filtered) rows.
         body.querySelectorAll('.ph-drill-btn').forEach(function (btn) {
             btn.addEventListener('click', async function () {
                 var studentId = this.dataset.id;
                 if (!studentId) return;
-                await openDrillDown(studentId, payments);
+                await openDrillDown(studentId);
             });
         });
     }
@@ -173,7 +169,16 @@
     }
 
     // ── DRILL-DOWN MODAL ─────────────────────────────────────────────────────
-    async function openDrillDown(studentId, allPayments) {
+    // Previously took the on-page `payments` array (whatever the current
+    // Year/Term/Method/search filters left standing) and filtered THAT by
+    // studentId - so a payment outside the active filters (e.g. one with no
+    // term/year set) never had a chance to show up here even though it
+    // belongs to this student. "All Payments" should mean all of them,
+    // independent of whatever the main table happens to be filtered to right
+    // now - so this now fetches the student's history directly, the same way
+    // (same endpoint, same confirmed request shape) Fee Collection already
+    // does via pyHistFetchStudentPayments.
+    async function openDrillDown(studentId) {
         var fmt = window.pyHistFmt;
         document.getElementById('phDrillBody').innerHTML =
             '<div class="fc-empty"><i class="fas fa-circle-notch fa-spin"></i> Loading account…</div>';
@@ -181,9 +186,7 @@
 
         var [bill, studentPayments] = await Promise.all([
             window.pyHistFetchStudentBill(studentId),
-            Promise.resolve(allPayments.filter(function (p) {
-                return p.studentId === studentId;
-            })),
+            window.pyHistFetchStudentPayments(studentId),
         ]);
 
         var billHtml = bill ? [

@@ -38,7 +38,7 @@ public class ParentService implements ParentServiceInterface {
     private final HttpClient httpClient = HttpClient.newHttpClient();
 
     private final ObjectMapper objectMapper;
-    @Value("${paystack.secrete}")
+    @Value("${paystack.secrete-key}")
     private String paystackSecretKey;
 
     @Override

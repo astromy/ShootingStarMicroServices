@@ -42,6 +42,7 @@ public class Bus {
     // staffCode string rather than a JPA relation. Resolve display details
     // (name, contact) via HR's getStaffByStaffCode when needed.
     private String driverStaffCode;
+    private String status;
 
     @ManyToOne
     @JoinColumn(name = "idRoute")

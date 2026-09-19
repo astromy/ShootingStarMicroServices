@@ -49,9 +49,135 @@ $(".next").click(function () {
     header.removeClass("btn-primary");
     header.addClass("btn-default");
     header1.next().removeClass("btn-default").addClass("btn-primary");
-    document.getElementById("client").innerHTML =
-        document.getElementsByName("clientName")[0].value;
+    var clientName = document.getElementsByName("clientName")[0].value;
+    document.getElementById("client").innerHTML = clientName;
+    var clientTermsEl = document.getElementById("clientTerms");
+    if (clientTermsEl) {
+        clientTermsEl.innerHTML = clientName;
+    }
+
+    // Step 3 (index 2) is "Review Application" - populate it with the
+    // values currently on the form, and if the selection is an upgrade,
+    // fetch and show the price so there are no surprises at submit time.
+    if (tabs.index(nextLi) === 2) {
+        populateReview();
+    }
 });
+
+$(document).on("click", "#readTermsLink", function (event) {
+    event.preventDefault();
+    $("#termsModal").modal("show");
+});
+
+/**
+ * Snapshot of the current form values (falling back to whatever was
+ * originally loaded for this institution) without the async image
+ * processing that full postdata() does - this just needs to be fast
+ * enough to run every time the review tab is opened.
+ */
+function currentFormSnapshot() {
+    return {
+        institution: $('[name="clientName"]').val() || originalData.name,
+        slogan: $('[name="slogan"]').val() || originalData.slogan,
+        country: $('[name="country"]').val() || originalData.country,
+        region: $('[name="region"]').val() || originalData.region,
+        city: $('[name="city"]').val() || originalData.city,
+        email: $('[name="email"]').val() || originalData.email,
+        contact1: $('[name="contact1"]').val() || originalData.contact1,
+        contact2: $('[name="contact2"]').val() || originalData.contact2,
+        bececode: $('[name="bececode"]').val() || originalData.bececode,
+        postalAddress: $('[name="postalAddress"]').val() || originalData.postalAddress,
+        streams: $('[name="streams"]').val() || originalData.streams,
+        population: $('[name="population"]').val() || originalData.population,
+        website: $('[name="website"]').val() || originalData.website,
+        subscription: selectPlan || originalData.subscription,
+    };
+}
+
+/**
+ * Live student count for the institution being reviewed, fetched fresh each
+ * time (not the "population" typed on Step 1, which is only a declared
+ * estimate) - same source the pricing calculator uses server-side. Returns
+ * null for a brand-new signup that has no institution code yet.
+ */
+async function fetchInstitutionPopulation(institutionCode) {
+    if (!institutionCode) {
+        return null;
+    }
+    try {
+        var v = instId.replace(/[\[\]']+/g, "");
+        v = v.replace(/\//g, "");
+        var instRequest = {val: v};
+        const response = await fetchPost('getInstitutionPopulation', instRequest);
+        if (!response.ok) {
+            return null;
+        }
+        const body = await response.json().catch(() => null);
+        return typeof body === 'number' ? body : null;
+    } catch (err) {
+        return null;
+    }
+}
+
+async function populateReview() {
+    var snap = currentFormSnapshot();
+    $('#reviewName').text(snap.institution || '-');
+    $('#reviewSlogan').text(snap.slogan || '-');
+    $('#reviewCountry').text(snap.country || '-');
+    $('#reviewRegion').text(snap.region || '-');
+    $('#reviewCity').text(snap.city || '-');
+    $('#reviewEmail').text(snap.email || '-');
+    $('#reviewContact1').text(snap.contact1 || '-');
+    $('#reviewContact2').text(snap.contact2 || '-');
+    $('#reviewPostal').text(snap.postalAddress || '-');
+    $('#reviewStreams').text(snap.streams || '-');
+    $('#reviewWebsite').text(snap.website || '-');
+
+    // The declared population from Step 1 is shown immediately as a
+    // placeholder; if this institution already exists, we replace it with
+    // the real enrolled count as soon as it comes back.
+    $('#reviewPopulation').text(snap.population || '-');
+    if (snap.bececode) {
+        fetchInstitutionPopulation(snap.bececode).then(function (livePopulation) {
+            if (livePopulation !== null && livePopulation !== undefined) {
+                $('#reviewPopulation').text(livePopulation);
+            }
+        });
+    }
+
+    $('#reviewPlanRow').show();
+    $('#reviewPlanName').text(snap.subscription || '-');
+    $('#reviewQuoteError').hide();
+    $('#reviewQuoteBody').hide();
+    $('#reviewNoChangeMsg').hide();
+    $('#reviewQuoteLoading').hide();
+
+    var wasUpgrade = isSubscriptionUpgrade(originalData.subscription, snap.subscription);
+    if (!wasUpgrade || !snap.bececode) {
+        // Same plan, a downgrade, or a brand-new institution that doesn't
+        // exist yet - none of these are billable through getUpgradeQuote
+        // (it rejects anything that isn't a genuine upgrade), so there's
+        // nothing to price. Just confirm the plan and move on.
+        $('#reviewNoChangeMsg').show();
+        return;
+    }
+
+    $('#reviewQuoteLoading').show();
+    var quote = await fetchUpgradeQuote({institutionCode: snap.bececode, targetPlan: snap.subscription});
+    $('#reviewQuoteLoading').hide();
+    if (!quote) {
+        $('#reviewQuoteError').show();
+        return;
+    }
+    // The quote's population figure is the same live count as above, just
+    // guaranteed fresh at the moment pricing was calculated - use it here
+    // too so the two numbers on screen can never disagree.
+    $('#reviewPopulation').text(quote.population);
+    $('#quotePopulation').text(quote.population);
+    $('#quoteRate').text('GHS ' + quote.ratePerStudent);
+    $('#quoteTotal').text('GHS ' + quote.totalAmount);
+    $('#reviewQuoteBody').show();
+}
 
 $("#submitRequest").click(async function () {
     $('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
@@ -60,6 +186,35 @@ $("#submitRequest").click(async function () {
         // Got to step 1
         //  $('[href=#step1]').tab('show');
         await postdata();
+
+        // If the selected plan is an upgrade from what the institution currently has,
+        // the payment has to succeed BEFORE any of this submission is accepted - not
+        // just the subscription field, the whole form. Re-submitting the wizard used
+        // to silently grant a higher plan for free; now it has to go through Paystack
+        // first. Downgrades (or leaving the plan unchanged) need no payment and go
+        // straight through, same as before.
+        var wasUpgrade = isSubscriptionUpgrade(originalData.subscription, subscription);
+        if (wasUpgrade) {
+            $('.splash').css('display', 'none');
+
+            var paid = await initiateUpgradePayment({
+                institutionCode: bececode,
+                email: email,
+                targetPlan: subscription,
+            });
+
+            if (!paid) {
+                swal({
+                    title: "Upgrade not completed",
+                    text: "Payment wasn't completed, so nothing was submitted or changed.",
+                    type: "warning",
+                });
+                return;
+            }
+
+            $('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
+        }
+
         var jso = buildJson();
         // Serialize data to post method
         var datastring = $("#simpleForm").serialize();
@@ -72,7 +227,9 @@ $("#submitRequest").click(async function () {
             $('.splash').css('display', 'none')
             swal({
                 title: "Thank you!",
-                text: "Operation processed successfully",
+                text: wasUpgrade
+                    ? "Payment received and your details were saved. Your plan upgrade is being processed and should reflect shortly."
+                    : "Operation processed successfully",
                 type: "success",
             });
         });
@@ -522,9 +679,15 @@ function displayFetchInstitution(result) {
 
     Array.from(document.getElementsByClassName("subscriptionPlan")).forEach(
         function (s) {
-            if (s.innerHTML == result.subscription) {
-                var t = s.closest(".subscriptionOption");
+            var normalized = s.textContent.replace(/\s+/g, " ").trim();
+            var t = s.closest(".subscriptionOption");
+            var badge = t.querySelector(".currentPlanBadge");
+            if (normalized === (result.subscription || "").trim()) {
                 t.classList.add("active");
+                if (badge) badge.style.display = "";
+            } else {
+                t.classList.remove("active");
+                if (badge) badge.style.display = "none";
             }
         }
     );

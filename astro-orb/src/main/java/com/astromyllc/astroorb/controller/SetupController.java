@@ -1,6 +1,9 @@
 package com.astromyllc.astroorb.controller;
 
 import com.astromyllc.astroorb.dto.request.*;
+import com.astromyllc.astroorb.subscription.InstitutionSubscriptionService;
+import com.astromyllc.astroorb.subscription.RequiresPlan;
+import com.astromyllc.astroorb.subscription.SubscriptionPlan;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +12,8 @@ import org.keycloak.representations.idm.authorization.PermissionRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,8 +37,21 @@ import java.util.List;
 @Slf4j
 public class SetupController {
 
+    private final InstitutionSubscriptionService subscriptionService;
     @Value("${gateway.host}")
     private String backendserve;
+
+    // Lets the mobile app proactively check the institution's plan (to grey out
+    // locked features in its own nav, same idea as the web dashboard's nav
+    // hiding) instead of only finding out by getting blocked on a gated
+    // endpoint. Institution code comes from the caller's own JWT ("groups[0]"),
+    // not a client-supplied value, so there's nothing to spoof here.
+    @ResponseBody
+    @RequestMapping(value = "api/mobile/getSubscriptionPlan", method = RequestMethod.GET)
+    public ResponseEntity<String> getSubscriptionPlanForMobile(@AuthenticationPrincipal Jwt jwt) {
+        SubscriptionPlan plan = subscriptionService.resolvePlanForJwt(jwt);
+        return ResponseEntity.ok("{\"subscriptionPlan\":\"" + plan.name() + "\"}");
+    }
 
 
     @ResponseBody
@@ -81,12 +99,20 @@ public class SetupController {
         return response;
     }
 
-
     @ResponseBody
     @RequestMapping(value = "addAdmissions", method = RequestMethod.POST)
     public ResponseEntity<String> addAdmissions(@RequestBody AdmissionsEntryRequest jso) throws IOException, InterruptedException {
         log.info("REQUEST ADDING ADMISSIONS OF..... {}", jso);
         ResponseEntity<String> response = BACKENDCOMMPOST(jso, backendserve + "/api/setup/addAdmissionSetup");
+        log.info("Adding Admissions Feed from Setup  \n ==> {}", response.getStatusCode());
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "getInstitutionPopulation", method = RequestMethod.POST)
+    public ResponseEntity<String> getInstitutionPopulation(@RequestBody SingleStringRequest jso) throws IOException, InterruptedException {
+        log.info("REQUEST STUDENT POPULATION OF..... {}", jso);
+        ResponseEntity<String> response = BACKENDCOMMPOST(jso, backendserve + "/api/setup/getInstitutionPopulation");
         log.info("Adding Admissions Feed from Setup  \n ==> {}", response.getStatusCode());
         return response;
     }
@@ -137,6 +163,18 @@ public class SetupController {
         log.info("REQUEST GET INSTITUTION BY CODE OF..... {}", jso);
         ResponseEntity<String> response = BACKENDCOMMPOST(jso, backendserve + "/api/setup/getInstitutionStatus");
         log.info("Institution Feed from Setup  \n ==> {}", response.getStatusCode());
+        return response;
+    }
+
+    // Deliberately NOT gated by @RequiresPlan: this is how a Starter/Growth
+    // institution checks what upgrading would cost, so it has to be reachable
+    // regardless of the institution's current plan.
+    @ResponseBody
+    @RequestMapping(value = "getUpgradeQuote", method = RequestMethod.POST)
+    public ResponseEntity<String> getUpgradeQuote(@RequestBody UpgradeQuoteRequest jso) throws IOException, InterruptedException {
+        log.info("REQUEST getUpgradeQuote OF..... {}", jso);
+        ResponseEntity<String> response = BACKENDCOMMPOST(jso, backendserve + "/api/setup/getUpgradeQuote");
+        log.info("Upgrade quote Feed from Setup  \n ==> {}", response.getStatusCode());
         return response;
     }
 
@@ -260,6 +298,10 @@ public class SetupController {
         return response;
     }
 
+    // "Geo-fencing & Staff Attendance" is a Growth-plan feature. Now actively enforced
+    // for mobile too — SubscriptionEnforcementInterceptor resolves the institution from
+    // the JWT's "groups" claim for /api/mobile/** requests.
+    @RequiresPlan(SubscriptionPlan.GROWTH)
     @ResponseBody
     @RequestMapping(value = "api/mobile/getGeofenceBoundary", method = RequestMethod.POST)
     public ResponseEntity<String> getGeofenceBoundary(@RequestBody SingleStringRequest jso) throws IOException, InterruptedException {
@@ -267,6 +309,7 @@ public class SetupController {
         return response;
     }
 
+    @RequiresPlan(SubscriptionPlan.GROWTH)
     @ResponseBody
     @RequestMapping(value = "api/mobile/saveGeofenceBoundary", method = RequestMethod.POST)
     public ResponseEntity<String> saveGeofenceBoundary(@RequestBody SaveGeofenceBoundaryRequest jso) throws IOException, InterruptedException {
@@ -275,11 +318,35 @@ public class SetupController {
         return response;
     }
 
+    @RequiresPlan(SubscriptionPlan.GROWTH)
     @ResponseBody
     @RequestMapping(value = "api/mobile/updateGeofenceBoundary", method = RequestMethod.POST)
     public ResponseEntity<String> updateGeofenceBoundary(@RequestBody SaveGeofenceBoundaryRequest jso) throws IOException, InterruptedException {
         log.info("Persisting GeofenceBoundary Coordinates OF..... {}", jso);
         ResponseEntity<String> response = BACKENDCOMMPOST(jso, backendserve + "/api/setup/updateGeofenceBoundary");
+        return response;
+    }
+
+    @RequiresPlan(SubscriptionPlan.GROWTH)
+    @ResponseBody
+    @RequestMapping(value = "api/mobile/getCampusNames", method = RequestMethod.POST)
+    public ResponseEntity<String> getCampusNames(@RequestBody SingleStringRequest jso) throws IOException, InterruptedException {
+        ResponseEntity<String> response = BACKENDCOMMPOST(jso, backendserve + "/api/setup/getCampusNames");
+        return response;
+    }
+
+    // Adding a genuinely NEW campus beyond the institution's first is further
+    // gated to Enterprise specifically (not just Growth) by
+    // GeoCoordinateService#assertCanAddCampus on the backend - this
+    // @RequiresPlan(GROWTH) only covers geofencing as a feature at all, same
+    // as the other geofence endpoints above. A Growth institution can still
+    // reach this endpoint; it'll just get rejected server-side if it's not
+    // editing its one existing campus.
+    @RequiresPlan(SubscriptionPlan.GROWTH)
+    @ResponseBody
+    @RequestMapping(value = "api/mobile/deleteCampus", method = RequestMethod.POST)
+    public ResponseEntity<String> deleteCampus(@RequestBody SaveGeofenceBoundaryRequest jso) throws IOException, InterruptedException {
+        ResponseEntity<String> response = BACKENDCOMMPOST(jso, backendserve + "/api/setup/deleteCampus");
         return response;
     }
 
@@ -319,6 +386,14 @@ public class SetupController {
     public ResponseEntity<String> getInstitutionRoutes(@RequestBody SingleStringRequest jso) throws IOException, InterruptedException {
         log.info("REQUEST getInstitutionRoutes OF..... {}", jso);
         return BACKENDCOMMPOST(jso, backendserve + "/api/setup/getInstitutionRoutes");
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/public/getAllInstitution", method = RequestMethod.POST)
+    public ResponseEntity<String> getAllInstitution(@RequestBody SingleStringRequest jso) throws IOException, InterruptedException {
+        ResponseEntity<String> response = BACKENDCOMMPOST(jso, backendserve + "/api/setup/getAllinstitutionForWeb");
+        log.info("All institutions Feed from Setup  \n ==> {}", response.getStatusCode());
+        return response;
     }
 
 

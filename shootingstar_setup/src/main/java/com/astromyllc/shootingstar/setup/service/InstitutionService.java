@@ -1,19 +1,21 @@
 package com.astromyllc.shootingstar.setup.service;
 
+import com.astromyllc.shootingstar.setup.dto.paystack.CustomField;
 import com.astromyllc.shootingstar.setup.dto.paystack.PaystackPaymentResponse;
-import com.astromyllc.shootingstar.setup.dto.request.InstitutionAccountRequest;
-import com.astromyllc.shootingstar.setup.dto.request.InstitutionRequest;
-import com.astromyllc.shootingstar.setup.dto.request.PreOrderInstitutionRequest;
-import com.astromyllc.shootingstar.setup.dto.request.SingleStringRequest;
+import com.astromyllc.shootingstar.setup.dto.request.*;
 import com.astromyllc.shootingstar.setup.dto.response.InstitutionResponse;
 import com.astromyllc.shootingstar.setup.dto.response.PreOrderInstitutionResponse;
 import com.astromyllc.shootingstar.setup.dto.response.SkimpInstitutionResponse;
+import com.astromyllc.shootingstar.setup.dto.response.UpgradeQuoteResponse;
 import com.astromyllc.shootingstar.setup.model.Institution;
 import com.astromyllc.shootingstar.setup.model.InstitutionAccount;
 import com.astromyllc.shootingstar.setup.model.PreOrderInstitution;
 import com.astromyllc.shootingstar.setup.repository.InstitutionRepository;
 import com.astromyllc.shootingstar.setup.repository.PreOrderInstitutionRepository;
 import com.astromyllc.shootingstar.setup.serviceInterface.InstitutionServiceInterface;
+import com.astromyllc.shootingstar.setup.subscription.PricingResult;
+import com.astromyllc.shootingstar.setup.subscription.SubscriptionPlan;
+import com.astromyllc.shootingstar.setup.subscription.SubscriptionPricingCalculator;
 import com.astromyllc.shootingstar.setup.utils.InstitutionAccountUtil;
 import com.astromyllc.shootingstar.setup.utils.InstitutionUtils;
 import jakarta.transaction.Transactional;
@@ -22,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -37,6 +40,7 @@ public class InstitutionService implements InstitutionServiceInterface {
     private final PreOrderInstitutionRepository preOrderInstitutionRepository;
     private final InstitutionUtils institutionUtils;
     private final InstitutionAccountUtil institutionAccountUtil;
+    private final SubscriptionPricingCalculator subscriptionPricingCalculator;
 
     @Override
     public InstitutionResponse createInstitution(InstitutionRequest institutionRequest) throws IOException {
@@ -103,6 +107,29 @@ public class InstitutionService implements InstitutionServiceInterface {
                     .map(institution -> {
                         try {
                             return institutionUtils.mapInstitutionToInstitutionResponse(institution);
+                        } catch (IOException e) {
+                            throw new RuntimeException("Failed to map institution: " + institution.getIdInstitution(), e);
+                        }
+                    })
+                    .toList());
+        } catch (RuntimeException e) {
+            if (e.getCause() instanceof IOException) {
+                // Handle the IOException case specifically
+                log.error("IO error processing institutions: {}", e.getMessage());
+                return Optional.empty(); // or return some default value
+            }
+            throw e; // Re-throw if it's a different RuntimeException
+        }
+    }
+
+    @Override
+    public Optional<List<InstitutionResponse>> getAllinstitutionForWeb() {
+        try {
+            return Optional.of(InstitutionUtils.institutionGlobalList.stream()
+                    .filter(i -> i.getGradingSetting() != null && i.getClassList() != null && i.getSubjectList() != null && i.getDepartmentList() != null)
+                    .map(institution -> {
+                        try {
+                            return institutionUtils.mapInstitutionToInstitutionResponseForWeb(institution);
                         } catch (IOException e) {
                             throw new RuntimeException("Failed to map institution: " + institution.getIdInstitution(), e);
                         }
@@ -225,7 +252,7 @@ public class InstitutionService implements InstitutionServiceInterface {
 
         if (paymentStatus == null || paymentAmount == null
                 || !paymentStatus.equalsIgnoreCase("success")
-                || !Objects.equals(paymentAmount, si.getPendingBill())) {
+                || paymentAmount.compareTo(si.getPendingBill()) < 0) {
             log.warn("Ignoring webhook: status={}, amount={}, expected={}, reference={}",
                     paymentStatus, paymentAmount, si.getPendingBill(), reference);
             return Optional.empty();
@@ -239,6 +266,135 @@ public class InstitutionService implements InstitutionServiceInterface {
         institutionRepository.save(institution);
 
         return Optional.of("Account Reactivated for " + institutionCode);
+    }
+
+    @Override
+    public Long getInstitutionPopulation(SingleStringRequest institutionCode) throws IOException {
+        Institution institution = InstitutionUtils.institutionGlobalList.stream()
+                .filter(inst -> inst.getBececode().equalsIgnoreCase(institutionCode.getVal()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Unknown institution code " + institutionCode.getVal()));
+
+        return institutionUtils.getPopulation(institution.getBececode());
+    }
+
+    @Override
+    public UpgradeQuoteResponse getUpgradeQuote(UpgradeQuoteRequest request) throws IOException {
+        Institution institution = InstitutionUtils.institutionGlobalList.stream()
+                .filter(inst -> inst.getBececode().equalsIgnoreCase(request.getInstitutionCode()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Unknown institution code " + request.getInstitutionCode()));
+
+        SubscriptionPlan currentPlan = SubscriptionPlan.fromLabel(institution.getSubscription());
+        SubscriptionPlan targetPlan = SubscriptionPlan.fromLabel(request.getTargetPlan());
+
+        if (!targetPlan.isHigherThan(currentPlan)) {
+            throw new IllegalArgumentException(
+                    "Institution " + request.getInstitutionCode() + " is already on " + currentPlan
+                            + "; cannot \"upgrade\" to " + targetPlan + ".");
+        }
+
+        long population = institutionUtils.getPopulation(institution.getBececode());
+        PricingResult pricing = subscriptionPricingCalculator.calculate(population, targetPlan);
+
+        return UpgradeQuoteResponse.builder()
+                .institutionCode(institution.getBececode())
+                .currentPlan(currentPlan.name())
+                .targetPlan(targetPlan.name())
+                .population(pricing.population())
+                .ratePerStudent(pricing.ratePerStudent())
+                .totalAmount(pricing.totalAmount())
+                .currency("GHS")
+                .amountInSubunit(pricing.totalAmount().multiply(BigDecimal.valueOf(100)).longValueExact())
+                .build();
+    }
+
+    @Override
+    public Optional<String> upgradeSubscriptionPaymentStatus(PaystackPaymentResponse paystack) throws IOException {
+        String paymentStatus = paystack.getData().getStatus();
+        Double paymentAmount = paystack.getData().getAmount();
+        String reference = paystack.getData().getReference();
+        List<CustomField> customFields =
+                paystack.getData().getMetadata() != null ? paystack.getData().getMetadata().getCustomFields() : null;
+
+        String institutionCode = findCustomFieldValue(customFields, "institutionCode");
+        String targetPlanRaw = findCustomFieldValue(customFields, "targetPlan");
+
+        if (institutionCode == null || targetPlanRaw == null) {
+            log.warn("Upgrade webhook missing institutionCode/targetPlan in metadata (reference={})", reference);
+            return Optional.empty();
+        }
+
+        Institution institution = InstitutionUtils.institutionGlobalList.stream()
+                .filter(inst -> inst.getBececode().equalsIgnoreCase(institutionCode))
+                .findFirst()
+                .orElse(null);
+
+        if (institution == null) {
+            log.warn("Upgrade webhook for unknown institution code {} (reference={})", institutionCode, reference);
+            return Optional.empty();
+        }
+
+        SubscriptionPlan currentPlan = SubscriptionPlan.fromLabel(institution.getSubscription());
+        SubscriptionPlan targetPlan = SubscriptionPlan.fromLabel(targetPlanRaw);
+
+        if (!targetPlan.isHigherThan(currentPlan)) {
+            log.info("Ignoring duplicate/stale upgrade webhook — institution {} already on {} (reference={})",
+                    institutionCode, currentPlan, reference);
+            return Optional.of("Institution " + institutionCode + " is already on " + currentPlan + " or higher");
+        }
+
+        // Recompute population and the expected charge fresh, server-side - never trust a
+        // client-supplied amount, same principle as reactivateInstitutionalAccount above.
+        long population;
+        PricingResult expected;
+        try {
+            population = institutionUtils.getPopulation(institutionCode);
+            expected = subscriptionPricingCalculator.calculate(population, targetPlan);
+        } catch (IllegalArgumentException e) {
+            log.warn("Cannot verify upgrade charge for {} (population invalid, e.g. zero/negative): {}",
+                    institutionCode, e.getMessage());
+            return Optional.empty();
+        }
+
+        long expectedSubunit = expected.totalAmount().multiply(BigDecimal.valueOf(100)).longValueExact();
+        long paidSubunit = paymentAmount == null ? -1 : Math.round(paymentAmount);
+
+        if (paymentStatus == null || !paymentStatus.equalsIgnoreCase("success") || paidSubunit < expectedSubunit) {
+            log.warn("Ignoring upgrade webhook: status={}, paidSubunit={}, expectedSubunit={}, reference={}",
+                    paymentStatus, paidSubunit, expectedSubunit, reference);
+            return Optional.empty();
+        }
+
+        institution.setSubscription(targetPlan.storageLabel());
+        institutionRepository.save(institution);
+
+        // Fuse this into the same annual-payment tracking reactivateInstitutionalAccount
+        // already uses (see Cron#updateInstitutionStatus): it looks for an
+        // InstitutionAccount record dated within the current Sept-Aug payment period to
+        // decide whether an institution has paid this year. Without logging one here, a
+        // mid-year upgrade payment would be invisible to that check, and the institution
+        // could still get suspended in September/March despite having just paid.
+        List<InstitutionAccount> sa = new ArrayList<>();
+        sa.add(InstitutionAccountUtil.mapInstitutionAccountRequest_ToInstitutionAccount(
+                new InstitutionAccountRequest(institutionCode, "active"), institutionCode));
+        institutionAccountUtil.saveAll(sa);
+
+        log.info("Institution {} upgraded {} -> {} (population={}, amount={} GHS, reference={})",
+                institutionCode, currentPlan, targetPlan, population, expected.totalAmount(), reference);
+
+        return Optional.of("Plan upgraded to " + targetPlan + " for " + institutionCode);
+    }
+
+    private String findCustomFieldValue(List<CustomField> customFields, String variableName) {
+        if (customFields == null) {
+            return null;
+        }
+        return customFields.stream()
+                .filter(cf -> variableName.equalsIgnoreCase(cf.getVariableName()))
+                .map(CustomField::getValue)
+                .findFirst()
+                .orElse(null);
     }
 
 }

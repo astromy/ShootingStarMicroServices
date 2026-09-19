@@ -24,8 +24,11 @@ public class GradingSetting {
     private Double examsPercentage;
     private Double trailingMark;
     private int allowedTrails;
-    @OneToMany(fetch = FetchType.EAGER,targetEntity =Grading.class, cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "gradeSettingGrading",referencedColumnName = "idGradingSetting")
+    @Builder.Default
+    private String status = "active";
+
+    @OneToMany(fetch = FetchType.EAGER, targetEntity = Grading.class, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "gradeSettingGrading", referencedColumnName = "idGradingSetting")
     private List<Grading> gradingList;
 
     @ManyToOne

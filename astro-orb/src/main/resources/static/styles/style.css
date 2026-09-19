@@ -722,7 +722,7 @@ body.blank {
 .vertical-timeline-content .vertical-date {
     font-weight: 500;
     text-align: right;
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .vertical-date small {
@@ -762,7 +762,7 @@ body.blank {
     }
 
     .vertical-timeline-content p {
-        font-size: 13px;
+        font-size: 14px;
     }
 }
 
@@ -775,7 +775,7 @@ body.blank {
 }
 
 .contact-panel p {
-    font-size: 11px;
+    font-size: 14px;
     line-height: 16px;
     margin-bottom: 0;
 }
@@ -790,7 +790,7 @@ body.blank {
 }
 
 .contact-stat span {
-    font-size: 10px;
+    font-size: 14px;
     font-weight: 500;
     display: block;
     color: #9d9fa2;
@@ -1117,7 +1117,7 @@ body.blank {
 }
 
 .message-date {
-    font-size: 10px;
+    font-size: 14px;
     color: #888888;
 }
 
@@ -1186,7 +1186,7 @@ body.blank {
 .header-line div span {
     font-weight: 400;
     display: block;
-    font-size: 12px;
+    font-size: 14px;
     color: rgba(255, 255, 255, 0.6);
 }
 
@@ -1204,9 +1204,46 @@ body.blank {
     width: 100%;
 }
 
+/* ── HOMER 5 THEME TOKENS ──────────────────────────────────────────────
+   Canonical button/radius tokens for the whole ORB frontend, modeled on
+   WebAppLayers' Homer 5 (Bootstrap 5) admin theme palette. Existing
+   page-scoped systems (.bs-page, .hr-page, .fc-page, etc.) keep their own
+   local --accent/--accent2/--danger variables; these are separate,
+   site-wide tokens so every plain .btn-primary/.btn-success/etc. across
+   Setup, HR, and Finance renders consistently even outside those scopes. */
+:root {
+    --hm-blue: #3E5FD9;
+    --hm-blue-dark: #2E48B0;
+    --hm-blue-light: #5578E0;
+    --hm-purple: #7C5CFC;
+    --hm-green: #24B47E;
+    --hm-red: #EF5350;
+    --hm-amber: #FFB020;
+    --hm-teal: #2CA8D2;
+    --hm-radius: 6px;
+    --hm-radius-lg: 10px;
+}
+
 /* Buttons */
 .btn {
-    border-radius: 3px;
+    border-radius: var(--hm-radius);
+    padding: 8px 18px;
+    font-weight: 600;
+    transition: filter .15s ease, box-shadow .15s ease;
+}
+
+.btn:hover {
+    filter: brightness(1.06);
+}
+
+.btn-sm {
+    padding: 5px 12px;
+    font-weight: 600;
+}
+
+.btn-lg {
+    padding: 12px 26px;
+    font-weight: 600;
 }
 
 .float-e-margins .btn {
@@ -1254,8 +1291,8 @@ body.blank {
 }
 
 .btn-primary {
-    background-color: #34495e;
-    border-color: #34495e;
+    background-color: var(--hm-blue);
+    border-color: var(--hm-blue);
     color: #FFFFFF;
 }
 
@@ -1264,8 +1301,8 @@ body.blank {
 .btn-primary:active,
 .btn-primary.active,
 .open .dropdown-toggle.btn-primary {
-    background-color: #3f5872;
-    border-color: #3f5872;
+    background-color: var(--hm-blue-light);
+    border-color: var(--hm-blue-light);
     color: #FFFFFF;
 }
 
@@ -1290,8 +1327,8 @@ fieldset[disabled] .btn-primary:hover,
 fieldset[disabled] .btn-primary:focus,
 fieldset[disabled] .btn-primary:active,
 fieldset[disabled] .btn-primary.active {
-    background-color: #293a4a;
-    border-color: #293a4a;
+    background-color: var(--hm-blue-dark);
+    border-color: var(--hm-blue-dark);
 }
 
 .btn-primary2 {
@@ -1336,8 +1373,8 @@ fieldset[disabled] .btn-primary2.active {
 }
 
 .btn-success {
-    background-color: #62cb31;
-    border-color: #62cb31;
+    background-color: var(--hm-green);
+    border-color: var(--hm-green);
     color: #FFFFFF;
 }
 
@@ -1346,8 +1383,8 @@ fieldset[disabled] .btn-primary2.active {
 .btn-success:active,
 .btn-success.active,
 .open .dropdown-toggle.btn-success {
-    background-color: #74d348;
-    border-color: #74d348;
+    background-color: #3BC793;
+    border-color: #3BC793;
     color: #FFFFFF;
 }
 
@@ -1372,13 +1409,13 @@ fieldset[disabled] .btn-success:hover,
 fieldset[disabled] .btn-success:focus,
 fieldset[disabled] .btn-success:active,
 fieldset[disabled] .btn-success.active {
-    background-color: #56b22b;
-    border-color: #56b22b;
+    background-color: #1C8F63;
+    border-color: #1C8F63;
 }
 
 .btn-info {
-    background-color: #3498db;
-    border-color: #3498db;
+    background-color: var(--hm-teal);
+    border-color: var(--hm-teal);
     color: #FFFFFF;
 }
 
@@ -1387,8 +1424,8 @@ fieldset[disabled] .btn-success.active {
 .btn-info:active,
 .btn-info.active,
 .open .dropdown-toggle.btn-info {
-    background-color: #4ea5e0;
-    border-color: #4ea5e0;
+    background-color: #4FBBD9;
+    border-color: #4FBBD9;
     color: #FFFFFF;
 }
 
@@ -1413,8 +1450,8 @@ fieldset[disabled] .btn-info:hover,
 fieldset[disabled] .btn-info:focus,
 fieldset[disabled] .btn-info:active,
 fieldset[disabled] .btn-info.active {
-    background-color: #2489cc;
-    border-color: #2489cc;
+    background-color: #228CB0;
+    border-color: #228CB0;
 }
 
 .btn-default {
@@ -1459,8 +1496,8 @@ fieldset[disabled] .btn-default.active {
 }
 
 .btn-warning {
-    background-color: #ffb606;
-    border-color: #ffb606;
+    background-color: var(--hm-amber);
+    border-color: var(--hm-amber);
     color: #FFFFFF;
 }
 
@@ -1541,8 +1578,8 @@ fieldset[disabled] .btn-warning2.active {
 }
 
 .btn-danger {
-    background-color: #e74c3c;
-    border-color: #e74c3c;
+    background-color: var(--hm-red);
+    border-color: var(--hm-red);
     color: #FFFFFF;
 }
 
@@ -1551,8 +1588,8 @@ fieldset[disabled] .btn-warning2.active {
 .btn-danger:active,
 .btn-danger.active,
 .open .dropdown-toggle.btn-danger {
-    background-color: #ea6557;
-    border-color: #ea6557;
+    background-color: #F17673;
+    border-color: #F17673;
     color: #FFFFFF;
 }
 
@@ -1666,7 +1703,7 @@ fieldset[disabled] .btn-link.active {
 
 .btn-xs {
     border-radius: 3px;
-    font-size: 11px;
+    font-size: 14px;
     line-height: 1.5;
     padding: 1px 7px;
 }
@@ -1677,7 +1714,7 @@ fieldset[disabled] .btn-link.active {
     padding: 6px 0;
     border-radius: 15px;
     text-align: center;
-    font-size: 12px;
+    font-size: 14px;
     line-height: 1.428571429;
 }
 
@@ -1686,7 +1723,7 @@ fieldset[disabled] .btn-link.active {
     height: 20px;
     padding: 4px 8px;
     border-radius: 25px;
-    font-size: 10px;
+    font-size: 14px;
     line-height: 1;
 }
 
@@ -1827,7 +1864,7 @@ html {
 body {
     font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
     background-color: #fff;
-    font-size: 13px;
+    font-size: 14px;
     color: #6a6c6f;
     margin: 0;
     padding: 0;
@@ -2037,7 +2074,7 @@ body {
 
 .list .list-item-date {
     color: #AAAAAA;
-    font-size: 10px;
+    font-size: 14px;
     text-align: center;
 }
 
@@ -2071,7 +2108,7 @@ body {
 .list .list-item .list-item-content h5,
 .list .list-item .list-item-content h6,
 .list .list-item .list-item-content .list-item-title {
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 600;
     line-height: 20px;
     margin: 0;
@@ -2093,28 +2130,38 @@ body {
 .hpanel > .panel-footer,
 .hpanel > .panel-section {
     color: inherit;
-    border: 1px solid #e4e5e7;
+    border: 1px solid #e9ecf2;
     border-top: none;
     font-size: 90%;
     background: #f7f9fa;
     padding: 10px 15px;
+    border-radius: 0 0 var(--hm-radius-lg, 10px) var(--hm-radius-lg, 10px);
 }
 
 .hpanel.panel-collapse > .panel-heading,
-.hpanel .hbuilt {
+.hpanel .hbuilt,
+.hpanel .panel-heading {
     background: #fff;
-    border-color: #e4e5e7;
-    border: 1px solid #e4e5e7;
-    padding: 10px 10px;
-    border-radius: 2px;
+    border-color: #e9ecf2;
+    border: 1px solid #e9ecf2;
+    padding: 14px 18px;
+    border-radius: var(--hm-radius-lg, 10px) var(--hm-radius-lg, 10px) 0 0;
+    font-weight: 600;
 }
 
 .hpanel .panel-body {
     background: #fff;
-    border: 1px solid #e4e5e7;
-    border-radius: 2px;
+    border: 1px solid #e9ecf2;
+    border-radius: var(--hm-radius-lg, 10px);
     padding: 20px;
     position: relative;
+    box-shadow: 0 1px 3px rgba(20, 30, 80, 0.06);
+}
+
+.hpanel .hbuilt + .panel-body,
+.hpanel .panel-heading + .panel-body {
+    border-top: none;
+    border-radius: 0 0 var(--hm-radius-lg, 10px) var(--hm-radius-lg, 10px);
 }
 
 .hpanel.panel-group .panel-body:first-child {
@@ -2279,7 +2326,7 @@ body {
     margin-bottom: 0px;
     list-style: none;
     background-color: #fff;
-    font-size: 11px;
+    font-size: 14px;
 }
 
 .hbreadcrumb > li {
@@ -2731,7 +2778,7 @@ body.fullscreen-panel-mode {
 }
 
 .stats-label small {
-    font-size: 80%;
+    font-size: 87.5%;
     line-height: 0.6;
 }
 
@@ -2747,7 +2794,7 @@ body.fullscreen-panel-mode {
 
 /* Labels */
 .label-menu-corner .label {
-    font-size: 10px;
+    font-size: 14px;
     line-height: 12px;
     padding: 2px 5px;
     position: absolute;
@@ -2862,7 +2909,7 @@ body.fullscreen-panel-mode {
 }
 
 .panel-title {
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 600;
     text-transform: uppercase;
 }
@@ -2976,7 +3023,7 @@ a:focus {
 .navbar-form-custom .form-control {
     background: none repeat scroll 0 0 rgba(0, 0, 0, 0);
     border: medium none;
-    font-size: 13px;
+    font-size: 14px;
     height: 52px;
     margin: 0;
     z-index: 1060;
@@ -3073,7 +3120,7 @@ h6 {
 
 .stats-title h4 {
     text-transform: uppercase;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 600;
 }
 
@@ -3157,7 +3204,7 @@ h6 {
     margin-top: 10px;
     margin-bottom: 5px;
     padding: 10px 20px;
-    font-size: 11px;
+    font-size: 14px;
     line-height: 16px;
 }
 
@@ -3315,7 +3362,7 @@ h6 {
 .input-xs {
     height: 20px;
     padding: 2px 10px;
-    font-size: 10px;
+    font-size: 14px;
     line-height: 1.5;
     border-radius: 3px;
     font-weight: 500;
@@ -3331,7 +3378,7 @@ h6 {
     position: absolute;
     top: 0;
     right: 0;
-    font-size: 8px;
+    font-size: 14px;
     background: #f7f9fa;
     padding: 4px 5px;
     border-left: 1px solid #e4e5e7;
@@ -3339,7 +3386,7 @@ h6 {
 }
 
 .dropdown-menu {
-    font-size: 13px;
+    font-size: 14px;
     border-radius: 3px;
 }
 
@@ -3654,7 +3701,7 @@ label.error:before {
 }
 
 .bigmenu h5 {
-    font-size: 13px;
+    font-size: 14px;
     margin-top: 10px;
 }
 
@@ -3820,7 +3867,7 @@ label.error:before {
 }
 
 .social-board .social-form input {
-    font-size: 12px;
+    font-size: 14px;
     padding: 2px 12px;
     height: 28px;
 }
@@ -3906,7 +3953,7 @@ label.error:before {
 }
 
 .blog-box p {
-    font-size: 12px;
+    font-size: 14px;
 }
 
 .blog-box h4 {
@@ -4030,7 +4077,7 @@ label.error:before {
 
 .forum-box .forum-heading .desc {
     color: #909295;
-    font-size: 12px;
+    font-size: 14px;
 }
 
 .forum-box .panel-heading {
@@ -4054,7 +4101,7 @@ label.error:before {
 }
 
 .forum-box .forum-info span {
-    font-size: 12px;
+    font-size: 14px;
 }
 
 .forum-box .panel-body .media-image {
@@ -4072,7 +4119,7 @@ label.error:before {
 }
 
 .forum-box .author-info {
-    font-size: 12px;
+    font-size: 14px;
 }
 
 .forum-box .forum-comments {
@@ -4264,7 +4311,7 @@ ul.h-list li:hover a {
 }
 
 .landing-page .navbar .navbar-brand {
-    font-size: 12px;
+    font-size: 14px;
     height: auto;
     margin-top: 8px;
     padding: 9px 15px;
@@ -4361,7 +4408,7 @@ ul.h-list li:hover a {
 }
 
 .landing-page .heading span {
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
 }
 
@@ -4446,11 +4493,11 @@ ul.h-list li:hover a {
 }
 
 .landing-page .pricing-title .label {
-    font-size: 12px;
+    font-size: 14px;
 }
 
 .landing-page li.pricing-desc {
-    font-size: 13px;
+    font-size: 14px;
     border-top: none;
     padding: 20px 16px 0px 16px;
 }
@@ -4536,7 +4583,8 @@ ul.h-list li:hover a {
 
 .shs-header h1 {
     margin: 0;
-    font-size: 1.5rem;
+    /*font-size: 1.5rem;*/
+    font-size: 14px;
 }
 
 .shs-header p {
@@ -4559,7 +4607,8 @@ ul.h-list li:hover a {
 
 .shs-card h3 {
     margin: 0 0 10px 0;
-    font-size: 0.95rem;
+    /*font-size: 0.95rem;*/
+    font-size: 14px;
     color: #2c3e50;
     display: flex;
     align-items: center;
@@ -4567,7 +4616,8 @@ ul.h-list li:hover a {
 }
 
 .shs-card h3 i {
-    font-size: 1rem;
+    /*font-size: 1rem;*/
+    font-size: 14px;
     color: #3498db;
 }
 
@@ -4589,7 +4639,8 @@ ul.h-list li:hover a {
 }
 
 .kpi-main {
-    font-size: 1.8rem;
+    /*font-size: 1.8rem;*/
+    font-size: 14px;
     font-weight: bold;
     margin: 5px 0;
 }
@@ -4599,18 +4650,21 @@ ul.h-list li:hover a {
 }
 
 .kpi-sub {
-    font-size: 0.85rem;
+    /*font-size: 0.875rem;*/
+    font-size: 14px;
     color: #7f8c8d;
 }
 
 .kpi-sub-small {
-    font-size: 0.75rem;
+    /*font-size: 0.875rem;*/
+    font-size: 14px;
     color: #95a5a6;
     margin-top: 3px;
 }
 
 .kpi-text {
-    font-size: 0.85rem;
+    /*font-size: 0.875rem;*/
+    font-size: 14px;
     text-align: center;
     margin-top: 5px;
     color: #34495e;
@@ -4618,7 +4672,8 @@ ul.h-list li:hover a {
 
 .rating-stars {
     color: #f1c40f;
-    font-size: 1.2rem;
+    /*font-size: 1.2rem;*/
+    font-size: 14px;
     letter-spacing: 2px;
     margin-top: 5px;
 }
@@ -4718,7 +4773,8 @@ ul.h-list li:hover a {
 
 .controls h2 {
     margin: 0 0 10px 0;
-    font-size: 1.2rem;
+    /*font-size: 1.2rem;*/
+    font-size: 14px;
 }
 
 .controls button {
@@ -4762,7 +4818,8 @@ ul.h-list li:hover a {
     background: rgba(0, 0, 0, 0.5);
     padding: 2px 5px;
     border-radius: 3px;
-    font-size: 0.8rem;
+    /*font-size: 0.875rem;*/
+    font-size: 14px;
     pointer-events: none;
     transform: translate(-50%, -50%);
 }
@@ -4908,7 +4965,7 @@ ul.h-list li:hover a {
 }
 
 .type-header .badge {
-    font-size: 12px;
+    font-size: 14px;
 }
 
 /* Flagged Section */
@@ -5006,7 +5063,7 @@ ul.h-list li:hover a {
 
 .application-code {
     margin: 4px 0 0;
-    font-size: 11px;
+    font-size: 14px;
     color: #888;
 }
 
@@ -5014,7 +5071,7 @@ ul.h-list li:hover a {
     position: absolute;
     top: 15px;
     right: 15px;
-    font-size: 11px;
+    font-size: 14px;
     padding: 4px 8px;
 }
 
@@ -5028,7 +5085,7 @@ ul.h-list li:hover a {
     align-items: center;
     gap: 10px;
     margin-bottom: 8px;
-    font-size: 13px;
+    font-size: 14px;
     color: #555;
 }
 
@@ -5057,7 +5114,7 @@ ul.h-list li:hover a {
 
 .card-footer .btn {
     flex: 1;
-    font-size: 12px;
+    font-size: 14px;
 }
 
 /* Modal Details Styles */
@@ -5105,7 +5162,7 @@ ul.h-list li:hover a {
 .detail-item label {
     font-weight: 600;
     color: #b1b1b3;
-    font-size: 12px;
+    font-size: 14px;
     display: block;
     margin-bottom: 3px;
 }
@@ -5215,13 +5272,13 @@ ul.h-list li:hover a {
     --bg: #eef1f8;
     --surface: #ffffff;
     --border: #dde2ee;
-    --accent: #2f54d4;
-    --accent-dk: #1e3a9e;
+    --accent: #3E5FD9;
+    --accent-dk: #2E48B0;
     --accent-lt: #eaefff;
-    --accent2: #0a9e6e;
+    --accent2: #24B47E;
     --accent2-lt: #e2f8f1;
     --warn: #e08e00;
-    --danger: #d92d2d;
+    --danger: #EF5350;
     --text: #17192e;
     --text-sub: #44495e;
     --muted: #7a8094;
@@ -5233,7 +5290,7 @@ ul.h-list li:hover a {
     --font-display: 'Syne', sans-serif;
     background: var(--bg);
     font-family: var(--font-base);
-    font-size: 15px;
+    font-size: 14px;
     color: var(--text);
     min-height: 90vh;
     line-height: 1.55;
@@ -5248,14 +5305,16 @@ ul.h-list li:hover a {
 
 .bs-page .bs-header h1 {
     font-family: var(--font-display);
-    font-size: 1.95rem;
+    /*font-size: 1.95rem;*/
+    font-size: 14px;
     font-weight: 800;
     letter-spacing: -.4px;
 }
 
 .bs-header p {
     opacity: .72;
-    font-size: 1rem;
+    /*font-size: 1rem;*/
+    font-size: 14px;
     margin-top: 5px;
 }
 
@@ -5283,6 +5342,7 @@ ul.h-list li:hover a {
     border-radius: var(--radius-sm);
     font-family: var(--font-base);
     font-size: 0.93rem;
+    font-size: 14px;
     font-weight: 600;
     border: none;
     cursor: pointer;
@@ -5290,37 +5350,38 @@ ul.h-list li:hover a {
     white-space: nowrap;
 }
 
-.btn:active {
+.bs-page .btn:active {
     transform: scale(.97);
 }
 
-.btn-primary {
+.bs-page .btn-primary {
     background: var(--accent);
     color: #fff;
 }
 
-.btn-secondary {
+.bs-page .btn-secondary {
     background: #fff;
     color: var(--accent);
     border: 2px solid var(--accent);
 }
 
-.btn-success {
+.bs-page .btn-success {
     background: var(--accent2);
     color: #fff;
 }
 
-.btn-danger {
+.bs-page .btn-danger {
     background: var(--danger);
     color: #fff;
 }
 
-.btn-sm {
+.bs-page .btn-sm {
     padding: 6px 14px;
-    font-size: 0.83rem;
+    /*font-size: 0.875rem;*/
+    font-size: 14px;
 }
 
-.btn:hover {
+.bs-page .btn:hover {
     filter: brightness(1.09);
     box-shadow: 0 3px 10px rgba(0, 0, 0, .14);
 }
@@ -5345,7 +5406,8 @@ ul.h-list li:hover a {
 }
 
 .bs-page .bs-filter-group label {
-    font-size: 0.78rem;
+    /*font-size: 0.875rem;*/
+    font-size: 14px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: .65px;
@@ -5358,7 +5420,7 @@ ul.h-list li:hover a {
     border-radius: var(--radius-sm);
     padding: 10px 13px;
     font-family: var(--font-base);
-    font-size: 0.93rem;
+    font-size: 14px;
     color: var(--text);
     background: var(--bg);
     outline: none;
@@ -5395,7 +5457,7 @@ ul.h-list li:hover a {
     display: flex;
     flex-direction: column;
     gap: 26px;
-    max-width: 1600px;
+    max-width: 2100px;
     margin: 0 auto;
 }
 
@@ -5428,7 +5490,8 @@ ul.h-list li:hover a {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.25rem;
+    /*font-size: 1.25rem;*/
+    font-size: 14px;
     flex-shrink: 0;
 }
 
@@ -5454,13 +5517,14 @@ ul.h-list li:hover a {
 
 .bs-page .stat-card h3 {
     font-family: var(--font-display);
-    font-size: 1.75rem;
+    /*font-size: 1.75rem;*/
+    font-size: 14px;
     font-weight: 700;
     line-height: 1;
 }
 
 .stat-card p {
-    font-size: 0.83rem;
+    font-size: 14px;
     color: var(--muted);
     margin-top: 4px;
 }
@@ -5480,31 +5544,32 @@ ul.h-list li:hover a {
 }
 
 /* ─── PANELS ─────────────────────────────────────────────────────────────── */
-.bs-page .panel {
-    background: var(--surface);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
+.panel {
+    background: var(--surface, #ffffff);
+    border-radius: var(--radius, 12px);
+    box-shadow: var(--shadow, 0 2px 16px rgba(20, 30, 80, .09));
     overflow: hidden;
 }
 
-.bs-page .panel-head {
+.panel-head {
     padding: 16px 20px;
-    border-bottom: 1px solid var(--border);
-    font-family: var(--font-display);
-    font-size: 1rem;
+    border-bottom: 1px solid var(--border, #dde2ee);
+    font-family: var(--font-display, 'Inter', sans-serif);
+    /*font-size: 1rem;*/
+    font-size: 14px;
     font-weight: 700;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 10px;
-    background: var(--surface);
+    background: var(--surface, #ffffff);
     position: sticky;
     top: 0;
     z-index: 2;
 }
 
 .panel-head i {
-    color: var(--accent);
+    color: var(--accent, var(--hm-blue, #3E5FD9));
     margin-right: 8px;
 }
 
@@ -5540,7 +5605,8 @@ ul.h-list li:hover a {
 
 .bs-page .bill-select-all-row label {
     font-weight: 700;
-    font-size: 0.88rem;
+    /*font-size: 0.88rem;*/
+    font-size: 14px;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -5548,9 +5614,10 @@ ul.h-list li:hover a {
     color: var(--accent);
 }
 
-.bs-page .bill-tally {
-    font-size: 0.82rem;
-    color: var(--muted);
+.bill-tally {
+    /*font-size: 0.875rem;*/
+    font-size: 14px;
+    color: var(--muted, #7a8094);
     font-weight: 600;
 }
 
@@ -5560,7 +5627,7 @@ ul.h-list li:hover a {
 }
 
 .bs-page .bill-section-title {
-    font-size: 0.78rem;
+    font-size: 14px;
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: .8px;
@@ -5595,7 +5662,7 @@ ul.h-list li:hover a {
 
 .bs-page .bill-item label {
     cursor: pointer;
-    font-size: 0.93rem;
+    font-size: 14px;
     user-select: none;
     display: flex;
     align-items: center;
@@ -5613,14 +5680,14 @@ ul.h-list li:hover a {
 
 .bs-page .bill-price {
     font-weight: 700;
-    font-size: 0.93rem;
+    font-size: 14px;
     color: var(--accent);
     white-space: nowrap;
     margin-left: 10px;
 }
 
 .bs-page .badge-mandatory {
-    font-size: 0.7rem;
+    font-size: 14px;
     font-weight: 700;
     padding: 2px 8px;
     border-radius: 20px;
@@ -5660,11 +5727,11 @@ ul.h-list li:hover a {
 
 .student-name {
     font-weight: 700;
-    font-size: 0.97rem;
+    font-size: 14px;
 }
 
 .bs-page .student-meta {
-    font-size: 0.82rem;
+    font-size: 14px;
     color: var(--muted);
     margin-top: 3px;
     display: flex;
@@ -5679,7 +5746,7 @@ ul.h-list li:hover a {
 }
 
 .bs-page .badge-selected {
-    font-size: 0.72rem;
+    font-size: 14px;
     font-weight: 700;
     padding: 2px 9px;
     border-radius: 20px;
@@ -5703,11 +5770,11 @@ ul.h-list li:hover a {
     border-radius: 4px;
 }
 
-.bs-page .empty-state {
+.empty-state {
     text-align: center;
     padding: 48px 20px;
-    color: var(--muted);
-    font-size: 0.97rem;
+    color: var(--muted, #7a8094);
+    font-size: 14px;
 }
 
 .empty-state i {
@@ -5717,15 +5784,16 @@ ul.h-list li:hover a {
     opacity: .35;
 }
 
-.bs-page .loading-state {
+.loading-state {
     text-align: center;
     padding: 48px 20px;
-    color: var(--muted);
-    font-size: 0.97rem;
+    color: var(--muted, #7a8094);
+    font-size: 14px;
 }
 
 .loading-state i {
-    font-size: 1.8rem;
+    /*font-size: 1.8rem;*/
+    font-size: 14px;
     display: block;
     margin-bottom: 10px;
     animation: spin .9s linear infinite;
@@ -5758,7 +5826,7 @@ ul.h-list li:hover a {
 }
 
 .bs-page .summary-item .summary-label {
-    font-size: 0.75rem;
+    font-size: 14px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: .75px;
@@ -5767,20 +5835,20 @@ ul.h-list li:hover a {
 
 .bs-page .summary-item .summary-value {
     font-family: var(--font-display);
-    font-size: 1.6rem;
+    /*font-size: 1.6rem;*/
+    font-size: 14px;
     font-weight: 700;
     margin-top: 2px;
 }
 
-.bs-page .process-btn {
+.process-btn {
     background: #fff;
-    color: var(--accent);
+    color: var(--hm-blue, #3E5FD9);
     border: none;
-    border-radius: var(--radius-sm);
+    border-radius: var(--hm-radius, 6px);
     padding: 13px 26px;
-    font-family: var(--font-base);
     font-weight: 700;
-    font-size: 0.97rem;
+    font-size: 14px;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
@@ -5849,7 +5917,7 @@ ul.h-list li:hover a {
 
 .bs-page .bs-modal-header h5 {
     font-family: var(--font-display);
-    font-size: 1.1rem;
+    font-size: 14px;
     font-weight: 700;
 }
 
@@ -5857,7 +5925,7 @@ ul.h-list li:hover a {
     background: none;
     border: none;
     color: #fff;
-    font-size: 1.4rem;
+    font-size: 14px;
     cursor: pointer;
     line-height: 1;
     padding: 2px 6px;
@@ -5891,14 +5959,14 @@ ul.h-list li:hover a {
     border-radius: var(--radius-sm);
     padding: 16px 20px;
     margin-bottom: 20px;
-    font-size: 0.93rem;
+    font-size: 14px;
     line-height: 2;
 }
 
 .bs-page .invoice-section-title {
     font-family: var(--font-display);
     font-weight: 700;
-    font-size: 0.97rem;
+    font-size: 14px;
     margin: 20px 0 10px;
     display: flex;
     align-items: center;
@@ -5912,7 +5980,7 @@ ul.h-list li:hover a {
 .inv-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.93rem;
+    font-size: 14px;
 }
 
 .bs-page .inv-table th {
@@ -5920,7 +5988,7 @@ ul.h-list li:hover a {
     color: #fff;
     padding: 10px 14px;
     text-align: left;
-    font-size: 0.85rem;
+    font-size: 14px;
     text-transform: uppercase;
     letter-spacing: .5px;
 }
@@ -5946,7 +6014,7 @@ ul.h-list li:hover a {
     border-radius: var(--radius-sm);
     background: var(--accent2-lt);
     color: var(--accent2);
-    font-size: 0.93rem;
+    font-size: 14px;
     font-weight: 600;
 }
 
@@ -5955,14 +6023,14 @@ ul.h-list li:hover a {
     border-radius: var(--radius-sm);
     background: #fff8e1;
     color: #7a5000;
-    font-size: 0.93rem;
+    font-size: 14px;
 }
 
 /* ─── FOOTER ─────────────────────────────────────────────────────────────── */
 .bs-page .bs-footer {
     text-align: center;
     padding: 20px;
-    font-size: 0.85rem;
+    font-size: 14px;
     color: var(--muted);
     border-top: 1px solid var(--border);
     background: var(--surface);
@@ -5978,7 +6046,7 @@ ul.h-list li:hover a {
     color: #fff;
     padding: 13px 22px;
     border-radius: var(--radius-sm);
-    font-size: 0.93rem;
+    font-size: 14px;
     font-weight: 500;
     box-shadow: 0 8px 30px rgba(0, 0, 0, .3);
     opacity: 0;
@@ -6042,14 +6110,14 @@ ul.h-list li:hover a {
     --tt-bg: #eef1f8;
     --tt-surface: #ffffff;
     --tt-border: #dde2ee;
-    --tt-accent: #2f54d4;
-    --tt-accent-dk: #1e3a9e;
+    --tt-accent: #3E5FD9;
+    --tt-accent-dk: #2E48B0;
     --tt-accent-lt: #eaefff;
-    --tt-accent2: #0a9e6e;
+    --tt-accent2: #24B47E;
     --tt-accent2-lt: #e2f8f1;
     --tt-warn: #e08e00;
     --tt-warn-lt: #fff3d6;
-    --tt-danger: #d92d2d;
+    --tt-danger: #EF5350;
     --tt-danger-lt: #ffe2e2;
     --tt-text: #17192e;
     --tt-muted: #7a8094;
@@ -6058,7 +6126,7 @@ ul.h-list li:hover a {
     --tt-shadow: 0 2px 16px rgba(20, 30, 80, .09);
     --tt-shadow-md: 0 6px 28px rgba(20, 30, 80, .13);
     font-family: 'Inter', sans-serif;
-    font-size: 15px;
+    font-size: 14px;
     color: var(--tt-text);
     background: var(--tt-bg);
     min-height: 100vh;
@@ -6080,7 +6148,7 @@ ul.h-list li:hover a {
 
 .tt-page .tt-header p {
     opacity: .72;
-    font-size: .97rem;
+    font-size: 14px;
     margin-top: 5px;
 }
 
@@ -6107,7 +6175,7 @@ ul.h-list li:hover a {
     padding: 10px 20px;
     border-radius: var(--tt-radius-sm);
     font-family: 'Inter', sans-serif;
-    font-size: .9rem;
+    font-size: 14px;
     font-weight: 600;
     border: none;
     cursor: pointer;
@@ -6147,7 +6215,7 @@ ul.h-list li:hover a {
 
 .tt-page .tt-btn-sm {
     padding: 6px 14px;
-    font-size: .82rem;
+    font-size: 14px;
 }
 
 .tt-page .tt-btn:hover {
@@ -6167,7 +6235,7 @@ ul.h-list li:hover a {
     display: flex;
     flex-direction: column;
     gap: 24px;
-    max-width: 1700px;
+    max-width: 2100px;
     margin: 0 auto;
 }
 
@@ -6186,7 +6254,7 @@ ul.h-list li:hover a {
     padding: 9px 22px;
     border-radius: var(--tt-radius-sm);
     font-weight: 600;
-    font-size: .9rem;
+    font-size: 14px;
     cursor: pointer;
     border: none;
     background: none;
@@ -6247,7 +6315,7 @@ ul.h-list li:hover a {
 }
 
 .tt-page .tt-field label {
-    font-size: .78rem;
+    font-size: 14px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: .65px;
@@ -6260,7 +6328,7 @@ ul.h-list li:hover a {
     border-radius: var(--tt-radius-sm);
     padding: 10px 13px;
     font-family: 'Inter', sans-serif;
-    font-size: .93rem;
+    font-size: 14px;
     color: var(--tt-text);
     background: var(--tt-bg);
     outline: none;
@@ -6299,7 +6367,7 @@ ul.h-list li:hover a {
 }
 
 .tt-page .tt-computed-item .lbl {
-    font-size: .75rem;
+    font-size: 14px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: .6px;
@@ -6328,7 +6396,7 @@ ul.h-list li:hover a {
     border: 1.5px solid var(--tt-border);
     border-radius: 6px;
     padding: 7px 10px;
-    font-size: .88rem;
+    font-size: 14px;
     background: #fff;
     font-family: 'Inter', sans-serif;
     outline: none;
@@ -6341,7 +6409,7 @@ ul.h-list li:hover a {
 }
 
 .tt-page .tt-break-row .lbl {
-    font-size: .82rem;
+    font-size: 14px;
     color: var(--tt-muted);
     white-space: nowrap;
     font-weight: 500;
@@ -6352,7 +6420,7 @@ ul.h-list li:hover a {
     border: none;
     color: var(--tt-danger);
     cursor: pointer;
-    font-size: 1rem;
+    font-size: 14px;
     padding: 4px;
     border-radius: 4px;
     transition: background .1s;
@@ -6417,7 +6485,7 @@ ul.h-list li:hover a {
     border: none;
     color: var(--tt-danger);
     cursor: pointer;
-    font-size: .9rem;
+    font-size: 14px;
     padding: 4px 6px;
     border-radius: 4px;
     transition: background .1s;
@@ -6442,7 +6510,7 @@ ul.h-list li:hover a {
     border-radius: var(--tt-radius-sm);
     padding: 9px 12px;
     font-family: 'Inter', sans-serif;
-    font-size: .88rem;
+    font-size: 14px;
     background: var(--tt-bg);
     outline: none;
     transition: border-color .15s;
@@ -6462,7 +6530,7 @@ ul.h-list li:hover a {
 .tt-page .tt-grid {
     width: 100%;
     border-collapse: collapse;
-    font-size: .85rem;
+    font-size: 14px;
     min-width: 700px;
 }
 
@@ -6471,7 +6539,7 @@ ul.h-list li:hover a {
     color: #fff;
     padding: 10px 12px;
     text-align: center;
-    font-size: .78rem;
+    font-size: 14px;
     text-transform: uppercase;
     letter-spacing: .5px;
     font-weight: 700;
@@ -6480,7 +6548,7 @@ ul.h-list li:hover a {
 
 .tt-page .tt-grid th.day-head {
     background: var(--tt-accent-dk);
-    font-size: .82rem;
+    font-size: 14px;
 }
 
 .tt-page .tt-grid td {
@@ -6538,17 +6606,17 @@ ul.h-list li:hover a {
 
 .tt-page .tt-cell .cell-subject {
     font-weight: 700;
-    font-size: .82rem;
+    font-size: 0.875rem;
     color: var(--tt-accent-dk);
 }
 
 .tt-page .tt-cell .cell-teacher {
-    font-size: .75rem;
+    font-size: 0.875rem;
     color: var(--tt-muted);
 }
 
 .tt-page .tt-cell .cell-break {
-    font-size: .78rem;
+    font-size: 0.875rem;
     font-weight: 700;
     color: var(--tt-warn);
 }
@@ -6561,7 +6629,7 @@ ul.h-list li:hover a {
     border: none;
     color: var(--tt-danger);
     cursor: pointer;
-    font-size: .75rem;
+    font-size: 0.875rem;
     opacity: 0;
     transition: opacity .1s;
     padding: 2px 4px;
@@ -6579,7 +6647,7 @@ ul.h-list li:hover a {
 .tt-page .tt-period-label {
     background: var(--tt-bg);
     font-weight: 700;
-    font-size: .78rem;
+    font-size: 0.875rem;
     color: var(--tt-muted);
     text-align: center;
     padding: 8px 6px;
@@ -6681,7 +6749,7 @@ ul.h-list li:hover a {
 
 /* modal fields reuse tt-field styles */
 .tt-modal-body .tt-field label {
-    font-size: .78rem;
+    font-size: 0.875rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: .65px;
@@ -6750,7 +6818,7 @@ ul.h-list li:hover a {
 .tt-page .tt-footer {
     text-align: center;
     padding: 18px;
-    font-size: .82rem;
+    font-size: 0.875rem;
     color: #7a8094;
     border-top: 1px solid #dde2ee;
     background: #fff;
@@ -6790,14 +6858,14 @@ ul.h-list li:hover a {
     --bg: #f0f2f7;
     --surface: #ffffff;
     --border: #dde2ee;
-    --accent: #2f54d4;
-    --accent-dk: #1e3a9e;
+    --accent: #3E5FD9;
+    --accent-dk: #2E48B0;
     --accent-lt: #eaefff;
-    --accent2: #0a9e6e;
+    --accent2: #24B47E;
     --accent2-lt: #e2f8f1;
     --warn: #e08e00;
     --warn-lt: #fff3d6;
-    --danger: #d92d2d;
+    --danger: #EF5350;
     --danger-lt: #ffe2e2;
     --text: #17192e;
     --muted: #7a8094;
@@ -6806,7 +6874,7 @@ ul.h-list li:hover a {
     --shadow: 0 2px 16px rgba(20, 30, 80, .09);
     --shadow-md: 0 6px 28px rgba(20, 30, 80, .13);
     font-family: 'Inter', sans-serif;
-    font-size: 15px;
+    font-size: 14px;
     color: var(--text);
     background: var(--bg);
     min-height: 100vh;
@@ -6896,7 +6964,8 @@ ul.h-list li:hover a {
 
 .hr-page .hr-btn-sm {
     padding: 6px 14px;
-    font-size: .82rem;
+    /*font-size: 0.875rem;*/
+    font-size: 14px;
 }
 
 .hr-page .hr-btn:hover {
@@ -6916,7 +6985,7 @@ ul.h-list li:hover a {
     display: flex;
     flex-direction: column;
     gap: 24px;
-    max-width: 1600px;
+    max-width: 2100px;
     margin: 0 auto;
 }
 
@@ -6935,7 +7004,8 @@ ul.h-list li:hover a {
     padding: 9px 22px;
     border-radius: var(--radius-sm);
     font-weight: 600;
-    font-size: .9rem;
+    /*font-size: .9rem;*/
+    font-size: 14px;
     cursor: pointer;
     border: none;
     background: none;
@@ -6982,7 +7052,8 @@ ul.h-list li:hover a {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.2rem;
+    /*font-size: 1.2rem;*/
+    font-size: 14px;
     flex-shrink: 0;
 }
 
@@ -7008,13 +7079,15 @@ ul.h-list li:hover a {
 
 .hr-page .hr-stat-card h3 {
     font-family: 'Syne', sans-serif;
-    font-size: 1.6rem;
+    /*font-size: 1.6rem;*/
+    font-size: 14px;
     font-weight: 700;
     line-height: 1;
 }
 
 .hr-page .hr-stat-card p {
-    font-size: .8rem;
+    /*font-size: 0.875rem;*/
+    font-size: 14px;
     color: var(--muted);
     margin-top: 4px;
 }
@@ -7062,7 +7135,8 @@ ul.h-list li:hover a {
 }
 
 .hr-page .hr-field label {
-    font-size: .78rem;
+    /*font-size: 0.875rem;*/
+    font-size: 14px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: .65px;
@@ -7076,7 +7150,7 @@ ul.h-list li:hover a {
     border-radius: var(--radius-sm);
     padding: 10px 13px;
     font-family: 'Inter', sans-serif;
-    font-size: .93rem;
+    font-size: 14px;
     color: var(--text);
     background: var(--bg);
     outline: none;
@@ -7111,7 +7185,8 @@ ul.h-list li:hover a {
 }
 
 .hr-page .hr-balance-card .bal-type {
-    font-size: .75rem;
+    /*font-size: 0.875rem;*/
+    font-size: 14px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: .6px;
@@ -7126,7 +7201,7 @@ ul.h-list li:hover a {
 }
 
 .hr-page .hr-balance-card .bal-label {
-    font-size: .75rem;
+    font-size: 14px;
     color: var(--muted);
 }
 
@@ -7174,7 +7249,7 @@ ul.h-list li:hover a {
 .hr-page .hr-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: .88rem;
+    font-size: 14px;
 }
 
 .hr-page .hr-table th {
@@ -7182,7 +7257,7 @@ ul.h-list li:hover a {
     color: #fff;
     padding: 10px 14px;
     text-align: left;
-    font-size: .78rem;
+    font-size: 14px;
     text-transform: uppercase;
     letter-spacing: .5px;
     font-weight: 700;
@@ -7218,7 +7293,7 @@ ul.h-list li:hover a {
     gap: 5px;
     padding: 3px 10px;
     border-radius: 20px;
-    font-size: .75rem;
+    font-size: 14px;
     font-weight: 700;
 }
 
@@ -7268,7 +7343,7 @@ ul.h-list li:hover a {
     color: #fff;
     padding: 10px;
     text-align: center;
-    font-size: .8rem;
+    font-size: 14px;
     font-weight: 700;
 }
 
@@ -7279,7 +7354,7 @@ ul.h-list li:hover a {
     min-height: 70px;
     min-width: 80px;
     text-align: right;
-    font-size: .8rem;
+    font-size: 14px;
 }
 
 .hr-page .hr-calendar .cal-day-num {
@@ -7304,7 +7379,7 @@ ul.h-list li:hover a {
 }
 
 .hr-page .hr-cal-event {
-    font-size: .7rem;
+    font-size: 14px;
     font-weight: 600;
     padding: 2px 5px;
     border-radius: 4px;
@@ -7357,12 +7432,12 @@ ul.h-list li:hover a {
 
 .hr-page .hr-checkin-card .date-display {
     opacity: .75;
-    font-size: .97rem;
+    font-size: 14px;
     margin-top: 4px;
 }
 
 .hr-page .hr-checkin-card .status-display {
-    font-size: .9rem;
+    font-size: 14px;
     margin-top: 8px;
     opacity: .85;
 }
@@ -7378,7 +7453,7 @@ ul.h-list li:hover a {
     padding: 14px 32px;
     border-radius: var(--radius-sm);
     font-family: 'Inter', sans-serif;
-    font-size: 1rem;
+    font-size: 14px;
     font-weight: 700;
     border: none;
     cursor: pointer;
@@ -7432,7 +7507,7 @@ ul.h-list li:hover a {
 
 .hr-page .hr-upload-zone p {
     color: var(--muted);
-    font-size: .93rem;
+    font-size: 14px;
 }
 
 .hr-page .hr-upload-zone input[type=file] {
@@ -7528,7 +7603,7 @@ ul.h-list li:hover a {
 }
 
 .hr-modal-body .hr-field label {
-    font-size: .78rem;
+    font-size: 14px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: .65px;
@@ -7542,7 +7617,7 @@ ul.h-list li:hover a {
     border-radius: 8px;
     padding: 10px 13px;
     font-family: 'Inter', sans-serif;
-    font-size: .93rem;
+    font-size: 14px;
     color: #17192e;
     background: #f0f2f7;
     outline: none;
@@ -7567,7 +7642,7 @@ ul.h-list li:hover a {
     color: #fff;
     padding: 13px 22px;
     border-radius: 8px;
-    font-size: .9rem;
+    font-size: 14px;
     font-weight: 500;
     box-shadow: 0 8px 30px rgba(0, 0, 0, .3);
     opacity: 0;
@@ -7586,7 +7661,7 @@ ul.h-list li:hover a {
     text-align: center;
     padding: 48px 20px;
     color: var(--muted);
-    font-size: .97rem;
+    font-size: 14px;
 }
 
 .hr-page .hr-empty i {
@@ -7600,7 +7675,7 @@ ul.h-list li:hover a {
 .hr-page .hr-footer {
     text-align: center;
     padding: 18px;
-    font-size: .82rem;
+    font-size: 14px;
     color: var(--muted);
     border-top: 1px solid var(--border);
     background: var(--surface);
@@ -7640,10 +7715,10 @@ ul.h-list li:hover a {
 
 /* ── TOKENS ──────────────────────────────────────────────────────────────── */
 :root {
-    --fc-navy: #1A3A5C;
-    --fc-navy-light: #2E5F8A;
-    --fc-gold: #C8963E;
-    --fc-gold-light: #E8B96A;
+    --fc-navy: #2E48B0;
+    --fc-navy-light: #3E5FD9;
+    --fc-gold: #7C5CFC;
+    --fc-gold-light: #A48BFD;
     --fc-green: #0a7a42;
     --fc-green-bg: #e6f9f0;
     --fc-red: #c0392b;
@@ -7662,7 +7737,7 @@ ul.h-list li:hover a {
 
 /* ── RESET / BASE ─────────────────────────────────────────────────────────── */
 .fc-page, .ph-page, .pc-page, .sal-page, .ps-page, .lg-page, .is-page, .tb-page {
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
     color: var(--fc-text);
     background: var(--fc-bg);
     min-height: 90vh;
@@ -7691,7 +7766,7 @@ ul.h-list li:hover a {
 
 .fc-header p {
     /*color: rgba(255, 255, 255, 0.65);*/
-    font-size: 13px;
+    font-size: 14px;
     margin: 3px 0 0;
 }
 
@@ -7707,19 +7782,19 @@ ul.h-list li:hover a {
 }
 
 /* ── BUTTONS ─────────────────────────────────────────────────────────────── */
-/*.fc-btn {
+.fc-btn {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 8px 16px;
+    padding: 8px 18px;
     border: none;
-    border-radius: var(--fc-radius);
-    font-size: 13px;
+    border-radius: var(--hm-radius, 6px);
+    font-size: 14px;
     font-weight: 600;
     cursor: pointer;
     transition: filter .15s, transform .1s;
     white-space: nowrap;
-}*/
+}
 
 .fc-btn:active {
     transform: scale(0.97);
@@ -7747,7 +7822,7 @@ ul.h-list li:hover a {
 
 .fc-btn-sm {
     padding: 5px 11px;
-    font-size: 12px;
+    font-size: 14px;
 }
 
 .fc-btn-primary:hover {
@@ -7794,7 +7869,7 @@ ul.h-list li:hover a {
     background: #f8fafc;
     border-bottom: 1px solid var(--fc-border);
     font-weight: 700;
-    font-size: 13px;
+    font-size: 14px;
     color: var(--fc-navy);
     gap: 8px;
 }
@@ -7817,7 +7892,7 @@ ul.h-list li:hover a {
 }
 
 .fc-field label {
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 600;
     color: var(--fc-muted);
     text-transform: uppercase;
@@ -7828,7 +7903,7 @@ ul.h-list li:hover a {
     padding: 8px 10px;
     border: 1px solid var(--fc-border);
     border-radius: var(--fc-radius);
-    font-size: 13px;
+    font-size: 14px;
     background: #fff;
     color: var(--fc-text);
     width: 100%;
@@ -7871,7 +7946,7 @@ ul.h-list li:hover a {
 .fc-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .fc-table thead th {
@@ -7880,7 +7955,7 @@ ul.h-list li:hover a {
     padding: 11px 14px;
     text-align: left;
     font-weight: 600;
-    font-size: 12px;
+    font-size: 14px;
     white-space: nowrap;
 }
 
@@ -7966,7 +8041,7 @@ ul.h-list li:hover a {
 }
 
 .ph-stat p {
-    font-size: 11px;
+    font-size: 14px;
     color: var(--fc-muted);
     margin: 2px 0 0;
     text-transform: uppercase;
@@ -8009,7 +8084,7 @@ ul.h-list li:hover a {
     padding: 7px 10px;
     border: 1px solid var(--fc-border);
     border-radius: var(--fc-radius);
-    font-size: 13px;
+    font-size: 14px;
     background: #fff;
 }
 
@@ -8026,13 +8101,13 @@ ul.h-list li:hover a {
 
 .ph-search-wrap i {
     color: var(--fc-muted);
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .ph-search-wrap input {
     border: none;
     padding: 7px 0;
-    font-size: 13px;
+    font-size: 14px;
     flex: 1;
     background: transparent;
 }
@@ -8146,7 +8221,7 @@ ul.h-list li:hover a {
     right: 28px;
     padding: 12px 20px;
     border-radius: 8px;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
     background: var(--fc-navy);
     color: #fff;
@@ -8180,7 +8255,7 @@ ul.h-list li:hover a {
 .fc-footer {
     text-align: center;
     padding: 14px;
-    font-size: 11px;
+    font-size: 14px;
     color: var(--fc-muted);
     border-top: 1px solid var(--fc-border);
     margin-top: 32px;
@@ -8218,7 +8293,7 @@ ul.h-list li:hover a {
 }
 
 .fc-bill-label {
-    font-size: 11px;
+    font-size: 14px;
     color: var(--fc-muted);
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -8283,7 +8358,7 @@ ul.h-list li:hover a {
 }
 
 .fc-receipt-title {
-    font-size: 12px;
+    font-size: 14px;
     letter-spacing: 2px;
     color: var(--fc-muted);
 }
@@ -8293,7 +8368,7 @@ ul.h-list li:hover a {
     justify-content: space-between;
     padding: 6px 0;
     border-bottom: 1px dashed #ddd;
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .fc-receipt-divider {
@@ -8308,7 +8383,7 @@ ul.h-list li:hover a {
 
 .fc-receipt-footer {
     text-align: center;
-    font-size: 11px;
+    font-size: 14px;
     color: var(--fc-muted);
     margin-top: 12px;
 }
@@ -8345,7 +8420,7 @@ ul.h-list li:hover a {
     padding: 9px 12px;
     border: 1px solid var(--fc-border);
     border-radius: var(--fc-radius);
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .pc-result-area {
@@ -8384,7 +8459,7 @@ ul.h-list li:hover a {
 }
 
 .pc-status-msg {
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .pc-cleared {
@@ -8412,7 +8487,7 @@ ul.h-list li:hover a {
     justify-content: space-between;
     padding: 6px 0;
     border-bottom: 1px solid var(--fc-border);
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .pc-student-id {
@@ -8423,7 +8498,7 @@ ul.h-list li:hover a {
 }
 
 .pc-last-pay, .pc-pay-count {
-    font-size: 12px;
+    font-size: 14px;
     color: var(--fc-muted);
     margin-top: 8px;
 }
@@ -8444,7 +8519,7 @@ ul.h-list li:hover a {
     padding: 7px 10px;
     border: 1px solid var(--fc-border);
     border-radius: var(--fc-radius);
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .pc-class-summary {
@@ -8457,7 +8532,7 @@ ul.h-list li:hover a {
 .pc-tag {
     padding: 4px 10px;
     border-radius: 20px;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 600;
 }
 
@@ -8496,7 +8571,7 @@ ul.h-list li:hover a {
     display: inline-block;
     padding: 3px 9px;
     border-radius: 12px;
-    font-size: 11px;
+    font-size: 14px;
     font-weight: 700;
 }
 
@@ -8520,7 +8595,7 @@ ul.h-list li:hover a {
 }
 
 .sal-items-title {
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -8540,7 +8615,7 @@ ul.h-list li:hover a {
     padding: 6px 8px;
     border: 1px solid var(--fc-border);
     border-radius: var(--fc-radius);
-    font-size: 12px;
+    font-size: 14px;
 }
 
 .sal-item-name {
@@ -8559,7 +8634,7 @@ ul.h-list li:hover a {
 }
 
 .sal-pct-label {
-    font-size: 12px;
+    font-size: 14px;
     display: flex;
     align-items: center;
     gap: 4px;
@@ -8578,7 +8653,7 @@ ul.h-list li:hover a {
     justify-content: space-between;
     padding: 7px 0;
     border-bottom: 1px solid var(--fc-border);
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .sal-detail-net {
@@ -8595,7 +8670,7 @@ ul.h-list li:hover a {
     padding: 5px 8px;
     border-radius: 4px;
     margin-bottom: 4px;
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .sal-allow {
@@ -8632,7 +8707,7 @@ ul.h-list li:hover a {
 }
 
 .ps-staff-count {
-    font-size: 13px;
+    font-size: 14px;
     color: var(--fc-muted);
     padding: 8px 0;
 }
@@ -8662,7 +8737,7 @@ ul.h-list li:hover a {
 }
 
 .ps-slip-title {
-    font-size: 11px;
+    font-size: 14px;
     letter-spacing: 3px;
     color: var(--fc-muted);
 }
@@ -8681,18 +8756,18 @@ ul.h-list li:hover a {
     justify-content: space-between;
     padding: 5px 0;
     border-bottom: 1px solid var(--fc-border);
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .ps-slip-item {
     display: flex;
     justify-content: space-between;
     padding: 4px 0;
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .ps-slip-section-title {
-    font-size: 11px;
+    font-size: 14px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.8px;
@@ -8725,7 +8800,7 @@ ul.h-list li:hover a {
     padding: 8px;
     margin: 12px 0;
     border-radius: 4px;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 700;
 }
 
@@ -8741,7 +8816,7 @@ ul.h-list li:hover a {
 
 .ps-slip-footer {
     text-align: center;
-    font-size: 10px;
+    font-size: 14px;
     color: var(--fc-muted);
     margin-top: 14px;
     border-top: 1px solid var(--fc-border);
@@ -8786,7 +8861,7 @@ ul.h-list li:hover a {
 }
 
 .lg-type-label {
-    font-size: 11px;
+    font-size: 14px;
     color: var(--fc-muted);
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -8822,7 +8897,7 @@ ul.h-list li:hover a {
     display: inline-block;
     padding: 2px 8px;
     border-radius: 12px;
-    font-size: 11px;
+    font-size: 14px;
     font-weight: 600;
     background: #e8ecf1;
     color: var(--fc-navy);
@@ -8857,7 +8932,7 @@ ul.h-list li:hover a {
     display: inline-block;
     padding: 2px 8px;
     border-radius: 12px;
-    font-size: 11px;
+    font-size: 14px;
     font-weight: 700;
     background: #e8f0fb;
     color: #2c5282;
@@ -8867,7 +8942,7 @@ ul.h-list li:hover a {
     display: inline-block;
     padding: 2px 8px;
     border-radius: 12px;
-    font-size: 11px;
+    font-size: 14px;
     font-weight: 700;
     background: var(--fc-green-bg);
     color: var(--fc-green);
@@ -8910,7 +8985,7 @@ ul.h-list li:hover a {
 }
 
 .is-doc-title {
-    font-size: 12px;
+    font-size: 14px;
     letter-spacing: 3px;
     color: var(--fc-muted);
 }
@@ -8921,7 +8996,7 @@ ul.h-list li:hover a {
 }
 
 .is-section-title {
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.8px;
@@ -8941,7 +9016,7 @@ ul.h-list li:hover a {
 .is-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 13px;
+    font-size: 14px;
     margin-bottom: 6px;
 }
 
@@ -8949,7 +9024,7 @@ ul.h-list li:hover a {
     background: #f5f5f5;
     padding: 7px 10px;
     text-align: left;
-    font-size: 11px;
+    font-size: 14px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     color: var(--fc-muted);
@@ -9035,7 +9110,7 @@ ul.h-list li:hover a {
     padding: 10px 16px;
     border-radius: 6px;
     font-weight: 600;
-    font-size: 13px;
+    font-size: 14px;
     margin-bottom: 14px;
     display: flex;
     align-items: center;
@@ -9048,7 +9123,7 @@ ul.h-list li:hover a {
     padding: 10px 16px;
     border-radius: 6px;
     font-weight: 700;
-    font-size: 13px;
+    font-size: 14px;
     margin-bottom: 14px;
     display: flex;
     align-items: center;
@@ -9060,7 +9135,7 @@ ul.h-list li:hover a {
     display: inline-block;
     padding: 2px 8px;
     border-radius: 12px;
-    font-size: 11px;
+    font-size: 14px;
     font-weight: 700;
     background: #e8ecf1;
     color: var(--fc-navy);
@@ -9107,12 +9182,12 @@ ul.h-list li:hover a {
     justify-content: space-between;
     padding: 6px 0;
     border-bottom: 1px solid var(--fc-border);
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .ph-drill-hist-title {
     font-weight: 700;
-    font-size: 12px;
+    font-size: 14px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     color: var(--fc-muted);
@@ -9191,7 +9266,7 @@ ul.h-list li:hover a {
 .ps-staff-option {
     padding: 9px 14px;
     cursor: pointer;
-    font-size: 13px;
+    font-size: 14px;
     color: #1A3A5C;
     border-bottom: 1px solid #f0f4f8;
     transition: background 0.12s;
@@ -9252,7 +9327,7 @@ ul.h-list li:hover a {
 
 /* Status badge in preview header */
 .ps-status-badge {
-    font-size: 11px;
+    font-size: 14px;
     font-weight: 700;
     letter-spacing: 0.8px;
     text-transform: uppercase;
@@ -9273,7 +9348,7 @@ ul.h-list li:hover a {
 }
 
 .ps-preview-section-title {
-    font-size: 10px;
+    font-size: 14px;
     font-weight: 700;
     letter-spacing: 1.2px;
     text-transform: uppercase;
@@ -9288,7 +9363,7 @@ ul.h-list li:hover a {
     justify-content: space-between;
     align-items: baseline;
     padding: 5px 0;
-    font-size: 13px;
+    font-size: 14px;
     color: #374151;
     border-bottom: 1px solid #f5f7fa;
 }
@@ -9312,7 +9387,7 @@ ul.h-list li:hover a {
     justify-content: space-between;
     align-items: center;
     padding: 6px 0;
-    font-size: 13px;
+    font-size: 14px;
     border-bottom: 1px solid #f5f7fa;
 }
 
@@ -9332,7 +9407,7 @@ ul.h-list li:hover a {
 .ps-preview-subtotal {
     display: flex;
     justify-content: space-between;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 700;
     padding: 8px 0 0;
     margin-top: 4px;
@@ -9352,7 +9427,7 @@ ul.h-list li:hover a {
 }
 
 .ps-net-bar span {
-    font-size: 11px;
+    font-size: 14px;
     font-weight: 700;
     letter-spacing: 1.5px;
     text-transform: uppercase;
@@ -9379,4 +9454,215 @@ ul.h-list li:hover a {
     .ps-net-bar strong {
         font-size: 17px;
     }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   STORES & INVENTORY (.si-page) — previously had zero CSS at all; every
+   si-* class below was referenced in storesInventory.js but unstyled.
+   Reuses the site-wide --hm-* tokens so it matches the rest of the app
+   without needing its own duplicate token set.
+   ────────────────────────────────────────────────────────────────────────── */
+.si-page {
+    font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    background: #f4f6f9;
+    min-height: 90vh;
+    padding-bottom: 40px;
+}
+
+.si-channel-toggle {
+    display: inline-flex;
+    background: #eef1f8;
+    border-radius: var(--hm-radius, 6px);
+    padding: 4px;
+    gap: 4px;
+}
+
+.si-channel-btn {
+    border: none;
+    background: transparent;
+    color: var(--hm-blue-dark, #2E48B0);
+    padding: 8px 16px;
+    border-radius: calc(var(--hm-radius, 6px) - 2px);
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background .15s, color .15s;
+}
+
+.si-channel-btn.active {
+    background: var(--hm-blue, #3E5FD9);
+    color: #fff;
+}
+
+.si-lowstock-strip {
+    background: #fff8e6;
+    border: 1px solid #ffe6a8;
+    color: #b86b00;
+    padding: 10px 20px;
+    margin: 16px 24px 0;
+    border-radius: var(--hm-radius, 6px);
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.si-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+    padding: 24px;
+    max-width: 2100px;
+    margin: 0 auto;
+}
+
+@media (max-width: 1000px) {
+    .si-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.si-catalogue-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+}
+
+.si-item-card {
+    border: 1px solid #dde2ea;
+    border-radius: var(--hm-radius-lg, 10px);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: #fff;
+    transition: box-shadow .15s;
+}
+
+.si-item-card:hover {
+    box-shadow: 0 4px 16px rgba(20, 30, 80, .09);
+}
+
+.si-item-card.is-out {
+    opacity: .6;
+}
+
+.si-item-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #eaefff;
+    color: var(--hm-blue, #3E5FD9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+}
+
+.si-item-body h4 {
+    margin: 0 0 4px;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.si-item-desc {
+    color: #7a8094;
+    font-size: 14px;
+    margin: 0;
+}
+
+.si-item-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.si-item-price {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--hm-blue-dark, #2E48B0);
+}
+
+.si-item-actions {
+    margin-top: auto;
+}
+
+.si-qty-control {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: #eef1f8;
+    border-radius: var(--hm-radius, 6px);
+    padding: 4px 10px;
+}
+
+.si-qty-btn {
+    width: 26px;
+    height: 26px;
+    border: none;
+    border-radius: 50%;
+    background: var(--hm-blue, #3E5FD9);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.si-qty-val {
+    font-weight: 700;
+    font-size: 14px;
+    min-width: 18px;
+    text-align: center;
+    display: inline-block;
+}
+
+.si-buyer-box {
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #dde2ea;
+}
+
+.si-cart-items {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.si-cart-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 12px;
+    background: #f4f6f9;
+    border-radius: var(--hm-radius, 6px);
+}
+
+.si-cart-row-name {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.si-cart-row-name small {
+    color: #7a8094;
+    font-weight: 400;
+    margin-left: 6px;
+}
+
+.si-cart-row-amount {
+    font-weight: 700;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.si-cart-summary {
+    display: flex;
+    justify-content: space-between;
+    font-size: 15px;
+    font-weight: 700;
+    padding: 12px 0;
+    border-top: 1px solid #dde2ea;
+    margin-bottom: 12px;
 }

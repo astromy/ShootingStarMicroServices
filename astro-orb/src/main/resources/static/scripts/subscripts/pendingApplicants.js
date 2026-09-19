@@ -139,7 +139,7 @@ $(function () {
     // Score input modal
     let scoreModalHtml = `
         <div class="modal fade" id="scoreModal" tabindex="-1" role="dialog">
-            <div class="modal-dialog" role="document">
+            <div class="modal-dialog modal-lg" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">Enter Student Score</h5>

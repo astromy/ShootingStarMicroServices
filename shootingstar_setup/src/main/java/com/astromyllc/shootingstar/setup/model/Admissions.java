@@ -18,10 +18,11 @@ public class Admissions {
     @EqualsAndHashCode.Include
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idAdmissions;
-    @OneToMany(fetch = FetchType.EAGER,targetEntity =AdmissionCriteria.class, cascade = CascadeType.ALL)
-    @JoinColumn(name = "admissionAdmissionCriteria",referencedColumnName = "idAdmissions")
+
+    @OneToMany(fetch = FetchType.EAGER, targetEntity = AdmissionCriteria.class, cascade = CascadeType.ALL)
+    @JoinColumn(name = "admissionAdmissionCriteria", referencedColumnName = "idAdmissions")
     private List<AdmissionCriteria> admissionCriteriaList;
-    @OneToMany(fetch = FetchType.EAGER,targetEntity =ApplicationCategory.class, cascade = CascadeType.ALL)
-    @JoinColumn(name = "admissionsApplicationCategory",referencedColumnName = "idAdmissions")
+    @OneToMany(fetch = FetchType.EAGER, targetEntity = ApplicationCategory.class, cascade = CascadeType.ALL)
+    @JoinColumn(name = "admissionsApplicationCategory", referencedColumnName = "idAdmissions")
     private List<ApplicationCategory> applicationCategoryList;
 }

@@ -2,6 +2,8 @@ package com.astromyllc.astroorb.controller;
 
 import com.astromyllc.astroorb.dto.paystack.PaystackPaymentResponse;
 import com.astromyllc.astroorb.dto.request.*;
+import com.astromyllc.astroorb.subscription.RequiresPlan;
+import com.astromyllc.astroorb.subscription.SubscriptionPlan;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import lombok.RequiredArgsConstructor;
@@ -202,12 +204,13 @@ public class FinanceController {
     }
 
     @PostMapping("get-billPayments-by-institution")
-    public ResponseEntity<String> getPaymentsByInstitution(@RequestBody BillFetchRequest body) {
+    public ResponseEntity<String> getPaymentsByInstitution(@RequestBody SingleStringRequest body) {
         return post(body, backendserve + "/api/finance/get-billPayments-by-institution");
     }
 
     @PostMapping("get-billPayments-by-student")
     public ResponseEntity<String> getPaymentsByStudent(@RequestBody BillFetchRequest body) {
+        log.info(backendserve + "/api/finance/get-billPayments-by-student");
         return post(body, backendserve + "/api/finance/get-billPayments-by-student");
     }
 
@@ -220,31 +223,37 @@ public class FinanceController {
     // SALARY / PAYROLL
     // ══════════════════════════════════════════════════════════════════════════
 
+    @RequiresPlan(SubscriptionPlan.GROWTH)
     @PostMapping("salary-settings/save")
     public ResponseEntity<String> saveSalarySettings(@RequestBody Map<String, Object> body) {
         return post(body, backendserve + "/api/finance/salary-settings/save");
     }
 
+    @RequiresPlan(SubscriptionPlan.GROWTH)
     @PostMapping("salary-settings/get")
     public ResponseEntity<String> getSalarySettings(@RequestBody Map<String, Object> body) {
         return post(body, backendserve + "/api/finance/salary-settings/get");
     }
 
+    @RequiresPlan(SubscriptionPlan.GROWTH)
     @PostMapping("salary/create")
     public ResponseEntity<String> createSalaryRun(@RequestBody Map<String, Object> body) {
         return post(body, backendserve + "/api/finance/salary/create");
     }
 
+    @RequiresPlan(SubscriptionPlan.GROWTH)
     @PostMapping("salary/create-batch")
     public ResponseEntity<String> createSalaryBatch(@RequestBody List<Map<String, Object>> body) {
         return post(body, backendserve + "/api/finance/salary/create-batch");
     }
 
+    @RequiresPlan(SubscriptionPlan.GROWTH)
     @PostMapping("salary/get-by-institution")
     public ResponseEntity<String> getSalariesByInstitution(@RequestBody Map<String, Object> body) {
         return post(body, backendserve + "/api/finance/salary/get-by-institution");
     }
 
+    @RequiresPlan(SubscriptionPlan.GROWTH)
     @PostMapping("salary/payslip")
     public ResponseEntity<String> getPayslip(@RequestBody Map<String, Object> body) {
         return post(body, backendserve + "/api/finance/salary/payslip");
@@ -255,6 +264,7 @@ public class FinanceController {
      * The JS calls fetchPost("salary/approve/123?approvedBy=Admin", {})
      * so we use a wildcard mapping.
      */
+    @RequiresPlan(SubscriptionPlan.GROWTH)
     @RequestMapping(value = "salary/approve/{salaryId}", method = RequestMethod.POST)
     public ResponseEntity<String> approveSalary(
             @PathVariable Long salaryId,
@@ -263,6 +273,7 @@ public class FinanceController {
         return post(new Object(), backendserve + "/api/finance/salary/approve/" + salaryId + "?approvedBy=" + approvedBy);
     }
 
+    @RequiresPlan(SubscriptionPlan.GROWTH)
     @RequestMapping(value = "salary/mark-paid/{salaryId}", method = RequestMethod.POST)
     public ResponseEntity<String> markSalaryPaid(
             @PathVariable Long salaryId,
@@ -275,6 +286,7 @@ public class FinanceController {
         return post(new Object(), url);
     }
 
+    @RequiresPlan(SubscriptionPlan.GROWTH)
     @GetMapping("salary/get/{salaryId}")
     public ResponseEntity<String> getSalaryById(@PathVariable Long salaryId) {
         return get(backendserve + "/api/finance/salary/get/" + salaryId);

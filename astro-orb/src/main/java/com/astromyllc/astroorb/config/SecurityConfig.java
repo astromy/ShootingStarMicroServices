@@ -2,11 +2,12 @@ package com.astromyllc.astroorb.config;
 
 
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.ws.rs.HttpMethod;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.client.oidc.web.logout.OidcClientInitiatedLogoutSuccessHandler;
@@ -23,9 +24,14 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.session.SessionInformationExpiredEvent;
 import org.springframework.security.web.session.SessionInformationExpiredStrategy;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @RequiredArgsConstructor
@@ -64,6 +70,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http, ClientRegistrationRepository clientRegistrationRepository) throws Exception {
         http
                 // Require authentication for all requests
+                .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/public/**", "/resources/**", "/error").permitAll()
                         .requestMatchers(HttpMethod.POST, "/webhook/subscriptionPaymentStatus").permitAll()
@@ -150,6 +157,39 @@ public class SecurityConfig {
         return jwtAuthenticationConverter;
     }
 
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+
+        configuration.setAllowedOriginPatterns(List.of(
+                "https://astromyllc.com",
+                "https://*.astromyllc.com"));
+
+        configuration.setAllowedMethods(Arrays.asList(
+                "GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD"
+        ));
+
+        // Actual header names, not origin URLs
+        configuration.setAllowedHeaders(Arrays.asList(
+                "Authorization", "Content-Type", "X-CSRF-TOKEN", "X-Requested-With"
+        ));
+
+        configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
+
+        configuration.setExposedHeaders(Arrays.asList(
+                "Authorization",
+                "X-CSRF-TOKEN",
+                "Access-Control-Allow-Origin",
+                "Access-Control-Allow-Credentials"
+        ));
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/public/**", configuration);
+        source.registerCorsConfiguration("/api/**", configuration); // future-proof for /api/mobile/**
+        return source;
+    }
 
     // Custom session expired strategy
     private static class CustomSessionExpiredStrategy implements SessionInformationExpiredStrategy {

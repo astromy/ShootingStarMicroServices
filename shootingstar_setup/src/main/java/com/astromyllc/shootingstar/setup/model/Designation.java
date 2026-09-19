@@ -23,7 +23,10 @@ public class Designation {
     private String code;
     private int totalSlots;
     private int availableSlots;
-    @OneToMany(fetch = FetchType.EAGER,targetEntity =JobDescription.class, cascade = CascadeType.ALL)
-    @JoinColumn(name = "designationJobDescription",referencedColumnName = "idDesignation")
+    @Builder.Default
+    private String status = "active";
+
+    @OneToMany(fetch = FetchType.EAGER, targetEntity = JobDescription.class, cascade = CascadeType.ALL)
+    @JoinColumn(name = "designationJobDescription", referencedColumnName = "idDesignation")
     private List<JobDescription> jobDescriptionList;
 }

@@ -149,7 +149,7 @@ public class StaffUtil {
                 .gender(staffRequest.getGender())
                 .level(staffRequest.getLevel())
                 .designation(staffRequest.getDesignation())
-                .staffPicture(filepath)
+                .staffPicture(staffRequest.getStaffPicture())
                 .nextOfKing(staffRequest.getNextOfKing())
                 .institutionCode(staffRequest.getInstitutionCode())
                 //.professionalRecords(staffRequest.getProfessionalRecords().stream().map(p->ProfessionalRecordsUtil.mapProfessionalRecordRequest_ToProfessionalRecords(p)).toList())
@@ -180,7 +180,7 @@ public class StaffUtil {
         staff.setGender(staffRequest.getGender());
         staff.setLevel(staffRequest.getLevel());
         staff.setDesignation(staffRequest.getDesignation());
-        //staff.setStaffPicture(filepath);
+        staff.setStaffPicture(staffRequest.getStaffPicture());
         staff.setNextOfKing(staffRequest.getNextOfKing());
         return staff;
     }
@@ -250,7 +250,7 @@ public class StaffUtil {
                 .level(staff.getLevel())
                 .designation(staff.getDesignation())
                 .institutionCode(staff.getInstitutionCode())
-                //.staffPicture(filepath)
+                .staffPicture(staff.getStaffPicture())
                 .nextOfKing(staff.getNextOfKing())
                 .dependants(dr)
                 .staffDocuments(sdr)

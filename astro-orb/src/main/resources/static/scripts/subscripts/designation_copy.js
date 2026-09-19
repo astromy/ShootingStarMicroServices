@@ -43,7 +43,7 @@ $(function () {
 
     
     <div class="modal fade hmodal-info" id="myclassGroupModal" tabindex="-1" role="dialog">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="color-line"></div>
             <div class="modal-header">

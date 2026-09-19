@@ -37,15 +37,8 @@
         return el.src.substring(0, el.src.lastIndexOf("/") + 1); // e.g. "http://host/scripts/subscripts/"
     })();
 
-    // ─── INJECT CSS ───────────────────────────────────────────────────────────
-    (function injectCSS() {
-        if (document.getElementById("financeBillingCSS")) return;
-        var link = document.createElement("link");
-        link.id = "financeBillingCSS";
-        link.rel = "stylesheet";
-        link.href = _scriptBase + "../../styles/style.css"; // CSS lives in scripts/
-        document.head.appendChild(link);
-    })();
+    // ─── CSS ─────────────────────────────────────────────────────────────────
+    // style.css is already loaded globally by the base template.
 
     // ─── INJECT FONT AWESOME (if not already present) ─────────────────────────
     if (!document.querySelector('link[href*="font-awesome"], link[href*="fontawesome"]')) {

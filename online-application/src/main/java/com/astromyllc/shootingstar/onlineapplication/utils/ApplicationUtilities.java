@@ -60,7 +60,7 @@ public class ApplicationUtilities {
     private InstitutionRequest institutionRequest = null;
     @Value("${gateway.host}")
     private String host;
-    @Value("${paystack.secrete}")
+    @Value("${paystack.secrete-key}")
     private String PAYSTACK_SECRET_KEY;
 
 

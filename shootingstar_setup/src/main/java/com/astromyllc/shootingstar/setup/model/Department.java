@@ -20,12 +20,14 @@ public class Department {
     private Long idDepartment;
     @NonNull
     private String name;
+    @Builder.Default
+    private String status = "active";
 
     @ManyToOne
     @JoinColumn(name = "idInstitution")
     private Institution institution;
 
-    @OneToMany(fetch = FetchType.EAGER,targetEntity =Designation.class, cascade = CascadeType.ALL)
-    @JoinColumn(name = "departmentDesignation",referencedColumnName = "idDepartment")
+    @OneToMany(fetch = FetchType.EAGER, targetEntity = Designation.class, cascade = CascadeType.ALL)
+    @JoinColumn(name = "departmentDesignation", referencedColumnName = "idDepartment")
     private List<Designation> designationList;
 }

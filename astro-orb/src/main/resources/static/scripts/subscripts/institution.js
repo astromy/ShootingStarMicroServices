@@ -168,16 +168,15 @@ $(function () {
                                            <div class="col-lg-12">
                                                <div class="row">
    
-                                                   <div class="form-group col-sm-3">
+                                                   <div class="form-group col-sm-4">
                                                        <div class="hpanel plan-box hyellow subscriptionOption">
                                                            <div class="panel-heading hbuilt text-center">
-                                                               <h4 class="font-bold subscriptionPlan">Free plan</h4>
+                                                               <span class="label label-info currentPlanBadge" style="display:none;">Your Current Plan</span>
+                                                               <h4 class="font-bold subscriptionPlan">Starter plan</h4>
                                                            </div>
                                                            <div class="panel-body">
                                                                <p class="text-muted">
-                                                                   Lorem ipsum dolor sit amet, illum fastidii dissentias
-                                                                   quo ne. Sea ne sint animal iisque, nam an soluta
-                                                                   sensibus.
+                                                                   A single campus getting off paper and spreadsheets.
                                                                </p>
                                                                <table class="table">
                                                                    <thead>
@@ -190,58 +189,62 @@ $(function () {
                                                                    <tbody>
                                                                    <tr>
                                                                        <td>
-                                                                           <i class="fa fa-check-square-o"></i> Monthly
-                                                                           Support
+                                                                           <i class="fa fa-check-square-o"></i> Admin
+                                                                           console: setup, students, attendance
                                                                        </td>
                                                                    </tr>
                                                                    <tr>
                                                                        <td>
-                                                                           <i class="fa fa-check-square-o"></i> Support by
-                                                                           mail
+                                                                           <i class="fa fa-check-square-o"></i> Pulse
+                                                                           for front-desk &amp; gate staff
                                                                        </td>
                                                                    </tr>
                                                                    <tr>
                                                                        <td>
-                                                                           <i class="fa fa-square-o"></i> Website
+                                                                           <i class="fa fa-check-square-o"></i>
+                                                                           Finance: billing &amp; payments
                                                                        </td>
                                                                    </tr>
                                                                    <tr>
                                                                        <td>
-                                                                           <i class="fa fa-square-o"></i> Support by calls
+                                                                           <i class="fa fa-check-square-o"></i>
+                                                                           Announcements &amp; alerts
                                                                        </td>
                                                                    </tr>
                                                                    <tr>
                                                                        <td>
-                                                                           <i class="fa fa-square-o"></i> Customization
+                                                                           <i class="fa fa-check-square-o"></i>
+                                                                           Academix for parents
+                                                                       </td>
+                                                                   </tr>
+                                                                   <tr>
+                                                                       <td>
+                                                                           <i class="fa fa-check-square-o"></i> Email
+                                                                           support
                                                                        </td>
                                                                    </tr>
                                                                    </tbody>
                                                                </table>
-                                                               <p class="text-muted">
-                                                                   Lorem ipsum dolor sit amet, illum fastidii dissentias
-                                                                   quo ne. Sea ne sint animal iisque, nam an soluta
-                                                                   sensibus.
-                                                               </p>
-   
+
                                                                <h4 class="font-bold">
-                                                                   GHS 0/student
+                                                                   Free
                                                                </h4>
                                                                <a class="btn btn-warning btn-sm m-t-xs selectPlan">Select
                                                                    plan</a>
                                                            </div>
                                                        </div>
                                                    </div>
-   
-                                                   <div class="form-group col-sm-3">
+
+                                                   <div class="form-group col-sm-4">
                                                        <div class="hpanel plan-box hgreen subscriptionOption">
                                                            <div class="panel-heading hbuilt text-center">
-                                                               <h4 class="font-bold subscriptionPlan">Basic plan</h4>
+                                                               <span class="label label-warning">Most popular</span>
+                                                               <h4 class="font-bold subscriptionPlan">Growth plan</h4>
                                                            </div>
                                                            <div class="panel-body">
                                                                <p class="text-muted">
-                                                                   Lorem ipsum dolor sit amet, illum fastidii dissentias
-                                                                   quo ne. Sea ne sint animal iisque, nam an soluta
-                                                                   sensibus.
+                                                                   The full suite for a school that wants everything
+                                                                   connected.
                                                                </p>
                                                                <table class="table">
                                                                    <thead>
@@ -254,124 +257,81 @@ $(function () {
                                                                    <tbody>
                                                                    <tr>
                                                                        <td>
-                                                                           <i class="fa fa-check-square-o"></i> Support
-                                                                           Every 2 Weeks
+                                                                           <i class="fa fa-check-square-o"></i>
+                                                                           Everything in Starter, plus:
                                                                        </td>
                                                                    </tr>
                                                                    <tr>
                                                                        <td>
-                                                                           <i class="fa fa-check-square-o"></i> Support by
-                                                                           mail
+                                                                           <i class="fa fa-check-square-o"></i> Full
+                                                                           academics: exams, grading, transcripts,
+                                                                           timetabling
                                                                        </td>
                                                                    </tr>
                                                                    <tr>
                                                                        <td>
-                                                                           <i class="fa fa-check-square-o"></i> Website
+                                                                           <i class="fa fa-check-square-o"></i>
+                                                                           Question Bank
                                                                        </td>
                                                                    </tr>
                                                                    <tr>
                                                                        <td>
-                                                                           <i class="fa fa-square-o"></i> Support by calls
+                                                                           <i class="fa fa-check-square-o"></i> Online
+                                                                           Assessment
                                                                        </td>
                                                                    </tr>
                                                                    <tr>
                                                                        <td>
-                                                                           <i class="fa fa-square-o"></i> Customization
+                                                                           <i class="fa fa-check-square-o"></i>
+                                                                           Payroll &amp; general ledger
+                                                                       </td>
+                                                                   </tr>
+                                                                   <tr>
+                                                                       <td>
+                                                                           <i class="fa fa-check-square-o"></i> Full
+                                                                           Infirmary: vitals, diagnosis, history,
+                                                                           pharmacy
+                                                                       </td>
+                                                                   </tr>
+                                                                   <tr>
+                                                                       <td>
+                                                                           <i class="fa fa-check-square-o"></i> School
+                                                                           store, library &amp; accommodation
+                                                                       </td>
+                                                                   </tr>
+                                                                   <tr>
+                                                                       <td>
+                                                                           <i class="fa fa-check-square-o"></i>
+                                                                           Geo-fencing &amp; Staff Attendance
+                                                                       </td>
+                                                                   </tr>
+                                                                   <tr>
+                                                                       <td>
+                                                                           <i class="fa fa-check-square-o"></i>
+                                                                           Priority support
                                                                        </td>
                                                                    </tr>
                                                                    </tbody>
                                                                </table>
-                                                               <p class="text-muted">
-                                                                   Lorem ipsum dolor sit amet, illum fastidii dissentias
-                                                                   quo ne. Sea ne sint animal iisque, nam an soluta
-                                                                   sensibus.
-                                                               </p>
-   
+
                                                                <h4 class="font-bold">
-                                                                   GHS 60/student
+                                                                   Custom / quote
                                                                </h4>
                                                                <a class="btn btn-success btn-sm m-t-xs selectPlan">Select
                                                                    plan</a>
                                                            </div>
                                                        </div>
                                                    </div>
-   
-                                                   <div class="form-group col-sm-3">
+
+                                                   <div class="form-group col-sm-4">
                                                        <div class="hpanel plan-box hblue subscriptionOption">
                                                            <div class="panel-heading hbuilt text-center">
-                                                               <h4 class="font-bold subscriptionPlan">Standard plan</h4>
-                                                           </div>
-                                                           <div class="panel-body">
-                                                               <p class="text-muted">
-                                                                   Lorem ipsum dolor sit amet, illum fastidii dissentias
-                                                                   quo ne. Sea ne sint animal iisque, nam an soluta
-                                                                   sensibus.
-                                                               </p>
-                                                               <table class="table">
-                                                                   <thead>
-                                                                   <tr>
-                                                                       <td>
-                                                                           Features
-                                                                       </td>
-                                                                   </tr>
-                                                                   </thead>
-                                                                   <tbody>
-                                                                   <tr>
-                                                                       <td>
-                                                                           <i class="fa fa-check-square-o"></i> Weekly
-                                                                           Support
-                                                                       </td>
-                                                                   </tr>
-                                                                   <tr>
-                                                                       <td>
-                                                                           <i class="fa fa-check-square-o"></i> Support by
-                                                                           mail
-                                                                       </td>
-                                                                   </tr>
-                                                                   <tr>
-                                                                       <td>
-                                                                           <i class="fa fa-check-square-o"></i> Website
-                                                                       </td>
-                                                                   </tr>
-                                                                   <tr>
-                                                                       <td>
-                                                                           <i class="fa fa-check-square-o"></i> Support by
-                                                                           calls
-                                                                       </td>
-                                                                   </tr>
-                                                                   <tr>
-                                                                       <td>
-                                                                           <i class="fa fa-square-o"></i> Customization
-                                                                       </td>
-                                                                   </tr>
-                                                                   </tbody>
-                                                               </table>
-                                                               <p class="text-muted">
-                                                                   Lorem ipsum dolor sit amet, illum fastidii dissentias
-                                                                   quo ne. Sea ne sint animal iisque, nam an soluta
-                                                                   sensibus.
-                                                               </p>
-   
-                                                               <h4 class="font-bold">
-                                                                   GHS 150/student
-                                                               </h4>
-                                                               <a class="btn btn-info btn-sm m-t-xs selectPlan">Select
-                                                                   plan</a>
-                                                           </div>
-                                                       </div>
-                                                   </div>
-   
-                                                   <div class="form-group col-sm-3">
-                                                       <div class="hpanel plan-box hred subscriptionOption">
-                                                           <div class="panel-heading hbuilt text-center">
-                                                               <h4 class="font-bold subscriptionPlan">Professional
+                                                               <h4 class="font-bold subscriptionPlan">Enterprise
                                                                    plan</h4>
                                                            </div>
                                                            <div class="panel-body">
                                                                <p class="text-muted">
-                                                                   Lorem ipsum dolor sit amet, illum fastidii dissentias
-                                                                   quo ne. Sea ne sint animal iisque, nam an soluta
-                                                                   sensibus.
+                                                                   Multi-campus groups and larger institutions.
                                                                </p>
                                                                <table class="table">
                                                                    <thead>
@@ -384,49 +344,52 @@ $(function () {
                                                                    <tbody>
                                                                    <tr>
                                                                        <td>
-                                                                           <i class="fa fa-check-square-o"></i> Daily
-                                                                           Support
-                                                                       </td>
-                                                                   </tr>
-                                                                   <tr>
-                                                                       <td>
-                                                                           <i class="fa fa-check-square-o"></i> Support by
-                                                                           mail
-                                                                       </td>
-                                                                   </tr>
-                                                                   <tr>
-                                                                       <td>
-                                                                           <i class="fa fa-check-square-o"></i> Website
-                                                                       </td>
-                                                                   </tr>
-                                                                   <tr>
-                                                                       <td>
-                                                                           <i class="fa fa-check-square-o"></i> Support by
-                                                                           calls
+                                                                           <i class="fa fa-check-square-o"></i>
+                                                                           Everything in Growth, plus:
                                                                        </td>
                                                                    </tr>
                                                                    <tr>
                                                                        <td>
                                                                            <i class="fa fa-check-square-o"></i>
-                                                                           Customization
+                                                                           Multi-campus reporting
+                                                                       </td>
+                                                                   </tr>
+                                                                   <tr>
+                                                                       <td>
+                                                                           <i class="fa fa-check-square-o"></i>
+                                                                           Dedicated onboarding
+                                                                       </td>
+                                                                   </tr>
+                                                                   <tr>
+                                                                       <td>
+                                                                           <i class="fa fa-check-square-o"></i> Custom
+                                                                           integrations
+                                                                       </td>
+                                                                   </tr>
+                                                                   <tr>
+                                                                       <td>
+                                                                           <i class="fa fa-check-square-o"></i>
+                                                                           Service-level agreement
+                                                                       </td>
+                                                                   </tr>
+                                                                   <tr>
+                                                                       <td>
+                                                                           <i class="fa fa-check-square-o"></i>
+                                                                           Dedicated account manager
                                                                        </td>
                                                                    </tr>
                                                                    </tbody>
                                                                </table>
-                                                               <p class="text-muted">
-                                                                   Lorem ipsum dolor sit amet, illum fastidii dissentias
-                                                                   quo ne. Sea ne sint animal iisque, nam an soluta
-                                                                   sensibus.
-                                                               </p>
-   
+
                                                                <h4 class="font-bold">
-                                                                   GHS 300/student
+                                                                   Custom / quote
                                                                </h4>
                                                                <a class="btn btn-danger btn-sm m-t-xs selectPlan">Select
                                                                    plan</a>
                                                            </div>
                                                        </div>
                                                    </div>
+
    
    
                                                </div>
@@ -449,7 +412,71 @@ $(function () {
                                                </p>
                                            </div>
                                            <div class="col-lg-12">
-                                               <div class="row">
+                                               <div class="row" id="reviewSummary">
+                                                   <div class="col-lg-6">
+                                                       <div class="hpanel">
+                                                           <div class="panel-heading hbuilt">
+                                                               <h5 class="font-bold">Institution details</h5>
+                                                           </div>
+                                                           <div class="panel-body">
+                                                               <table class="table">
+                                                                   <tbody>
+                                                                   <tr><td class="text-muted">Institution</td><td class="font-bold" id="reviewName">-</td></tr>
+                                                                   <tr><td class="text-muted">Slogan</td><td id="reviewSlogan">-</td></tr>
+                                                                   <tr><td class="text-muted">Country</td><td id="reviewCountry">-</td></tr>
+                                                                   <tr><td class="text-muted">Region</td><td id="reviewRegion">-</td></tr>
+                                                                   <tr><td class="text-muted">City</td><td id="reviewCity">-</td></tr>
+                                                                   <tr><td class="text-muted">Email</td><td id="reviewEmail">-</td></tr>
+                                                                   </tbody>
+                                                               </table>
+                                                           </div>
+                                                       </div>
+                                                   </div>
+                                                   <div class="col-lg-6">
+                                                       <div class="hpanel">
+                                                           <div class="panel-heading hbuilt">
+                                                               <h5 class="font-bold">Contact &amp; capacity</h5>
+                                                           </div>
+                                                           <div class="panel-body">
+                                                               <table class="table">
+                                                                   <tbody>
+                                                                   <tr><td class="text-muted">Contact 1</td><td id="reviewContact1">-</td></tr>
+                                                                   <tr><td class="text-muted">Contact 2</td><td id="reviewContact2">-</td></tr>
+                                                                   <tr><td class="text-muted">Postal address</td><td id="reviewPostal">-</td></tr>
+                                                                   <tr><td class="text-muted">Streams</td><td id="reviewStreams">-</td></tr>
+                                                                   <tr><td class="text-muted">Population</td><td id="reviewPopulation">-</td></tr>
+                                                                   <tr><td class="text-muted">Website</td><td id="reviewWebsite">-</td></tr>
+                                                                   </tbody>
+                                                               </table>
+                                                           </div>
+                                                       </div>
+                                                   </div>
+                                               </div>
+                                               <div class="row" id="reviewPlanRow">
+                                                   <div class="col-lg-12">
+                                                       <div class="hpanel plan-box hgreen">
+                                                           <div class="panel-heading hbuilt text-center">
+                                                               <h4 class="font-bold">Selected plan: <span id="reviewPlanName">-</span></h4>
+                                                           </div>
+                                                           <div class="panel-body" id="reviewQuoteBody" style="display:none;">
+                                                               <table class="table">
+                                                                   <tbody>
+                                                                   <tr><td class="text-muted">Students billed</td><td id="quotePopulation">-</td></tr>
+                                                                   <tr><td class="text-muted">Rate / student</td><td id="quoteRate">-</td></tr>
+                                                                   <tr><td class="text-muted font-bold">Total due</td><td class="font-bold" id="quoteTotal">-</td></tr>
+                                                                   </tbody>
+                                                               </table>
+                                                               <p class="text-muted small">You'll be asked to pay this amount via Paystack before the upgrade is applied.</p>
+                                                           </div>
+                                                           <div class="panel-body" id="reviewNoChangeMsg" style="display:none;">
+                                                               <p class="text-muted small m-a-0"><i class="fa fa-check-circle text-navy"></i> No additional charge - this plan matches the institution's current subscription.</p>
+                                                           </div>
+                                                           <p class="text-danger small" id="reviewQuoteError" style="display:none; margin: 0 15px 15px;">Could not fetch pricing right now - it will be re-checked when you submit.</p>
+                                                           <div class="panel-body" id="reviewQuoteLoading">
+                                                               <p class="text-muted small"><i class="fa fa-spinner fa-spin"></i> Fetching upgrade pricing&hellip;</p>
+                                                           </div>
+                                                       </div>
+                                                   </div>
                                                </div>
                                            </div>
                                        </div>
@@ -469,7 +496,7 @@ $(function () {
                                                    agreement between your company <b><span id="client"></span></b>
                                                    and Astromy LLC <br/>to treate you as a customer who has placed a
                                                    request for our product under the following terms
-                                                   <br/><a href="#" title="dropdown">Read Terms</a>
+                                                   <br/><a href="#" title="dropdown" id="readTermsLink">Read Terms</a>
                                                </p>
                                            </div>
                                            <div class="checkbox col-lg-12">
@@ -492,13 +519,46 @@ $(function () {
                                    </div>
                                </div>
                            <!--</form>-->
+
+                           <div class="modal fade hmodal-info" id="termsModal" tabindex="-1" role="dialog">
+                               <div class="modal-dialog modal-lg" style="margin: 100px auto">
+                                   <div class="modal-content">
+                                       <div class="color-line"></div>
+                                       <div class="modal-header">
+                                           <h4 class="modal-title">Terms of Service</h4>
+                                           <small class="font-bold">Astromy LLC &mdash; Orb Pre-Order Agreement</small>
+                                       </div>
+                                       <div class="panel-body modalbody" style="border-bottom: 1px solid #a8bede; max-height: 400px; overflow-y: auto;">
+                                           <p class="small">
+                                               By approving and submitting this form, <b><span id="clientTerms"></span></b>
+                                               agrees to be onboarded onto the Orb platform under the selected
+                                               subscription plan. Charges for plan upgrades are billed once, at the
+                                               per-student rate for the plan chosen, and are payable via Paystack
+                                               before the upgrade takes effect.
+                                           </p>
+                                           <p class="small">
+                                               Downgrading or leaving your plan unchanged requires no payment and
+                                               takes effect once this form is submitted and approved.
+                                           </p>
+                                           <p class="small">
+                                               Astromy LLC will process the information provided (institution details,
+                                               contact information and crest/signature images) solely for the purpose
+                                               of setting up and operating your Orb account, and will not share it
+                                               with third parties outside of payment processing.
+                                           </p>
+                                       </div>
+                                       <div class="modal-footer">
+                                           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                       </div>
+                                   </div>
+                               </div>
+                           </div>
    
                        </div>
                    </div>
                </div>
    </div>
            </div>`
-
 
 
     document.getElementById("wrapper").innerHTML = institution;
@@ -511,7 +571,6 @@ $(function () {
 });
 
 //document.getElementById("institution").addEventListener("click", institutionBuild);
-
 
 
 /*

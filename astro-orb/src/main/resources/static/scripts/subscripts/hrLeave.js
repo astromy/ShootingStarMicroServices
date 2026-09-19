@@ -23,14 +23,8 @@
         return el.src.substring(0, el.src.lastIndexOf("/") + 1);
     })();
 
-    // ─── Inject CSS ───────────────────────────────────────────────────────────
-    if (!document.getElementById("hrLeaveCSS")) {
-        var link = document.createElement("link");
-        link.id = "hrLeaveCSS";
-        link.rel = "stylesheet";
-        link.href = _base + "../../styles/style.css";
-        document.head.appendChild(link);
-    }
+    // ─── CSS ─────────────────────────────────────────────────────────────────
+    // style.css is already loaded globally by the base template.
 
     // ─── Font Awesome ─────────────────────────────────────────────────────────
     if (!document.querySelector('link[href*="font-awesome"], link[href*="fontawesome"]')) {

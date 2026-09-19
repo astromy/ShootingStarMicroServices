@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="paystack-public-key" th:content="${paystackPublicKey}">
     <title>Account Suspended</title>
     <script src="https://js.paystack.co/v1/inline.js"></script>
     <style>
@@ -56,7 +57,7 @@
 <span class="hidden" id="user" th:text="${userName}"></span>
 <div class="suspended-container">
     <h1>Account Suspended</h1>
-    <p>This institutional account has been suspended due to unpaid fees. Please contact your administrator or reactivate your
+    <p>This institutional account has expired. Please contact your administrator or reactivate your
         account.</p>
     <p id="plan" class="hidden"> Student size  <span th:text="${population}"></span></p>
     <p id="population" class="hidden"> Current Subscription Plan  <span th:text="${plan}"></span></p>
@@ -98,7 +99,7 @@
             const amount = /*[[${bill}]]*/ 0 * 100; // Fallback to 0 if bill is null
 
             const handler = PaystackPop.setup({
-                key: 'pk_live_0052622a46fdb8e0e50f2c601cd1e18bb6bf502e',
+                key: document.querySelector('meta[name="paystack-public-key"]').getAttribute('content'),
                 email: adminEmail,
                 amount: amount*100,
                 currency: 'GHS',
@@ -115,7 +116,7 @@
                 },
                 callback: function(response) {
                     alert('Payment completed! Reference: ' + response.reference);
-                    window.location.href = '/account/reactivated?reference=' + response.reference;
+                    window.location.href = '/';
                 }
             });
             handler.openIframe();

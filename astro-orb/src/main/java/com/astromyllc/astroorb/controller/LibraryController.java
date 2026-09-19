@@ -1,5 +1,8 @@
 package com.astromyllc.astroorb.controller;
 
+import com.astromyllc.astroorb.subscription.RequiresPlan;
+import com.astromyllc.astroorb.subscription.SubscriptionPlan;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +39,7 @@ import java.util.Map;
 @Slf4j
 @ResponseBody
 @RequiredArgsConstructor
+@RequiresPlan(SubscriptionPlan.GROWTH)
 public class LibraryController {
 
     private final HttpClient httpClient = HttpClient.newHttpClient();

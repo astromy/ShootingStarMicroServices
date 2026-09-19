@@ -3,7 +3,11 @@ package com.astromyllc.astroorb.controller;
 
 import com.astromyllc.astroorb.dto.request.SingleStringRequest;
 import com.astromyllc.astroorb.dto.response.SkimpInstitutionResponse;
+import com.astromyllc.astroorb.dto.response.StaffResponse;
+import com.astromyllc.astroorb.subscription.InstitutionSubscriptionService;
+import com.astromyllc.astroorb.subscription.SubscriptionPlan;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +30,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -43,6 +49,8 @@ import java.util.Map;
 @Component
 @RequiredArgsConstructor
 public class UserController {
+    private static final ObjectMapper JSON = new ObjectMapper().registerModule(new JavaTimeModule());
+
     @NonNull  // Add this to include in constructor
     @Qualifier("webClientBuilder")
     private final WebClient.Builder webClientBuilder;
@@ -50,8 +58,12 @@ public class UserController {
     @NonNull  // Add this to include in constructor
     @Qualifier("directWebClientBuilder")
     private final WebClient.Builder directWebClientBuilder;
+    @NonNull
+    private final InstitutionSubscriptionService subscriptionService;
     @Value("${gateway.host}")
     private String backendserve;
+    @Value("${paystack.public-key}")
+    private String paystackPublicKey;
     @Autowired
     private OAuth2AuthorizedClientService authorizedClientService;
 
@@ -60,6 +72,7 @@ public class UserController {
                            @AuthenticationPrincipal OAuth2User principal,
                            HttpServletRequest httprequest,
                            OAuth2AuthenticationToken authentication) {
+        model.addAttribute("paystackPublicKey", paystackPublicKey);
 // Get CSRF token
         CsrfToken csrfToken = (CsrfToken) httprequest.getAttribute(CsrfToken.class.getName());
         if (csrfToken != null) {
@@ -86,12 +99,26 @@ public class UserController {
             model.addAttribute("accessToken", authorizedClient.getAccessToken().getTokenValue());
             log.info("AccessToken =" + authorizedClient.getAccessToken().getTokenValue());
             model.addAttribute("userName", principal.getAttribute("preferred_username"));
+            // model.addAttribute("userAvatar", getUser(principal.getAttribute("preferred_username")));
+
+            String staffCode = principal.getAttribute("preferred_username");
+            SingleStringRequest staffCodeRequest = new SingleStringRequest();
+            staffCodeRequest.setVal(staffCode);
+            ResponseEntity<StaffResponse> staffResponse = getUser(staffCodeRequest);
+            String userAvatar = null;
+            if (staffResponse.getStatusCode().is2xxSuccessful() && staffResponse.getBody() != null) {
+                userAvatar = staffResponse.getBody().getStaffPicture();
+            }
+            model.addAttribute("userAvatar", userAvatar);
+
             model.addAttribute("clientName", authorizedClient.getClientRegistration().getClientId());
             model.addAttribute("scopes", authorizedClient.getAccessToken().getScopes());
             model.addAttribute("institutions", principal.getAttribute("institution_group"));
             model.addAttribute("cd4", realmRoles);
 
             // Safely check institution status
+            SubscriptionPlan currentPlan = SubscriptionPlan.STARTER;
+            boolean planResolved = false;
             Object institutionObj = principal.getAttribute("institution_group");
             if (institutionObj != null) {
                 String institutionGroup = institutionObj.toString();
@@ -113,10 +140,25 @@ public class UserController {
                         model.addAttribute("population", response.getBody().getPopulation());
                         return "suspended";
                     }
+
+                    if (response != null && response.getBody() != null) {
+                        // Reuse the subscription value from the status call above instead of
+                        // making a second backend round-trip; this is the same parsing
+                        // SubscriptionEnforcementInterceptor/InstitutionSubscriptionService use.
+                        currentPlan = SubscriptionPlan.fromLabel(response.getBody().getSubscription());
+                        planResolved = true;
+                    }
                 } catch (Exception e) {
                     log.error("Error parsing institution code", e);
                 }
             }
+            if (!planResolved) {
+                // Status call above didn't yield a usable subscription value (missing
+                // institution attribute, parse failure, backend error, etc). Falls back to
+                // the same session-cached resolver the interceptor uses.
+                currentPlan = subscriptionService.resolvePlan(httprequest.getSession(true), principal);
+            }
+            model.addAttribute("subscriptionPlan", currentPlan.name());
 
             return "index";
 
@@ -194,9 +236,14 @@ public class UserController {
         defaultResponse.setStatus("Active"); // Assume active if backend fails
         defaultResponse.setPendingBill(0.0);
         defaultResponse.setEmail("unknown@example.com");
-        defaultResponse.setSubscription("Basic");
+        defaultResponse.setSubscription("Starter");
         defaultResponse.setPopulation(0L);
         return defaultResponse;
+    }
+
+    private ResponseEntity<StaffResponse> getUser(@RequestBody SingleStringRequest staffCode) {
+        ResponseEntity<StaffResponse> response = BACKENDCOMMPOST(staffCode, backendserve + "/api/hr/getStaffByStaffId", StaffResponse.class);
+        return response;
     }
 
     @GetMapping("/api/token")
@@ -211,6 +258,47 @@ public class UserController {
 
         return "login";
 
+    }
+
+    @GetMapping("/upgrade-required")
+    public String upgradeRequired(Model model,
+                                  @AuthenticationPrincipal OAuth2User principal,
+                                  HttpServletRequest httprequest,
+                                  @RequestParam(required = false) String required,
+                                  @RequestParam(required = false) String current) {
+        CsrfToken csrfToken = (CsrfToken) httprequest.getAttribute(CsrfToken.class.getName());
+        if (csrfToken != null) {
+            model.addAttribute("_csrf", csrfToken.getToken());
+            model.addAttribute("_csrf_header", csrfToken.getHeaderName());
+        }
+        model.addAttribute("paystackPublicKey", paystackPublicKey);
+        model.addAttribute("requiredPlan", required != null ? required : "a higher");
+        model.addAttribute("currentPlan", current != null ? current : "your current");
+
+        String institutionCode = null;
+        String email = null;
+        Object institutionObj = principal != null ? principal.getAttribute("institution_group") : null;
+        if (institutionObj != null) {
+            try {
+                institutionCode = institutionObj.toString().split(",")[0].split("/")[1].replace("]", "").trim();
+
+                SingleStringRequest request = new SingleStringRequest();
+                request.setVal(institutionCode);
+                ResponseEntity<SkimpInstitutionResponse> response = checkActivationStatus(request);
+                if (response != null && response.getBody() != null) {
+                    email = response.getBody().getEmail();
+                }
+            } catch (Exception e) {
+                log.error("Error resolving institution details for upgrade page", e);
+            }
+        }
+        // institutionCode/email may be null if resolution above failed - the page's JS
+        // checks for that and disables the "Pay Now" flow rather than erroring, since
+        // this is a display page, not something that should 500 on a parsing hiccup.
+        model.addAttribute("institutionId", institutionCode);
+        model.addAttribute("email", email);
+
+        return "upgrade-required";
     }
 
    /* @Value("${keycloak.base-url}")
@@ -261,7 +349,7 @@ public class UserController {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
                     .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(new ObjectMapper().writeValueAsString(jso)))
+                    .POST(HttpRequest.BodyPublishers.ofString(JSON.writeValueAsString(jso)))
                     .build();
 
 
@@ -273,6 +361,40 @@ public class UserController {
             }
 
             return ResponseEntity.status(response.statusCode()).body(response.body());
+        } catch (Exception e) {
+            log.error("API call failed", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    private <T> ResponseEntity<T> BACKENDCOMMPOST(Object jso, String url, Class<T> responseType) {
+        log.info("Calling API: {}", url);
+
+        try {
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(JSON.writeValueAsString(jso)))
+                    .build();
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() == 401) {
+                log.error("Backend rejected token. Status: {} - Body: {}", response.statusCode(), response.body());
+            }
+
+            boolean success = response.statusCode() >= 200 && response.statusCode() < 300;
+            if (success && response.body() != null && !response.body().isBlank()) {
+                try {
+                    T body = JSON.readValue(response.body(), responseType);
+                    return ResponseEntity.status(response.statusCode()).body(body);
+                } catch (Exception parseEx) {
+                    log.error("Response from {} could not be parsed as {}: {}", url, responseType.getSimpleName(), parseEx.getMessage());
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+                }
+            }
+            return ResponseEntity.status(response.statusCode()).build();
         } catch (Exception e) {
             log.error("API call failed", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

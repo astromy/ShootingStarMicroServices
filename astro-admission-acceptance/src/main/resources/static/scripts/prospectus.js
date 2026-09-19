@@ -884,33 +884,39 @@ function selectSubjectsBasedOnData(subjectsData, programType) {
 
 
 // Function to display base64 image
-function displayStudentPicture(base64Data) {
-    try {
-        // Create the image URL from base64 data
-        const imageUrl = `data:image/png;base64,${base64Data}`;
+function displayStudentPicture(pictureData) {
+    if (!pictureData) return;
 
-        // Get the image element
-        const imgElement = document.getElementById('studentPicture');
-        const imageOutput = document.querySelector('.imageOutput');
+    const imageOutput = document.querySelector('.imageOutput');
+    if (!imageOutput) return;
 
-        if (imgElement) {
-            // Set the image source
-            imgElement.src = imageUrl;
+    // Normalise: strip any Windows/Unix path — keep just the filename
+    const filename = String(pictureData).split('\\').pop().split('/').pop();
 
-            // If you want to update the preview container too
-            if (imageOutput) {
-                imageOutput.innerHTML = `
-          <div class="studPic">
-            <img src="${imageUrl}" alt="Student Picture" id="studentPicture" class="studPic">
+    // Legacy heuristic — raw base64 has no extension and is long
+    const looksLikeBase64 =
+        !/\.[a-z0-9]+$/i.test(filename) && filename.length > 200;
+
+    const imageUrl = looksLikeBase64
+        ? `data:image/png;base64,${filename}`
+        : `/getApplicantPicture/${encodeURIComponent(filename)}`;
+
+    imageOutput.innerHTML = `
+        <div class="studPic">
+            <img src="${imageUrl}" alt="Student Picture" class="studPic"
+                 onerror="handleStudentImgError(this)">
+            <div class="avatar-placeholder" style="display:none">
+                ${(document.getElementById('studFName')?.value || 'S').charAt(0)}
+            </div>
             <span onclick="deleteImage(0)">&times;</span>
-          </div>
-        `;
-            }
-        }
-    } catch (error) {
-        console.error('Error displaying student picture:', error);
-    }
+        </div>`;
 }
+
+window.handleStudentImgError = function (img) {
+    img.style.display = 'none';
+    const next = img.nextElementSibling;
+    if (next) next.style.display = 'flex';
+};
 
 function selectFirstSubjectInProgram(programType) {
     let subjectCheckboxes;

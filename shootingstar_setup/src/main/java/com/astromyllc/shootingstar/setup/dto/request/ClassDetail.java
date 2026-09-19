@@ -12,4 +12,5 @@ public class ClassDetail {
     private String name;
     @NonNull
     private String classGroup;
+    private String status;
 }

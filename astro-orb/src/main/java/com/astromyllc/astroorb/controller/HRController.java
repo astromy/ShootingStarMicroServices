@@ -1,6 +1,8 @@
 package com.astromyllc.astroorb.controller;
 
 import com.astromyllc.astroorb.dto.request.*;
+import com.astromyllc.astroorb.subscription.RequiresPlan;
+import com.astromyllc.astroorb.subscription.SubscriptionPlan;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -72,6 +74,18 @@ public class HRController {
         return response;
     }
 
+    // NOTE: "/api/hr/getPermissionsByStaff" is an assumed endpoint name/payload on the
+    // HR microservice, following the same pattern as staffClockIn's note above — it
+    // doesn't exist in any HR-service code shared so far. Expected to return a JSON
+    // array of StaffPermissionsResponse (id, staffCode, permissionCode, permission,
+    // institutionCode) for the given staffCode. Confirm the real contract there.
+    @ResponseBody
+    @RequestMapping(value = "get-permissions-by-staff", method = RequestMethod.POST)
+    public ResponseEntity<String> getPermissionsByStaff(@RequestBody SingleStringRequest jso) throws IOException {
+        ResponseEntity<String> response = BACKENDCOMMPOST(jso, backendserve + "/api/hr/getPermissionsByStaff");
+        return response;
+    }
+
     // Mobile calls this once it has an Expo push token (e.g. after login,
     // or whenever the token refreshes) so admin staff can receive transport
     // compliance alerts and similar notifications.
@@ -88,6 +102,10 @@ public class HRController {
     // below if needed. The geofence check itself is real and self-contained:
     // it calls the setup service directly, so it works regardless of what
     // the HR side ultimately expects.
+    // NOTE: this is a "Geo-fencing & Staff Attendance" feature (Growth plan). Now
+    // actively enforced for mobile too — SubscriptionEnforcementInterceptor resolves
+    // the institution from the JWT's "groups" claim for /api/mobile/** requests.
+    @RequiresPlan(SubscriptionPlan.GROWTH)
     @ResponseBody
     @RequestMapping(value = "api/mobile/staffClockIn", method = RequestMethod.POST)
     public ResponseEntity<String> staffClockIn(@RequestBody StaffClockInRequest jso) throws IOException, InterruptedException {

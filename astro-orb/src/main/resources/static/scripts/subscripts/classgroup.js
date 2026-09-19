@@ -38,7 +38,7 @@ $(function () {
 
     
     <div class="modal fade hmodal-info" id="myclassGroupModal" tabindex="-1" role="dialog">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="color-line"></div>
             <div class="modal-header">
@@ -59,6 +59,7 @@ $(function () {
         </div>
             </div>
             <div class="modal-footer">
+                <button type="button" class="btn btn-danger left deleteClassGroup" style="display:none;"><i class="fa fa-trash-o"></i> Delete</button>
                 <button type="button" class="btn btn-primary left test"><i class="fa fa-plus-square"></i> Add More</button>
                 <button type="button" class="btn btn-default dismissClassGroup"
                     data-dismiss="modal">Close</button>
@@ -98,6 +99,10 @@ $(function () {
 function modalopn() {
     document.getElementsByClassName("modalbody")[0].innerHTML = "";
     classgroupIndut();
+    // Opening via "New Class Group" - not editing an existing row, so there's
+    // nothing to delete yet.
+    window.currentLookupId = null;
+    $(".deleteClassGroup").hide();
 }
 
 function classgroupIndut() {

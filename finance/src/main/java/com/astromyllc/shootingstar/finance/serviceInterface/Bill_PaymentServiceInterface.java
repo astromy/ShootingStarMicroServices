@@ -2,6 +2,7 @@ package com.astromyllc.shootingstar.finance.serviceInterface;
 
 import com.astromyllc.shootingstar.finance.dto.request.BillFetchRequest;
 import com.astromyllc.shootingstar.finance.dto.request.Bill_PaymentRequest;
+import com.astromyllc.shootingstar.finance.dto.request.SingleStringRequest;
 import com.astromyllc.shootingstar.finance.dto.response.Bill_PaymentResponse;
 
 import java.util.List;
@@ -13,7 +14,7 @@ public interface Bill_PaymentServiceInterface {
 
     List<Bill_PaymentResponse> createBillPayments(List<Bill_PaymentRequest> billPaymentRequests);
 
-    Optional<List<Bill_PaymentResponse>> fetchBillPaymentsByInstitution(BillFetchRequest billFetchRequest);
+    Optional<List<Bill_PaymentResponse>> fetchBillPaymentsByInstitution(SingleStringRequest billFetchRequest);
 
     Optional<List<Bill_PaymentResponse>> fetchPaymentsByStudent(String studentId, String institutionCode);
 

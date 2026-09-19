@@ -1,79 +1,30 @@
 package com.astromyllc.astroorb.config;
 
-import com.astromyllc.astroorb.utils.TokenHolder;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.astromyllc.astroorb.subscription.SubscriptionEnforcementInterceptor;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
-import org.springframework.http.HttpHeaders;
-import org.springframework.web.reactive.function.client.ClientRequest;
-import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+// NOTE: the WebClient.Builder beans (webClientBuilder / directWebClientBuilder) and
+// the ObjectMapper bean used to live here, but were moved out to WebClientConfig and
+// JacksonConfig respectively, to break a circular dependency: this class depends on
+// SubscriptionEnforcementInterceptor, which (directly, or via
+// InstitutionSubscriptionService) depends on those beans. See WebClientConfig's and
+// JacksonConfig's javadoc for the full explanation. If you're tempted to move a bean
+// back into this class, check first whether SubscriptionEnforcementInterceptor or
+// anything it depends on needs that bean - if so, it belongs in a separate
+// no-dependency-on-WebConfig configuration class instead, same as these two.
 @Configuration
 @Slf4j
+@RequiredArgsConstructor
 public class WebConfig implements WebMvcConfigurer {
-    
 
-    @Bean
-    @Primary
-    public ObjectMapper objectMapper() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
-        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        return objectMapper;
-    }
-
-    @Bean
-    //@LoadBalanced
-    public WebClient.Builder webClientBuilder() {
-        return WebClient.builder()
-                .filter(tokenForwardingFilter())
-                .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(20 * 1024 * 1024));
-    }
-
-
-    @Bean
-    public WebClient.Builder directWebClientBuilder() {
-        System.out.println("🚀 Creating directWebClientBuilder bean!");
-        return WebClient.builder()
-                .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(20 * 1024 * 1024));
-    }
-
-    private ExchangeFilterFunction tokenForwardingFilter() {
-        return (request, next) -> {
-            // Get the token from TokenHolder (captured by TokenCaptureFilter)
-            String token = TokenHolder.getToken();
-
-            String url = request.url().toString();
-            System.out.println("🔵 WebClient request to: " + url);
-
-            if (token != null && !token.isEmpty()) {
-                System.out.println("✅ Forwarding token to: " + url);
-                System.out.println("   Token preview: " + token.substring(0, Math.min(20, token.length())) + "...");
-
-                ClientRequest filteredRequest = ClientRequest.from(request)
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-                        .build();
-
-                return next.exchange(filteredRequest)
-                        .doOnNext(response ->
-                                System.out.println("📥 Response from " + url + ": " + response.statusCode()));
-            } else {
-                System.out.println("❌ NO TOKEN to forward for: " + url);
-            }
-
-            return next.exchange(request);
-        };
-    }
+    private final SubscriptionEnforcementInterceptor subscriptionEnforcementInterceptor;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
@@ -109,5 +60,7 @@ public class WebConfig implements WebMvcConfigurer {
                 response.setHeader("X-Content-Type-Options", "nosniff");
             }
         });
+
+        registry.addInterceptor(subscriptionEnforcementInterceptor);
     }
 }

@@ -2,11 +2,51 @@ type = $('[name="type"]').val();
 name = [];
 resultlist = [];
 id = null;
+var currentLookupId = null;
 
 fetchInstitution(instId.split(",")[0]);
 //fetchInstitution(instId);
 
 window.copyrights();
+
+$(document).on("click", ".deleteClassGroup", async function () {
+    if (!currentLookupId) {
+        return;
+    }
+    var idToDelete = currentLookupId;
+    swal({
+        title: "Delete this entry?",
+        text: "This can't be undone.",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#DD6B55",
+        confirmButtonText: "Delete",
+        cancelButtonText: "Cancel",
+    }, function (isConfirm) {
+        if (!isConfirm) {
+            return;
+        }
+        $('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
+        fetchPost("deleteLookUp", {val: String(idToDelete)}).then(function () {
+            $("#example1").DataTable().destroy();
+            $(".dismissClassGroup").click();
+            fetchInstitution(instId.split(",")[0]);
+            $('.splash').css('display', 'none');
+            swal({
+                title: "Deleted",
+                text: "Entry removed successfully",
+                type: "success",
+            });
+        }).catch(function (err) {
+            $('.splash').css('display', 'none');
+            swal({
+                title: "Could not delete",
+                text: err.message || "Something went wrong.",
+                type: "error",
+            });
+        });
+    });
+});
 
 $(".saveClassGroup").click(async function () {
     $('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
@@ -91,6 +131,9 @@ function populateTable(data) {
                 $(".newClassGrouptxt").val(d.name);
                 $('.newClassGrouptxt').attr('id', d.id);
                 $(".modalbody").eq(1).empty();
+                currentLookupId = d.id;
+                window.currentLookupId = d.id;
+                $(".deleteClassGroup").show();
             });
     });
 

@@ -1,74 +1,80 @@
 package com.astromyllc.shootingstar.adminpta.service;
 
-import com.astromyllc.shootingstar.adminpta.dto.request.SingleStringRequest;
-import com.astromyllc.shootingstar.adminpta.dto.response.AnnouncementResponse;
+import com.astromyllc.shootingstar.adminpta.dto.request.MarkNotificationReadRequest;
+import com.astromyllc.shootingstar.adminpta.dto.request.StudentEventNotificationRequest;
 import com.astromyllc.shootingstar.adminpta.dto.response.NotificationResponse;
-import com.astromyllc.shootingstar.adminpta.dto.response.VoiceMessageResponse;
-import com.astromyllc.shootingstar.adminpta.serviceInterface.AnnouncementServiceInterface;
+import com.astromyllc.shootingstar.adminpta.model.Notification;
+import com.astromyllc.shootingstar.adminpta.repository.AnnouncementRepository;
+import com.astromyllc.shootingstar.adminpta.repository.NotificationRepository;
 import com.astromyllc.shootingstar.adminpta.serviceInterface.NotificationServiceInterface;
-import com.astromyllc.shootingstar.adminpta.serviceInterface.VoiceMessageServiceInterface;
+import com.astromyllc.shootingstar.adminpta.util.NotificationUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class NotificationService implements NotificationServiceInterface {
 
-    private final AnnouncementServiceInterface announcementServiceInterface;
-    private final VoiceMessageServiceInterface voiceMessageServiceInterface;
+    private final NotificationRepository notificationRepository;
+    private final AnnouncementRepository announcementRepository;
 
     @Override
-    public List<NotificationResponse> getNotifications(SingleStringRequest institutionCode) {
-        List<NotificationResponse> combined = new ArrayList<>();
-
-        announcementServiceInterface.getAnnouncementsByInstitution(institutionCode)
-                .forEach(a -> combined.add(mapAnnouncement(a)));
-
-        voiceMessageServiceInterface.getVoiceMessagesByInstitution(institutionCode)
-                .forEach(v -> combined.add(mapVoiceMessage(v)));
-
-        combined.sort(Comparator.comparing(NotificationResponse::getTimestamp).reversed());
-        return combined;
+    public Map<String, Object> notifyParentsOfStudentEvent(StudentEventNotificationRequest request) {
+        Notification notification = NotificationUtil.mapRequest_ToNotification(request);
+        notification = notificationRepository.save(notification);
+        log.info("Recorded {} notification for student {} at institution {}",
+                notification.getKind(), request.getStudentId(), request.getInstitutionCode());
+        return Map.of("status", "ok", "id", notification.getId().toHexString());
     }
 
-    // ASSUMPTION: AnnouncementResponse has getters id/institutionCode/sentBy/
-    // title/message/targetClassIds/type/timestamp — inferred from
-    // AnnouncementService's usage, not from the DTO itself (haven't seen
-    // that file). If a getter name here doesn't compile, match it to
-    // whatever the real DTO actually calls it.
-    private NotificationResponse mapAnnouncement(AnnouncementResponse a) {
-        boolean isEmergency = "EMERGENCY".equalsIgnoreCase(a.getPriority());
-        return NotificationResponse.builder()
-                .id(a.getId())
-                .kind(isEmergency ? "EMERGENCY" : "ANNOUNCEMENT")
-                .institutionCode(a.getInstitutionCode())
-                .sentBy(a.getSentBy())
-                .title(a.getTitle())
-                .message(a.getMessage())
-                .targetClassIds(a.getTargetClassIds())
-                .timestamp(a.getTimestamp())
-                .build();
+    // Merges the institution's Announcements (broadcast) with its targeted
+    // Notifications (e.g. CLINIC) into one time-sorted feed — matching what
+    // the mobile app's single Notifications screen expects.
+    @Override
+    public List<NotificationResponse> getNotifications(String institutionCode) {
+        List<NotificationResponse> announcements = announcementRepository
+                .findByInstitutionCodeOrderByTimestampDesc(institutionCode).stream()
+                .map(NotificationUtil::mapAnnouncement_ToNotificationResponse)
+                .toList();
+
+        List<NotificationResponse> studentEvents = notificationRepository
+                .findByInstitutionCodeOrderByTimestampDesc(institutionCode).stream()
+                .map(NotificationUtil::mapNotification_ToNotificationResponse)
+                .toList();
+
+        return Stream.concat(announcements.stream(), studentEvents.stream())
+                .sorted(Comparator.comparing(NotificationResponse::getTimestamp,
+                        Comparator.nullsLast(Comparator.reverseOrder())))
+                .toList();
     }
 
-    private NotificationResponse mapVoiceMessage(VoiceMessageResponse v) {
-        return NotificationResponse.builder()
-                .id(v.getId())
-                .kind("VOICE")
-                .institutionCode(v.getInstitutionCode())
-                .sentBy(v.getSentBy())
-                .title(v.getTitle())
-                .targetClassIds(v.getTargetClassIds())
-                .timestamp(v.getTimestamp())
-                .voiceMessageId(v.getId())
-                .mimeType(v.getMimeType())
-                .durationSeconds(v.getDurationSeconds())
-                .sizeBytes(v.getSizeBytes())
-                .build();
+    // Only the new per-student Notification collection tracks a "read"
+    // flag today — Announcement has no per-recipient read state modeled
+    // (it's institution-wide, not addressed to one parent), so an
+    // ANNOUNCEMENT/EMERGENCY id here is a no-op rather than an error.
+    @Override
+    public void markNotificationRead(MarkNotificationReadRequest request) {
+        if (!"CLINIC".equalsIgnoreCase(request.getKind())) {
+            log.debug("markNotificationRead: no per-recipient read state for kind {} — ignoring", request.getKind());
+            return;
+        }
+        try {
+            notificationRepository.findByIdAndInstitutionCode(
+                    new ObjectId(request.getNotificationId()), request.getInstitutionCode())
+                    .ifPresent(notification -> {
+                        notification.setRead(true);
+                        notificationRepository.save(notification);
+                    });
+        } catch (IllegalArgumentException ex) {
+            log.warn("markNotificationRead: invalid notification id {}", request.getNotificationId());
+        }
     }
 }

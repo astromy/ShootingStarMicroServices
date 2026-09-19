@@ -17,14 +17,7 @@
         return el && el.src ? el.src.substring(0, el.src.lastIndexOf('/') + 1) : '';
     })();
 
-    (function () {
-        if (document.getElementById('trialBalCSS')) return;
-        var l = document.createElement('link');
-        l.id = 'trialBalCSS';
-        l.rel = 'stylesheet';
-        l.href = _base + '../../styles/style.css';
-        document.head.appendChild(l);
-    })();
+    // style.css is already loaded globally by the base template.
 
     var TYPE_LABELS = {ASSET: 'Asset', LIABILITY: 'Liability', INCOME: 'Income', EXPENSE: 'Expense', EQUITY: 'Equity'};
 

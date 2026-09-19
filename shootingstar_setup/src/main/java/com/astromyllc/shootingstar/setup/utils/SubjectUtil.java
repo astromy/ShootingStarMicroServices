@@ -66,12 +66,12 @@ public class SubjectUtil {
 
     public Optional<SubjectResponse> mapSubject_ToSubjectResponse(Subject s) {
 
-        String lc = s.getClassGroup().getName();
+        Lookup cg = s.getClassGroup();
         return Optional.ofNullable(SubjectResponse.builder()
                 .id(s.getIdSubject())
-                .classGroup(String.valueOf(s.getClassGroup().getIdLookup()))
+                .classGroup(cg != null ? String.valueOf(cg.getIdLookup()) : null)
                 .name(s.getName())
-                .classGroupName(s.getClassGroup().getName())/*(l.getLookUpById(s.getClassGroup()).get().get().getName())*/
+                .classGroupName(cg != null ? cg.getName() : null)
                 .preference(s.getPreference())
                 .build());
     }

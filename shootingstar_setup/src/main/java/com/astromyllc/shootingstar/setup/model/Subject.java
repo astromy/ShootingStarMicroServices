@@ -24,6 +24,8 @@ public class Subject {
     @Column(columnDefinition = "Integer")
     @NonNull
     private Integer preference;
+    @Builder.Default
+    private String status = "active";
 
     @ManyToOne
     @JoinColumn(name = "class_group_id")

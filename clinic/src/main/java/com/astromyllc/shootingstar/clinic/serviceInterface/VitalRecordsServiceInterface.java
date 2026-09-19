@@ -12,4 +12,8 @@ public interface VitalRecordsServiceInterface {
     public VitalRecordsResponse fetchVitalRecordsByPatient(PatientRequest patientRequest);
     public List<VitalRecordsResponse> fetchVitalRecordsByInstitution(PatientRequest patientRequest);
 
+    // Additive — fetchVitalRecordsByPatient above only returns the single
+    // most recent record (that's the existing contract, left untouched).
+    // A patient-history screen needs the full timeline, hence this.
+    public List<VitalRecordsResponse> fetchAllVitalRecordsByPatient(PatientRequest patientRequest);
 }

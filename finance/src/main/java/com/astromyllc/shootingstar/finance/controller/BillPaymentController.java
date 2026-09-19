@@ -2,6 +2,7 @@ package com.astromyllc.shootingstar.finance.controller;
 
 import com.astromyllc.shootingstar.finance.dto.request.BillFetchRequest;
 import com.astromyllc.shootingstar.finance.dto.request.Bill_PaymentRequest;
+import com.astromyllc.shootingstar.finance.dto.request.SingleStringRequest;
 import com.astromyllc.shootingstar.finance.dto.response.Bill_PaymentResponse;
 import com.astromyllc.shootingstar.finance.serviceInterface.Bill_PaymentServiceInterface;
 import lombok.RequiredArgsConstructor;
@@ -48,7 +49,7 @@ public class BillPaymentController {
      */
     @PostMapping("/get-billPayments-by-institution")
     @ResponseStatus(HttpStatus.OK)
-    public Optional<List<Bill_PaymentResponse>> getByInstitution(@RequestBody BillFetchRequest request) {
+    public Optional<List<Bill_PaymentResponse>> getByInstitution(@RequestBody SingleStringRequest request) {
         return billPaymentServiceInterface.fetchBillPaymentsByInstitution(request);
     }
 

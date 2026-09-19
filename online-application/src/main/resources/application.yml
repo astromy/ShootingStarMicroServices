@@ -113,4 +113,5 @@ logging:
 
 
 paystack:
-  secrete: ${PAYSTACK_SECRET_KEY}
+  secrete-key: ${PAYSTACK_SECRET_KEY}
+  public-key: ${PAYSTACK_PUBLIC_KEY}

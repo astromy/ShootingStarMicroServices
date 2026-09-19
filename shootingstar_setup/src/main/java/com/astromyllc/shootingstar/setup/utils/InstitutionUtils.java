@@ -10,6 +10,9 @@ import com.astromyllc.shootingstar.setup.model.Institution;
 import com.astromyllc.shootingstar.setup.model.PreOrderInstitution;
 import com.astromyllc.shootingstar.setup.repository.InstitutionRepository;
 import com.astromyllc.shootingstar.setup.repository.PreOrderInstitutionRepository;
+import com.astromyllc.shootingstar.setup.subscription.PricingResult;
+import com.astromyllc.shootingstar.setup.subscription.SubscriptionPlan;
+import com.astromyllc.shootingstar.setup.subscription.SubscriptionPricingCalculator;
 import jakarta.annotation.PostConstruct;
 import jakarta.validation.ValidationException;
 import jakarta.ws.rs.core.Response;
@@ -61,6 +64,7 @@ public class InstitutionUtils {
     private final SubjectUtil subjectUtil;
     private final MailUtil mailUtil;
     private final WebClient.Builder webClientBuilder;
+    private final SubscriptionPricingCalculator subscriptionPricingCalculator;
     /*  @Value("${gateway.host}")
       private String keycloakSecrete;*/
     @Value("${keycloak.address}")
@@ -206,6 +210,21 @@ public class InstitutionUtils {
                 .build();
     }
 
+    public InstitutionResponse mapInstitutionToInstitutionResponseForWeb(Institution institution) throws IOException {
+        return InstitutionResponse.builder()
+                .id(institution.getIdInstitution())
+                .name(institution.getName())
+                .slogan(institution.getSlogan())
+                .country(institution.getCountry())
+                .city(institution.getCity())
+                .crest(institution.getCrest() != null ?
+                        processAndValidateImage(institution.getCrest(), 200, 512, "PNG")
+                        .map(bytes -> Base64.getEncoder().encodeToString(bytes))
+                        .orElse(null) :
+                        null)
+                .build();
+    }
+
     public InstitutionResponse mapInstitutionToInstitutionResponse(Institution institution, String inst) throws IOException {
         return InstitutionResponse.builder()
                 .id(institution.getIdInstitution())
@@ -264,13 +283,72 @@ public class InstitutionUtils {
                 .streams(institution.getStreams())
                 .subscription(institution.getSubscription())
                 .population(getPopulation(institution.getBececode()))
-                .pendingBill(getPopulation(institution.getBececode()) *
-                        (institution.getSubscription().toLowerCase().contains("free") ? 0.0 :
-                                institution.getSubscription().toLowerCase().contains("basic") ? 20.0 :
-                                institution.getSubscription().toLowerCase().contains("standard") ? 40.0 :
-                                institution.getSubscription().toLowerCase().contains("professional") ? 60.0 : 0.0)
-                )
+                .pendingBill(currentPlanBill(institution))
                 .build();
+    }
+
+    /**
+     * What this institution owes per its current plan, at its current population.
+     * <p>
+     * NOTE: this used to be a flat per-tier rate keyed off the tier name string
+     * (free/basic/standard/professional). When the pricing page was renamed to
+     * Starter/Growth/Enterprise, none of those substring checks matched anymore,
+     * silently making this 0.0 for every paying institution - a real bug, not
+     * just stale naming, since this value drives the reactivation charge shown
+     * on the suspended-account page. Fixed here by reusing the same
+     * population-based pricing used for plan upgrades, so there's one source of
+     * truth for "what does this institution's plan cost" instead of two
+     * independently-maintained numbers that can drift out of sync again.
+     */
+    private double currentPlanBill(Institution institution) {
+        SubscriptionPlan plan = SubscriptionPlan.fromLabel(institution.getSubscription());
+        if (plan == SubscriptionPlan.STARTER) {
+            return 0.0;
+        }
+        try {
+            PricingResult result = subscriptionPricingCalculator.calculate(getPopulation(institution.getBececode()), plan);
+            return result.totalAmount().doubleValue();
+        } catch (IllegalArgumentException e) {
+            // Population is zero/negative (e.g. getPopulation() came back with something
+            // unexpected) - the calculator caps out-of-range-but-positive populations
+            // rather than rejecting them, so this only fires on genuinely bad input.
+            // Falls back to no charge shown rather than blocking the suspension/
+            // reactivation flow over it.
+            log.warn("Could not compute pending bill for {}: {}", institution.getBececode(), e.getMessage());
+            return 0.0;
+        }
+    }
+
+    /**
+     * Applies a subscription change from a general profile-update request, but only
+     * if it's a downgrade or a no-op. Upgrades submitted through this path are
+     * silently ignored - they must go through the paid flow instead
+     * (InstitutionService#upgradeSubscriptionPaymentStatus), which only flips the
+     * plan once a matching payment has actually been verified. This is what stops
+     * re-submitting the pre-order form with a higher plan selected from silently
+     * upgrading the institution for free.
+     * <p>
+     * A blank/missing subscription value (e.g. an unrelated profile edit that
+     * doesn't touch the plan picker at all) is treated as "no change requested" -
+     * NOT as a request to downgrade to Starter. Parsing a blank value would
+     * otherwise resolve to STARTER via SubscriptionPlan.fromLabel's fallback and
+     * silently wipe out a paying institution's plan on an unrelated edit.
+     */
+    private void applyNonUpgradeSubscriptionChange(Institution institution, String requestedSubscriptionLabel) {
+        if (requestedSubscriptionLabel == null || requestedSubscriptionLabel.isBlank()) {
+            return;
+        }
+
+        SubscriptionPlan requestedPlan = SubscriptionPlan.fromLabel(requestedSubscriptionLabel);
+        SubscriptionPlan currentPlan = SubscriptionPlan.fromLabel(institution.getSubscription());
+
+        if (requestedPlan.isHigherThan(currentPlan)) {
+            log.warn("Ignoring attempted upgrade {} -> {} via profile-update path for {}; upgrades must be paid for",
+                    currentPlan, requestedPlan, institution.getBececode());
+            return;
+        }
+
+        institution.setSubscription(requestedPlan.storageLabel());
     }
 
     public Institution mapInstitutionRequestToInstitution(Institution institution, InstitutionRequest institutionRequest) throws IOException {
@@ -287,7 +365,7 @@ public class InstitutionUtils {
         institution.setStatus(institutionRequest.getStatus());
         institution.setStreams(institutionRequest.getStreams());
         institution.setWebsite(institutionRequest.getWebsite());
-        institution.setSubscription(institutionRequest.getSubscription());
+        applyNonUpgradeSubscriptionChange(institution, institutionRequest.getSubscription());
         institution.setCrest(institutionRequest.getCrest() != null ?
                 processAndValidateImage(institutionRequest.getCrest(), 200, 512, "PNG")
                 .map(bytes -> Base64.getEncoder().encodeToString(bytes))
@@ -447,6 +525,7 @@ public class InstitutionUtils {
         permissions.add("Infirmary vitals_recording");
         permissions.add("Infirmary diagnosis_recording");
         permissions.add("Infirmary medical_history");
+        permissions.add("Infirmary Pharmacy");
 
         permissions.add("Stores sales");
         permissions.add("Stores inventory");
@@ -691,6 +770,7 @@ public class InstitutionUtils {
         permissions.add("Infirmary vitals_recording");
         permissions.add("Infirmary diagnosis_recording");
         permissions.add("Infirmary medical_history");
+        permissions.add("Infirmary Pharmacy");
 
         permissions.add("Accommodation accommodation_list");
         permissions.add("Accommodation resource_tracking");

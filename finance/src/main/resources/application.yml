@@ -81,5 +81,5 @@ logging:
 
 
 paystack:
-  secrete: ${PAYSTACK_SECRET_KEY}
-  webhook-secret: ${STRIPE_WEBHOOK_SECRET}
+  secrete-key: ${PAYSTACK_SECRET_KEY}
+  public-key: ${PAYSTACK_PUBLIC_KEY}

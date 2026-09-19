@@ -17,7 +17,8 @@ public class Classes {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idClasses;
     private String name;
-    //private String classGroup;
+    @Builder.Default
+    private String status = "active";
 
     @ManyToOne
     @JoinColumn(name = "class_group_id")

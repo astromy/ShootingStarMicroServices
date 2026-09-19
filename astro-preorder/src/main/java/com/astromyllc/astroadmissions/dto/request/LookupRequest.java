@@ -12,4 +12,5 @@ public class LookupRequest {
     private String name;
     @NonNull
     private String type;
+    private String status;
 }

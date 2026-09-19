@@ -154,7 +154,7 @@ $(function () {
                                             </div>
                                             <output class="imageOutput" name="crest" id="crest"
                                                     style="height: 220px; width:220px; border-radius: 10px;display: inline-block;"></output>
-                                            <input class="imageInput" type="file"
+                                            <input class="imageInput" type="file" onchange="staffRecordsImageChange(this)"
                                                    style="width: 200px;padding: 12px;display: inline;"
                                                    accept="image/jpeg, image/png, image/jpg">
                                         </div>
@@ -369,7 +369,7 @@ function createDependant() {
                         </div>
                         <output class="imageOutput dependantPic" name="crest"
                                 style="height: 120px; width:220px; border-radius: 10px;display: inline-block;"></output>
-                        <input class="imageInput dependantPicInput" type="file"  onchange="imageChange(this)"
+                        <input class="imageInput dependantPicInput" type="file"  onchange="staffRecordsImageChange(this)"
                                style="width: 200px;padding: 12px;display: inline;"
                                accept="image/jpeg, image/png, image/jpg"">
                         <p id="error" class="fileError" style="color: red; display: none;">Only Image files are allowed!</p>

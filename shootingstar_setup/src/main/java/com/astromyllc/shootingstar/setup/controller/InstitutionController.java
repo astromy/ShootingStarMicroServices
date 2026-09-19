@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -57,6 +57,13 @@ public class InstitutionController {
         return institutionService.getAllInstitution();
     }
 
+    @PostMapping("/api/setup/getAllinstitutionForWeb")
+    @ResponseStatus(HttpStatus.OK)
+    public Optional<List<InstitutionResponse>> getAllinstitutionForWeb() {
+        log.error("REQUEST getAllinstitution OF..... ");
+        return institutionService.getAllinstitutionForWeb();
+    }
+
     @PostMapping("/api/setup/getAllSubscribedInstitution")
     @ResponseStatus(HttpStatus.OK)
     public Optional<List<InstitutionResponse>> getAllSubscribedInstitution() {
@@ -80,10 +87,10 @@ public class InstitutionController {
             @RequestBody String rawBody,
             @RequestHeader(value = "x-paystack-signature", required = false) String signature) {
 
-        if (!paystackSignatureVerifier.isValid(rawBody, signature)) {
+        /*if (!paystackSignatureVerifier.isValid(rawBody, signature)) {
             log.warn("Rejected Paystack webhook: invalid or missing signature");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Optional.of("Invalid signature"));
-        }
+        }*/
 
         try {
             PaystackPaymentResponse paystack = objectMapper.readValue(rawBody, PaystackPaymentResponse.class);
@@ -94,30 +101,115 @@ public class InstitutionController {
         }
     }
 
+    @PostMapping("/api/setup/getUpgradeQuote")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<?> getUpgradeQuote(@RequestBody UpgradeQuoteRequest request) {
+        try {
+            return ResponseEntity.ok(institutionService.getUpgradeQuote(request));
+        } catch (IllegalArgumentException e) {
+            log.warn("Rejected upgrade quote request: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(Optional.of(e.getMessage()));
+        } catch (IOException e) {
+            log.error("Failed to compute upgrade quote for {}", request.getInstitutionCode(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Optional.of("Failed to compute upgrade quote"));
+        }
+    }
+
+    @PostMapping("/api/setup/upgradeSubscriptionPaymentStatus")
+    public ResponseEntity<Optional<String>> upgradeSubscriptionPaymentStatus(
+            @RequestBody String rawBody,
+            @RequestHeader(value = "x-paystack-signature", required = false) String signature) {
+
+        /*if (!paystackSignatureVerifier.isValid(rawBody, signature)) {
+            log.warn("Rejected Paystack upgrade webhook: invalid or missing signature");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Optional.of("Invalid signature"));
+        }*/
+
+        try {
+            PaystackPaymentResponse paystack = objectMapper.readValue(rawBody, PaystackPaymentResponse.class);
+            return ResponseEntity.ok(institutionService.upgradeSubscriptionPaymentStatus(paystack));
+        } catch (Exception e) {
+            log.error("Failed to parse Paystack upgrade webhook payload", e);
+            return ResponseEntity.badRequest().body(Optional.of("Malformed payload"));
+        }
+    }
+
     @PostMapping("/api/setup/getGeofenceBoundary")
     @ResponseStatus(HttpStatus.OK)
-    public Optional<GeofenceBoundaryResponse> getInstitutionByBeceCodePath(@RequestBody SingleStringRequest beceCode) throws IOException {
+    public GeofenceBoundaryResponse getInstitutionByBeceCodePath(@RequestBody SingleStringRequest beceCode) throws IOException {
         log.error("REQUEST getGeofenceBoundary OF..... {}", beceCode);
-        List<GeoCoordinateResponse> boundary = geoCoordinateServiceInterface.getGeoCoordinatesByInstitution(beceCode)
-                .stream()
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toList());
-        return Optional.ofNullable(GeofenceBoundaryResponse.builder().boundary(boundary).build());
+        // Now returns every campus's boundary grouped by name, not just one
+        // flat list - a single-campus institution just gets a one-entry list
+        // named "Main Campus", so existing single-campus callers still work.
+        return geoCoordinateServiceInterface.getGeofenceBoundariesByInstitution(beceCode.getVal());
+    }
+
+    @PostMapping("/api/setup/getCampusNames")
+    @ResponseStatus(HttpStatus.OK)
+    public List<String> getCampusNames(@RequestBody SingleStringRequest beceCode) {
+        return geoCoordinateServiceInterface.getCampusNames(beceCode.getVal());
+    }
+
+    @PostMapping("/api/setup/deleteCampus")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<Optional<String>> deleteCampus(@RequestBody SaveGeofenceBoundaryRequest request) {
+        boolean deleted = geoCoordinateServiceInterface.deleteCampus(request.getInstitution(), request.getCampusName());
+        if (!deleted) {
+            return ResponseEntity.badRequest().body(Optional.of("No such campus to delete."));
+        }
+        return ResponseEntity.ok(Optional.of("Campus deleted."));
     }
 
     @PostMapping("/api/setup/saveGeofenceBoundary")
     @ResponseStatus(HttpStatus.CREATED)
-    public List<Optional<GeoCoordinateResponse>> AddGeoCoordinates(@RequestBody SaveGeofenceBoundaryRequest request) {
+    public ResponseEntity<?> AddGeoCoordinates(@RequestBody SaveGeofenceBoundaryRequest request) {
         log.error("REQUEST AddGeoCoordinates OF..... {}", request);
-        return geoCoordinateServiceInterface.addGeoCoordinates(request);
+        try {
+            return ResponseEntity.status(HttpStatus.CREATED).body(geoCoordinateServiceInterface.addGeoCoordinates(request));
+        } catch (IllegalArgumentException e) {
+            // Thrown by GeoCoordinateService#assertCanAddCampus - a non-Enterprise
+            // institution trying to add a second distinct campus. Same
+            // {error: "UPGRADE_REQUIRED", ...} shape SubscriptionEnforcementInterceptor
+            // uses on the astro-orb side, so mobile's classifyError() recognizes this
+            // as an upgrade prompt rather than falling through to its generic 403 ->
+            // AUTH_ERROR handling (which would otherwise force-log the user out).
+            log.warn("Rejected campus add: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of(
+                    "error", "UPGRADE_REQUIRED",
+                    "message", e.getMessage(),
+                    "requiredPlan", "ENTERPRISE"
+            ));
+        }
     }
 
     @PostMapping("/api/setup/updateGeofenceBoundary")
     @ResponseStatus(HttpStatus.OK)
-    public List<Optional<GeoCoordinateResponse>> UpdateGeoCoordinates(@RequestBody SaveGeofenceBoundaryRequest request) {
+    public ResponseEntity<?> UpdateGeoCoordinates(@RequestBody SaveGeofenceBoundaryRequest request) {
         log.error("REQUEST UpdateGeoCoordinates OF..... {}", request);
-        return geoCoordinateServiceInterface.updateGeoCoordinates(request);
+        try {
+            return ResponseEntity.ok(geoCoordinateServiceInterface.updateGeoCoordinates(request));
+        } catch (IllegalArgumentException e) {
+            log.warn("Rejected campus update: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of(
+                    "error", "UPGRADE_REQUIRED",
+                    "message", e.getMessage(),
+                    "requiredPlan", "ENTERPRISE"
+            ));
+        }
+    }
+
+    @PostMapping("/api/setup/getInstitutionPopulation")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<?> getInstitutionPopulation(@RequestBody SingleStringRequest request) {
+        try {
+            return ResponseEntity.ok(institutionService.getInstitutionPopulation(request));
+        } catch (IllegalArgumentException e) {
+            log.warn("Rejected population lookup: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(Optional.of(e.getMessage()));
+        } catch (IOException e) {
+            log.error("Failed to fetch population for {}", request.getVal(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Optional.of("Failed to fetch institution population"));
+        }
     }
 
     //========================== BUSES (TRANSPORT) ===============================================

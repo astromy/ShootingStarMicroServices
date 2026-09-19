@@ -49,7 +49,7 @@ public class InstitutionAccountUtil {
         return InstitutionAccountResponse.builder()
                 .idInstitutionAccount(s.getIdInstitutionAccount())
                 .activationState(s.getActivationState())
-                .activationDate(s.getActivationState())
+                .activationDate(s.getActivationDate())
                 .institutionCode(s.getInstitutionCode())
                 .build();
     }

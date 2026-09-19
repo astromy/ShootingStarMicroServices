@@ -16,7 +16,7 @@ public class PaystackSignatureVerifier {
 
     private static final String HMAC_ALGO = "HmacSHA512";
 
-    @Value("${paystack.secrete}")
+    @Value("${paystack.secrete-key}")
     private String paystackSecretKey;
 
     private static String bytesToHex(byte[] bytes) {

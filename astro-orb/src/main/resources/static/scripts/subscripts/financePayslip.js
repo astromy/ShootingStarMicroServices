@@ -24,14 +24,7 @@
     })();
 
     // ── CSS ──────────────────────────────────────────────────────────────────
-    (function () {
-        if (document.getElementById('payslipCSS')) return;
-        var l = document.createElement('link');
-        l.id = 'payslipCSS';
-        l.rel = 'stylesheet';
-        l.href = _base + '../../styles/style.css';
-        document.head.appendChild(l);
-    })();
+    // style.css is already loaded globally by the base template.
 
     // ── DOM ──────────────────────────────────────────────────────────────────
     function buildDOM() {
