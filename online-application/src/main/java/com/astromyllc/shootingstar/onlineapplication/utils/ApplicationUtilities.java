@@ -140,6 +140,7 @@ public class ApplicationUtilities {
                 .applicantDenomination(applications1.getApplicantDenomination())
                 .applicationCode(applications1.getApplicationCode())
                 .applicationStatus(applications1.getApplicationStatus())
+                .assignedClass(applications1.getAssignedClass())
                 .applicationInstitution(applications1.getApplicationInstitution())
                 .applicationInstitutionName(institutionName)  // ✅ populated
                 .applicationType(applications1.getApplicationType())
@@ -193,6 +194,7 @@ public class ApplicationUtilities {
                 .applicantDenomination(applications1.getApplicantDenomination())
                 .applicationCode(applications1.getApplicationCode())
                 .applicationStatus(applications1.getApplicationStatus())
+                .assignedClass(applications1.getAssignedClass())
                 .applicationInstitution(applications1.getApplicationInstitution())
                 .applicationType(applications1.getApplicationType())
                 .applicationDate(applications1.getApplicationDate())
@@ -276,9 +278,70 @@ public class ApplicationUtilities {
         if (request.getInstitutionCode() != null && !request.getInstitutionCode().isBlank()) {
             application.setApplicationInstitution(request.getInstitutionCode());
         }
+        if (request.getAssignedClass() != null && !request.getAssignedClass().isBlank()) {
+            application.setAssignedClass(request.getAssignedClass());
+
+            // The actual student document in administration-pta was already
+            // created earlier (when the parent completed the acceptance
+            // forms, via a completely separate call this service has no
+            // other connection to) - assignedClass being set here, on this
+            // service's own Applications record, never reached that
+            // existing document on its own. Only fire this for ADMITTED:
+            // studentClass shouldn't move for any other status change, and
+            // an assignedClass value can exist here without the student
+            // actually having been admitted yet.
+            if ("ADMITTED".equalsIgnoreCase(request.getStatus())) {
+                syncAssignedClassToStudent(application.getApplicationCode(), application.getApplicationInstitution(), request.getAssignedClass());
+            }
+        }
         application.setAdmissionDate(LocalDate.now());
 
         return application;
+    }
+
+    /**
+     * Pushes the assigned class onto the student document administration-pta
+     * already created for this application (studentId there is the
+     * application code - see ApplicationsResponse.toStudentsResponse()).
+     * Sends only studentId, institutionCode and studentClass:
+     * updateStudentRecord's field-mapping only ever sets a field when the
+     * incoming value is non-null and non-blank, so the other fields being
+     * absent here leaves everything else on that student - name, parents,
+     * subjects, account - completely untouched.
+     * <p>
+     * Best-effort: logged and swallowed on failure rather than thrown, so a
+     * hiccup reaching administration-pta doesn't undo the status change and
+     * assignedClass value this method already committed on this service's
+     * own record.
+     */
+    private void syncAssignedClassToStudent(String studentId, String institutionCode, String studentClass) {
+        if (studentId == null || studentId.isBlank()
+                || institutionCode == null || institutionCode.isBlank()) {
+            log.warn("Could not sync assignedClass [{}] to student record - missing studentId or institutionCode", studentClass);
+            return;
+        }
+        try {
+            Map<String, String> body = Map.of(
+                    "studentId", studentId,
+                    "institutionCode", institutionCode,
+                    "studentClass", studentClass
+            );
+            plainWebClient.post()
+                    .uri(host + "/api/administration-pta/updateStudentRecord")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(Mono.just(body), Map.class)
+                    .retrieve()
+                    .onStatus(
+                            status -> status.is4xxClientError() || status.is5xxServerError(),
+                            response -> response.bodyToMono(String.class)
+                                    .flatMap(err -> Mono.error(new RuntimeException(err)))
+                    )
+                    .bodyToMono(String.class)
+                    .subscribeOn(Schedulers.boundedElastic())
+                    .block();
+        } catch (Exception e) {
+            log.warn("Could not sync assignedClass [{}] to student [{}]: {}", studentClass, studentId, e.getMessage());
+        }
     }
 
     private String[] saveFilesInParallel(String picture, String birthCert, String applicationCode, String fileType) {

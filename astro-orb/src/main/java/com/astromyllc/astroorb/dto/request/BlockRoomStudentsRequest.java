@@ -1,7 +1,5 @@
 package com.astromyllc.astroorb.dto.request;
 
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,8 +13,7 @@ public class BlockRoomStudentsRequest {
     private Long idBlockRoomStudent;
     private String studentID;
     private String institutionID;
-
-    @ManyToOne
-    @JoinColumn(name = "idBlockRoom")
-    private BlockRoomRequest blockRoom;
+    // Matches the backend's request shape - just the room's ID, not a full
+    // nested object the frontend wouldn't have fully populated anyway.
+    private Long idBlockRoom;
 }

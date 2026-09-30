@@ -11,6 +11,7 @@ import com.astromyllc.shootingstar.finance.repositoy.SalariesRepository;
 import com.astromyllc.shootingstar.finance.repositoy.SalarySettingsRepository;
 import com.astromyllc.shootingstar.finance.serviceInterface.SalaryServiceInterface;
 import com.astromyllc.shootingstar.finance.utils.SalaryUtil;
+import com.astromyllc.shootingstar.finance.utils.PayrollCalculator;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +35,14 @@ public class SalaryService implements SalaryServiceInterface {
 
     @Override
     public SalarySettingsResponse saveSettings(SalarySettingsRequest r) {
+        // Reject malformed tax bands here, rather than getting wrong PAYE later.
+        if (r.getIncomeTaxBands() != null && !r.getIncomeTaxBands().isBlank()) {
+            PayrollCalculator.parseBands(r.getIncomeTaxBands());
+        }
+        if (r.getSsnitEmployeeRate() != null && (r.getSsnitEmployeeRate() < 0 || r.getSsnitEmployeeRate() > 100)
+                || r.getSsnitEmployerRate() != null && (r.getSsnitEmployerRate() < 0 || r.getSsnitEmployerRate() > 100)) {
+            throw new IllegalArgumentException("SSNIT rates must be between 0 and 100%.");
+        }
         Optional<SalarySettings> existing = SalaryUtil.salarySettingsGlobalList.stream()
                 .filter(s -> s.getInstitutionCode().equalsIgnoreCase(r.getInstitutionCode()))
                 .findFirst();

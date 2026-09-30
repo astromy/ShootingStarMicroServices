@@ -67,8 +67,25 @@ public class StudentUtil {
         if (contact == null || contact.trim().isEmpty()) return;
 
         String key = contact.trim().toLowerCase();
-        contactIndex.computeIfAbsent(key, k -> new CopyOnWriteArrayList<>())
-                .add(findStudentById(studentId));
+        List<Students> list = contactIndex.computeIfAbsent(key, k -> new CopyOnWriteArrayList<>());
+
+        Students student = findStudentById(studentId);
+        if (student == null) return;
+
+        // One entry per student per contact key, regardless of how many
+        // parent records reference the student. fetAllStudents() below
+        // calls this via parallelStream() over every parent record, so two
+        // duplicate parent rows for the same student (or two parents
+        // sharing a contact) can land on different threads at once - the
+        // check-then-add here wasn't atomic, so both could see "not
+        // present" before either added, letting the same student through
+        // twice anyway. Synchronizing per contact key (not globally) keeps
+        // this check-and-add atomic without serializing unrelated contacts
+        // against each other.
+        synchronized (list) {
+            boolean present = list.stream().anyMatch(s -> s.getStudentId().equals(student.getStudentId()));
+            if (!present) list.add(student);
+        }
     }
 
     private static Students findStudentById(String studentId) {
@@ -86,8 +103,11 @@ public class StudentUtil {
         String key = contact.trim().toLowerCase();
         List<Students> results = contactIndex.getOrDefault(key, Collections.emptyList());
 
-        // Return defensive copy
-        return new ArrayList<>(results);
+        Map<String, Students> seen = new LinkedHashMap<>();
+        for (Students s : results) {
+            seen.putIfAbsent(s.getStudentId(), s);
+        }
+        return new ArrayList<>(seen.values());
     }
 
     @PostConstruct
@@ -306,11 +326,7 @@ public class StudentUtil {
                 .filter(sp -> sp.getStudentId().equalsIgnoreCase(s.getStudentId()))
                 .map(this::mapParent_ToParentResponse)
                 .toList();
-
-        List<StudentAccountResponse> a = StudentAccountUtil.studentAccountsGlobalList.parallelStream()
-                .filter(sa -> sa.getStudentId().equalsIgnoreCase(s.getStudentId()))
-                .map(StudentAccountUtil::mapStudentAccount_ToStudentAccountResponse)
-                .toList();
+        List<StudentAccountResponse> a = StudentAccountUtil.getAllResponses(s.getStudentId());
 
         InstitutionRequest ir = parentsUtil.getSkimpInstitution(s.getInstitutionCode());
         return StudentSkimWithParentResponse.builder()
@@ -583,6 +599,16 @@ public class StudentUtil {
         if (!parents.isEmpty()) {
             parentsUtil.saveAll(parents);
             newStudents.getParentsList().addAll(parents);
+            // saveAll() above only updates ParentsUtil.parentGlobalList - a
+            // separate static field in a different class - not this one.
+            // This list stays stale for every student created here until
+            // the service restarts, which breaks any other code path that
+            // reads parent data from here directly (the studentParents
+            // built at lines ~229/315, and the StudentsImportRequest
+            // overload of updateExistingStudents, which - unlike the
+            // Students2Request overload used by accept-admissions - reads
+            // its "existing parents" from this exact list).
+            parentsGlobalList.addAll(parents);
         }
 
         /*processRecords(studentsRequest.getStudentSubjectsList(),
@@ -621,7 +647,7 @@ public class StudentUtil {
         // 3. Handle Student Account - works whether existingStudent.getParentsList() is null/empty or not
         this.<StudentAccountRequest, StudentAccount>updateRecords(
                 studentsImportRequest.getStudentAccountRequests(),
-                existingStudent.getStudentAccount() != null ? existingStudent.getStudentAccount() : Collections.emptyList(),
+                new ArrayList<>(StudentAccountUtil.getAll(existingStudent.getStudentId())),
                 StudentAccountUtil::mapStudentAccountRequest_ToStudentAccount,
                 studentAccountUtil::updateStudentAccount,
                 studentAccountUtil::saveAll,

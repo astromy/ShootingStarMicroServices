@@ -1,3 +1,4 @@
+## FOR LOCAL DEV ENVIRONMENT
 eureka:
   client:
     serviceUrl:
@@ -118,7 +119,7 @@ spring:
                 maxSize: 314572800
 
         - id: accommodation
-          uri: lb://accommodation
+          uri: lb://astro-accommodation
           predicates:
             - Path=/api/accommodation/**
           filters:

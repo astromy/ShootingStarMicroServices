@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Embeddable
+// Same fix as the other three - @Entity and @Embeddable were contradictory.
 @Data
 public class BlockRoomStudents {
     @Id

@@ -1,0 +1,135 @@
+// Markup for Setup > Accommodation. This is the "back office" page for the
+// accommodation module: create blocks, add/remove rooms, and assign the
+// block master responsible for each block. Assigning STUDENTS to rooms is
+// handled on the separate Room Allocation page instead.
+
+document.getElementById("wrapper").innerHTML =
+    '<div class="fc-page" id="setupAccommodationPage">' + [
+        '<div class="row">',
+        '  <div class="col-lg-12">',
+        '    <div class="hpanel">',
+        '      <div class="panel-heading hbuilt">',
+        '        <h2 style="margin:0;">Accommodation Setup</h2>',
+        '        <small class="text-muted">Create blocks, manage rooms, and assign block masters</small>',
+        '        <div class="pull-right">',
+        '          <button class="btn btn-primary" id="addBlockBtn"><i class="fa fa-plus"></i> Add Block</button>',
+        '        </div>',
+        '      </div>',
+        '      <div class="panel-body">',
+        '        <div class="empty-state text-center text-muted" id="blocksEmptyState" style="display:none; padding:40px 0;">',
+        '          <p>No blocks yet. Click "Add Block" to create the first one.</p>',
+        '        </div>',
+        '        <div class="row" id="blocksContainer"></div>',
+        '      </div>',
+        '    </div>',
+        '  </div>',
+        '</div>',
+
+        // ==================== Add Block Modal ====================
+        '<div class="modal fade" id="blockModal" tabindex="-1" role="dialog">',
+        '  <div class="modal-dialog" role="document">',
+        '    <div class="modal-content">',
+        '      <div class="modal-header">',
+        '        <button type="button" class="close" data-dismiss="modal">&times;</button>',
+        '        <h4 class="modal-title" id="blockModalTitle">Add Block</h4>',
+        '      </div>',
+        '      <div class="modal-body">',
+        '        <input type="hidden" id="blockIdInput">',
+        '        <div class="form-group">',
+        '          <label>Block Name</label>',
+        '          <input type="text" class="form-control" id="blockNameInput" placeholder="e.g. Ashanti House">',
+        '        </div>',
+        '        <div class="form-group">',
+        '          <label>Slogan (optional)</label>',
+        '          <input type="text" class="form-control" id="blockSloganInput">',
+        '        </div>',
+        '        <div class="form-group">',
+        '          <label>Gender</label>',
+        '          <select class="form-control" id="blockGenderInput">',
+        '            <option value="">Mixed</option>',
+        '            <option value="Male">Male</option>',
+        '            <option value="Female">Female</option>',
+        '          </select>',
+        '        </div>',
+        '      </div>',
+        '      <div class="modal-footer">',
+        '        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>',
+        '        <button type="button" class="btn btn-primary" id="saveBlockBtn">Save</button>',
+        '      </div>',
+        '    </div>',
+        '  </div>',
+        '</div>',
+
+        // ==================== Manage Block Modal (rooms + master) ====================
+        '<div class="modal fade" id="manageBlockModal" tabindex="-1" role="dialog">',
+        '  <div class="modal-dialog modal-lg" role="document">',
+        '    <div class="modal-content">',
+        '      <div class="modal-header">',
+        '        <button type="button" class="close" data-dismiss="modal">&times;</button>',
+        '        <h4 class="modal-title" id="manageBlockTitle">Manage Block</h4>',
+        '      </div>',
+        '      <div class="modal-body">',
+
+        '        <h5>Block Master</h5>',
+        '        <div id="masterSection" style="margin-bottom:20px;"></div>',
+
+        '        <h5>Rooms</h5>',
+        '        <table class="table table-striped">',
+        '          <thead><tr><th>Room</th><th>Reserved Beds</th><th>General Beds</th><th>Occupied</th><th>Capacity</th><th></th></tr></thead>',
+        '          <tbody id="roomsTableBody"></tbody>',
+        '        </table>',
+
+        '        <div class="row">',
+        '          <div class="col-sm-4"><input type="text" class="form-control" id="newRoomName" placeholder="Room name"></div>',
+        '          <div class="col-sm-3"><input type="number" class="form-control" id="newRoomReserved" placeholder="Reserved beds" min="0" value="0"></div>',
+        '          <div class="col-sm-3"><input type="number" class="form-control" id="newRoomGeneral" placeholder="General beds" min="0" value="4"></div>',
+        '          <div class="col-sm-2"><button class="btn btn-primary btn-block" id="addRoomBtn">Add Room</button></div>',
+        '        </div>',
+
+        '      </div>',
+        '      <div class="modal-footer">',
+        '        <button type="button" class="btn btn-danger pull-left" id="deleteBlockBtn">Delete Block</button>',
+        '        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>',
+        '      </div>',
+        '    </div>',
+        '  </div>',
+        '</div>',
+
+        // ==================== Assign Master Modal ====================
+        '<div class="modal fade" id="assignMasterModal" tabindex="-1" role="dialog">',
+        '  <div class="modal-dialog" role="document">',
+        '    <div class="modal-content">',
+        '      <div class="modal-header">',
+        '        <button type="button" class="close" data-dismiss="modal">&times;</button>',
+        '        <h4 class="modal-title">Assign Block Master</h4>',
+        '      </div>',
+        '      <div class="modal-body">',
+        '        <div class="form-group">',
+        '          <label>Staff Name</label>',
+        '          <input type="text" class="form-control" id="masterStaffName">',
+        '        </div>',
+        '        <div class="form-group">',
+        '          <label>Staff ID</label>',
+        '          <input type="text" class="form-control" id="masterStaffId">',
+        '        </div>',
+        '        <div class="form-group">',
+        '          <label>Appointment Date</label>',
+        '          <input type="date" class="form-control" id="masterAppointmentDate">',
+        '        </div>',
+        '      </div>',
+        '      <div class="modal-footer">',
+        '        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>',
+        '        <button type="button" class="btn btn-primary" id="saveMasterBtn">Assign</button>',
+        '      </div>',
+        '    </div>',
+        '  </div>',
+        '</div>',
+
+        '</div>'
+    ].join('\n');
+
+var script_setupAccommodation = document.createElement("script");
+script_setupAccommodation.setAttribute("type", "text/javascript");
+script_setupAccommodation.setAttribute("src", "scripts/_setupAccommodation.js");
+script_setupAccommodation.setAttribute("data-dynamic", "true");
+document.getElementsByTagName("body")[0].appendChild(script_setupAccommodation);

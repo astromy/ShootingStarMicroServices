@@ -125,7 +125,10 @@ function buildTable(data) {
                 <td>${student.dateOfAdmission || ''}</td>
                 <td>${student.placeOfBirth || ''}</td>
                 <td>${student.countryOfBirth || ''}</td>
-                <td>${student.nationality || ''}</td>
+                <!-- Nationality mirrors Country of Birth - the Students
+                     model has no separate nationality field, so a raw
+                     student.nationality here would always render blank. -->
+                <td>${student.countryOfBirth || ''}</td>
                 <td>${student.denomination || ''}</td>
                 <td>
                     <span class="label ${statusLabel(student.status)}">${student.status || ''}</span>
@@ -241,6 +244,11 @@ async function openStudentModal(studentId) {
     // Reset tabs
     showTab("bioTab");
 
+    // Room tab data loads in the background - it's only shown if the user
+    // clicks over to that tab, but starting the fetch now (rather than on
+    // tab-click) means it's usually already there by the time they do.
+    loadRoomTabSection(student);
+
     // Populate bio data fields
     $("#editStudentId").val(student.studentId || '');
     $("#editFirstName").val(student.firstName || '');
@@ -251,7 +259,17 @@ async function openStudentModal(studentId) {
     $("#editGender").val(student.gender || '');
     $("#editPlaceOfBirth").val(student.placeOfBirth || '');
     $("#editCountryOfBirth").val(student.countryOfBirth || '');
-    $("#editNationality").val(student.nationality || '');
+    // Nationality is a read-only mirror of Country of Birth - there's no
+    // separate nationality field on the backend. Populated from the same
+    // value, kept in sync below if Country of Birth is edited, and never
+    // sent back on save (see the payload further down).
+    $("#editNationality").val(student.countryOfBirth || '');
+    // Keep Nationality mirroring Country of Birth live while this form is
+    // open. .off() first so re-opening the modal for another student
+    // doesn't stack a duplicate handler on top of the last one.
+    $("#editCountryOfBirth").off("input.nationalityMirror").on("input.nationalityMirror", function () {
+        $("#editNationality").val($(this).val());
+    });
     $("#editDenomination").val(student.denomination || '');
     $("#editResidentialLocality").val(student.residentialLocality || '');
     $("#editStudentClass").val(student.studentClass || '');
@@ -386,6 +404,131 @@ function showTab(tabId) {
     if (target) target.style.display = "block";
 }
 
+// ─── ROOM TAB ────────────────────────────────────────────────────────────────
+// Lets a student's room be reassigned from their record directly, using the
+// same accommodation endpoints as Room Allocation and the admission modal -
+// this is the third place that widget appears, per the "student record edit
+// function" requirement.
+
+async function loadRoomTabSection(student) {
+    var statusEl = $("#roomTabStatus");
+    statusEl.text("Loading rooms…");
+    $("#editUnassignRoomBtn").hide().data("assignment-id", null);
+
+    try {
+        var results = await Promise.all([
+            fetchPost("getInstitutionAccommodation", {val: v}),
+            fetchPost("getInstitutionRoomAssignments", {val: v}),
+        ]);
+        var blocks = results[0] || [];
+        var assignments = results[1] || [];
+
+        var blockSelect = $("#editBlockSelect");
+        blockSelect.find("option:not(:first)").remove();
+        blocks.forEach(function (b) {
+            blockSelect.append('<option value="' + b.idBlock + '">' + b.name + '</option>');
+        });
+        blockSelect.data("blocks", blocks);
+
+        var existing = assignments.find(function (a) {
+            return a.studentID === student.studentId;
+        });
+
+        if (existing && existing.blockRoom) {
+            statusEl.html(
+                '<span class="text-success"><i class="fa fa-check-circle"></i> Currently in room <strong>' +
+                existing.blockRoom.name + '</strong></span>'
+            );
+            $("#editUnassignRoomBtn").show().data("assignment-id", existing.idBlockRoomStudent);
+        } else {
+            statusEl.html('<span class="text-muted">Not currently assigned to a room.</span>');
+        }
+    } catch (error) {
+        console.error("Failed to load rooms for student record:", error);
+        statusEl.html('<span class="text-danger">Could not load room list.</span>');
+    }
+}
+
+$(document).on("change", "#editBlockSelect", function () {
+    var idBlock = parseInt($(this).val(), 10);
+    var roomSelect = $("#editRoomSelect");
+    var blocks = $(this).data("blocks") || [];
+    var block = blocks.find(function (b) {
+        return b.idBlock === idBlock;
+    });
+
+    if (!block) {
+        roomSelect.html('<option value="">Select block first</option>').prop("disabled", true);
+        return;
+    }
+
+    var rooms = block.roomsList || [];
+    if (rooms.length === 0) {
+        roomSelect.html('<option value="">No rooms in this block</option>').prop("disabled", true);
+        return;
+    }
+
+    var opts = '<option value="">Select room…</option>';
+    rooms.forEach(function (r) {
+        opts += '<option value="' + r.idBlockRoom + '">' + r.name + '</option>';
+    });
+    roomSelect.html(opts).prop("disabled", false);
+});
+
+document.getElementById("editAssignRoomBtn").addEventListener("click", async function () {
+    var student = $("#studentModal").data("student") || {};
+    var idBlockRoom = parseInt($("#editRoomSelect").val(), 10);
+
+    if (!idBlockRoom) {
+        swal({title: "Select a room", text: "Please choose a block and room first.", type: "warning"});
+        return;
+    }
+
+    var payload = {
+        studentID: student.studentId,
+        institutionID: v,
+        idBlockRoom: idBlockRoom,
+    };
+
+    showSplash();
+    try {
+        await fetchPost("assignStudentToRoom", payload);
+        await loadRoomTabSection(student);
+        swal({title: "Assigned", text: "Room assigned successfully.", type: "success"});
+    } catch (error) {
+        swal({title: "Could not assign room", text: parseRoomTabError(error), type: "error"});
+    }
+    hideSplash();
+});
+
+document.getElementById("editUnassignRoomBtn").addEventListener("click", async function () {
+    var idBlockRoomStudent = $(this).data("assignment-id");
+    if (!idBlockRoomStudent) return;
+    if (!confirm("Remove this student from their current room?")) return;
+
+    var student = $("#studentModal").data("student") || {};
+
+    showSplash();
+    try {
+        await fetchPost("unassignStudent", {val: idBlockRoomStudent});
+        await loadRoomTabSection(student);
+    } catch (error) {
+        swal({title: "Could not remove room assignment", text: parseRoomTabError(error), type: "error"});
+    }
+    hideSplash();
+});
+
+function parseRoomTabError(error) {
+    var message = error && error.message ? error.message : String(error);
+    var jsonStart = message.indexOf("{");
+    if (jsonStart === -1) return message;
+    try {
+        return JSON.parse(message.slice(jsonStart)).error || message;
+    } catch (e) {
+        return message;
+    }
+}
+
 // ─── SAVE STUDENT ────────────────────────────────────────────────────────────
 
 document.getElementById("saveStudentBtn").addEventListener("click", async function () {
@@ -415,7 +558,10 @@ document.getElementById("saveStudentBtn").addEventListener("click", async functi
         gender: $("#editGender").val(),
         placeOfBirth: $("#editPlaceOfBirth").val(),
         countryOfBirth: $("#editCountryOfBirth").val(),
-        nationality: $("#editNationality").val(),
+        // Nationality intentionally not sent - it's a read-only mirror of
+        // countryOfBirth in this form, not a real, separately-updatable
+        // field. countryOfBirth above is the one value that actually
+        // persists.
         denomination: $("#editDenomination").val(),
         residentialLocality: $("#editResidentialLocality").val(),
         studentClass: $("#editStudentClass").val(),

@@ -31,5 +31,19 @@ public class SalaryResponse {
     private String processedBy;
     private String paymentMethod;
     private String externalReference;
+    private String createdBy;
+    private String approvedBy;
+    private LocalDateTime approvedAt;
+    private LocalDateTime paidAt;
+    private Double grossPay;
+    private Double taxableIncome;
+    private Double employeeSsnit;
+    private Double employerSsnit;
+    private Double incomeTax;
+    private String bankName;
+    private String bankBranch;
+    private String accountName;
+    private String accountNumber;
+    private String momoNumber;
     private List<SalaryItemResponse> salaryItems;
 }

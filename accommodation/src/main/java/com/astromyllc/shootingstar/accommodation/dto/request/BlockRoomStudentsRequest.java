@@ -1,7 +1,5 @@
 package com.astromyllc.shootingstar.accommodation.dto.request;
 
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,8 +13,7 @@ public class BlockRoomStudentsRequest {
     private Long idBlockRoomStudent;
     private String studentID;
     private String institutionID;
-
-    @ManyToOne
-    @JoinColumn(name = "idBlockRoom")
-    private BlockRoomRequest blockRoom;
+    // The service resolves the actual BlockRoom by ID rather than expecting
+    // a full nested object here - this just needs to say which room.
+    private Long idBlockRoom;
 }

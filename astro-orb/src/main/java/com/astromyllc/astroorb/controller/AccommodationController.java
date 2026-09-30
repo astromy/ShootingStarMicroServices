@@ -3,7 +3,12 @@ package com.astromyllc.astroorb.controller;
 import com.astromyllc.astroorb.subscription.RequiresPlan;
 import com.astromyllc.astroorb.subscription.SubscriptionPlan;
 
+import com.astromyllc.astroorb.dto.request.AddRoomRequest;
+import com.astromyllc.astroorb.dto.request.AssignBlockMasterRequest;
+import com.astromyllc.astroorb.dto.request.AssignBlockPrefectRequest;
 import com.astromyllc.astroorb.dto.request.BlockRequest;
+import com.astromyllc.astroorb.dto.request.BlockRoomStudentsRequest;
+import com.astromyllc.astroorb.dto.request.SingleIdRequest;
 import com.astromyllc.astroorb.dto.request.SingleStringRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -49,6 +54,112 @@ public class AccommodationController {
     @RequestMapping(value = "addInstitutionAccommodation", method = RequestMethod.POST)
     public ResponseEntity<String> addInstitutionAccommodation(@RequestBody BlockRequest jso) throws IOException {
         String url = backendserve + "/api/accommodation/addInstitutionAccommodation";
+        return BACKENDCOMMPOST(jso, url);
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "updateBlock", method = RequestMethod.POST)
+    public ResponseEntity<String> updateBlock(@RequestBody BlockRequest jso) throws IOException {
+        String url = backendserve + "/api/accommodation/updateBlock";
+        return BACKENDCOMMPOST(jso, url);
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "deleteBlock", method = RequestMethod.POST)
+    public ResponseEntity<String> deleteBlock(@RequestBody SingleIdRequest jso) throws IOException {
+        String url = backendserve + "/api/accommodation/deleteBlock";
+        return BACKENDCOMMPOST(jso, url);
+    }
+
+    // ==================== Rooms ====================
+
+    @ResponseBody
+    @RequestMapping(value = "addRoomToBlock", method = RequestMethod.POST)
+    public ResponseEntity<String> addRoomToBlock(@RequestBody AddRoomRequest jso) throws IOException {
+        String url = backendserve + "/api/accommodation/addRoomToBlock";
+        return BACKENDCOMMPOST(jso, url);
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "deleteRoom", method = RequestMethod.POST)
+    public ResponseEntity<String> deleteRoom(@RequestBody SingleIdRequest jso) throws IOException {
+        String url = backendserve + "/api/accommodation/deleteRoom";
+        return BACKENDCOMMPOST(jso, url);
+    }
+
+    // ==================== Block Masters ====================
+
+    @ResponseBody
+    @RequestMapping(value = "assignBlockMaster", method = RequestMethod.POST)
+    public ResponseEntity<String> assignBlockMaster(@RequestBody AssignBlockMasterRequest jso) throws IOException {
+        String url = backendserve + "/api/accommodation/assignBlockMaster";
+        return BACKENDCOMMPOST(jso, url);
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "endBlockMasterAssignment", method = RequestMethod.POST)
+    public ResponseEntity<String> endBlockMasterAssignment(@RequestBody SingleIdRequest jso) throws IOException {
+        String url = backendserve + "/api/accommodation/endBlockMasterAssignment";
+        return BACKENDCOMMPOST(jso, url);
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "getBlockMasters", method = RequestMethod.POST)
+    public ResponseEntity<String> getBlockMasters(@RequestBody SingleIdRequest jso) throws IOException {
+        String url = backendserve + "/api/accommodation/getBlockMasters";
+        return BACKENDCOMMPOST(jso, url);
+    }
+
+    // ==================== Block Prefects ====================
+
+    @ResponseBody
+    @RequestMapping(value = "assignBlockPrefect", method = RequestMethod.POST)
+    public ResponseEntity<String> assignBlockPrefect(@RequestBody AssignBlockPrefectRequest jso) throws IOException {
+        String url = backendserve + "/api/accommodation/assignBlockPrefect";
+        return BACKENDCOMMPOST(jso, url);
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "endBlockPrefectAssignment", method = RequestMethod.POST)
+    public ResponseEntity<String> endBlockPrefectAssignment(@RequestBody SingleIdRequest jso) throws IOException {
+        String url = backendserve + "/api/accommodation/endBlockPrefectAssignment";
+        return BACKENDCOMMPOST(jso, url);
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "getBlockPrefects", method = RequestMethod.POST)
+    public ResponseEntity<String> getBlockPrefects(@RequestBody SingleIdRequest jso) throws IOException {
+        String url = backendserve + "/api/accommodation/getBlockPrefects";
+        return BACKENDCOMMPOST(jso, url);
+    }
+
+    // ==================== Room Assignments (students) ====================
+
+    @ResponseBody
+    @RequestMapping(value = "assignStudentToRoom", method = RequestMethod.POST)
+    public ResponseEntity<String> assignStudentToRoom(@RequestBody BlockRoomStudentsRequest jso) throws IOException {
+        String url = backendserve + "/api/accommodation/assignStudentToRoom";
+        return BACKENDCOMMPOST(jso, url);
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "unassignStudent", method = RequestMethod.POST)
+    public ResponseEntity<String> unassignStudent(@RequestBody SingleIdRequest jso) throws IOException {
+        String url = backendserve + "/api/accommodation/unassignStudent";
+        return BACKENDCOMMPOST(jso, url);
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "getRoomOccupants", method = RequestMethod.POST)
+    public ResponseEntity<String> getRoomOccupants(@RequestBody SingleIdRequest jso) throws IOException {
+        String url = backendserve + "/api/accommodation/getRoomOccupants";
+        return BACKENDCOMMPOST(jso, url);
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "getInstitutionRoomAssignments", method = RequestMethod.POST)
+    public ResponseEntity<String> getInstitutionRoomAssignments(@RequestBody SingleStringRequest jso) throws IOException {
+        String url = backendserve + "/api/accommodation/getInstitutionRoomAssignments";
         return BACKENDCOMMPOST(jso, url);
     }
 

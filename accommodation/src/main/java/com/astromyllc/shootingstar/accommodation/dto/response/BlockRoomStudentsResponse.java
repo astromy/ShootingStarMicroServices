@@ -1,7 +1,5 @@
 package com.astromyllc.shootingstar.accommodation.dto.response;
 
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,8 +13,7 @@ public class BlockRoomStudentsResponse {
     private Long idBlockRoomStudent;
     private String studentID;
     private String institutionID;
-
-    @ManyToOne
-    @JoinColumn(name = "idBlockRoom")
+    // Full room details included here (not just the ID) so a client can
+    // display which room/block a student is in without a second lookup.
     private BlockRoomResponse blockRoom;
 }

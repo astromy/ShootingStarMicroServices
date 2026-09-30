@@ -100,6 +100,7 @@ $(function () {
                     <div class="text-center m-b-md" id="studentModalTabs">
                         <a class="btn btn-primary studentTabBtn active-tab" data-tab="bioTab">Bio Data</a>
                         <a class="btn btn-default studentTabBtn" data-tab="parentsTab">Parents</a>
+                        <a class="btn btn-default studentTabBtn" data-tab="roomTab">Room</a>
                     </div>
 
                     <!-- BIO DATA TAB -->
@@ -166,7 +167,13 @@ $(function () {
                                         </div>
                                         <div class="form-group col-lg-4">
                                             <label>Nationality</label>
-                                            <input type="text" id="editNationality" class="form-control" placeholder="Nationality">
+                                            <!-- readonly, not disabled - disabled inputs aren't included in a
+                                                 <form> serialization, but this form is read by direct .val()
+                                                 calls, so it doesn't matter functionally here. readonly is used
+                                                 anyway since it looks and behaves like the other fields rather
+                                                 than greyed-out, which better signals "same value, not editable"
+                                                 for something mirroring Country of Birth. -->
+                                            <input type="text" id="editNationality" class="form-control" placeholder="Nationality" readonly>
                                         </div>
                                         <div class="form-group col-lg-4">
                                             <label>Denomination</label>
@@ -225,6 +232,31 @@ $(function () {
                             </thead>
                             <tbody id="parentsTableBody"></tbody>
                         </table>
+                    </div>
+
+                    <!-- ROOM TAB -->
+                    <div id="roomTab" class="student-tab-pane" style="display:none;">
+                        <div id="roomTabStatus" class="small mb-2"></div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Block</label>
+                                    <select class="form-control" id="editBlockSelect">
+                                        <option value="">Select block…</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Room</label>
+                                    <select class="form-control" id="editRoomSelect" disabled>
+                                        <option value="">Select block first</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-primary" id="editAssignRoomBtn">Assign Room</button>
+                        <button type="button" class="btn btn-sm btn-danger" id="editUnassignRoomBtn" style="display:none;">Remove from Room</button>
                     </div>
 
                 </div>

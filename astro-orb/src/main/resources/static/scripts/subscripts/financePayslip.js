@@ -205,89 +205,23 @@
         badge.textContent = sm.label;
         badge.className = 'ps-status-badge sal-status ' + sm.cls;
 
-        // Build inline preview
-        var allowances = (slip.salaryItems || []).filter(function (i) {
-            return i.itemType === 'ALLOWANCE';
+        // Preview: the payslip exactly as it prints, in the school's template
+        // layout. An iframe keeps the template's print styles separate from
+        // the page's own styles.
+        var body = document.getElementById('psPreviewBody');
+        body.innerHTML = '';
+        var frame = document.createElement('iframe');
+        frame.title = 'Payslip preview';
+        frame.style.cssText = 'width:100%;border:0;display:block;min-height:600px;background:#fff';
+        frame.addEventListener('load', function () {
+            try {
+                frame.style.height = frame.contentDocument.documentElement.scrollHeight + 'px';
+            } catch (e) {
+                // keep the minimum height
+            }
         });
-        var deductions = (slip.salaryItems || []).filter(function (i) {
-            return i.itemType === 'DEDUCTION';
-        });
-
-        function itemRowHtml(item, isAllowance) {
-            var val = item.isPercentage
-                ? (item.percentageRate || 0) + '% of basic'
-                : fmt.money(item.amount || 0);
-            return '<div class="ps-line-item ' + (isAllowance ? 'ps-allow' : 'ps-deduct') + '">' +
-                '<span>' + (item.itemName || '—') + '</span>' +
-                '<strong>' + val + '</strong>' +
-                '</div>';
-        }
-
-        var earningsHtml = [
-            '<div class="ps-line-item ps-basic">',
-            '<span>Basic Salary</span>',
-            '<strong>' + fmt.money(slip.basicSalary || 0) + '</strong>',
-            '</div>',
-        ].join('');
-
-        if (allowances.length) {
-            earningsHtml += allowances.map(function (i) {
-                return itemRowHtml(i, true);
-            }).join('');
-        }
-
-        var deductionsHtml = deductions.length
-            ? deductions.map(function (i) {
-                return itemRowHtml(i, false);
-            }).join('')
-            : '<div class="fc-empty" style="font-size:12px;padding:8px 0">No deductions</div>';
-
-        document.getElementById('psPreviewBody').innerHTML = [
-            // Employee details section
-            '<div class="ps-preview-section">',
-            '<div class="ps-preview-section-title"><i class="fas fa-user"></i> Employee</div>',
-            '<div class="ps-preview-row"><span>Staff ID</span><strong>' + (slip.staffId || '—') + '</strong></div>',
-            '<div class="ps-preview-row"><span>Name</span><strong>' + (slip.staffName || '—') + '</strong></div>',
-            '<div class="ps-preview-row"><span>Designation</span><strong>' + (slip.designation || '—') + '</strong></div>',
-            '</div>',
-
-            // Period
-            '<div class="ps-preview-section">',
-            '<div class="ps-preview-section-title"><i class="fas fa-calendar-alt"></i> Pay Period</div>',
-            '<div class="ps-preview-row"><span>Period</span><strong>' + (slip.payPeriod || '—') + '</strong></div>',
-            '<div class="ps-preview-row"><span>Academic Year</span><strong>' + (slip.academicYear || '—') + '</strong></div>',
-            slip.paymentDate
-                ? '<div class="ps-preview-row"><span>Payment Date</span><strong>' + fmt.date(slip.paymentDate) + '</strong></div>'
-                : '',
-            slip.processedBy
-                ? '<div class="ps-preview-row"><span>Processed By</span><strong>' + slip.processedBy + '</strong></div>'
-                : '',
-            '</div>',
-
-            // Earnings
-            '<div class="ps-preview-section">',
-            '<div class="ps-preview-section-title"><i class="fas fa-arrow-circle-up" style="color:#0a7a42"></i> Earnings</div>',
-            earningsHtml,
-            '<div class="ps-preview-subtotal">',
-            '<span>Gross Pay</span><strong class="fc-paid">' + fmt.money((slip.basicSalary || 0) + (slip.totalAllowances || 0)) + '</strong>',
-            '</div>',
-            '</div>',
-
-            // Deductions
-            '<div class="ps-preview-section">',
-            '<div class="ps-preview-section-title"><i class="fas fa-arrow-circle-down" style="color:#c0392b"></i> Deductions</div>',
-            deductionsHtml,
-            '<div class="ps-preview-subtotal">',
-            '<span>Total Deductions</span><strong class="fc-owing">' + fmt.money(slip.totalDeductions || 0) + '</strong>',
-            '</div>',
-            '</div>',
-
-            // Net pay
-            '<div class="ps-net-bar">',
-            '<span>NET PAY</span>',
-            '<strong>' + fmt.money(slip.netSalary || 0) + '</strong>',
-            '</div>',
-        ].join('');
+        frame.srcdoc = window.payslipDocument(slip);
+        body.appendChild(frame);
 
         document.getElementById('psIdleCard').style.display = 'none';
         document.getElementById('psPreviewCard').style.display = '';

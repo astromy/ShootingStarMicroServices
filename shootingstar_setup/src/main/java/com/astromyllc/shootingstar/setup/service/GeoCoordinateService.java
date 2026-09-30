@@ -17,12 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -80,23 +75,13 @@ public class GeoCoordinateService implements GeoCoordinateServiceInterface {
                 .map(inst -> {
                     assertCanAddCampus(inst, campusName);
 
-                    if (inst.getGeoCoordinateList() == null) {
-                        inst.setGeoCoordinateList(new ArrayList<>());
-                    }
+                    // 1) Remove this campus's old points in the database - including
+                    //    legacy rows with a NULL campus name and any duplicates.
+                    //    Other campuses' points are untouched.
+                    int removed = geoCoordinateRepository.deleteCampusPoints(inst.getIdInstitution(), campusName);
 
-                    // Only clear points belonging to THIS campus - other campuses'
-                    // fences must survive a re-save of one campus's boundary. The old
-                    // single-boundary version of this method cleared the institution's
-                    // entire point list here, which is exactly what multi-campus support
-                    // can no longer do.
-                    List<GeoCoordinate> toRemove = inst.getGeoCoordinateList().stream()
-                            .filter(gc -> campusName.equalsIgnoreCase(gc.getCampusName()))
-                            .toList();
-                    inst.getGeoCoordinateList().removeAll(toRemove);
-                    if (!toRemove.isEmpty()) {
-                        geoCoordinateRepository.deleteAll(toRemove);
-                    }
-
+                    // 2) Save the new ring. persist() assigns ids to these same objects,
+                    //    so the in-memory copies below carry real ids.
                     List<GeoCoordinate> newCoordinates = request.getBoundary().stream()
                             .map(gp -> {
                                 GeoCoordinate gc = GeoCoordinateUtil.mapGeoPoint_ToGeoCoordinate(gp, campusName);
@@ -104,12 +89,20 @@ public class GeoCoordinateService implements GeoCoordinateServiceInterface {
                                 return gc;
                             })
                             .toList();
+                    geoCoordinateRepository.saveAll(newCoordinates);
 
-                    inst.getGeoCoordinateList().addAll(newCoordinates);
-                    institutionRepository.save(inst);
+                    // 3) Mirror the same change in the in-memory list.
+                    List<GeoCoordinate> updated = new ArrayList<>(
+                            Optional.ofNullable(inst.getGeoCoordinateList()).orElse(new ArrayList<>()));
+                    updated.removeIf(gc -> campusName.equalsIgnoreCase(
+                            GeoCoordinateUtil.normalizeCampusName(gc.getCampusName())));
+                    updated.addAll(newCoordinates);
+                    inst.setGeoCoordinateList(updated);
 
-                    return inst.getGeoCoordinateList().stream()
-                            .filter(gc -> campusName.equalsIgnoreCase(gc.getCampusName()))
+                    log.info("Geofence for {} / {} replaced: {} old points removed, {} saved",
+                            inst.getBececode(), campusName, removed, newCoordinates.size());
+
+                    return newCoordinates.stream()
                             .map(GeoCoordinateUtil::mapGeoCoordinate_ToGeoCoordinateResponse)
                             .collect(Collectors.toList());
                 })
@@ -133,7 +126,9 @@ public class GeoCoordinateService implements GeoCoordinateServiceInterface {
                 .orElse(Collections.emptyList());
     }
 
-    /** Groups an institution's points by campus - what "see all the fences" actually needs. */
+    /**
+     * Groups an institution's points by campus - what "see all the fences" actually needs.
+     */
     @Override
     public GeofenceBoundaryResponse getGeofenceBoundariesByInstitution(String beceCode) {
         List<GeoCoordinate> all = InstitutionUtils.institutionGlobalList.stream()
@@ -182,23 +177,19 @@ public class GeoCoordinateService implements GeoCoordinateServiceInterface {
                 .filter(i -> i.getBececode().equalsIgnoreCase(beceCode))
                 .findFirst()
                 .map(inst -> {
-                    if (inst.getGeoCoordinateList() == null) {
-                        return false;
+                    int removed = geoCoordinateRepository.deleteCampusPoints(inst.getIdInstitution(), normalized);
+
+                    if (inst.getGeoCoordinateList() != null) {
+                        List<GeoCoordinate> remaining = new ArrayList<>(inst.getGeoCoordinateList());
+                        remaining.removeIf(gc -> normalized.equalsIgnoreCase(
+                                GeoCoordinateUtil.normalizeCampusName(gc.getCampusName())));
+                        inst.setGeoCoordinateList(remaining);
                     }
-                    List<GeoCoordinate> toRemove = inst.getGeoCoordinateList().stream()
-                            .filter(gc -> normalized.equalsIgnoreCase(gc.getCampusName()))
-                            .toList();
-                    if (toRemove.isEmpty()) {
-                        return false;
-                    }
-                    inst.getGeoCoordinateList().removeAll(toRemove);
-                    geoCoordinateRepository.deleteAll(toRemove);
-                    institutionRepository.save(inst);
-                    return true;
+                    return removed > 0;
                 })
                 .orElse(false);
     }
-
+    
     /**
      * Enforces "Growth gets one fence, Enterprise gets multiple" - the actual
      * mechanism behind the Enterprise-tier "multi-campus" feature. Adding a

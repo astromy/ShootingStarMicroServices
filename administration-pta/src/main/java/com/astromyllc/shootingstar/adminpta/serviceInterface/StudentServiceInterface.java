@@ -34,6 +34,8 @@ public interface StudentServiceInterface {
 
     Optional<Long> getStudentsPopulationByInstitution(SingleStringRequest request);
 
+    EnrollmentSummaryResponse getEnrollmentSummary(InstitutionCodeRequest request);
+
     Optional<StudentStatusResponse> checkStudentByID(SingleStringRequest request);
 
     Optional<StudentStatusResponse> setStudentRoute(SetStudentRouteRequest request);

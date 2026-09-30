@@ -34,4 +34,10 @@ public class SalaryItem {
      */
     private Boolean isPercentage;
     private Double percentageRate;
+
+    /**
+     * Set on lines the system adds itself: SSNIT_EMPLOYEE, PAYE. Null for lines
+     * entered on a salary profile.
+     */
+    private String itemCode;
 }

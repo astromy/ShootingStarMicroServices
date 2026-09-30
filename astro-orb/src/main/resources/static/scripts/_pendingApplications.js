@@ -92,14 +92,19 @@ $(function () {
 
     function updateStatistics() {
         const total = allApplications.length;
-        const pending = allApplications.filter(app => app.applicationStatus === 'PENDING').length;
-        const flagged = allApplications.filter(app => app.applicationStatus === 'FLAGGED' || isFlagged(app)).length;
-        const approved = allApplications.filter(app => app.applicationStatus === 'APPROVED').length;
+        const pending = allApplications.filter(app => (app.applicationStatus || '').toUpperCase() === 'PENDING').length;
+        const flagged = allApplications.filter(app => (app.applicationStatus || '').toUpperCase() === 'FLAGGED' || isFlagged(app)).length;
+
+        const approved = allApplications.filter(app => (app.applicationStatus || '').toUpperCase() === 'APPROVED').length;
+        const admitted = allApplications.filter(app => (app.applicationStatus || '').toUpperCase() === 'ADMITTED').length;
+        const rejected = allApplications.filter(app => (app.applicationStatus || '').toUpperCase() === 'REJECTED').length;
 
         $('#totalCount').text(total);
         $('#pendingCount').text(pending);
         $('#flaggedCount').text(flagged);
         $('#approvedCount').text(approved);
+        $('#admittedCount').text(admitted);
+        $('#rejectedCount').text(rejected);
     }
 
     function isFlagged(application) {
@@ -282,8 +287,12 @@ $(function () {
         let statusText = 'Applied';
         switch (status) {
             case 'APPROVED':
-                statusClass = 'badge-success';
+                statusClass = 'badge-primary';
                 statusText = 'Approved';
+                break;
+            case 'ADMITTED':
+                statusClass = 'badge-success';
+                statusText = 'Admitted';
                 break;
             case 'REJECTED':
                 statusClass = 'badge-danger';
@@ -292,6 +301,10 @@ $(function () {
             case 'FLAGGED':
                 statusClass = 'badge-warning';
                 statusText = 'Flagged';
+                break;
+            case 'PENDING':
+                statusClass = 'badge-info';
+                statusText = 'Pending Review';
                 break;
         }
 
@@ -363,6 +376,25 @@ $(function () {
 
     function showApplicationDetails(application) {
         const fullName = `${application.applicantFirstName || ''} ${application.applicantLastName || ''}`.trim();
+
+        const status = (application.applicationStatus || '').toUpperCase();
+
+        if (status === 'APPROVED') {
+            $('#approveApplicationBtn')
+                .show()
+                .html('<i class="fas fa-user-check"></i> Admit')
+                .removeClass('btn-success')
+                .addClass('btn-info');
+        } else if (status === 'ADMITTED') {
+            $('#approveApplicationBtn').hide();
+        } else {
+            // restore default "Approve" appearance for other statuses
+            $('#approveApplicationBtn')
+                .show()
+                .html('<i class="fas fa-check"></i> Approve')
+                .removeClass('btn-info')
+                .addClass('btn-success');
+        }
 
         const parents = application.studentParents || [];
         const father = parents.find(p =>
@@ -534,8 +566,45 @@ $(function () {
                 </p>` : ''}
             </div>
 
+            <!-- Room Assignment -->
+            <div class="details-section">
+                <h5><i class="fas fa-bed"></i> Room Assignment</h5>
+                ${!isApproved ? `
+                <div class="alert alert-warning py-2 px-3 small">
+                    <i class="fas fa-lock"></i> Approve this application first to assign a room.
+                </div>` : ''}
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Block</label>
+                            <select class="form-control" id="modalBlockSelect" ${!isApproved ? 'disabled' : ''}>
+                                <option value="">Select block…</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Room</label>
+                            <select class="form-control" id="modalRoomSelect" disabled>
+                                <option value="">Select block first</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div id="modalRoomAssignmentStatus" class="small mb-2"></div>
+                <button class="btn btn-sm btn-primary" id="modalAssignRoomBtn" ${!isApproved ? 'disabled' : ''}>
+                    Assign Room
+                </button>
+            </div>
+
         </div>
     `);
+
+        // Room assignment uses the application code as the student's ID -
+        // this matches syncAssignedClassToStudent's convention elsewhere in
+        // this flow, since a real student record doesn't exist with its own
+        // separate ID until later in the pipeline.
+        loadRoomAssignmentSection(application);
 
         // Pre-select group if already assigned
         if (preselectedGroup) {
@@ -566,14 +635,114 @@ $(function () {
         $('#applicationModal').modal('show');
     }
 
+    // ==================== Room Assignment (in the application modal) ====================
+
+    async function loadRoomAssignmentSection(application) {
+        const studentId = application.applicationCode;
+        const statusEl = $('#modalRoomAssignmentStatus');
+        statusEl.text('Loading rooms…');
+
+        try {
+            const [blocks, assignments] = await Promise.all([
+                fetchPost('getInstitutionAccommodation', {val: instId}),
+                fetchPost('getInstitutionRoomAssignments', {val: instId}),
+            ]);
+
+            const blockSelect = $('#modalBlockSelect');
+            blockSelect.find('option:not(:first)').remove();
+            (blocks || []).forEach(b => {
+                blockSelect.append(`<option value="${b.idBlock}">${b.name}</option>`);
+            });
+            blockSelect.data('blocks', blocks || []);
+
+            const existing = (assignments || []).find(a => a.studentID === studentId);
+            if (existing && existing.blockRoom) {
+                statusEl.html(
+                    `<span class="text-success"><i class="fas fa-check-circle"></i> ` +
+                    `Currently assigned to room <strong>${existing.blockRoom.name}</strong></span>`
+                );
+            } else {
+                statusEl.html('<span class="text-muted">No room assigned yet.</span>');
+            }
+        } catch (error) {
+            console.error('Failed to load rooms for assignment:', error);
+            statusEl.html('<span class="text-danger">Could not load room list.</span>');
+        }
+    }
+
+    $(document).on('change', '#modalBlockSelect', function () {
+        const idBlock = parseInt($(this).val(), 10);
+        const roomSelect = $('#modalRoomSelect');
+        const blocks = $(this).data('blocks') || [];
+        const block = blocks.find(b => b.idBlock === idBlock);
+
+        if (!block) {
+            roomSelect.html('<option value="">Select block first</option>').prop('disabled', true);
+            return;
+        }
+
+        const rooms = block.roomsList || [];
+        if (rooms.length === 0) {
+            roomSelect.html('<option value="">No rooms in this block</option>').prop('disabled', true);
+            return;
+        }
+
+        roomSelect.html(
+            '<option value="">Select room…</option>' +
+            rooms.map(r => `<option value="${r.idBlockRoom}">${r.name}</option>`).join('')
+        ).prop('disabled', false);
+    });
+
+    $(document).on('click', '#modalAssignRoomBtn', async function () {
+        const application = $('#applicationModal').data('currentApplication');
+        const idBlockRoom = parseInt($('#modalRoomSelect').val(), 10);
+
+        if (!idBlockRoom) {
+            swal({title: 'Select a room', text: 'Please choose a block and room first.', type: 'warning'});
+            return;
+        }
+
+        const payload = {
+            studentID: application.applicationCode,
+            institutionID: instId,
+            idBlockRoom: idBlockRoom,
+        };
+
+        showLoading();
+        try {
+            await fetchPost('assignStudentToRoom', payload);
+            await loadRoomAssignmentSection(application);
+            swal({title: 'Assigned', text: 'Room assigned successfully.', type: 'success'});
+        } catch (error) {
+            const message = parseRoomAssignError(error);
+            swal({title: 'Could not assign room', text: message, type: 'error'});
+        }
+        hideLoading();
+    });
+
+    function parseRoomAssignError(error) {
+        const message = error && error.message ? error.message : String(error);
+        const jsonStart = message.indexOf('{');
+        if (jsonStart === -1) return message;
+        try {
+            return JSON.parse(message.slice(jsonStart)).error || message;
+        } catch (e) {
+            return message;
+        }
+    }
+
     function getStatusBadgeClass(status) {
-        switch (status) {
+        switch ((status || '').toUpperCase()) {
             case 'APPROVED':
+                return 'badge-primary';
+            case 'ADMITTED':
                 return 'badge-success';
             case 'REJECTED':
                 return 'badge-danger';
             case 'FLAGGED':
                 return 'badge-warning';
+            case 'PENDING':
+                return 'badge-info';
             default:
                 return 'badge-info';
         }
@@ -641,7 +810,12 @@ $(function () {
 
     $('#approveApplicationBtn').click(async function () {
         const application = $('#applicationModal').data('currentApplication');
-        await updateApplicationStatus(application, 'APPROVED');
+        if (!application) return;
+
+        const status = (application.applicationStatus || '').toUpperCase();
+        const nextStatus = status === 'APPROVED' ? 'ADMITTED' : 'APPROVED';
+
+        await updateApplicationStatus(application, nextStatus);
     });
 
     $('#rejectApplicationBtn').click(async function () {
@@ -655,7 +829,15 @@ $(function () {
     });
 
     async function updateApplicationStatus(application, status) {
-        const assignedClass = status === 'APPROVED'
+        // A class can only ever have been selected once the dropdowns were
+        // enabled - which happens once the application is already APPROVED
+        // (see showApplicationDetails). The one moment that selection is
+        // meant to be sent is the click that moves APPROVED -> ADMITTED, so
+        // this needs to check the status being sent TO, not compare it
+        // against 'APPROVED' - status here already equals 'ADMITTED' on
+        // that click, so the old check was never true at the one time a
+        // class value actually existed to read.
+        const assignedClass = status === 'ADMITTED'
             ? ($('#modalClassSelect').val() || null)
             : null;
 
@@ -671,21 +853,24 @@ $(function () {
                 }
             ];
 
-            const response = await fetchPost("/updateApplicationStatus", payload);
-            if (response) {
-                swal({
-                    title: "Success!",
-                    text: `Application ${status.toLowerCase()} successfully!`,
-                    type: "success"
-                });
-                $('#applicationModal').modal('hide');
-                loadApplications();
-            }
+            // A resolved promise means the HTTP call succeeded.
+            // An empty body is fine for an update endpoint — don't gate on it.
+            await fetchPost("/updateApplicationStatus", payload);
+
+            swal({
+                title: "Success!",
+                text: `Application ${status.toLowerCase()} successfully!`,
+                type: "success"
+            });
+            $('#applicationModal').modal('hide');
+            loadApplications();
+
         } catch (error) {
             console.error("Error updating status:", error);
             swal({title: "Error", text: "Failed to update status.", type: "error"});
+        } finally {
+            hideLoading();
         }
-        hideLoading();
     }
 
     // ============================================================

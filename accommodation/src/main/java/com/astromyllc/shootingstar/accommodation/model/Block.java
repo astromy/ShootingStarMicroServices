@@ -17,6 +17,11 @@ public class Block {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idBlock;
+    // Every other module in this platform scopes its data by institution -
+    // this was missing here entirely, meaning there was no way to actually
+    // separate one school's dorm blocks from another's.
+    @NonNull
+    private String institutionCode;
     @NonNull
     private String name;
     private String slogan;

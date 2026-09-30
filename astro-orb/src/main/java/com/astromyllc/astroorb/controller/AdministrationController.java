@@ -27,7 +27,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Controller
 @Slf4j
@@ -202,6 +201,30 @@ public class AdministrationController {
         return BACKENDCOMMPOST(jso, backendserve + "/api/administration-pta/recordBusBoardingEvent");
     }
 
+    // ── Pulse: attendance + analytics ──────────────────────────────────
+    // Called from Pulse's AttendanceActions (scan flow) — one record per
+    // student per day; re-marking the same day updates it.
+    @ResponseBody
+    @RequestMapping(value = "api/mobile/markAttendance", method = RequestMethod.POST)
+    public ResponseEntity<String> markAttendance(@RequestBody MarkAttendanceRequest jso) {
+        log.info("REQUEST markAttendance OF..... {}", jso);
+        return BACKENDCOMMPOST(jso, backendserve + "/api/administration-pta/markAttendance");
+    }
+
+    // Pulse Analytics → "Attendance This Month" card.
+    @ResponseBody
+    @RequestMapping(value = "api/mobile/getAttendanceStats", method = RequestMethod.POST)
+    public ResponseEntity<String> getAttendanceStats(@RequestBody AttendanceStatsRequest jso) {
+        return BACKENDCOMMPOST(jso, backendserve + "/api/administration-pta/getAttendanceStats");
+    }
+
+    // Pulse Analytics → "Enrollment" card. Returns { totalStudents, byClass }.
+    @ResponseBody
+    @RequestMapping(value = "api/mobile/getInstitutionPopulation", method = RequestMethod.POST)
+    public ResponseEntity<String> getInstitutionPopulation(@RequestBody InstitutionCodeRequest jso) {
+        return BACKENDCOMMPOST(jso, backendserve + "/api/administration-pta/getEnrollmentSummary");
+    }
+
     // Called from the Academix app when a parent/student self-selects a
     // route — not currently called from Pulse, but exposed the same way
     // since astro-orb is the shared BFF for both.
@@ -348,36 +371,58 @@ public class AdministrationController {
 
     @ResponseBody
     @PostMapping(value = "webhook/subscriptionPaymentStatus")
-    public ResponseEntity<String> subscriptionPaymentStatus(HttpServletRequest request, @RequestHeader("x-paystack-signature") String paystackSignature) throws IOException {
-        String requestBody = request.getReader().lines().collect(Collectors.joining());
+    public ResponseEntity<String> subscriptionPaymentStatus(
+            HttpServletRequest request,
+            @RequestHeader("x-paystack-signature") String paystackSignature) throws IOException {
+
+        // Read raw bytes: the signature is over Paystack's exact payload, so it must be forwarded untouched
+        byte[] rawBytes = request.getInputStream().readAllBytes();
+        String requestBody = new String(rawBytes, StandardCharsets.UTF_8);
 
         if (!verifyPaystackSignature(requestBody, paystackSignature)) {
             log.error("Invalid webhook signature. Potential malicious request.");
             return ResponseEntity.status(401).body("Invalid signature");
         }
 
-        PaystackPaymentResponse jso;
         try {
-            jso = objectMapper.readValue(requestBody, PaystackPaymentResponse.class);
+            PaystackPaymentResponse jso = objectMapper.readValue(requestBody, PaystackPaymentResponse.class);
             log.info("Paystack Response  === {}", jso);
-            if (jso.getEvent().equalsIgnoreCase("charge.success")) {
-                ResponseEntity<String> serviceResponse = null;
-                if (jso.getData().getMetadata().getCustomFields().get(0).getDisplayName().toLowerCase().contains("student id")) {
-                    serviceResponse = BACKENDCOMMPOST(jso, backendserve + "/api/administration-pta/subscriptionPaymentStatus");
-                } else if (jso.getData().getReference().contains("APPLICANT_")) {
-                    serviceResponse = BACKENDCOMMPOST(jso, backendserve + "/api/administration-pta/subscriptionPaymentStatus");
-                } else if (jso.getData().getReference().toUpperCase().contains("UPGRADE")) {
-                    serviceResponse = BACKENDCOMMPOST(jso, backendserve + "/api/setup/upgradeSubscriptionPaymentStatus");
-                } else {
-                    serviceResponse = BACKENDCOMMPOST(jso, backendserve + "/api/setup/reactivateInstitutionalAccount");
-                }
-                return serviceResponse;
-            } else {
+
+            if (!jso.getEvent().equalsIgnoreCase("charge.success")) {
                 return ResponseEntity.status(601).body("Failed Transaction");
             }
+
+            if (jso.getData().getMetadata().getCustomFields().get(0).getDisplayName().toLowerCase().contains("student id")
+                    || jso.getData().getReference().contains("APPLICANT_")) {
+                // administration-pta re-verifies the signature, so it needs Paystack's original bytes + header
+                return forwardWebhook(rawBytes, paystackSignature, backendserve + "/api/administration-pta/subscriptionPaymentStatus");
+            } else if (jso.getData().getReference().toUpperCase().contains("UPGRADE")) {
+                return BACKENDCOMMPOST(jso, backendserve + "/api/setup/upgradeSubscriptionPaymentStatus");
+            } else {
+                return BACKENDCOMMPOST(jso, backendserve + "/api/setup/reactivateInstitutionalAccount");
+            }
+
         } catch (Exception e) {
             log.error("Error parsing webhook JSON", e);
             return ResponseEntity.badRequest().body("Bad JSON");
+        }
+    }
+
+    private ResponseEntity<String> forwardWebhook(byte[] rawBody, String signature, String url) {
+        log.info("Forwarding webhook to: {}", url);
+        try {
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .header("Content-Type", "application/json")
+                    .header("x-paystack-signature", signature)
+                    .POST(HttpRequest.BodyPublishers.ofByteArray(rawBody))
+                    .build();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            return ResponseEntity.status(response.statusCode()).body(response.body());
+        } catch (IOException | InterruptedException e) {
+            log.error("Webhook forward failed: {}", url, e);
+            return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body("Forward failed");
         }
     }
 

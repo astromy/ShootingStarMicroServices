@@ -28,7 +28,7 @@ public class ApplicationsResponse {
     private String applicantPicture;
     private String applicantBirthCert;
     private String applicantDenomination;
-
+    private String assignedClass;
 
     private String applicationCode;
     private String applicationStatus;

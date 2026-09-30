@@ -12,7 +12,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder
 @Data
-@Embeddable
+// Same fix as BlockMaster - @Entity and @Embeddable were contradictory here.
 @EqualsAndHashCode(of = "idBlockPrefect")
 public class BlockPrefect {
     @Id

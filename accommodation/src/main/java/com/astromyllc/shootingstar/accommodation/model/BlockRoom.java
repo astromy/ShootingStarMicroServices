@@ -8,7 +8,8 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Embeddable
+// Same fix as BlockMaster/BlockPrefect - @Entity and @Embeddable were
+// contradictory here.
 @Data
 @EqualsAndHashCode(of = "idBlockRoom")
 public class BlockRoom {

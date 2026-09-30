@@ -2,9 +2,11 @@ package com.astromyllc.shootingstar.academics.service;
 
 import com.astromyllc.shootingstar.academics.dto.alien.StudentScores;
 import com.astromyllc.shootingstar.academics.dto.request.AcademicReportRequest;
+import com.astromyllc.shootingstar.academics.dto.request.ResultsStatsRequest;
 import com.astromyllc.shootingstar.academics.dto.request.SingleStringRequest;
 import com.astromyllc.shootingstar.academics.dto.response.AssessmentResponse;
 import com.astromyllc.shootingstar.academics.dto.response.ExistingUploadedScoreResponse;
+import com.astromyllc.shootingstar.academics.dto.response.ResultsStatsResponse;
 import com.astromyllc.shootingstar.academics.dto.response.TerminalReportResponse;
 import com.astromyllc.shootingstar.academics.model.Assessment;
 import com.astromyllc.shootingstar.academics.model.ContinuousAssessment;
@@ -638,5 +640,68 @@ public class AssessmentService implements AssessmentServiceInterface {
                 request.getTargetClass(),
                 request.getAcademicYear(),
                 request.getTerm());
+    }
+    // School-wide results for one term: each student's average totalScore
+    // across subjects, then the mean / highest / lowest of those averages.
+    // If term or academicYear is omitted, the most recently uploaded
+    // assessment (matching whatever was given) decides it.
+    @Override
+    public ResultsStatsResponse getResultsStats(ResultsStatsRequest request) {
+        List<Assessment> scored = AssessmentUtil.assessmentsGlobalList.stream()
+                .filter(a -> a.getInstitutionCode() != null
+                        && a.getInstitutionCode().equalsIgnoreCase(request.getInstitutionCode())
+                        && a.getStudentId() != null
+                        && a.getTotalScore() != null)
+                .toList();
+
+        String term = request.getTerm();
+        String academicYear = request.getAcademicYear();
+        if (isBlank(term) || isBlank(academicYear)) {
+            final String givenTerm = term;
+            final String givenYear = academicYear;
+            Optional<Assessment> latest = scored.stream()
+                    .filter(a -> a.getDateTime() != null)
+                    .filter(a -> isBlank(givenTerm) || givenTerm.equalsIgnoreCase(a.getTerm()))
+                    .filter(a -> isBlank(givenYear) || givenYear.equalsIgnoreCase(a.getAcademicYear()))
+                    .max(Comparator.comparing(Assessment::getDateTime));
+            if (latest.isEmpty()) {
+                return ResultsStatsResponse.builder().term(term).academicYear(academicYear).build();
+            }
+            term = isBlank(term) ? latest.get().getTerm() : term;
+            academicYear = isBlank(academicYear) ? latest.get().getAcademicYear() : academicYear;
+        }
+
+        final String selectedTerm = term;
+        final String selectedYear = academicYear;
+        Map<String, Double> studentAverages = scored.stream()
+                .filter(a -> selectedTerm.equalsIgnoreCase(a.getTerm())
+                        && selectedYear.equalsIgnoreCase(a.getAcademicYear()))
+                .collect(Collectors.groupingBy(Assessment::getStudentId,
+                        Collectors.averagingDouble(Assessment::getTotalScore)));
+
+        if (studentAverages.isEmpty()) {
+            return ResultsStatsResponse.builder().term(selectedTerm).academicYear(selectedYear).build();
+        }
+
+        DoubleSummaryStatistics stats = studentAverages.values().stream()
+                .mapToDouble(Double::doubleValue)
+                .summaryStatistics();
+
+        return ResultsStatsResponse.builder()
+                .averageScore(roundOneDecimal(stats.getAverage()))
+                .highestScore(roundOneDecimal(stats.getMax()))
+                .lowestScore(roundOneDecimal(stats.getMin()))
+                .totalStudentsAssessed(stats.getCount())
+                .term(selectedTerm)
+                .academicYear(selectedYear)
+                .build();
+    }
+
+    private static boolean isBlank(String value) {
+        return value == null || value.isBlank();
+    }
+
+    private static double roundOneDecimal(double value) {
+        return Math.round(value * 10.0) / 10.0;
     }
 }

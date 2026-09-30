@@ -1,231 +1,91 @@
 /**
- * _financeSalary.js  —  Data & logic layer for Salary / Payroll Management.
+ * _financeSalary.js  —  Data layer for Finance -> Salary Setup.
+ *
+ * Loaded at runtime by subscripts/financeSalary.js. All calls go through
+ * fetchPost() to astro-orb's PayrollController, which adds the school, the
+ * HR staff list and the signed-in user - nothing here sends an institution
+ * code or a user name.
  *
  * Exposes on window:
- *   salaryState
- *   salaryData
- *   salaryLoad()
- *   salaryFetchRuns(filters) → SalaryResponse[]
- *   salaryCreate(request)    → SalaryResponse
- *   salaryBatch(requests)    → SalaryResponse[]
- *   salaryApprove(id, by)    → SalaryResponse
- *   salaryMarkPaid(id, by, ref) → SalaryResponse
- *   salaryGetSettings()      → SalarySettingsResponse
- *   salarySaveSettings(req)  → SalarySettingsResponse
+ *   salaryState                     {staff, profiles, runs, settings, _loaded, loadError}
+ *   salaryLoad()                    staff (HR) + profiles + runs + settings
+ *   salaryFetchRuns(filters)        runs, filtered by academicYear / payPeriod / status
+ *   salarySaveProfile(profile)
+ *   salaryRunPayroll(academicYear, payPeriod)   → {updated: [...], skipped: [...]}
+ *   salaryDeletePending(salaryIds)
+ *   salaryGetSettings() / salarySaveSettings(settings)
  */
 (function () {
     'use strict';
 
-    var _raw = (typeof instId !== 'undefined' ? instId : '').split(',')[0];
-    var _inst = _raw.replace(/[\[\]']+/g, '').replace(/\//g, '');
-
-    // ── STATE ────────────────────────────────────────────────────────────────
     window.salaryState = {
-        institutionCode: _inst,
-        allRuns: [],
-        filtered: [],
-        settings: null,
         staff: [],
-        academicYears: [],
-        payPeriods: [],
-        selectedYear: '',
-        selectedPeriod: '',
+        profiles: [],
+        runs: [],
+        settings: null,
         _loaded: false,
+        loadError: null,
     };
 
-    window.salaryData = {};
-
-    function buildYears() {
-        var y = new Date().getFullYear(), out = [];
-        for (var i = 3; i >= 0; i--) out.push((y - i) + '/' + (y - i + 1));
-        window.salaryState.academicYears = out;
-        window.salaryState.selectedYear = out[out.length - 1];
-    }
-
-    function buildPeriods() {
-        // Month-based pay periods
-        var months = ['January', 'February', 'March', 'April', 'May', 'June',
-            'July', 'August', 'September', 'October', 'November', 'December'];
-        window.salaryState.payPeriods = months.map(function (m) {
-            return {value: m + ' ' + new Date().getFullYear(), label: m};
+    window.salaryLoad = function () {
+        var s = window.salaryState;
+        s._loaded = false;
+        s.loadError = null;
+        return Promise.all([
+            fetchPost('payroll/staff', {}),
+            fetchPost('payroll/profiles/get', {}),
+            fetchPost('salary/get-by-institution', {}),
+            fetchPost('salary-settings/get', {}),
+        ]).then(function (results) {
+            s.staff = Array.isArray(results[0]) ? results[0] : [];
+            s.profiles = Array.isArray(results[1]) ? results[1] : [];
+            s.runs = Array.isArray(results[2]) ? results[2] : [];
+            s.settings = results[3] || null;
+        }).catch(function (e) {
+            console.error('[_financeSalary] load failed', e);
+            s.loadError = window.payrollShared.errorMessage(e);
+        }).then(function () {
+            s._loaded = true;
         });
-    }
-
-    function showSplash() {
-        if ($) $('.splash').css({display: 'block', background: '#ffffff3d'});
-    }
-
-    function hideSplash() {
-        if ($) $('.splash').css('display', 'none');
-    }
-
-    // ── LOAD ─────────────────────────────────────────────────────────────────
-    window.salaryLoad = async function () {
-        buildYears();
-        buildPeriods();
-        try {
-            showSplash();
-            var [settings, runs, staff] = await Promise.all([
-                fetchPost('salary-settings/get', {institutionCode: _inst}),
-                fetchPost('salary/get-by-institution', {institutionCode: _inst, academicYear: null, status: null}),
-                fetchPost('getAllStaffByInstitution', {institutionCode: _inst}).catch(function () {
-                    return [];
-                }),
-            ]);
-            if (settings) window.salaryState.settings = settings;
-            if (runs) window.salaryState.allRuns = Array.isArray(runs) ? runs : [];
-            if (staff) window.salaryState.staff = Array.isArray(staff) ? staff : [];
-            window.salaryState._loaded = true;
-            hideSplash();
-        } catch (e) {
-            hideSplash();
-            window.salaryState._loaded = true;
-            console.error('[_financeSalary] load error:', e);
-        }
     };
 
-    // ── FILTER ───────────────────────────────────────────────────────────────
-    window.salaryFilter = function (opts) {
-        var all = window.salaryState.allRuns;
-        var q = (opts.search || '').toLowerCase().trim();
-        window.salaryState.filtered = all.filter(function (s) {
-            if (opts.year && opts.year !== 'all' && s.academicYear !== opts.year) return false;
-            if (opts.period && opts.period !== 'all' && s.payPeriod !== opts.period) return false;
-            if (opts.status && opts.status !== 'all' && s.status !== opts.status) return false;
-            if (q) {
-                var hay = [s.staffId, s.staffName, s.designation].join(' ').toLowerCase();
-                if (!hay.includes(q)) return false;
-            }
-            return true;
+    window.salaryFetchRuns = function (filters) {
+        return fetchPost('salary/get-by-institution', filters || {}).then(function (runs) {
+            window.salaryState.runs = Array.isArray(runs) ? runs : [];
+            return window.salaryState.runs;
         });
-        return window.salaryState.filtered;
     };
 
-    // ── CREATE SINGLE RUN ────────────────────────────────────────────────────
-    window.salaryCreate = async function (req) {
-        showSplash();
-        try {
-            var result = await fetchPost('salary/create', Object.assign({institutionCode: _inst}, req));
-            window.salaryState.allRuns.push(result);
-            hideSplash();
-            return result;
-        } catch (e) {
-            hideSplash();
-            throw e;
-        }
-    };
-
-    // ── BATCH CREATE (run payroll for all staff) ──────────────────────────────
-    window.salaryBatch = async function (requests) {
-        showSplash();
-        try {
-            var result = await fetchPost('salary/create-batch', requests);
-            if (Array.isArray(result)) window.salaryState.allRuns.push.apply(window.salaryState.allRuns, result);
-            hideSplash();
-            return result;
-        } catch (e) {
-            hideSplash();
-            throw e;
-        }
-    };
-
-    // ── APPROVE ──────────────────────────────────────────────────────────────
-    window.salaryApprove = async function (salaryId, approvedBy) {
-        showSplash();
-        try {
-            var result = await fetchPost('salary/approve/' + salaryId + '?approvedBy=' + encodeURIComponent(approvedBy), {});
-            _syncRun(result);
-            hideSplash();
-            return result;
-        } catch (e) {
-            hideSplash();
-            throw e;
-        }
-    };
-
-    // ── MARK PAID ────────────────────────────────────────────────────────────
-    window.salaryMarkPaid = async function (salaryId, processedBy, ref) {
-        showSplash();
-        try {
-            var url = 'salary/mark-paid/' + salaryId +
-                '?processedBy=' + encodeURIComponent(processedBy) +
-                (ref ? '&externalReference=' + encodeURIComponent(ref) : '');
-            var result = await fetchPost(url, {});
-            _syncRun(result);
-            hideSplash();
-            return result;
-        } catch (e) {
-            hideSplash();
-            throw e;
-        }
-    };
-
-    // ── SETTINGS ─────────────────────────────────────────────────────────────
-    window.salaryGetSettings = async function () {
-        try {
-            var result = await fetchPost('salary-settings/get', {institutionCode: _inst});
-            window.salaryState.settings = result;
-            return result;
-        } catch (e) {
-            return null;
-        }
-    };
-
-    window.salarySaveSettings = async function (req) {
-        showSplash();
-        try {
-            var result = await fetchPost('salary-settings/save', Object.assign({institutionCode: _inst}, req));
-            window.salaryState.settings = result;
-            hideSplash();
-            return result;
-        } catch (e) {
-            hideSplash();
-            throw e;
-        }
-    };
-
-    // ── SUMMARY STATS ────────────────────────────────────────────────────────
-    window.salaryStats = function (runs) {
-        return {
-            count: runs.length,
-            totalNet: runs.reduce(function (s, r) {
-                return s + (r.netSalary || 0);
-            }, 0),
-            totalGross: runs.reduce(function (s, r) {
-                return s + (r.basicSalary || 0) + (r.totalAllowances || 0);
-            }, 0),
-            totalDed: runs.reduce(function (s, r) {
-                return s + (r.totalDeductions || 0);
-            }, 0),
-            pending: runs.filter(function (r) {
-                return r.status === 'PENDING';
-            }).length,
-            approved: runs.filter(function (r) {
-                return r.status === 'APPROVED';
-            }).length,
-            paid: runs.filter(function (r) {
-                return r.status === 'PAID';
-            }).length,
-        };
-    };
-
-    // ── HELPERS ──────────────────────────────────────────────────────────────
-    function _syncRun(updated) {
-        var idx = window.salaryState.allRuns.findIndex(function (r) {
-            return r.salaryId === updated.salaryId;
+    window.salarySaveProfile = function (profile) {
+        return fetchPost('payroll/profiles/save', profile).then(function (saved) {
+            var list = window.salaryState.profiles;
+            var i = list.findIndex(function (p) { return p.staffId === saved.staffId; });
+            if (i >= 0) list[i] = saved; else list.push(saved);
+            return saved;
         });
-        if (idx >= 0) window.salaryState.allRuns[idx] = updated;
-    }
+    };
 
-    window.salaryFmt = {
-        money: function (v) {
-            return 'GH₵ ' + (parseFloat(v) || 0).toLocaleString('en-GH', {minimumFractionDigits: 2});
-        },
-        date: function (d) {
-            return d ? new Date(d).toLocaleDateString('en-GB', {day: '2-digit', month: 'short', year: 'numeric'}) : '—';
-        },
+    window.salaryRunPayroll = function (academicYear, payPeriod) {
+        return fetchPost('payroll/run', {academicYear: academicYear, payPeriod: payPeriod});
+    };
+
+    window.salaryDeletePending = function (salaryIds) {
+        return fetchPost('payroll/delete-pending', {salaryIds: salaryIds});
+    };
+
+    window.salaryGetSettings = function () {
+        return fetchPost('salary-settings/get', {}).then(function (settings) {
+            window.salaryState.settings = settings || null;
+            return window.salaryState.settings;
+        });
+    };
+
+    window.salarySaveSettings = function (settings) {
+        return fetchPost('salary-settings/save', settings).then(function (saved) {
+            window.salaryState.settings = saved;
+            return saved;
+        });
     };
 
     if (window.copyrights) window.copyrights();
-    salaryLoad();
 })();

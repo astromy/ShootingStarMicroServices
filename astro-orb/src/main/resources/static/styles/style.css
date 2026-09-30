@@ -2152,10 +2152,14 @@ body {
 .hpanel .panel-body {
     background: #fff;
     border: 1px solid #e9ecf2;
-    border-radius: var(--hm-radius-lg, 10px);
+    /*border-radius: var(--hm-radius-lg, 10px);*/
     padding: 20px;
     position: relative;
     box-shadow: 0 1px 3px rgba(20, 30, 80, 0.06);
+    border-top-left-radius: var(--hm-radius-lg, 10px);
+    border-top-right-radius: var(--hm-radius-lg, 10px);
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
 }
 
 .hpanel .hbuilt + .panel-body,
@@ -4879,18 +4883,30 @@ ul.h-list li:hover a {
 }
 
 .stat-card.pending-applications .stat-icon {
+    background: #eed8f6;
+    color: #9641b4;
+}
+
+.stat-card.flagged-applications .stat-icon {
     background: #fff3e0;
     color: #ff9800;
 }
 
-.stat-card.flagged-applications .stat-icon {
-    background: #ffebee;
-    color: #f44336;
+.stat-card.approved-applications .stat-icon {
+    background: #cffafe;
+    color: #0891b2;
 }
 
-.stat-card.approved-applications .stat-icon {
-    background: #e8f5e9;
+
+.stat-card.admitted-applications .stat-icon {
+    background-color: #e8f5e9;
     color: #4caf50;
+}
+
+
+.stat-card.rejected-applications .stat-icon {
+    background-color: #fee2e2;
+    color: #dc2626;
 }
 
 .stat-info h3 {

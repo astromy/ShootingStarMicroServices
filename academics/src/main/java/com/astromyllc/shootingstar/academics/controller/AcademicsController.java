@@ -1,9 +1,11 @@
 package com.astromyllc.shootingstar.academics.controller;
 
 import com.astromyllc.shootingstar.academics.dto.request.AcademicReportRequest;
+import com.astromyllc.shootingstar.academics.dto.request.ResultsStatsRequest;
 import com.astromyllc.shootingstar.academics.dto.request.SingleStringRequest;
 import com.astromyllc.shootingstar.academics.dto.response.AssessmentResponse;
 import com.astromyllc.shootingstar.academics.dto.response.ExistingUploadedScoreResponse;
+import com.astromyllc.shootingstar.academics.dto.response.ResultsStatsResponse;
 import com.astromyllc.shootingstar.academics.dto.response.TerminalReportResponse;
 import com.astromyllc.shootingstar.academics.serviceInterface.AssessmentServiceInterface;
 import lombok.RequiredArgsConstructor;
@@ -98,5 +100,11 @@ public class AcademicsController {
         log.info("Student Academic Year Report Request Received");
         return ResponseEntity.ok( assessmentServiceInterface.getStudentAcademicYearReport(studentID));
 
+    }
+
+    @PostMapping("/api/academics/getResultsStats")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<ResultsStatsResponse> getResultsStats(@RequestBody ResultsStatsRequest request) {
+        return ResponseEntity.ok(assessmentServiceInterface.getResultsStats(request));
     }
 }

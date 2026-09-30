@@ -270,6 +270,32 @@ public class StudentService implements StudentServiceInterface {
                         && !st.getStatus().equalsIgnoreCase("completed")).count());
     }
 
+    // Same population rule as getStudentsPopulationByInstitution (everyone
+    // except "completed" students), broken down by class.
+    @Override
+    public EnrollmentSummaryResponse getEnrollmentSummary(InstitutionCodeRequest request) {
+        List<Students> enrolled = StudentUtil.studentsGlobalList.stream()
+                .filter(st -> st.getInstitutionCode().equalsIgnoreCase(request.getInstitutionCode())
+                        && !"completed".equalsIgnoreCase(st.getStatus()))
+                .toList();
+
+        Map<String, Long> counts = enrolled.stream()
+                .collect(Collectors.groupingBy(
+                        st -> (st.getStudentClass() == null || st.getStudentClass().isBlank())
+                                ? "Unassigned" : st.getStudentClass(),
+                        TreeMap::new,
+                        Collectors.counting()));
+
+        List<EnrollmentSummaryResponse.ClassCount> byClass = counts.entrySet().stream()
+                .map(e -> new EnrollmentSummaryResponse.ClassCount(e.getKey(), e.getValue()))
+                .toList();
+
+        return EnrollmentSummaryResponse.builder()
+                .totalStudents(enrolled.size())
+                .byClass(byClass)
+                .build();
+    }
+
     private Object convertValue(String stringValue, Class<?> targetType) {
         if (stringValue == null || stringValue.trim().isEmpty()) {
             return null;

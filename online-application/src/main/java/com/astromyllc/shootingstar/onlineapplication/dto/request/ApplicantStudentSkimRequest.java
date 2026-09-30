@@ -13,6 +13,7 @@ public class ApplicantStudentSkimRequest {
     private String idapplication;
     private String dateOfBirth;
     private String dateOfAdmission;
+    private String assignedClass;
     private String gender;
     private String nationality;
     private String denomination;

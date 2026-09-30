@@ -31,6 +31,7 @@ $(function () {
                             <option value="all">All Status</option>
                             <option value="PENDING">Pending Review</option>
                             <option value="APPROVED">Approved</option>
+                            <option value="ADMITTED">Admitted</option>
                             <option value="REJECTED">Rejected</option>
                             <option value="FLAGGED">Flagged</option>
                         </select>
@@ -64,44 +65,61 @@ $(function () {
                 <div class="panel-body">
                     <!-- Statistics Cards -->
                     <div class="row stat-cards mb-4" id="statCards">
-                        <div class="col-lg-3 col-md-6">
-                            <div class="stat-card total-applications">
-                                <div class="stat-icon"><i class="fas fa-file-alt"></i></div>
-                                <div class="stat-info">
-                                    <h3 id="totalCount">0</h3>
-                                    <p>Total Applications</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-3 col-md-6">
-                            <div class="stat-card pending-applications">
-                                <div class="stat-icon"><i class="fas fa-clock"></i></div>
-                                <div class="stat-info">
-                                    <h3 id="pendingCount">0</h3>
-                                    <p>Pending Review</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-3 col-md-6">
-                            <div class="stat-card flagged-applications">
-                                <div class="stat-icon"><i class="fas fa-flag"></i></div>
-                                <div class="stat-info">
-                                    <h3 id="flaggedCount">0</h3>
-                                    <p>Flagged Applications</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-3 col-md-6">
-                            <div class="stat-card approved-applications">
-                                <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
-                                <div class="stat-info">
-                                    <h3 id="approvedCount">0</h3>
-                                    <p>Approved</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
+    <div class="col-lg-2 col-md-4 col-sm-6">
+        <div class="stat-card total-applications">
+            <div class="stat-icon"><i class="fas fa-file-alt"></i></div>
+            <div class="stat-info">
+                <h3 id="totalCount">0</h3>
+                <p>Total Applications</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-2 col-md-4 col-sm-6">
+        <div class="stat-card pending-applications">
+            <div class="stat-icon"><i class="fas fa-clock"></i></div>
+            <div class="stat-info">
+                <h3 id="pendingCount">0</h3>
+                <p>Pending Review</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-2 col-md-4 col-sm-6">
+        <div class="stat-card flagged-applications">
+            <div class="stat-icon"><i class="fas fa-flag"></i></div>
+            <div class="stat-info">
+                <h3 id="flaggedCount">0</h3>
+                <p>Flagged Applications</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-2 col-md-4 col-sm-6">
+        <div class="stat-card approved-applications">
+            <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+            <div class="stat-info">
+                <h3 id="approvedCount">0</h3>
+                <p>Approved</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-2 col-md-4 col-sm-6">
+        <div class="stat-card admitted-applications">
+            <div class="stat-icon"><i class="fas fa-user-check"></i></div>
+            <div class="stat-info">
+                <h3 id="admittedCount">0</h3>
+                <p>Admitted</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-2 col-md-4 col-sm-6">
+        <div class="stat-card rejected-applications">
+            <div class="stat-icon"><i class="fas fa-times-circle"></i></div>
+            <div class="stat-info">
+                <h3 id="rejectedCount">0</h3>
+                <p>Rejected</p>
+            </div>
+        </div>
+    </div>
+</div>
                     <!-- Grouped Applications View -->
                     <div id="applicationsContainer"></div>
                 </div>

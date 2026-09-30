@@ -1,0 +1,437 @@
+/* Administration -> ID Cards
+ *
+ * Page UI inherits the app's font. The accent follows the school's crest
+ * colour (--idc-accent, set by id-cards.js). Card sizes use cqw (percent of
+ * the card's width), so the same card markup renders on screen and in print.
+ */
+
+.idc-app {
+  --idc-accent: #1F3A5F;
+  --idc-ink: #1C2330;
+  --idc-muted: #5B6474;
+  --idc-line: #D9DEE6;
+  --idc-surface: #FFFFFF;
+  --idc-canvas: #EEF1F5;
+  --idc-danger: #B42318;
+  --idc-card-font: "Poppins", "Segoe UI", Arial, sans-serif;
+  color: var(--idc-ink);
+}
+
+.idc-layout {
+  display: grid;
+  grid-template-columns: minmax(260px, 300px) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+/* ── Controls ───────────────────────────────────────────────────────── */
+
+.idc-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 18px;
+  background: var(--idc-surface);
+  border: 1px solid var(--idc-line);
+  border-radius: 10px;
+  position: sticky;
+  top: 16px;
+}
+
+.idc-school {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--idc-line);
+}
+
+.idc-school__crest {
+  width: 52px;
+  height: 52px;
+  border-radius: 8px;
+  background: var(--idc-canvas);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.idc-school__crest img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.idc-school__name {
+  margin: 0 0 6px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.idc-palette {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.idc-palette[hidden] {
+  display: none;
+}
+
+.idc-palette__swatch {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+}
+
+.idc-palette__note {
+  font-size: 0.8rem;
+  color: var(--idc-muted);
+}
+
+.idc-group {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.idc-group legend {
+  padding: 0;
+  margin-bottom: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.idc-options {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.idc-options--scroll {
+  max-height: 220px;
+  overflow-y: auto;
+  padding: 6px 8px;
+  border: 1px solid var(--idc-line);
+  border-radius: 8px;
+}
+
+.idc-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.idc-check input {
+  accent-color: var(--idc-accent);
+  margin: 0;
+}
+
+.idc-check--all {
+  font-weight: 500;
+}
+
+.idc-empty {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--idc-muted);
+}
+
+.idc-button {
+  appearance: none;
+  border: 1px solid var(--idc-accent);
+  background: var(--idc-surface);
+  color: var(--idc-accent);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.idc-button--primary {
+  background: var(--idc-accent);
+  color: #FFFFFF;
+}
+
+.idc-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.idc-button:focus-visible,
+.idc-check input:focus-visible {
+  outline: 2px solid var(--idc-accent);
+  outline-offset: 2px;
+}
+
+.idc-status {
+  margin: 0;
+  min-height: 1.2em;
+  font-size: 0.85rem;
+  color: var(--idc-muted);
+}
+
+.idc-status--error {
+  color: var(--idc-danger);
+}
+
+/* ── Preview ────────────────────────────────────────────────────────── */
+
+.idc-preview {
+  min-width: 0;
+  padding: 18px;
+  background: var(--idc-canvas);
+  border-radius: 10px;
+}
+
+.idc-preview__title {
+  margin: 0 0 14px;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.idc-preview__grid {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.idc-pair {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.idc-preview .idc-card {
+  width: 340px;
+  max-width: 100%;
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.08), 0 4px 12px rgba(16, 24, 40, 0.08);
+}
+
+.idc-preview .idc-card[data-orientation="portrait"] {
+  width: 214px;
+}
+
+/* ── Card ───────────────────────────────────────────────────────────── */
+
+.idc-card {
+  position: relative;
+  overflow: hidden;
+  container-type: inline-size;
+  aspect-ratio: 85.6 / 54;
+  background: #FFFFFF;
+  font-family: var(--idc-card-font);
+  color: #1E1E1C;
+}
+
+.idc-card[data-orientation="portrait"] {
+  aspect-ratio: 54 / 85.6;
+}
+
+.idc-card__art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  pointer-events: none;
+}
+
+.idc-field {
+  position: absolute;
+  box-sizing: border-box;
+}
+
+.idc-field--image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-position: center 30%;
+}
+
+.idc-field--qr svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.idc-field--text {
+  display: flex;
+  align-items: center;
+  line-height: 1.15;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.idc-field--text span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.idc-field--wrap {
+  white-space: normal;
+}
+
+.idc-field--wrap span {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: var(--idc-lines, 2);
+  line-clamp: var(--idc-lines, 2);
+}
+
+.idc-field--text[data-valign="top"] {
+  align-items: flex-start;
+  line-height: 1.45;
+}
+
+.idc-field--text[data-align="center"] {
+  justify-content: center;
+  text-align: center;
+}
+
+.idc-field--mono {
+  font-family: "IBM Plex Mono", Consolas, "Courier New", monospace;
+}
+
+.idc-field--paragraphs {
+  line-height: 1.45;
+  color: #1F2933;
+}
+
+.idc-field--paragraphs p {
+  position: relative;
+  margin: 0 0 0.7em;
+  padding-left: 1.4em;
+}
+
+.idc-field--paragraphs p::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.35em;
+  width: 0.55em;
+  height: 0.55em;
+  border: 0.16em solid var(--idc-bullet, currentColor);
+  border-radius: 50%;
+}
+
+.idc-missing {
+  width: 100%;
+  height: 100%;
+  background: #E4E8EE;
+}
+
+/* ── Print ──────────────────────────────────────────────────────────── */
+
+#idc-print-root {
+  display: none;
+}
+
+@media print {
+  body.idc-printing > :not(#idc-print-root) {
+    display: none !important;
+  }
+
+  body.idc-printing {
+    margin: 0;
+    background: #FFFFFF;
+  }
+
+  #idc-print-root {
+    display: block;
+  }
+
+  .idc-print,
+  .idc-print * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .idc-print .idc-card {
+    width: 85.6mm;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .idc-print[data-orientation="portrait"] .idc-card {
+    width: 54mm;
+  }
+
+  /* A4 sheets: centred grid with cutting guides */
+  .idc-sheet {
+    width: 210mm;
+    height: 297mm;
+    box-sizing: border-box;
+    display: grid;
+    justify-content: center;
+    align-content: center;
+    gap: 3mm;
+    break-after: page;
+  }
+
+  .idc-sheet[data-cols="2"] {
+    grid-template-columns: repeat(2, 85.6mm);
+    grid-auto-rows: 54mm;
+  }
+
+  .idc-sheet[data-cols="3"] {
+    grid-template-columns: repeat(3, 54mm);
+    grid-auto-rows: 85.6mm;
+  }
+
+  .idc-sheet .idc-card {
+    outline: 0.2mm dashed #B5B5B5;
+  }
+
+  /* Card printer: one card per page, page size set by id-cards.js */
+  .idc-card-page {
+    break-after: page;
+    overflow: hidden;
+  }
+
+  .idc-card-page .idc-card {
+    width: 100%;
+  }
+
+  .idc-sheet:last-child,
+  .idc-card-page:last-child {
+    break-after: auto;
+  }
+}
+
+/* ── Small screens ──────────────────────────────────────────────────── */
+
+@media (max-width: 900px) {
+  .idc-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .idc-panel {
+    position: static;
+  }
+}
+
+/* ── Inside Orb's page shell (scripts/subscripts/adminStudentIDCard.js) ─ */
+
+.idc-host {
+  padding: 20px 28px;
+}
+
+@media (max-width: 900px) {
+  .idc-host {
+    padding: 16px;
+  }
+}

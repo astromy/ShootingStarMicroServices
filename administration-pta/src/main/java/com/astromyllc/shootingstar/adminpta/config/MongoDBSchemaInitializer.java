@@ -29,6 +29,7 @@ public class MongoDBSchemaInitializer implements CommandLineRunner {
         ensureCollectionExists(Parents.class);
         ensureCollectionExists(StudentAccount.class);
         ensureCollectionExists(StudentSubjects.class);
+        ensureCollectionExists(Attendance.class);
     }
 
     private void ensureCollectionExists(Class<?> entityClass) {

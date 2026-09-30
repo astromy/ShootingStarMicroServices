@@ -21,15 +21,10 @@ public class Accommodation {
     private final DataBaseInitializer dataBaseInitializer;
 
     public static void main(String[] args) throws SQLException {
-        SpringApplication.run(Accommodation.class, args);
-
         boolean isDocker = isRunningInDocker();
+        System.setProperty("spring.profiles.active", isDocker ? "docker" : "local");
 
-        if (isDocker) {
-            System.setProperty("spring.profiles.active", "docker");
-        } else {
-            System.setProperty("spring.profiles.active", "local");
-        }
+        SpringApplication.run(Accommodation.class, args);
     }
 
     private static boolean isRunningInDocker() {

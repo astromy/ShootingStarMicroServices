@@ -79,13 +79,20 @@ public class FinanceController {
     private ResponseEntity<String> post(Object body, String url) {
         log.info("Finance proxy → {}", url);
         try {
-            HttpRequest req = HttpRequest.newBuilder()
+            HttpRequest.Builder builder = HttpRequest.newBuilder()
                     .uri(URI.create(url))
-                    .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(body)))
-                    .build();
+                    .header("Content-Type", "application/json");
+
+            if (body == null) {
+                builder.POST(HttpRequest.BodyPublishers.noBody());
+            } else {
+                builder.POST(HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(body)));
+            }
+
+            HttpRequest req = builder.build();
             HttpResponse<String> res = httpClient.send(req, HttpResponse.BodyHandlers.ofString());
             return ResponseEntity.status(res.statusCode()).body(res.body());
+
         } catch (IOException | InterruptedException e) {
             log.error("Finance proxy error for {}: {}", url, e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -220,77 +227,9 @@ public class FinanceController {
     }
 
     // ══════════════════════════════════════════════════════════════════════════
-    // SALARY / PAYROLL
+    // SALARY / PAYROLL - moved to PayrollController, which takes the school and
+    // the acting user from the login instead of the request body.
     // ══════════════════════════════════════════════════════════════════════════
-
-    @RequiresPlan(SubscriptionPlan.GROWTH)
-    @PostMapping("salary-settings/save")
-    public ResponseEntity<String> saveSalarySettings(@RequestBody Map<String, Object> body) {
-        return post(body, backendserve + "/api/finance/salary-settings/save");
-    }
-
-    @RequiresPlan(SubscriptionPlan.GROWTH)
-    @PostMapping("salary-settings/get")
-    public ResponseEntity<String> getSalarySettings(@RequestBody Map<String, Object> body) {
-        return post(body, backendserve + "/api/finance/salary-settings/get");
-    }
-
-    @RequiresPlan(SubscriptionPlan.GROWTH)
-    @PostMapping("salary/create")
-    public ResponseEntity<String> createSalaryRun(@RequestBody Map<String, Object> body) {
-        return post(body, backendserve + "/api/finance/salary/create");
-    }
-
-    @RequiresPlan(SubscriptionPlan.GROWTH)
-    @PostMapping("salary/create-batch")
-    public ResponseEntity<String> createSalaryBatch(@RequestBody List<Map<String, Object>> body) {
-        return post(body, backendserve + "/api/finance/salary/create-batch");
-    }
-
-    @RequiresPlan(SubscriptionPlan.GROWTH)
-    @PostMapping("salary/get-by-institution")
-    public ResponseEntity<String> getSalariesByInstitution(@RequestBody Map<String, Object> body) {
-        return post(body, backendserve + "/api/finance/salary/get-by-institution");
-    }
-
-    @RequiresPlan(SubscriptionPlan.GROWTH)
-    @PostMapping("salary/payslip")
-    public ResponseEntity<String> getPayslip(@RequestBody Map<String, Object> body) {
-        return post(body, backendserve + "/api/finance/salary/payslip");
-    }
-
-    /**
-     * Approve: POST /salary/approve/{id}?approvedBy=name
-     * The JS calls fetchPost("salary/approve/123?approvedBy=Admin", {})
-     * so we use a wildcard mapping.
-     */
-    @RequiresPlan(SubscriptionPlan.GROWTH)
-    @RequestMapping(value = "salary/approve/{salaryId}", method = RequestMethod.POST)
-    public ResponseEntity<String> approveSalary(
-            @PathVariable Long salaryId,
-            @RequestParam String approvedBy,
-            @RequestBody(required = false) String body) {
-        return post(new Object(), backendserve + "/api/finance/salary/approve/" + salaryId + "?approvedBy=" + approvedBy);
-    }
-
-    @RequiresPlan(SubscriptionPlan.GROWTH)
-    @RequestMapping(value = "salary/mark-paid/{salaryId}", method = RequestMethod.POST)
-    public ResponseEntity<String> markSalaryPaid(
-            @PathVariable Long salaryId,
-            @RequestParam String processedBy,
-            @RequestParam(required = false) String externalReference,
-            @RequestBody(required = false) String body) {
-        String url = backendserve + "/api/finance/salary/mark-paid/" + salaryId
-                + "?processedBy=" + processedBy
-                + (externalReference != null ? "&externalReference=" + externalReference : "");
-        return post(new Object(), url);
-    }
-
-    @RequiresPlan(SubscriptionPlan.GROWTH)
-    @GetMapping("salary/get/{salaryId}")
-    public ResponseEntity<String> getSalaryById(@PathVariable Long salaryId) {
-        return get(backendserve + "/api/finance/salary/get/" + salaryId);
-    }
 
     // ══════════════════════════════════════════════════════════════════════════
     // PAYSTACK WEBHOOK

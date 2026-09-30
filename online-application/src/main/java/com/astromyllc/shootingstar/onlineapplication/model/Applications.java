@@ -41,6 +41,8 @@ public class Applications {
     @NonNull
     private String applicantBirthCert;
     private String applicantDenomination;
+    private String applicantResidentialLocality;
+    private String assignedClass;
 
     @Indexed(unique = true)
     @NonNull

@@ -16,4 +16,5 @@ public class SalaryItemResponse {
     private Double amount;
     private Boolean isPercentage;
     private Double percentageRate;
+    private String itemCode;
 }

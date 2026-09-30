@@ -1,9 +1,11 @@
 package com.astromyllc.shootingstar.academics.serviceInterface;
 
 import com.astromyllc.shootingstar.academics.dto.request.AcademicReportRequest;
+import com.astromyllc.shootingstar.academics.dto.request.ResultsStatsRequest;
 import com.astromyllc.shootingstar.academics.dto.request.SingleStringRequest;
 import com.astromyllc.shootingstar.academics.dto.response.AssessmentResponse;
 import com.astromyllc.shootingstar.academics.dto.response.ExistingUploadedScoreResponse;
+import com.astromyllc.shootingstar.academics.dto.response.ResultsStatsResponse;
 import com.astromyllc.shootingstar.academics.dto.response.TerminalReportResponse;
 
 import java.util.List;
@@ -25,4 +27,6 @@ public interface AssessmentServiceInterface {
     Optional<List<ExistingUploadedScoreResponse>> getExistingClassSubjectScores(AcademicReportRequest terminalReportRequest);
 
     public Optional<TerminalReportResponse>  getStudentAcademicYearReport(SingleStringRequest studentID);
+
+    ResultsStatsResponse getResultsStats(ResultsStatsRequest request);
 }

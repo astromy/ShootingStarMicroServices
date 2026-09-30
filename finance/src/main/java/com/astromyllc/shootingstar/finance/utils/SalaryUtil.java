@@ -75,9 +75,10 @@ public class SalaryUtil {
                 .build();
     }
 
-    public Salaries applyApproval(Salaries s, String processedBy) {
+    public Salaries applyApproval(Salaries s, String approvedBy) {
         s.setStatus("APPROVED");
-        s.setProcessedBy(processedBy);
+        s.setApprovedBy(approvedBy);
+        s.setApprovedAt(LocalDateTime.now());
         return s;
     }
 
@@ -85,6 +86,7 @@ public class SalaryUtil {
         s.setStatus("PAID");
         s.setProcessedBy(processedBy);
         s.setPaymentDate(java.time.LocalDate.now());
+        s.setPaidAt(LocalDateTime.now());
         if (reference != null) s.setExternalReference(reference);
         return s;
     }
@@ -111,6 +113,20 @@ public class SalaryUtil {
                 .processedBy(s.getProcessedBy())
                 .paymentMethod(s.getPaymentMethod())
                 .externalReference(s.getExternalReference())
+                .createdBy(s.getCreatedBy())
+                .approvedBy(s.getApprovedBy())
+                .approvedAt(s.getApprovedAt())
+                .paidAt(s.getPaidAt())
+                .grossPay(s.getGrossPay())
+                .taxableIncome(s.getTaxableIncome())
+                .employeeSsnit(s.getEmployeeSsnit())
+                .employerSsnit(s.getEmployerSsnit())
+                .incomeTax(s.getIncomeTax())
+                .bankName(s.getBankName())
+                .bankBranch(s.getBankBranch())
+                .accountName(s.getAccountName())
+                .accountNumber(s.getAccountNumber())
+                .momoNumber(s.getMomoNumber())
                 .salaryItems(items)
                 .build();
     }
@@ -165,6 +181,7 @@ public class SalaryUtil {
                 .amount(i.getAmount())
                 .isPercentage(i.getIsPercentage())
                 .percentageRate(i.getPercentageRate())
+                .itemCode(i.getItemCode())
                 .build();
     }
 

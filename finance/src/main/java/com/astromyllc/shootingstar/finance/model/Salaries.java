@@ -58,6 +58,29 @@ public class Salaries {
     private String paymentMethod;
     private String externalReference;
 
+    // Who created and approved the run - taken from the login by the gateway.
+    // processedBy (above) records who marked it paid.
+    private String createdBy;
+    private String approvedBy;
+    private LocalDateTime approvedAt;
+    private LocalDateTime paidAt;
+
+    // Statutory figures, calculated when the run is created (PayrollCalculator).
+    private Double grossPay;
+    private Double taxableIncome;
+    private Double employeeSsnit;
+    // The school's own SSNIT contribution - shown on the payslip, not deducted.
+    private Double employerSsnit;
+    private Double incomeTax;
+
+    // Payment details copied from the staff member's salary profile at run time,
+    // so the payslip shows where that month's salary was paid.
+    private String bankName;
+    private String bankBranch;
+    private String accountName;
+    private String accountNumber;
+    private String momoNumber;
+
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @JoinColumn(name = "salaryId")
     private List<SalaryItem> salaryItems;

@@ -142,6 +142,13 @@ public class AcademicsController {
         return response;
     }
 
+    // Pulse Analytics → "Results" card. Omit term/academicYear for the most recent term.
+    @ResponseBody
+    @RequestMapping(value = "api/mobile/getResultsStats", method = RequestMethod.POST)
+    public ResponseEntity<String> getResultsStats(@RequestBody ResultsStatsRequest jso) {
+        return BACKENDCOMMPOST(jso, backendserve + "/api/academics/getResultsStats");
+    }
+
     @ResponseBody
     @RequestMapping(value = "timetable", method = RequestMethod.POST)
     public ResponseEntity<String> generateTimetable(@RequestBody DynamicStringRequest jso) {

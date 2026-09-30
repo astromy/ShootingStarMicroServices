@@ -147,4 +147,10 @@ public class StudentsController {
     public ResponseEntity<Optional<Long>> getInstitutionPopulationByCode(@RequestBody SingleStringRequest request) {
         return ResponseEntity.ok(studentServiceInterface.getStudentsPopulationByInstitution(request));
     }
+
+    @PostMapping("/api/administration-pta/getEnrollmentSummary")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<EnrollmentSummaryResponse> getEnrollmentSummary(@RequestBody InstitutionCodeRequest request) {
+        return ResponseEntity.ok(studentServiceInterface.getEnrollmentSummary(request));
+    }
 }

@@ -256,6 +256,7 @@ function addEventListeners() {
     safeOn("paymentchecker", paymentcheckerBuild);
     safeOn("salarysetup", salarysetupBuild);
     safeOn("payslipgeneration", payslipgenerationBuild);
+    safeOn("salaryapprovals", salaryApprovalsBuild);
     safeOn("ledgerbooks", ledgerbooksBuild);
     safeOn("incomestatement", incomestatementBuild);
     safeOn("cashflow", cashflowBuild);
@@ -275,6 +276,22 @@ function addEventListeners() {
     safeOn("studSuspension", suspendedStudentBuild);
     safeOn("pendingApplicants", pendingApplicatsBuild);
     safeOn("studList", studentListBuild);
+    // "roomAllocation" (under the ACCOMMODATION module) previously had no
+    // handler registered at all - clicking it did nothing, since nothing
+    // was listening for the click. Same root cause the other five
+    // accommodation menu items still have.
+    safeOn("roomAllocation", roomAllocationBuild);
+    // "positions" (under the ACCOMMODATION module) had no handler either -
+    // same root cause as roomAllocation and every other unwired item there.
+    safeOn("positions", positionsBuild);
+    // Setup's own "accommodation" entry - block/room creation and block
+    // master assignment moved here from Room Allocation, which is now
+    // student-assignment-only.
+    safeOn("accommodation", setupAccommodationBuild);
+    safeOn("accommodationStudentList", studentAccommodationListBuild);
+    safeOn("dutyRoster", dutyRosterBuild);
+    safeOn("resourceTracking", resourceTrackingBuild);
+    safeOn("faults", faultsComplaintsBuild);
     safeOn("classList", classListBuild);
     safeOn("academicTT", academicTimeTableBuild);
     safeOn("idGen", idCardGenerationBuild);
@@ -598,6 +615,174 @@ function admissionBuild() {
     // Update the active state with new resources
     newScripts.forEach((src) => activeScripts.add(src));
 
+    newLinks.forEach((href) => activeLinks.add(href));
+}
+
+//-------------------------------------------------------------------------------------------------------
+
+function positionsBuild() {
+
+    // Define new resources specific to this view
+    const newScripts = [
+        "vendor/sweetalert/lib/sweet-alert.min.js",
+        "scripts/subscripts/positions.js",
+    ];
+    const newLinks = [
+        "vendor/sweetalert/lib/sweet-alert.css",
+        "vendor/metisMenu/dist/metisMenu.css",
+        "vendor/animate.css/animate.css",
+    ];
+
+    // Remove previous non-default scripts/links
+    removeUnwantedResources("script", activeScripts);
+    removeUnwantedResources("link", activeLinks);
+
+    // Add new resources
+    addNewResources("script", newScripts);
+    addNewResources("link", newLinks);
+
+    // Update the active state with new resources
+    newScripts.forEach((src) => activeScripts.add(src));
+
+    newLinks.forEach((href) => activeLinks.add(href));
+}
+
+//-------------------------------------------------------------------------------------------------------
+
+function roomAllocationBuild() {
+
+    // Define new resources specific to this view
+    const newScripts = [
+        "vendor/sweetalert/lib/sweet-alert.min.js",
+        "scripts/subscripts/roomAllocation.js",
+    ];
+    const newLinks = [
+        "vendor/sweetalert/lib/sweet-alert.css",
+        "vendor/metisMenu/dist/metisMenu.css",
+        "vendor/animate.css/animate.css",
+    ];
+
+    // Remove previous non-default scripts/links
+    removeUnwantedResources("script", activeScripts);
+    removeUnwantedResources("link", activeLinks);
+
+    // Add new resources
+    addNewResources("script", newScripts);
+    addNewResources("link", newLinks);
+
+    // Update the active state with new resources
+    newScripts.forEach((src) => activeScripts.add(src));
+
+    newLinks.forEach((href) => activeLinks.add(href));
+}
+
+//-------------------------------------------------------------------------------------------------------
+
+function setupAccommodationBuild() {
+
+    const newScripts = [
+        "vendor/sweetalert/lib/sweet-alert.min.js",
+        "scripts/subscripts/setupAccommodation.js",
+    ];
+    const newLinks = [
+        "vendor/sweetalert/lib/sweet-alert.css",
+        "vendor/metisMenu/dist/metisMenu.css",
+        "vendor/animate.css/animate.css",
+    ];
+
+    removeUnwantedResources("script", activeScripts);
+    removeUnwantedResources("link", activeLinks);
+    addNewResources("script", newScripts);
+    addNewResources("link", newLinks);
+    newScripts.forEach((src) => activeScripts.add(src));
+    newLinks.forEach((href) => activeLinks.add(href));
+}
+
+//-------------------------------------------------------------------------------------------------------
+
+function studentAccommodationListBuild() {
+
+    const newScripts = [
+        "vendor/sweetalert/lib/sweet-alert.min.js",
+        "scripts/subscripts/studentAccommodationList.js",
+    ];
+    const newLinks = [
+        "vendor/sweetalert/lib/sweet-alert.css",
+        "vendor/metisMenu/dist/metisMenu.css",
+        "vendor/animate.css/animate.css",
+    ];
+
+    removeUnwantedResources("script", activeScripts);
+    removeUnwantedResources("link", activeLinks);
+    addNewResources("script", newScripts);
+    addNewResources("link", newLinks);
+    newScripts.forEach((src) => activeScripts.add(src));
+    newLinks.forEach((href) => activeLinks.add(href));
+}
+
+//-------------------------------------------------------------------------------------------------------
+
+function dutyRosterBuild() {
+
+    const newScripts = [
+        "vendor/sweetalert/lib/sweet-alert.min.js",
+        "scripts/subscripts/dutyRoster.js",
+    ];
+    const newLinks = [
+        "vendor/sweetalert/lib/sweet-alert.css",
+        "vendor/metisMenu/dist/metisMenu.css",
+        "vendor/animate.css/animate.css",
+    ];
+
+    removeUnwantedResources("script", activeScripts);
+    removeUnwantedResources("link", activeLinks);
+    addNewResources("script", newScripts);
+    addNewResources("link", newLinks);
+    newScripts.forEach((src) => activeScripts.add(src));
+    newLinks.forEach((href) => activeLinks.add(href));
+}
+
+//-------------------------------------------------------------------------------------------------------
+
+function resourceTrackingBuild() {
+
+    const newScripts = [
+        "vendor/sweetalert/lib/sweet-alert.min.js",
+        "scripts/subscripts/resourceTracking.js",
+    ];
+    const newLinks = [
+        "vendor/sweetalert/lib/sweet-alert.css",
+        "vendor/metisMenu/dist/metisMenu.css",
+        "vendor/animate.css/animate.css",
+    ];
+
+    removeUnwantedResources("script", activeScripts);
+    removeUnwantedResources("link", activeLinks);
+    addNewResources("script", newScripts);
+    addNewResources("link", newLinks);
+    newScripts.forEach((src) => activeScripts.add(src));
+    newLinks.forEach((href) => activeLinks.add(href));
+}
+
+//-------------------------------------------------------------------------------------------------------
+
+function faultsComplaintsBuild() {
+
+    const newScripts = [
+        "vendor/sweetalert/lib/sweet-alert.min.js",
+        "scripts/subscripts/faultsComplaints.js",
+    ];
+    const newLinks = [
+        "vendor/sweetalert/lib/sweet-alert.css",
+        "vendor/metisMenu/dist/metisMenu.css",
+        "vendor/animate.css/animate.css",
+    ];
+
+    removeUnwantedResources("script", activeScripts);
+    removeUnwantedResources("link", activeLinks);
+    addNewResources("script", newScripts);
+    addNewResources("link", newLinks);
+    newScripts.forEach((src) => activeScripts.add(src));
     newLinks.forEach((href) => activeLinks.add(href));
 }
 
@@ -1100,6 +1285,7 @@ function salarysetupBuild() {
     const newScripts = [
         "scripts/moment.min.js",
         "vendor/sweetalert/lib/sweet-alert.min.js",
+        "scripts/_payrollShared.js",
         "scripts/subscripts/financeSalary.js",
     ];
 
@@ -1134,7 +1320,8 @@ function payslipgenerationBuild() {
     const newScripts = [
         "scripts/moment.min.js",
         "vendor/sweetalert/lib/sweet-alert.min.js",
-        "scripts/subscripts/financePaySlip.js",
+        "scripts/_payrollShared.js",
+        "scripts/subscripts/financePayslip.js",
     ];
 
     /**========================================= */
@@ -1158,6 +1345,28 @@ function payslipgenerationBuild() {
     // Update the active state with new resources
     newScripts.forEach((src) => activeScripts.add(src));
 
+    newLinks.forEach((href) => activeLinks.add(href));
+}
+
+//-------------------------------------------------------------------------------------------------------
+
+// Finance -> Salary Approvals: approve payroll runs and record payment.
+// financeSalaryApprovals.js renders the page and loads _financeSalaryApprovals.js.
+function salaryApprovalsBuild() {
+
+    const newScripts = [
+        "scripts/_payrollShared.js",
+        "scripts/subscripts/financeSalaryApprovals.js",
+    ];
+    const newLinks = [];
+
+    removeUnwantedResources("script", activeScripts);
+    removeUnwantedResources("link", activeLinks);
+
+    addNewResources("script", newScripts);
+    addNewResources("link", newLinks);
+
+    newScripts.forEach((src) => activeScripts.add(src));
     newLinks.forEach((href) => activeLinks.add(href));
 }
 
@@ -1618,17 +1827,18 @@ function academicTimeTableBuild() {
 
 function idCardGenerationBuild() {
 
-    // Define new resources specific to this view
+    // Define new resources specific to this view. Order matters: the QR
+    // library and template list must load before id-cards.js, and the page
+    // script (which renders into #wrapper) comes last.
     const newScripts = [
-        "vendor/sweetalert/lib/sweet-alert.min.js",
+        "js/id-cards/qrcode.js",
+        "js/id-cards/id-card-templates.js",
+        "js/id-cards/id-cards.js",
         "scripts/subscripts/adminStudentIDCard.js",
     ];
     const newLinks = [
-        "vendor/sweetalert/lib/sweet-alert.css",
-        "vendor/metisMenu/dist/metisMenu.css",
-        "vendor/animate.css/animate.css",
-        "vendor/datatables.net-bs/css/dataTables.bootstrap.min.css",
-        "styles/switch.css",
+        "https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap",
+        "css/id-cards.css",
     ];
 
     // Remove previous non-default scripts/links

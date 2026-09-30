@@ -1,11 +1,10 @@
 package com.astromyllc.shootingstar.adminpta.service;
 
+import com.astromyllc.shootingstar.adminpta.dto.paystack.CustomField;
 import com.astromyllc.shootingstar.adminpta.dto.paystack.PaystackPaymentResponse;
 import com.astromyllc.shootingstar.adminpta.dto.request.DynamicStringRequest;
-import com.astromyllc.shootingstar.adminpta.dto.request.StudentAccountRequest;
 import com.astromyllc.shootingstar.adminpta.dto.request.alien.DynamicStringRequestUtil;
 import com.astromyllc.shootingstar.adminpta.dto.response.StudentAccountResponse;
-import com.astromyllc.shootingstar.adminpta.model.StudentAccount;
 import com.astromyllc.shootingstar.adminpta.serviceInterface.ParentServiceInterface;
 import com.astromyllc.shootingstar.adminpta.util.ParentsUtil;
 import com.astromyllc.shootingstar.adminpta.util.StudentAccountUtil;
@@ -22,15 +21,17 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 @Transactional
 public class ParentService implements ParentServiceInterface {
-    private static final int REACTIVATION_FEE_GHS = 50;
-    private static final double REACTIVATION_FEE_PESEWAS = REACTIVATION_FEE_GHS * 100.0;
+    private static final long REACTIVATION_FEE_GHS = 50L;
+    private static final long REACTIVATION_FEE_PESEWAS = REACTIVATION_FEE_GHS * 100L; // 5000L
     private static final int MAX_ACTIVATION_RETRIES = 3;
     private static final long RETRY_DELAY_MS = 1500;
     private final ParentsUtil parentsUtil;
@@ -91,42 +92,58 @@ public class ParentService implements ParentServiceInterface {
 
     @Override
     public Optional<String> subscriptionPaymentStatus(PaystackPaymentResponse request) {
-        String paymentStatus = request.getData().getStatus();
-        Double paymentAmount = request.getData().getAmount();
-        String reference = request.getData().getReference();
+        var data = request.getData();
 
-        if (paymentStatus == null || paymentAmount == null
+        Long requested;
+        if (data.getRequestedAmount() != null) {
+            requested = data.getRequestedAmount().longValue();
+        } else if (data.getAmount() != null) {
+            requested = data.getAmount().longValue();
+        } else {
+            requested = null;
+        }
+
+        Double charged = data.getAmount();
+
+        // 1. Verify against what you ASKED for, not the gross charged amount.
+
+        String paymentStatus = data.getStatus();
+        String reference = data.getReference();
+
+        if (paymentStatus == null
+                || requested == null
                 || !paymentStatus.equalsIgnoreCase("success")
-                || paymentAmount != REACTIVATION_FEE_PESEWAS) {
-            log.warn("Ignoring webhook: status={}, amount={}, reference={}", paymentStatus, paymentAmount, reference);
+                || requested.longValue() < REACTIVATION_FEE_PESEWAS) {
+            log.warn("Ignoring webhook: status={}, requested={}, charged={}, reference={}",
+                    paymentStatus, requested, data.getAmount(), reference);
             return Optional.empty();
         }
 
-        String studentID = request.getData().getMetadata().getCustomFields().get(0).getValue();
+        // 2. Pull the student ID by stable key, not by index.
+        String studentID = data.getMetadata() == null || data.getMetadata().getCustomFields() == null
+                ? null
+                : data.getMetadata().getCustomFields().stream()
+                  .filter(cf -> "student_id".equalsIgnoreCase(cf.getVariableName()))
+                  .map(CustomField::getValue)
+                  .findFirst()
+                  .orElse(null);
 
-        boolean alreadyActive = StudentAccountUtil.studentAccountsGlobalList.stream()
-                .anyMatch(sa -> sa.getStudentId().equalsIgnoreCase(studentID)
-                        && "active".equalsIgnoreCase(sa.getActivationState()));
-
-        if (alreadyActive) {
-            log.info("Ignoring duplicate webhook for already-active student {} (reference={})", studentID, reference);
-            return Optional.of("Account already active for " + studentID);
+        if (studentID == null) {
+            log.warn("Webhook missing student_id, reference={}", reference);
+            return Optional.empty();
         }
 
-        List<StudentAccount> sa = new ArrayList<>();
-        sa.add(StudentAccountUtil.mapStudentAccountRequest_ToStudentAccount(
-                new StudentAccountRequest(studentID, "active"), studentID));
-        studentAccountUtil.saveAll(sa);
-
+        // 3. O(1) in-memory dedup.
+        if (!studentAccountUtil.activateIfNotActive(studentID)) {
+            log.info("Already active for {} (reference={})", studentID, reference);
+            return Optional.of("Account already active for " + studentID);
+        }
         return Optional.of("Account Reactivated for " + studentID);
     }
 
-
     @Override
     public Optional<StudentAccountResponse> getActivationStatus(String studentId) {
-        return StudentAccountUtil.studentAccountsGlobalList.stream()
-                .filter(sa -> sa.getStudentId().equalsIgnoreCase(studentId))
-                .reduce((first, second) -> second)
+        return Optional.ofNullable(StudentAccountUtil.getLatest(studentId))
                 .map(StudentAccountUtil::mapStudentAccount_ToStudentAccountResponse);
     }
 
@@ -173,15 +190,15 @@ public class ParentService implements ParentServiceInterface {
 
     private boolean waitForActivation(String studentId) {
         for (int attempt = 1; attempt <= MAX_ACTIVATION_RETRIES; attempt++) {
-            boolean active = StudentAccountUtil.studentAccountsGlobalList.stream()
-                    .anyMatch(sa -> sa.getStudentId().equalsIgnoreCase(studentId)
-                            && "active".equalsIgnoreCase(sa.getActivationState()));
-            if (active) return true;
+            if (StudentAccountUtil.isActive(studentId)) {
+                return true;
+            }
             if (attempt < MAX_ACTIVATION_RETRIES) {
                 try {
                     Thread.sleep(RETRY_DELAY_MS);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
+                    return false;
                 }
             }
         }

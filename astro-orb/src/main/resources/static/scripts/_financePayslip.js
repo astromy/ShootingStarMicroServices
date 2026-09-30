@@ -12,6 +12,8 @@
  *   window.payslipFetch(staffId, payPeriod, academicYear) → SalaryResponse|null
  *   window.payslipFetchAll(staffId) → SalaryResponse[]
  *   window.payslipPrint(slip)
+ *
+ * Needs _payrollShared.js (loaded first by common.js).
  *   window.payslipFmt
  */
 (function () {
@@ -32,19 +34,18 @@
         _loaded: false,
     };
 
+    // Pay periods from two years back to next year (newest first), via
+    // _payrollShared.js - same 'September 2026' format the runs are stored in.
     function buildYears() {
-        var y = new Date().getFullYear(), out = [];
-        for (var i = 3; i >= 0; i--) out.push((y - i) + '/' + (y - i + 1));
-        window.payslipState.academicYears = out;
+        window.payslipState.academicYears = window.payrollShared.academicYears().slice().reverse();
     }
 
     function buildPeriods() {
-        var months = ['January', 'February', 'March', 'April', 'May', 'June',
-            'July', 'August', 'September', 'October', 'November', 'December'];
-        var y = new Date().getFullYear();
-        window.payslipState.payPeriods = months.map(function (m) {
-            return {value: m + ' ' + y, label: m + ' ' + y};
+        var P = window.payrollShared, out = [];
+        P.years().slice().reverse().forEach(function (y) {
+            for (var m = 11; m >= 0; m--) out.push({value: P.period(m, y), label: P.period(m, y)});
         });
+        window.payslipState.payPeriods = out;
     }
 
     function showSplash() {
@@ -61,29 +62,86 @@
         }
     }
 
+    // _payrollShared.js is normally loaded first by common.js; load it here if not.
+    var payslipScript = document.currentScript;
+
+    function ensureShared() {
+        if (window.payrollShared) return Promise.resolve();
+        var base = payslipScript && payslipScript.src
+            ? payslipScript.src.substring(0, payslipScript.src.lastIndexOf('/') + 1)
+            : 'scripts/';
+        return new Promise(function (resolve) {
+            var s = document.createElement('script');
+            s.src = base + '_payrollShared.js';
+            s.setAttribute('data-dynamic', 'true');
+            s.onload = resolve;
+            s.onerror = function () {
+                console.error('[_financePayslip] Could not load _payrollShared.js');
+                resolve();
+            };
+            document.body.appendChild(s);
+        });
+    }
+
+    /**
+     * The page draws its dropdowns as soon as this file loads. If the period
+     * lists were filled after that (shared helper loaded late), put them in
+     * now, defaulting to the current month and academic year.
+     */
+    function fillPeriodSelects() {
+        var s = window.payslipState, P = window.payrollShared;
+        var period = document.getElementById('psPeriod');
+        var year = document.getElementById('psYear');
+        if (period && !period.options.length) {
+            period.innerHTML = s.payPeriods.map(function (p) {
+                return '<option value="' + p.value + '">' + p.label + '</option>';
+            }).join('');
+        }
+        if (year && !year.options.length) {
+            year.innerHTML = s.academicYears.map(function (y) {
+                return '<option>' + y + '</option>';
+            }).join('');
+        }
+        if (P && !s._periodDefaulted) {
+            var now = P.current();
+            if (period) period.value = P.period(now.month, now.year);
+            if (year) year.value = now.academicYear;
+            if (period && year) s._periodDefaulted = true;
+        }
+    }
+
     window.payslipLoad = async function () {
+        await ensureShared();
         buildYears();
         buildPeriods();
+        fillPeriodSelects();
         showSplash();
 
         try {
             var inst = await fetchPost('getInstitutionByCode', {val: _inst});
-            if (inst) window.payslipState.institutionName = inst.name || _inst;
+            if (inst) {
+                window.payslipState.institutionName = inst.name || _inst;
+                window.payslipState.institution = inst;
+            }
         } catch (e) {
             console.warn('[_financePayslip] institution load failed:', e.message);
         }
 
         try {
-            var staffResult = await fetchPost('getAllStaffByInstitution', {institutionCode: _inst});
+            // Staff come from HR, through astro-orb's PayrollController.
+            var staffResult = await fetchPost('payroll/staff', {});
             if (Array.isArray(staffResult)) {
                 window.payslipState.staff = staffResult.map(function (s) {
-                    var names = [s.lastName, s.firstName, s.otherName].filter(Boolean);
-                    var desig = (s.designationList && s.designationList.length)
-                        ? (s.designationList[0].name || '') : '';
                     return {
-                        id: s.staffId || s.id || '',
-                        name: names.join(', ').trim() || s.staffId || '',
-                        designation: desig
+                        id: s.staffId,
+                        name: s.staffName || s.staffId,
+                        designation: s.designation || '',
+                        // Used on the printed payslip.
+                        level: s.level || '',
+                        snnitNumber: s.snnitNumber || '',
+                        nationalID: s.nationalID || '',
+                        nationalIDType: s.nationalIDType || '',
+                        dateOfEmployment: s.dateOfEmployment || null,
                     };
                 });
             }
@@ -92,6 +150,7 @@
         }
 
         window.payslipState._loaded = true;
+        fillPeriodSelects();
         hideSplash();
     };
 
@@ -138,90 +197,266 @@
         }
     };
 
-    window.payslipPrint = function (slip) {
-        if (!slip) return;
-        var fmt = window.payslipFmt;
-        var inst = window.payslipState.institutionName || _inst;
+    // ── PRINT ────────────────────────────────────────────────────────────────
+    // Reproduces the school's Excel "STAFF PAYSLIP" layout: phones, crest and
+    // title at the top; the employee block; the salary item table with
+    // earnings, deductions and totals columns; the summary line; and the
+    // payment details box (from the staff member's salary profile at the time
+    // of the run). Details the system doesn't hold (division, overtime hours)
+    // print blank rather than "#N/A".
 
-        var allowances = (slip.salaryItems || []).filter(function (i) {
-            return i.itemType === 'ALLOWANCE';
+    function esc(v) {
+        return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) {
+            return {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c];
         });
+    }
+
+    /** Stored images: data URLs, raw base64, or "file.png_image/png_<base64>". */
+    function imageSrc(value) {
+        if (!value) return '';
+        value = String(value).trim();
+        if (/^(data:|https?:\/\/)/.test(value)) return value;
+        var prefixed = value.match(/_(image\/[a-z0-9.+-]+)_/i);
+        if (prefixed) return 'data:' + prefixed[1] + ';base64,' + value.slice(prefixed.index + prefixed[0].length);
+        return 'data:' + (value.indexOf('iVBOR') === 0 ? 'image/png' : 'image/jpeg') + ';base64,' + value;
+    }
+
+    /** "GHS" on the left of the cell, the amount on the right - as in the template. */
+    function ghs(v) {
+        var n = parseFloat(v) || 0;
+        return '<span class="cur">GHS</span><span class="amt">' +
+            n.toLocaleString('en-GH', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + '</span>';
+    }
+
+    /** Percentage items are stored as a rate; print their actual cedi amount. */
+    function itemAmount(item, basic) {
+        if (item.isPercentage && !(parseFloat(item.amount) > 0)) {
+            return (parseFloat(basic) || 0) * (parseFloat(item.percentageRate) || 0) / 100;
+        }
+        return parseFloat(item.amount) || 0;
+    }
+
+    function staffFor(slip) {
+        return (window.payslipState.staff || []).find(function (s) {
+            return s.id === slip.staffId;
+        }) || {};
+    }
+
+    /** In Ghana the Ghana Card PIN is the Tax Identification Number. */
+    function taxId(staff) {
+        if (!staff.nationalID) return '';
+        var type = String(staff.nationalIDType || '').toLowerCase();
+        return !type || type.indexOf('ghana') >= 0 ? staff.nationalID : '';
+    }
+
+    /**
+     * The payslip in the school's template layout, as a complete HTML
+     * document. Used for both the on-page preview (in an iframe) and printing,
+     * so what's previewed is exactly what prints.
+     */
+    window.payslipDocument = function (slip) {
+        var fmt = window.payslipFmt;
+        var inst = window.payslipState.institution || {};
+        var instName = window.payslipState.institutionName || inst.name || _inst;
+        var staff = staffFor(slip);
+        var basic = parseFloat(slip.basicSalary) || 0;
+
+        var earnings = [{name: 'Basic', amount: basic}].concat(
+            (slip.salaryItems || []).filter(function (i) {
+                return i.itemType === 'ALLOWANCE';
+            })
+                .map(function (i) {
+                    return {name: i.itemName, amount: itemAmount(i, basic)};
+                })
+        );
         var deductions = (slip.salaryItems || []).filter(function (i) {
             return i.itemType === 'DEDUCTION';
-        });
+        })
+            .map(function (i) {
+                return {name: i.itemName, amount: itemAmount(i, basic)};
+            });
+        // The school's own SSNIT contribution: shown like the Excel sheet, but
+        // not part of the staff member's deductions.
+        var employerSsnit = parseFloat(slip.employerSsnit) > 0 ? parseFloat(slip.employerSsnit) : null;
 
-        function itemRow(i, sign, color) {
-            var val = i.isPercentage ? (i.percentageRate || 0) + '% of basic' : fmt.money(i.amount);
-            return '<tr><td style="padding:5px 0">' + i.itemName + '</td>' +
-                '<td style="text-align:right;color:' + color + ';padding:5px 0">' + sign + val + '</td></tr>';
+        var gross = earnings.reduce(function (t, e) {
+            return t + e.amount;
+        }, 0);
+        var totalDeductions = slip.totalDeductions != null
+            ? parseFloat(slip.totalDeductions) || 0
+            : deductions.reduce(function (t, d) {
+                return t + d.amount;
+            }, 0);
+        var net = slip.netSalary != null ? parseFloat(slip.netSalary) || 0 : gross - totalDeductions;
+
+        // Item rows: earnings, then deductions, then the deductions total -
+        // the gross total sits on the last earnings row, as in the template.
+        var rows = earnings.map(function (e, i) {
+            return {name: e.name, earn: e.amount, total: i === earnings.length - 1 ? gross : null};
+        }).concat(deductions.map(function (d) {
+            return {name: d.name, deduct: d.amount};
+        }));
+        if (employerSsnit != null) rows.push({name: 'Employer SSNIT (paid by the school)', deduct: employerSsnit});
+        if (deductions.length) rows.push({total: totalDeductions});
+        while (rows.length < 12) rows.push({});   // keep the table the template's height
+
+        var itemRows = rows.map(function (r) {
+            return '<tr class="item">' +
+                '<td class="c-item">' + esc(r.name || '') + '</td>' +
+                '<td class="c-hours"></td>' +
+                '<td class="c-earn">' + (r.earn != null ? ghs(r.earn) : '') + '</td>' +
+                '<td class="c-deduct">' + (r.deduct != null ? ghs(r.deduct) : '') + '</td>' +
+                '<td class="c-total">' + (r.total != null ? ghs(r.total) : '') + '</td>' +
+                '</tr>';
+        }).join('');
+
+        var phones = [inst.contact1, inst.contact2].filter(Boolean);
+        var crest = imageSrc(inst.crest);
+
+        function field(label, value) {
+            return '<td class="lbl">' + label + '</td><td class="val">' + esc(value || '') + '</td>';
         }
 
         var css = [
-            'body{font-family:Arial,sans-serif;padding:32px;max-width:560px;margin:0 auto;color:#1A1A2E;font-size:13px}',
-            '.hdr{background:#0F2340;color:#fff;padding:18px 22px;border-radius:8px;display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}',
-            '.hdr h2,.hdr p{margin:0} .hdr p{opacity:.7;font-size:11px}',
-            '.badge{background:rgba(255,255,255,.15);border-radius:6px;padding:8px 14px;text-align:center}',
-            '.badge .lbl{font-size:10px;opacity:.7;letter-spacing:1px;text-transform:uppercase;display:block}',
-            '.badge .val{font-size:13px;font-weight:700;margin-top:2px;display:block}',
-            '.sec{margin-bottom:16px}',
-            '.sec-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#2A5282;border-bottom:1px solid #E2E8F0;padding-bottom:5px;margin-bottom:10px}',
-            '.row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #F0F4F8;font-size:13px}',
+            '@page{size:A4 portrait;margin:14mm}',
+            '*{box-sizing:border-box}',
+            'body{margin:0;color:#111;font-family:Cambria,"Times New Roman",Georgia,serif;font-size:11.5px}',
+            '.slip{max-width:190mm;margin:0 auto}',
+            '.top{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;margin-bottom:6px}',
+            '.tel{font-size:13px;line-height:1.3}',
+            '.tel span{display:block;padding-left:34px}',
+            '.tel span:first-child{padding-left:0}',
+            '.crest{height:64px;max-width:120px;object-fit:contain;display:block}',
+            '.doc{text-align:right;font-weight:700;font-size:14px}',
+            'h1{margin:6px 0 14px;text-align:center;font-family:Rockwell,"Rockwell Extra Bold",Georgia,serif;font-size:22px;font-weight:800;text-transform:uppercase;letter-spacing:.3px}',
+            '.box{border:2px solid #000;margin-bottom:14px}',
             'table{width:100%;border-collapse:collapse}',
-            '.net{background:#0F2340;color:#fff;padding:14px 18px;border-radius:8px;display:flex;justify-content:space-between;align-items:center;margin-top:16px}',
-            '.net .lbl{font-size:12px;opacity:.7} .net .val{font-size:22px;font-weight:700}',
-            '.footer{text-align:center;font-size:11px;color:#aaa;margin-top:20px;padding-top:12px;border-top:1px solid #eee}',
-            '@media print{body{padding:0}}',
+            '.emp td{padding:7px 10px;text-transform:uppercase}',
+            '.emp .lbl{width:28%}',
+            '.emp .val{width:22%;font-weight:700}',
+            '.box-title{text-align:center;font-family:Rockwell,Georgia,serif;font-weight:800;font-size:15px;padding:4px 0;border-bottom:2px solid #000;text-transform:uppercase}',
+            '.items th{font-weight:400;padding:4px 6px;text-transform:uppercase}',
+            '.items thead tr:last-child th{border-bottom:2px solid #000}',
+            '.items .c-item{width:30%;padding:7px 10px}',
+            '.items .c-hours{width:8%}',
+            '.items .c-earn,.items .c-deduct,.items .c-total{width:20.6%;padding:7px 8px}',
+            '.items .c-hours,.items .c-earn{border-left:2px solid #000}',
+            '.items .c-hours{border-left:2px solid #000}',
+            '.items .c-earn{border-left:1px solid #bbb}',
+            '.items .c-deduct,.items .c-total{border-left:2px solid #000}',
+            '.items tr.item td{height:30px}',
+            '.cur{float:left}.amt{float:right}',
+            '.sum{border-top:2px solid #000}',
+            '.sum{table-layout:fixed}',
+            '.sum td{padding:6px 8px;text-transform:uppercase;white-space:nowrap}',
+            '.sum .strong{font-weight:700}',
+            '.sum .money{border-bottom:3px double #000;white-space:nowrap}',
+            '.pay td{padding:5px 10px;text-transform:uppercase}',
+            '.pay .line{border-bottom:1px solid #999;width:70%}',
+            '.printed{margin-top:22px;font-family:Arial,sans-serif;font-size:11px;color:#333}',
+            '@media print{.slip{max-width:none}}',
+            '@media screen{body{padding:18px;background:#fff}}',
         ].join('');
 
         var body = [
-            '<div class="hdr"><div><h2>' + inst + '</h2><p>Official Payslip</p></div>',
-            '<div class="badge"><span class="lbl">Status</span><span class="val">' + (slip.status || 'PAID') + '</span></div></div>',
+            '<div class="slip">',
 
-            '<div class="sec"><div class="sec-title">Employee Details</div>',
-            '<div class="row"><span>Staff ID</span><strong>' + slip.staffId + '</strong></div>',
-            '<div class="row"><span>Name</span><strong>' + (slip.staffName || '—') + '</strong></div>',
-            '<div class="row"><span>Designation</span><strong>' + (slip.designation || '—') + '</strong></div>',
+            '<div class="top">',
+            '<div class="tel">' + (phones.length
+                ? phones.map(function (p, i) {
+                    return '<span>' + (i === 0 ? 'TEL: ' : '') + esc(p) + '</span>';
+                }).join('')
+                : '') + '</div>',
+            '<div>' + (crest ? '<img class="crest" src="' + crest + '" alt="">' : '') + '</div>',
+            '<div class="doc">STAFF PAYSLIP</div>',
             '</div>',
 
-            '<div class="sec"><div class="sec-title">Pay Period</div>',
-            '<div class="row"><span>Period</span><strong>' + (slip.payPeriod || '—') + '</strong></div>',
-            '<div class="row"><span>Academic Year</span><strong>' + (slip.academicYear || '—') + '</strong></div>',
-            (slip.paymentDate ? '<div class="row"><span>Payment Date</span><strong>' + fmt.date(slip.paymentDate) + '</strong></div>' : ''),
-            '</div>',
+            '<h1>' + esc(instName) + '</h1>',
 
-            '<div class="sec"><div class="sec-title">Earnings</div><table>',
-            '<tr><td style="padding:5px 0">Basic Salary</td><td style="text-align:right;padding:5px 0"><strong>' + fmt.money(slip.basicSalary) + '</strong></td></tr>',
-            allowances.map(function (i) {
-                return itemRow(i, '+', '#276749');
-            }).join(''),
+            // Employee details
+            '<div class="box"><table class="emp">',
+            '<tr>' + field('Employee Code', slip.staffId) + field('Payment Date', slip.paymentDate ? fmt.date(slip.paymentDate) : '') + '</tr>',
+            '<tr>' + field('Employee Name', slip.staffName || staff.name) + field('Payment Period', slip.payPeriod) + '</tr>',
+            '<tr>' + field('Pay Grade', staff.level) + field('Division', '') + '</tr>',
+            '<tr>' + field('SNNIT Number', staff.snnitNumber) + field('Department', slip.designation || staff.designation) + '</tr>',
+            '<tr>' + field('Tax Identification', taxId(staff)) + '<td></td><td></td></tr>',
+            '<tr>' + field('Employment Date', staff.dateOfEmployment ? fmt.date(staff.dateOfEmployment) : '') + '<td></td><td></td></tr>',
             '</table></div>',
 
-            (deductions.length
-                ? '<div class="sec"><div class="sec-title">Deductions</div><table>' +
-                deductions.map(function (i) {
-                    return itemRow(i, '-', '#9B2335');
-                }).join('') +
-                '</table></div>'
-                : ''),
-
-            '<div class="sec"><div class="sec-title">Summary</div>',
-            '<div class="row"><span>Gross Pay</span><strong>' + fmt.money((slip.basicSalary || 0) + (slip.totalAllowances || 0)) + '</strong></div>',
-            '<div class="row"><span>Total Deductions</span><strong style="color:#9B2335">&#8722;' + fmt.money(slip.totalDeductions) + '</strong></div>',
+            // Salary items
+            '<div class="box">',
+            '<div class="box-title">Salary Item Details</div>',
+            '<table class="items">',
+            '<thead>',
+            '<tr><th rowspan="2" class="c-item" style="border-bottom:2px solid #000">Items</th>',
+            '<th colspan="2" class="c-hours">Earnings</th>',
+            '<th class="c-deduct">Deductions</th>',
+            '<th rowspan="2" class="c-total" style="border-bottom:2px solid #000;vertical-align:top">Totals</th></tr>',
+            '<tr><th class="c-hours">Hours</th><th class="c-earn">Amount</th><th class="c-deduct">Amount</th></tr>',
+            '</thead>',
+            '<tbody>' + itemRows + '</tbody>',
+            '</table>',
+            '<table class="sum">',
+            '<colgroup><col style="width:14%"><col style="width:18%"><col style="width:21%">',
+            '<col style="width:16%"><col style="width:11%"><col style="width:20%"></colgroup>',
+            '<tr><td colspan="2">Taxable Income</td><td class="strong">' +
+            (slip.taxableIncome != null ? ghs(slip.taxableIncome) : '') + '</td><td colspan="3"></td></tr>',
+            '<tr>',
+            '<td class="strong">Gross Pay</td><td class="money">' + ghs(gross) + '</td>',
+            '<td class="strong" style="text-align:center">Total Deductions</td><td class="money">' + ghs(totalDeductions) + '</td>',
+            '<td class="strong">Net Pay</td><td class="money">' + ghs(net) + '</td>',
+            '</tr>',
+            '</table>',
             '</div>',
 
-            '<div class="net"><div><div class="lbl">NET PAY</div></div><div class="val">' + fmt.money(slip.netSalary) + '</div></div>',
+            // Payment details
+            '<div class="box">',
+            '<div class="box-title">Payment Details</div>',
+            '<table class="pay">',
+            (slip.paymentMethod === 'MOMO'
+                ? '<tr><td style="width:18%">Mobile Money</td><td class="line">' + (esc(slip.momoNumber) || '&nbsp;') + '</td></tr>'
+                : slip.paymentMethod === 'CASH'
+                    ? '<tr><td style="width:18%">Payment</td><td class="line">Cash</td></tr>'
+                    : '<tr><td style="width:18%">Bank</td><td class="line">' + (esc(slip.bankName) || '&nbsp;') + '</td></tr>' +
+                    '<tr><td>Branch</td><td class="line">' + (esc(slip.bankBranch) || '&nbsp;') + '</td></tr>' +
+                    '<tr><td>A/C Number</td><td class="line">' + (esc(slip.accountNumber) || '&nbsp;') + '</td></tr>'),
+            (slip.externalReference ? '<tr><td>Reference</td><td class="line">' + esc(slip.externalReference) + '</td></tr>' : ''),
+            '</table>',
+            '</div>',
 
-            (slip.processedBy ? '<p style="margin-top:12px;font-size:11px;color:#888">Processed by: ' + slip.processedBy + '</p>' : ''),
+            '<div class="printed">' + esc(new Date().toLocaleString('en-GB', {
+                day: '2-digit', month: '2-digit', year: 'numeric', hour: 'numeric', minute: '2-digit',
+            })) + '</div>',
 
-            '<div class="footer">This is a computer-generated payslip &mdash; Shooting Star &middot; Astromy LLC</div>',
+            '</div>',
         ].join('');
 
-        var win = window.open('', '_blank', 'width=680,height=860');
-        win.document.write('<!DOCTYPE html><html><head><meta charset="utf-8"><title>Payslip</title><style>' + css + '</style></head><body>' + body + '</body></html>');
+        return '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Payslip - ' +
+            esc(slip.staffName || slip.staffId) + ' - ' + esc(slip.payPeriod || '') +
+            '</title><style>' + css + '</style></head><body>' + body + '</body></html>';
+    };
+
+    window.payslipPrint = function (slip) {
+        if (!slip) return;
+        var win = window.open('', '_blank', 'width=820,height=1000');
+        if (!win) {
+            alert('Allow pop-ups for this site to print payslips.');
+            return;
+        }
+        win.document.write(window.payslipDocument(slip));
         win.document.close();
-        setTimeout(function () {
+        // Print once the crest has loaded (or after a short wait, whichever comes first).
+        var printed = false;
+
+        function doPrint() {
+            if (printed) return;
+            printed = true;
+            win.focus();
             win.print();
-        }, 400);
+        }
+
+        win.onload = doPrint;
+        setTimeout(doPrint, 1200);
     };
 
     window.payslipFmt = {
@@ -237,6 +472,15 @@
             });
         },
     };
+
+    // Start loading straight away. The period lists are filled synchronously
+    // when the shared helper is already present, so the page's dropdowns have
+    // them the moment it draws; staff and school details follow.
+    if (window.payrollShared) {
+        buildYears();
+        buildPeriods();
+    }
+    window.payslipLoad();
 
     if (window.copyrights) window.copyrights();
 })();

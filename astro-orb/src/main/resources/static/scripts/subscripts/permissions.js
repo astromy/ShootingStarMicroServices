@@ -213,6 +213,10 @@ function staffpermissionsIndut() {
                                 <label class="check-label" for="offloadingPermission"> Salary Setup </label>
                             </div>
                             <div class="form-check form-switch col-md-3">
+                                <input class="form-check-input" id="salaryApprovalsPermission" value="Finance salary_approvals" type="checkbox" />
+                                <label class="check-label" for="salaryApprovalsPermission"> Salary Approvals </label>
+                            </div>
+                            <div class="form-check form-switch col-md-3">
                                 <input class="form-check-input" id="payslipGenerationPermission" value="Finance payslip" type="checkbox" />
                                 <label class="check-label" for="payslipGenerationPermission"> Payslip Generation </label>
                             </div>
