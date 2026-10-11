@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 @Service
@@ -21,6 +22,7 @@ import java.util.Optional;
 public class ClockEventService implements ClockEventServiceInterface {
 
     private final ClockEventRepository clockEventRepository;
+    private final OvertimeService overtimeService;
 
     @Override
     public ClockEventResponse recordClockEvent(StaffClockInRequest request) throws StaffNotEligibleException {
@@ -42,6 +44,13 @@ public class ClockEventService implements ClockEventServiceInterface {
         clockEventRepository.save(event);
         log.info("Clock event recorded: staff {} {} at institution {}",
                 request.getStaffId(), request.getType(), request.getInstitutionCode());
+
+        // A clock-out is when overtime becomes known. Failures are swallowed inside
+        // detectForStaffDay, so this can never fail a clock-out.
+        if ("OUT".equalsIgnoreCase(request.getType())) {
+            overtimeService.detectForStaffDay(request.getInstitutionCode(), request.getStaffId(),
+                    LocalDate.now(CalendarService.ZONE));
+        }
 
         return ClockEventUtil.mapClockEvent_ToClockEventResponse(event);
     }

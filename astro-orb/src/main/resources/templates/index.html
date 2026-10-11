@@ -18,7 +18,6 @@
 
     <!-- Page title -->
     <title>ORB | Services</title>
-    <link rel="stylesheet" href="styles/all.min.css">
     <link rel="stylesheet" href="styles/style.css">
 
     <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
@@ -146,6 +145,9 @@
                     <li><a id="promotionSettings"  class="functionalGroup"><img src="images/16px/067-promotional-material.png" class="flaticons"/>  Promotion </a></li>
                     <li><a id="permissions" class="functionalGroup"><span class="fa fa-shield"></span>  Permissions</a></li>
                     <li><a id="accommodation" class="functionalGroup"><span class="fa fa-shield"></span>  Accommodation</a></li>
+                    <li><a id="holidays" class="functionalGroup"><span class="fa fa-calendar"></span>  Holidays</a></li>
+                    <li><a id="workinghours" class="functionalGroup"><span class="fa fa-clock-o"></span>  Working Hours</a></li>
+                    <li><a id="leaveentitlements" class="functionalGroup" data-exact-permission="leave_entitlements"><span class="fa fa-calendar-minus-o"></span>  Leave Entitlements</a></li>
                 </ul>
             </li>
             <li>
@@ -154,6 +156,8 @@
                     <li><a  id="onloading" class="functionalGroup"><img src="images/16px/003-onboarding-2.png" class="flaticons"/>Onboarding </a></li>
                     <li><a  id="records" class="functionalGroup"><img src="images/16px/019-keeping-2.png" class="flaticons"/>Records</a></li>
                     <li><a  id="leave" class="functionalGroup"><img src="images/16px/006-leave.png" class="flaticons"/>Leave</a></li>
+                    <li><a  id="leaveapprovals" class="functionalGroup" data-exact-permission="leave_approvals"><span class="fa fa-check-square-o"></span> Leave Approvals</a></li>
+                    <li data-required-plan="GROWTH"><a  id="overtime" class="functionalGroup"><span class="fa fa-hourglass-half"></span> Overtime</a></li>
                     <li><a  id="appraisals" class="functionalGroup"><img src="images/16px/012-performance-appraisal.png" class="flaticons"/>Appraisals</a></li>
                     <li><a  id="designation" class="functionalGroup"><img src="images/16px/016-commercial.png" class="flaticons"/>Designation</a></li>
                     <li><a  id="offloading" class="functionalGroup"><img src="images/16px/005-exit-1.png" class="flaticons"/>Offboarding</a></li>
@@ -297,8 +301,7 @@
 <script src="vendor/datatables/media/js/jquery.dataTables.min.js"></script>
 <script src="vendor/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
 <!-- DataTables buttons scripts -->
-<script src="vendor/pdfmake/build/pdfmake.min.js"></script>
-<script src="vendor/pdfmake/build/vfs_fonts.js"></script>
+<!-- pdfmake and its fonts load on the first PDF export (see ensurePdfMake in common.js) -->
 <script src="vendor/datatables.net-buttons/js/buttons.html5.min.js"></script>
 <script src="vendor/datatables.net-buttons/js/buttons.print.min.js"></script>
 <script src="vendor/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
@@ -310,6 +313,7 @@
 <!-- App scripts -->
 <script src="scripts/homer.js"></script>
 <script src="scripts/common.js"></script>
+<script src="scripts/_serverTable.js"></script>
 <script src="https://js.paystack.co/v1/inline.js"></script>
 <script src="scripts/_subscriptionUpgrade.js"></script>
 <!--<script src="scripts/subscripts/dashboard.js"></script>

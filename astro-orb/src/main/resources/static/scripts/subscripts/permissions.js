@@ -151,6 +151,18 @@ function staffpermissionsIndut() {
                                 <label class="check-label" for="accommodationPermission"> Accommodation </label>
                             </div>
                             <div class="form-check form-switch col-md-3">
+                                <input class="form-check-input" id="holidaysPermission" value="setup holidays" type="checkbox" />
+                                <label class="check-label" for="holidaysPermission"> Holidays </label>
+                            </div>
+                            <div class="form-check form-switch col-md-3">
+                                <input class="form-check-input" id="workingHoursPermission" value="setup working_hours" type="checkbox" />
+                                <label class="check-label" for="workingHoursPermission"> Working Hours </label>
+                            </div>
+                            <div class="form-check form-switch col-md-3">
+                                <input class="form-check-input" id="leaveEntitlementsPermission" value="setup leave_entitlements" type="checkbox" />
+                                <label class="check-label" for="leaveEntitlementsPermission"> Leave Entitlements </label>
+                            </div>
+                            <div class="form-check form-switch col-md-3">
                                 <input class="form-check-input" id="transportPermission" value="setup transport" type="checkbox" />
                                 <label class="check-label" for="transportPermission"> Transport </label>
                             </div>
@@ -170,6 +182,14 @@ function staffpermissionsIndut() {
                             <div class="form-check form-switch col-md-3">
                                 <input class="form-check-input" id="leavePermission" value="Human_Resource leave" type="checkbox" />
                                 <label class="check-label" for="leavePermission"> Leave </label>
+                            </div>
+                            <div class="form-check form-switch col-md-3">
+                                <input class="form-check-input" id="leaveApprovalsPermission" value="Human_Resource leave_approvals" type="checkbox" />
+                                <label class="check-label" for="leaveApprovalsPermission"> Leave Approvals </label>
+                            </div>
+                            <div class="form-check form-switch col-md-3">
+                                <input class="form-check-input" id="overtimePermission" value="Human_Resource overtime" type="checkbox" />
+                                <label class="check-label" for="overtimePermission"> Overtime </label>
                             </div>
                             <div class="form-check form-switch col-md-3">
                                 <input class="form-check-input" id="appraisalPermission" value="Human_Resource appraisals" type="checkbox" />

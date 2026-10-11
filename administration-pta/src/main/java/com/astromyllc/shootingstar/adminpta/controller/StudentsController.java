@@ -57,6 +57,12 @@ public class StudentsController {
         return ResponseEntity.ok(studentServiceInterface.fetchStudentsByInstitution(institution));
     }
 
+    @PostMapping("/api/administration-pta/getStudentsByInstitutionWithoutImages")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<Optional<List<StudentsResponse>>> getStudentsByInstitutionWithoutImages(@RequestBody SingleStringRequest institution) {
+        return ResponseEntity.ok(studentServiceInterface.fetchStudentsByInstitutionWithoutImages(institution));
+    }
+
     @PostMapping("/api/administration-pta/getStudentsByDynamicData")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Optional<List<StudentsResponse>>> getStudentsByDynamicData(@RequestBody DynamicStringRequest institution) {

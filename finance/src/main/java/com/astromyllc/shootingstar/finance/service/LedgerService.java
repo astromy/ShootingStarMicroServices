@@ -26,8 +26,6 @@ import java.util.List;
 public class LedgerService implements LedgerServiceInterface {
 
     private static final String STORES_INCOME_ACCOUNT = "Stores & Prospectus Income";
-    private static final String STUDENT_FEES_ACCOUNT = "Student Fees Income";
-    private static final String SALARY_EXPENSE_ACCOUNT = "Salary Expense";
     private final LedgerBooksRepository ledgerBooksRepository;
     private final LedgerRecordsRepository ledgerRecordsRepository;
 
@@ -108,56 +106,8 @@ public class LedgerService implements LedgerServiceInterface {
         return toRecordResponse(record);
     }
 
-    // ── Student Payment ───────────────────────────────────────────────────────
-
-    @Override
-    @Transactional
-    public LedgerRecordsResponse postStudentPayment(String institutionCode, Long billPaymentId,
-                                                    String studentId, Double amount,
-                                                    String paymentMethod, String externalRef,
-                                                    String description, String postedBy) {
-        String refId = "BP-" + billPaymentId;
-        if (ledgerRecordsRepository.findBySourceReferenceAndSourceType(refId, "STUDENT_PAYMENT").isPresent()) {
-            log.warn("Duplicate student-payment ledger post ignored for billPaymentId={}", billPaymentId);
-            return toRecordResponse(ledgerRecordsRepository
-                    .findBySourceReferenceAndSourceType(refId, "STUDENT_PAYMENT").get());
-        }
-
-        LedgerBooks book = resolveAccount(institutionCode, STUDENT_FEES_ACCOUNT, "4001", "INCOME",
-                "Student fee receipts");
-
-        LedgerRecords record = postEntry(book, institutionCode, "CREDIT", amount,
-                "STUDENT_PAYMENT", refId, externalRef,
-                description != null ? description : "Student payment – " + studentId,
-                postedBy, LocalDateTime.now());
-
-        return toRecordResponse(record);
-    }
-
-    // ── Salary Expense ────────────────────────────────────────────────────────
-
-    @Override
-    @Transactional
-    public LedgerRecordsResponse postSalaryExpense(String institutionCode, Long salaryId,
-                                                   String staffName, Double netSalary,
-                                                   String paymentMethod, String externalRef,
-                                                   String postedBy) {
-        String refId = "SAL-" + salaryId;
-        if (ledgerRecordsRepository.findBySourceReferenceAndSourceType(refId, "SALARY").isPresent()) {
-            log.warn("Duplicate salary ledger post ignored for salaryId={}", salaryId);
-            return toRecordResponse(ledgerRecordsRepository
-                    .findBySourceReferenceAndSourceType(refId, "SALARY").get());
-        }
-
-        LedgerBooks book = resolveAccount(institutionCode, SALARY_EXPENSE_ACCOUNT, "5001", "EXPENSE",
-                "Staff salary payments");
-
-        LedgerRecords record = postEntry(book, institutionCode, "DEBIT", netSalary,
-                "SALARY", refId, externalRef,
-                "Salary payment – " + staffName, postedBy, LocalDateTime.now());
-
-        return toRecordResponse(record);
-    }
+    // Student payments and salary payments are posted as balanced double-entry
+    // journals by LedgerPostingService (called from fee collection and payroll).
 
     // ── Helpers ───────────────────────────────────────────────────────────────
 

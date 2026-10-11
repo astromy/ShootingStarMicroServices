@@ -366,7 +366,8 @@ async function fetchInstitutionGrading() {
 function populateClassGroup(data) {
     $(".classGroupSelect option:not(:eq(0))").remove();
     data.forEach(function (d) {
-        var details = $("<option>").val(d.id).text(d.name);
+        // Use d.name as value so the payload receives the group name, not the id
+        var details = $("<option>").val(d.name).text(d.name);
         $(".classGroupSelect").append(details);
     });
 }

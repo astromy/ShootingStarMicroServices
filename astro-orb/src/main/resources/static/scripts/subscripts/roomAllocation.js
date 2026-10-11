@@ -4,7 +4,7 @@
 // to Setup > Accommodation - this page shows blocks and rooms read-only.
 
 document.getElementById("wrapper").innerHTML =
-    '<div class="fc-page" id="roomAllocationPage">' + [
+    '<div class="content animate-panel" id="roomAllocationPage">' + [
         '<div class="row">',
         '  <div class="col-lg-12">',
         '    <div class="hpanel">',

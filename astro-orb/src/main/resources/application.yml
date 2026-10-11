@@ -1,5 +1,12 @@
 server:
   port: 7013
+  # Compress what is sent to the browser: JSON and scripts shrink to a fraction of their size.
+  # HTML is left out on purpose (pages carry the CSRF token; compressing secrets-bearing pages
+  # next to attacker-influenced text is what the BREACH attack relies on).
+  compression:
+    enabled: true
+    mime-types: application/json,text/css,application/javascript,text/javascript,image/svg+xml
+    min-response-size: 1KB
   max-http-header-size: 32KB
   netty:
     max-initial-line-length: 19192

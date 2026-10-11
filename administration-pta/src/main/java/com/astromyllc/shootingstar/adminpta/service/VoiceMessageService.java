@@ -12,6 +12,10 @@ import com.astromyllc.shootingstar.adminpta.serviceInterface.VoiceMessageService
 import com.astromyllc.shootingstar.adminpta.util.VoiceMessageUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,6 +27,7 @@ import java.util.Optional;
 public class VoiceMessageService implements VoiceMessageServiceInterface {
 
     private final VoiceMessageRepository voiceMessageRepository;
+    private final MongoTemplate mongoTemplate;
 
     @Override
     public VoiceMessageResponse sendVoiceMessage(VoiceMessageRequest request) throws VoiceMessageTooLargeException {
@@ -52,10 +57,12 @@ public class VoiceMessageService implements VoiceMessageServiceInterface {
 
     @Override
     public void markVoiceMessageListened(MarkVoiceMessageListenedRequest request) {
-        voiceMessageRepository.findById(request.getVoiceMessageId()).ifPresent(message -> {
-            message.getListenedByContacts().add(request.getRecipientContact());
-            voiceMessageRepository.save(message);
-        });
+        // One atomic update in the database. The message (audio included) is no longer loaded and
+        // saved back for each mark, and two parents marking at the same moment cannot overwrite each other.
+        mongoTemplate.updateFirst(
+                Query.query(Criteria.where("id").is(request.getVoiceMessageId())),
+                new Update().addToSet("listenedByContacts", request.getRecipientContact()),
+                VoiceMessage.class);
     }
 
     @Override

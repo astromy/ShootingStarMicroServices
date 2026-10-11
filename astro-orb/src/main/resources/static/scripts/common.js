@@ -64,6 +64,19 @@ permissionList = new Set(
 );
 
 links.forEach((anchor) => {
+    // An anchor marked data-exact-permission is shown ONLY to someone holding exactly that permission.
+    // Needed where the item's name contains another permission's word: "Leave Approvals" contains "leave",
+    // so the matching below would show it to everyone who may merely apply for leave.
+    const exactPermission = anchor.getAttribute("data-exact-permission");
+    if (exactPermission) {
+        if (permissionList.has(exactPermission.replace(/_/g, " ").trim().toLowerCase())) {
+            anchor.style.removeProperty("display");
+        } else {
+            anchor.style.display = "none";
+        }
+        return;
+    }
+
     const plainText = anchor.textContent
         .replace(/\s+/g, "")
         .replace("_", "")
@@ -155,8 +168,6 @@ const defaultScripts = [
 
     "vendor/datatables/media/js/jquery.dataTables.min.js",
     "vendor/datatables.net-bs/js/dataTables.bootstrap.min.js",
-    "vendor/pdfmake/build/pdfmake.min.js",
-    "vendor/pdfmake/build/vfs_fonts.js",
     "vendor/datatables.net-buttons/js/buttons.html5.min.js",
     "vendor/datatables.net-buttons/js/buttons.print.min.js",
     "vendor/datatables.net-buttons/js/dataTables.buttons.min.js",
@@ -170,7 +181,6 @@ const defaultLinks = [
     "vendor/fontawesome/css/font-awesome.css",
     "vendor/bootstrap/dist/css/bootstrap.css",
     "styles/style.css",
-    "styles/all.min.css",
     "dataTables/datatables.min.css",
 ];
 
@@ -179,6 +189,79 @@ const absoultelinkPath = [];
 // Track current state of active scripts and links
 let activeScripts = new Set();
 let activeLinks = new Set();
+
+// ---- pdfmake, loaded only when somebody exports a PDF -------------------------
+// pdfmake and its fonts are about 400 kB and are only used by the PDF export buttons, so they are no
+// longer downloaded with every page. Until the real library is loaded, window.pdfMake is a stand-in:
+// DataTables only shows its PDF button when window.pdfMake exists, and the stand-in's createPdf()
+// loads pdfmake and its fonts the first time somebody presses the button (a moment, once), then
+// carries on with the export as if the library had been there all along.
+(function () {
+    var PDF_FILES = ["vendor/pdfmake/build/pdfmake.min.js", "vendor/pdfmake/build/vfs_fonts.js"];
+    var ACTIONS = ["open", "print", "download", "getBuffer", "getBlob", "getBase64", "getDataUrl", "getStream"];
+    var pending = null;
+
+    function ready() {
+        return !!(window.pdfMake && !window.pdfMake.lazyStandIn && window.pdfMake.vfs);
+    }
+
+    function loadScript(src) {
+        return new Promise(function (resolve, reject) {
+            var el = document.createElement("script");
+            el.src = src;
+            el.onload = function () {
+                resolve();
+            };
+            el.onerror = function () {
+                reject(new Error("Could not load " + src));
+            };
+            document.body.appendChild(el);
+        });
+    }
+
+    // The real pdfmake replaces window.pdfMake; the fonts file then adds itself to it - so one after the other
+    window.ensurePdfMake = function () {
+        if (ready()) return Promise.resolve(window.pdfMake);
+        if (!pending) {
+            pending = PDF_FILES.reduce(function (chain, src) {
+                return chain.then(function () {
+                    return loadScript(src);
+                });
+            }, Promise.resolve()).then(function () {
+                return window.pdfMake;
+            }).catch(function (error) {
+                pending = null;      // the next click tries again
+                throw error;
+            });
+        }
+        return pending;
+    };
+
+    function failed() {
+        var message = "The PDF export could not be loaded. Check your connection and try again.";
+        if (window.swal) swal({title: "Error", text: message, type: "error"});
+        else alert(message);
+    }
+
+    if (!window.pdfMake) {
+        window.pdfMake = {
+            lazyStandIn: true,
+            createPdf: function (definition) {
+                var document_ = {};
+                ACTIONS.forEach(function (action) {
+                    document_[action] = function () {
+                        var args = arguments;
+                        window.ensurePdfMake().then(function (real) {
+                            var pdf = real.createPdf(definition);
+                            pdf[action].apply(pdf, args);
+                        }).catch(failed);
+                    };
+                });
+                return document_;
+            }
+        };
+    }
+})();
 
 window.copyrights = function copyrights() {
 
@@ -245,6 +328,8 @@ function addEventListeners() {
     safeOn("onloading", onloadingBuild);
     safeOn("records", recordsBuild);
     safeOn("leave", leaveBuild);
+    safeOn("overtime", overtimeBuild);
+    safeOn("leaveapprovals", leaveApprovalsBuild);
     safeOn("appraisals", appraisalsBuild);
     safeOn("offloading", offloadingBuild);
 
@@ -288,6 +373,9 @@ function addEventListeners() {
     // master assignment moved here from Room Allocation, which is now
     // student-assignment-only.
     safeOn("accommodation", setupAccommodationBuild);
+    safeOn("holidays", holidaysBuild);
+    safeOn("workinghours", workingHoursBuild);
+    safeOn("leaveentitlements", leaveEntitlementsBuild);
     safeOn("accommodationStudentList", studentAccommodationListBuild);
     safeOn("dutyRoster", dutyRosterBuild);
     safeOn("resourceTracking", resourceTrackingBuild);
@@ -1352,6 +1440,111 @@ function payslipgenerationBuild() {
 
 // Finance -> Salary Approvals: approve payroll runs and record payment.
 // financeSalaryApprovals.js renders the page and loads _financeSalaryApprovals.js.
+function holidaysBuild() {
+
+    // _payrollShared.js supplies the shared helpers (escape, months, error messages) these pages use.
+    const newScripts = [
+        "scripts/_payrollShared.js",
+        "scripts/subscripts/holidays.js",
+    ];
+    const newLinks = [];
+
+    removeUnwantedResources("script", activeScripts);
+    removeUnwantedResources("link", activeLinks);
+
+    addNewResources("script", newScripts);
+    addNewResources("link", newLinks);
+
+    newScripts.forEach((src) => activeScripts.add(src));
+    newLinks.forEach((href) => activeLinks.add(href));
+}
+
+//-------------------------------------------------------------------------------------------------------
+
+function workingHoursBuild() {
+
+    // _payrollShared.js supplies the shared helpers (escape, months, error messages) these pages use.
+    const newScripts = [
+        "scripts/_payrollShared.js",
+        "scripts/subscripts/workingHours.js",
+    ];
+    const newLinks = [];
+
+    removeUnwantedResources("script", activeScripts);
+    removeUnwantedResources("link", activeLinks);
+
+    addNewResources("script", newScripts);
+    addNewResources("link", newLinks);
+
+    newScripts.forEach((src) => activeScripts.add(src));
+    newLinks.forEach((href) => activeLinks.add(href));
+}
+
+//-------------------------------------------------------------------------------------------------------
+
+function overtimeBuild() {
+
+    // _payrollShared.js supplies the shared helpers (escape, months, error messages) these pages use.
+    const newScripts = [
+        "scripts/_payrollShared.js",
+        "scripts/subscripts/overtime.js",
+    ];
+    const newLinks = [];
+
+    removeUnwantedResources("script", activeScripts);
+    removeUnwantedResources("link", activeLinks);
+
+    addNewResources("script", newScripts);
+    addNewResources("link", newLinks);
+
+    newScripts.forEach((src) => activeScripts.add(src));
+    newLinks.forEach((href) => activeLinks.add(href));
+}
+
+//-------------------------------------------------------------------------------------------------------
+
+function leaveEntitlementsBuild() {
+
+    // _payrollShared.js supplies the shared helpers (escape, months, error messages) these pages use.
+    const newScripts = [
+        "scripts/_payrollShared.js",
+        "scripts/subscripts/leaveEntitlements.js",
+    ];
+    const newLinks = [];
+
+    removeUnwantedResources("script", activeScripts);
+    removeUnwantedResources("link", activeLinks);
+
+    addNewResources("script", newScripts);
+    addNewResources("link", newLinks);
+
+    newScripts.forEach((src) => activeScripts.add(src));
+    newLinks.forEach((href) => activeLinks.add(href));
+}
+
+//-------------------------------------------------------------------------------------------------------
+
+function leaveApprovalsBuild() {
+
+    // _payrollShared.js supplies the shared helpers (escape, months, error messages) these pages use.
+    const newScripts = [
+        "scripts/_payrollShared.js",
+        "scripts/subscripts/leaveApprovals.js",
+    ];
+    const newLinks = [];
+
+    removeUnwantedResources("script", activeScripts);
+    removeUnwantedResources("link", activeLinks);
+
+    addNewResources("script", newScripts);
+    addNewResources("link", newLinks);
+
+    newScripts.forEach((src) => activeScripts.add(src));
+    newLinks.forEach((href) => activeLinks.add(href));
+}
+
+//-------------------------------------------------------------------------------------------------------
+
 function salaryApprovalsBuild() {
 
     const newScripts = [
@@ -1919,8 +2112,6 @@ function staffQuestionUpload() {
     // Define new resources specific to this view
     const newScripts = [
         "vendor/sweetalert/lib/sweet-alert.min.js",
-        "vendor/pdfmake/build/pdfmake.min.js",
-        "vendor/pdfmake/build/vfs_fonts.js",
         "vendor/datatables.net-buttons/js/buttons.html5.min.js",
         "vendor/datatables.net-buttons/js/buttons.print.min.js",
         "vendor/datatables.net-buttons/js/dataTables.buttons.min.js",
@@ -1955,8 +2146,6 @@ function staffAssignment() {
     // Define new resources specific to this view
     const newScripts = [
         "vendor/sweetalert/lib/sweet-alert.min.js",
-        "vendor/pdfmake/build/pdfmake.min.js",
-        "vendor/pdfmake/build/vfs_fonts.js",
         "vendor/datatables.net-buttons/js/buttons.html5.min.js",
         "vendor/datatables.net-buttons/js/buttons.print.min.js",
         "vendor/datatables.net-buttons/js/dataTables.buttons.min.js",
@@ -2335,6 +2524,93 @@ async function fetchPost(url, data) {
 
 //=========================================IMG UTIL =============================================
 
+/**
+ * Shrinks a photo before it is uploaded. Phone photos are typically 3-6 MB;
+ * stored as base64 inside a record they made every staff/student fetch heavy.
+ * Resized to at most `maxSize` px on the longest side and saved as JPEG they
+ * come out around 50-150 KB, which is still plenty for screens, ID cards and
+ * printouts.
+ *
+ * - Images with transparency (logos, crests, signatures as PNG) stay PNG so
+ *   the transparent background isn't lost; everything else becomes JPEG.
+ * - GIF/SVG, unreadable files and files the browser can't decode are returned
+ *   unchanged, as is any image the compression wouldn't actually make smaller.
+ *
+ * Resolves with a File (same shape callers already handle).
+ */
+window.compressImageFile = function (file, options) {
+    var opts = Object.assign({ maxSize: 800, quality: 0.8 }, options || {});
+    return new Promise(function (resolve) {
+        if (!file || !/^image\/(jpeg|jpg|png|webp|bmp)$/i.test(file.type || "")) {
+            resolve(file);
+            return;
+        }
+        var url = URL.createObjectURL(file);
+        var img = new Image();
+        img.onload = function () {
+            try {
+                var w = img.naturalWidth, h = img.naturalHeight;
+                var scale = Math.min(1, opts.maxSize / Math.max(w, h));
+                var cw = Math.max(1, Math.round(w * scale));
+                var ch = Math.max(1, Math.round(h * scale));
+
+                var canvas = document.createElement("canvas");
+                canvas.width = cw;
+                canvas.height = ch;
+                var ctx = canvas.getContext("2d");
+                ctx.drawImage(img, 0, 0, cw, ch);
+
+                var keepPng = /png|webp/i.test(file.type) && hasTransparency(ctx, cw, ch);
+                if (!keepPng) {
+                    // JPEG has no transparency: paint white behind the image.
+                    ctx.globalCompositeOperation = "destination-over";
+                    ctx.fillStyle = "#ffffff";
+                    ctx.fillRect(0, 0, cw, ch);
+                }
+                var type = keepPng ? "image/png" : "image/jpeg";
+                canvas.toBlob(function (blob) {
+                    URL.revokeObjectURL(url);
+                    if (!blob || blob.size >= file.size) {
+                        resolve(file); // already small enough
+                        return;
+                    }
+                    var base = (file.name || "image").replace(/\.[^.]+$/, "");
+                    resolve(new File([blob], base + (keepPng ? ".png" : ".jpg"), { type: type }));
+                }, type, opts.quality);
+            } catch (e) {
+                URL.revokeObjectURL(url);
+                console.warn("Image compression skipped:", e);
+                resolve(file);
+            }
+        };
+        img.onerror = function () {
+            URL.revokeObjectURL(url);
+            resolve(file);
+        };
+        img.src = url;
+    });
+
+    function hasTransparency(ctx, w, h) {
+        var data = ctx.getImageData(0, 0, w, h).data;
+        for (var i = 3; i < data.length; i += 4) {
+            if (data[i] < 255) return true;
+        }
+        return false;
+    }
+};
+
+/** Same as compressImageFile, but resolves with a data URL ("data:image/jpeg;base64,..."). */
+window.compressImageToDataURL = function (file, options) {
+    return window.compressImageFile(file, options).then(function (out) {
+        return new Promise(function (resolve, reject) {
+            var reader = new FileReader();
+            reader.onload = function () { resolve(reader.result); };
+            reader.onerror = reject;
+            reader.readAsDataURL(out);
+        });
+    });
+};
+
 async function uploadIMGAsJSON(dataFile, statuses) {
     const input = dataFile; //document.getElementById('pdfInput');
     const status = statuses; //document.getElementById('status');
@@ -2346,17 +2622,18 @@ async function uploadIMGAsJSON(dataFile, statuses) {
         return;
     }
 
-    const file = input.files[0];
+    const original = input.files[0];
 
-    // Check if the selected file is a PDF
-    if (file.type.indexOf("image") === -1) {
+    // Check if the selected file is an image
+    if (original.type.indexOf("image") === -1) {
         status.textContent = "Only Image files are allowed!";
         status.style.color = "red";
         return;
     }
 
     try {
-        // Convert the file to a Base64 string
+        // Shrink the photo first (see compressImageFile), then encode it.
+        const file = await window.compressImageFile(original);
         const base64PDF = await convertFileToBase64(file);
 
         // Create the JSON object

@@ -22,7 +22,7 @@ import java.util.Map;
 /**
  * Proxy routes for the Stores &amp; Inventory module — backs
  * scripts/_storesInventory.js and subscripts/storesInventory.js.
- *
+ * <p>
  * Follows the exact post()/get() proxy pattern used by FinanceController,
  * forwarding to the stores-inventory microservice at /api/stores/**.
  */
@@ -83,59 +83,63 @@ public class StoresController {
      */
     @PostMapping("stores/items/online/{institutionCode}")
     public ResponseEntity<String> getOnlineItems(@PathVariable String institutionCode) {
-        return get(backendserve + "/api/stores/items/online/" + institutionCode);
+        return get(backendserve + "/api/stores_inventory/items/online/" + institutionCode);
     }
 
     @PostMapping("stores/items/instore/{institutionCode}")
     public ResponseEntity<String> getInstoreItems(@PathVariable String institutionCode) {
-        return get(backendserve + "/api/stores/items/instore/" + institutionCode);
+        return get(backendserve + "/api/stores_inventory/items/instore/" + institutionCode);
     }
 
     @PostMapping("stores/items/low-stock/{institutionCode}")
     public ResponseEntity<String> getLowStock(@PathVariable String institutionCode) {
-        return get(backendserve + "/api/stores/items/low-stock/" + institutionCode);
+        return get(backendserve + "/api/stores_inventory/items/low-stock/" + institutionCode);
     }
 
     @PostMapping("stores/items/get-by-institution")
     public ResponseEntity<String> getItemsByInstitution(@RequestBody Map<String, Object> body) {
-        return post(body, backendserve + "/api/stores/items/get-by-institution");
+        return post(body, backendserve + "/api/stores_inventory/items/get-by-institution");
     }
 
     @PostMapping("stores/items/create")
     public ResponseEntity<String> createItem(@RequestBody Map<String, Object> body) {
-        return post(body, backendserve + "/api/stores/items/create");
+        return post(body, backendserve + "/api/stores_inventory/items/create");
     }
 
     @PostMapping("stores/items/update/{id}")
     public ResponseEntity<String> updateItem(@PathVariable String id, @RequestBody Map<String, Object> body) {
-        return post(body, backendserve + "/api/stores/items/update/" + id);
+        return post(body, backendserve + "/api/stores_inventory/items/update/" + id);
     }
 
     @PostMapping("stores/items/deactivate/{id}")
     public ResponseEntity<String> deactivateItem(@PathVariable String id) {
-        return post(Map.of(), backendserve + "/api/stores/items/deactivate/" + id);
+        return post(Map.of(), backendserve + "/api/stores_inventory/items/deactivate/" + id);
     }
 
     @PostMapping("stores/items/restock")
     public ResponseEntity<String> restock(@RequestBody Map<String, Object> body) {
-        return post(body, backendserve + "/api/stores/items/restock");
+        return post(body, backendserve + "/api/stores_inventory/items/restock");
     }
 
     @GetMapping("stores/items/{id}")
     public ResponseEntity<String> getItemById(@PathVariable String id) {
-        return get(backendserve + "/api/stores/items/" + id);
+        return get(backendserve + "/api/stores_inventory/items/" + id);
     }
 
-    /** Full stock movement audit trail — window.storesFetchMovements */
+    /**
+     * Full stock movement audit trail — window.storesFetchMovements
+     */
     @PostMapping("stores/movements/{institutionCode}")
     public ResponseEntity<String> getMovements(@PathVariable String institutionCode) {
-        return get(backendserve + "/api/stores/movements/" + institutionCode);
+        return get(backendserve + "/api/stores_inventory/movements/" + institutionCode);
     }
 
-    /** Stock movement history for a single item — window.storesFetchMovementsByItem */
+    /**
+     * Stock movement history for a single item — window.storesFetchMovementsByItem
+     */
     @PostMapping("stores/movements/item/{storeItemId}")
     public ResponseEntity<String> getMovementsByItem(@PathVariable String storeItemId) {
-        return get(backendserve + "/api/stores/movements/item/" + storeItemId);
+        return get(backendserve + "/api/stores_inventory/movements/item/" + storeItemId);
     }
 
     // ══════════════════════════════════════════════════════════════════════════
@@ -147,7 +151,7 @@ public class StoresController {
 
     @PostMapping("stores/orders/place")
     public ResponseEntity<String> placeOrder(@RequestBody Map<String, Object> body) {
-        return post(body, backendserve + "/api/stores/orders/place");
+        return post(body, backendserve + "/api/stores_inventory/orders/place");
     }
 
     /**
@@ -158,7 +162,7 @@ public class StoresController {
             @PathVariable String orderId,
             @RequestParam String paymentReference,
             @RequestBody(required = false) Map<String, Object> body) {
-        return post(Map.of(), backendserve + "/api/stores/orders/" + orderId
+        return post(Map.of(), backendserve + "/api/stores_inventory/orders/" + orderId
                 + "/confirm?paymentReference=" + paymentReference);
     }
 
@@ -167,7 +171,7 @@ public class StoresController {
             @PathVariable String orderId,
             @RequestParam String processedBy,
             @RequestBody(required = false) Map<String, Object> body) {
-        return post(Map.of(), backendserve + "/api/stores/orders/" + orderId
+        return post(Map.of(), backendserve + "/api/stores_inventory/orders/" + orderId
                 + "/fulfil?processedBy=" + processedBy);
     }
 
@@ -176,30 +180,30 @@ public class StoresController {
             @PathVariable String orderId,
             @RequestParam(required = false) String reason,
             @RequestBody(required = false) Map<String, Object> body) {
-        String url = backendserve + "/api/stores/orders/" + orderId + "/cancel"
+        String url = backendserve + "/api/stores_inventory/orders/" + orderId + "/cancel"
                 + (reason != null ? "?reason=" + reason : "");
         return post(Map.of(), url);
     }
 
     @PostMapping("stores/orders/ref/{orderRef}")
     public ResponseEntity<String> getByRef(@PathVariable String orderRef) {
-        return get(backendserve + "/api/stores/orders/ref/" + orderRef);
+        return get(backendserve + "/api/stores_inventory/orders/ref/" + orderRef);
     }
 
     @PostMapping("stores/orders/get-by-institution")
     public ResponseEntity<String> getOrdersByInstitution(@RequestBody Map<String, Object> body) {
-        return post(body, backendserve + "/api/stores/orders/get-by-institution");
+        return post(body, backendserve + "/api/stores_inventory/orders/get-by-institution");
     }
 
     @PostMapping("stores/orders/buyer/{institutionCode}/{buyerId}")
     public ResponseEntity<String> getOrdersByBuyer(
             @PathVariable String institutionCode,
             @PathVariable String buyerId) {
-        return get(backendserve + "/api/stores/orders/buyer/" + institutionCode + "/" + buyerId);
+        return get(backendserve + "/api/stores_inventory/orders/buyer/" + institutionCode + "/" + buyerId);
     }
 
     @PostMapping("stores/orders/retry-ledger/{institutionCode}")
     public ResponseEntity<String> retryLedger(@PathVariable String institutionCode) {
-        return post(Map.of(), backendserve + "/api/stores/orders/retry-ledger/" + institutionCode);
+        return post(Map.of(), backendserve + "/api/stores_inventory/orders/retry-ledger/" + institutionCode);
     }
 }

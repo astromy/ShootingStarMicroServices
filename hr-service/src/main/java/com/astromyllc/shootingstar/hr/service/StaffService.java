@@ -6,6 +6,7 @@ import com.astromyllc.shootingstar.hr.dto.request.StaffRequest;
 import com.astromyllc.shootingstar.hr.dto.request.StaffSubjectsRequest;
 import com.astromyllc.shootingstar.hr.dto.request.api.StaffCodeRequest;
 import com.astromyllc.shootingstar.hr.dto.response.StaffContactResponse;
+import com.astromyllc.shootingstar.hr.dto.response.StaffPermissionsResponse;
 import com.astromyllc.shootingstar.hr.dto.response.StaffResponse;
 import com.astromyllc.shootingstar.hr.model.*;
 import com.astromyllc.shootingstar.hr.repository.StaffRepository;
@@ -20,6 +21,8 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -259,6 +262,11 @@ public class StaffService implements StaffServiceInterface {
 
     @Override
     public Optional<StaffResponse> addStaffPermissions(List<StaffPermissionsRequest> staffPermissionsRequests) throws IOException, URISyntaxException {
+        // Nothing changed in the modal (e.g. Save clicked on an untouched,
+        // pre-checked list) - nothing to send to Keycloak or to store.
+        if (staffPermissionsRequests == null || staffPermissionsRequests.isEmpty()) {
+            return Optional.empty();
+        }
         staffPermissionsUtil.KeyclaokCreateUserCredentials(staffPermissionsRequests);
         Optional<Staff> staff = StaffUtil.staffGlobalList.stream().filter(s -> s.getInstitutionCode().equalsIgnoreCase(staffPermissionsRequests.get(0).getInstitutionCode()) && s.getStaffCode().equalsIgnoreCase(staffPermissionsRequests.get(0).getStaffCode())).findFirst();
         if (staff.isPresent()) {
@@ -266,36 +274,72 @@ public class StaffService implements StaffServiceInterface {
             List<StaffPermissions> existingPermissions = Optional.ofNullable(staff.get().getStaffPermissions())
                     .orElse(Collections.emptyList());
 
-            Map<String, StaffPermissions> existingPermissionsMap = existingPermissions.stream()
-                    .collect(Collectors.toMap(
-                            permission -> permission.getPermissionCode().toLowerCase(), // Use lowercase for case-insensitive matching
-                            permission -> permission
-                    ));
+            // Start from everything this staff member already has, keyed by
+            // lowercase code. The request only carries what was toggled in
+            // this session (see permissionBuilder in _permissions.js), so the
+            // stored list must be existing + changes - not just the changes,
+            // which is what used to be saved and dropped earlier grants.
+            // Later duplicates win instead of throwing, and a record with no
+            // code is skipped instead of causing an NPE.
+            Map<String, StaffPermissions> merged = new LinkedHashMap<>();
+            for (StaffPermissions p : existingPermissions) {
+                if (p != null && p.getPermissionCode() != null) {
+                    merged.put(p.getPermissionCode().toLowerCase(), p);
+                }
+            }
 
-            List<StaffPermissions> updatedStaffPermissions = staffPermissionsRequests.stream()
-                    .map(requestRecord -> {
-                        String permissionCode = requestRecord.getPermissionCode().toLowerCase();
-                        StaffPermissions existing = existingPermissionsMap.get(permissionCode);
+            // Only the records touched by this request go to the standalone
+            // collection, as before.
+            List<StaffPermissions> changed = new ArrayList<>();
+            for (StaffPermissionsRequest requestRecord : staffPermissionsRequests) {
+                if (requestRecord.getPermissionCode() == null) {
+                    continue;
+                }
+                String permissionCode = requestRecord.getPermissionCode().toLowerCase();
+                StaffPermissions existing = merged.get(permissionCode);
+                if (existing != null) {
+                    StaffPermissionsUtil.updateStaffPermissions(existing, requestRecord);
+                    changed.add(existing);
+                } else {
+                    StaffPermissions created = StaffPermissionsUtil.mapStaffPermissionsRequest_ToStaffPermissions(requestRecord, staff.get().getStaffCode());
+                    merged.put(permissionCode, created);
+                    changed.add(created);
+                }
+            }
 
-                        if (existing != null) {
-                            StaffPermissionsUtil.updateStaffPermissions(existing, requestRecord);
-                            return existing;
-                        } else {
-                            return StaffPermissionsUtil.mapStaffPermissionsRequest_ToStaffPermissions(requestRecord, staff.get().getStaffCode());
-                        }
-                    })
-                    .toList();
+            staffPermissionsUtil.saveAll(changed);
 
-            // Save the updated list of professional records
-            staffPermissionsUtil.saveAll(updatedStaffPermissions);
-
-            // Set the updated list on the staff object
-            staff.get().setStaffPermissions(updatedStaffPermissions);
+            // Full merged list goes on the staff document
+            staff.get().setStaffPermissions(new ArrayList<>(merged.values()));
 
             staffRepository.save(staff.get());
             return Optional.of(staffUtil.mapStaff_ToStaffResponse(staff.get()));
         }
         return Optional.empty();
+    }
+
+    // The frontend's "Manage Permissions" modal calls this to pre-check
+    // whichever permissions a staff member already has. Each permission
+    // code has exactly one record (see addStaffPermissions above, which
+    // overwrites state in place rather than appending), so a removed
+    // permission still has a record - just with state "delete" - which is
+    // why this filters to state "add" rather than returning everything.
+    @Override
+    public List<StaffPermissionsResponse> getPermissionsByStaff(String staffCode) {
+        Optional<Staff> staff = staffRepository.findByStaffCode(staffCode);
+        if (staff.isEmpty() || staff.get().getStaffPermissions() == null) {
+            return Collections.emptyList();
+        }
+        return staff.get().getStaffPermissions().stream()
+                .filter(p -> p.getState() == null || "add".equalsIgnoreCase(p.getState()))
+                .map(p -> StaffPermissionsResponse.builder()
+                        .id(p.getId() == null ? null : p.getId().toString())
+                        .staffCode(p.getStaffCode())
+                        .permissionCode(p.getPermissionCode())
+                        .permission(p.getPermission())
+                        .institutionCode(p.getInstitutionCode())
+                        .build())
+                .collect(Collectors.toList());
     }
 
     @Override

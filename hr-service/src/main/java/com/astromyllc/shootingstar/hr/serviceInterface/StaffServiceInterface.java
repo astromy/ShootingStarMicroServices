@@ -6,6 +6,7 @@ import com.astromyllc.shootingstar.hr.dto.request.StaffRequest;
 import com.astromyllc.shootingstar.hr.dto.request.StaffSubjectsRequest;
 import com.astromyllc.shootingstar.hr.dto.request.api.StaffCodeRequest;
 import com.astromyllc.shootingstar.hr.dto.response.StaffContactResponse;
+import com.astromyllc.shootingstar.hr.dto.response.StaffPermissionsResponse;
 import com.astromyllc.shootingstar.hr.dto.response.StaffResponse;
 
 import java.io.IOException;
@@ -27,6 +28,8 @@ public interface StaffServiceInterface {
     public Optional<List<StaffResponse>> getStaffByInstitutionAndDesignation(String beceCode, String designation);
 
     Optional<StaffResponse> addStaffPermissions(List<StaffPermissionsRequest> staffPermissionsRequests) throws IOException, URISyntaxException;
+
+    List<StaffPermissionsResponse> getPermissionsByStaff(String staffCode);
 
     Optional<StaffResponse> addStaffSubjects(List<StaffSubjectsRequest> staffSubjectsRequests) throws IOException, URISyntaxException;
 

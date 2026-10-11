@@ -75,14 +75,18 @@ public class AdministrationController {
     @RequestMapping(value = "getStudentsByInstitution", method = RequestMethod.POST)
     public ResponseEntity<String> getAllStudentsByInstitutionCode(@RequestBody SingleStringRequest jso) throws IOException {
 
-        return BACKENDCOMMPOST(jso, backendserve + "/api/administration-pta/getStudentsByInstitution");
+        // No pictures or birth certificates in the list: they made this response tens of megabytes.
+        // A picture is fetched on its own (student-photo/{studentId}) when a screen shows it.
+        return BACKENDCOMMPOST(jso, backendserve + "/api/administration-pta/getStudentsByInstitutionWithoutImages");
     }
 
     @ResponseBody
     @RequestMapping(value = "getStudentsByDynamicData", method = RequestMethod.POST)
     public ResponseEntity<String> getAllStudentsByDynamic(@RequestBody DynamicStringRequest jso) throws IOException {
 
-        return BACKENDCOMMPOST(jso, backendserve + "/api/administration-pta/getStudentsByDynamicData");
+        // Without pictures and birth certificates (see getStudentsByInstitution above); the full record
+        // of one student comes from getStudentDetail.
+        return BACKENDCOMMPOST(jso, backendserve + "/api/administration-pta/getStudentsByDynamicDataWithoutImages");
     }
 
     @ResponseBody

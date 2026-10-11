@@ -27,6 +27,7 @@ public class BillingsService implements BillingsServiceInterface {
     private final BillingsRepository billingsRepository;
     private final BillingsUtil billingsUtil;
     private final Student_BillService student_BillService;
+    private final LedgerPostingService ledgerPostingService;
 
     @Override
     public BillingsResponse updateBilling(BillingsRequest r) {
@@ -70,6 +71,16 @@ public class BillingsService implements BillingsServiceInterface {
 
         billingsRepository.saveAll(billings);
         BillingsUtil.billingGlobalList.addAll(billings);
+
+        // Ledger: each bill item charged to a student.
+        for (Billings billing : billings) {
+            try {
+                ledgerPostingService.postBilling(billing);
+            } catch (Exception e) {
+                log.error("Ledger: couldn't post billing {} ({} for {})", billing.getBillingId(),
+                        billing.getBillname(), billing.getStudentId(), e);
+            }
+        }
 
         // Group by student → sum → produce one Student_BillRequest per student
         List<Student_BillResponse> results = student_BillService.createStudentsBill(

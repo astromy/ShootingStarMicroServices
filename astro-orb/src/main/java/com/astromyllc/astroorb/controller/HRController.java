@@ -56,7 +56,9 @@ public class HRController {
     @RequestMapping(value = "get-staff-by-institution", method = RequestMethod.POST)
     public ResponseEntity<String> getFinanceInstitutionByCode(@RequestBody SingleStringRequest jso) throws IOException {
 
-        ResponseEntity<String> response = BACKENDCOMMPOST(jso, backendserve + "/api/hr/getStaffByCode");
+        // Same people and fields as before, minus the pictures and the contents of uploaded documents.
+        // A picture is fetched on its own (staff-photo/{staffCode}); a whole record from getStaffDetail.
+        ResponseEntity<String> response = BACKENDCOMMPOST(jso, backendserve + "/api/hr/getStaffByInstitutionWithoutFiles");
         return response;
     }
 

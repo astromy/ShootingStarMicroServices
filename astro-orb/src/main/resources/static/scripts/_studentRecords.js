@@ -1,7 +1,6 @@
 window.copyrights();
 
 var v;                          // institution code
-var studentRecordsData = [];    // holds the last fetched result set
 var allClasses = [];            // holds classes fetched for dropdowns
 
 // ─── INIT ────────────────────────────────────────────────────────────────────
@@ -22,7 +21,8 @@ async function fetchLookup(instId) {
 
 function populateClassGroup(data) {
     data.forEach(function (d) {
-        var option = $("<option>").val(d.id).text(d.name);
+        // Use d.name as value so the payload receives the group name, not the id
+        var option = $("<option>").val(d.name).text(d.name);
         $(".classGroupSelect").append(option);
     });
 }
@@ -63,90 +63,65 @@ function populateEditClassDropdown(data) {
     });
 }
 
-// ─── FETCH STUDENTS ───────────────────────────────────────────────────────────
+// ─── FETCH STUDENTS (server-side paging) ──────────────────────────────────────
+// The table asks the server for one page at a time (getStudentsPage); searching, sorting and paging are
+// done there. Nothing but the rows on screen is ever downloaded, so it opens at once for any school size.
 
-document.getElementById("fetchStudentsBtn").addEventListener("click", async function () {
-    showSplash();
+var studentsTable = null;
+var studentFilters = {};
 
+document.getElementById("fetchStudentsBtn").addEventListener("click", function () {
     var studentClass = document.querySelector(".classSelect").value;
     var status = document.querySelector(".studentStatusSelect").value;
     var gender = document.querySelector(".genderSelect").value;
 
-    // Build DynamicStringRequest — only include non-empty filters
-    var keys = ["institutionCode"];
-    var vals = [v];
+    studentFilters = {};
+    if (studentClass && !studentClass.toLowerCase().includes("select")) studentFilters.studentClass = studentClass;
+    if (status && !status.toLowerCase().includes("select")) studentFilters.status = status;
+    if (gender && !gender.toLowerCase().includes("select")) studentFilters.gender = gender;
 
-    if (studentClass && !studentClass.toLowerCase().includes("select")) {
-        keys.push("studentClass");
-        vals.push(studentClass);
-    }
-    if (status && !status.toLowerCase().includes("select")) {
-        keys.push("status");
-        vals.push(status);
-    }
-    if (gender && !gender.toLowerCase().includes("select")) {
-        keys.push("gender");
-        vals.push(gender);
-    }
-
-    var jso = {key: keys, val: vals};
-
-    try {
-        const result = await fetchPost("getStudentsByDynamicData", jso);
-        if (!result || result.length === 0) {
-            swal({title: "No Results", text: "No students found for the selected parameters.", type: "info"});
-            hideSplash();
-            return;
+    if (studentsTable) studentsTable.destroy();
+    studentsTable = ServerTable.create({
+        table: "#studentRecordsTable",
+        endpoint: "getStudentsPage",
+        title: "Student Records",
+        order: [[1, "asc"]],
+        params: function () { return studentFilters; },
+        columns: [
+            {data: "studentId", sort: "studentId"},
+            {data: "lastName", sort: "lastName"},
+            {data: "firstName", sort: "firstName"},
+            {data: "otherName", sort: "otherName"},
+            {data: "gender", sort: "gender"},
+            {data: "studentClass", sort: "studentClass"},
+            {data: "dateOfBirth", sort: "dateOfBirth"},
+            {data: "dateOfAdmission", sort: "dateOfAdmission"},
+            {data: "placeOfBirth", sort: "placeOfBirth"},
+            {data: "countryOfBirth", sort: "countryOfBirth"},
+            // Nationality mirrors Country of Birth - the Students model has no separate nationality field.
+            {data: "nationality", sort: "countryOfBirth"},
+            {data: "denomination", sort: "denomination"},
+            {
+                data: "status", sort: "status",
+                render: function (value) {
+                    return '<span class="label ' + statusLabel(value) + '">' + ServerTable.esc(value) + '</span>';
+                }
+            },
+            {
+                data: null, exportable: false,
+                render: function (value, row) {
+                    return '<button class="btn btn-xs btn-warning view-student-btn" data-student-id="' +
+                        ServerTable.esc(row.studentId) + '"><i class="fa fa-pencil"></i> Edit</button>';
+                }
+            }
+        ],
+        onResult: function (result, firstLoad) {
+            if (firstLoad && !result.total) {
+                swal({title: "No Results", text: "No students found for the selected parameters.", type: "info"});
+            }
         }
-        studentRecordsData = result;
-        destroyTable();
-        $("#studentRecordsBody").empty();
-        buildTable(result);
-    } catch (error) {
-        console.error("Error fetching students:", error);
-        swal({title: "Error", text: "Failed to fetch student records.", type: "error"});
-    }
-    hideSplash();
-});
-
-// ─── BUILD TABLE ──────────────────────────────────────────────────────────────
-
-function buildTable(data) {
-    data.forEach(function (student) {
-        var row = `
-            <tr>
-                <td>${student.studentId || ''}</td>
-                <td>${student.lastName || ''}</td>
-                <td>${student.firstName || ''}</td>
-                <td>${student.otherName || ''}</td>
-                <td>${student.gender || ''}</td>
-                <td>${student.studentClass || ''}</td>
-                <td>${student.dateOfBirth || ''}</td>
-                <td>${student.dateOfAdmission || ''}</td>
-                <td>${student.placeOfBirth || ''}</td>
-                <td>${student.countryOfBirth || ''}</td>
-                <!-- Nationality mirrors Country of Birth - the Students
-                     model has no separate nationality field, so a raw
-                     student.nationality here would always render blank. -->
-                <td>${student.countryOfBirth || ''}</td>
-                <td>${student.denomination || ''}</td>
-                <td>
-                    <span class="label ${statusLabel(student.status)}">${student.status || ''}</span>
-                </td>
-                <td>
-                    <button class="btn btn-xs btn-warning view-student-btn"
-                            data-student-id="${student.studentId}">
-                        <i class="fa fa-pencil"></i> Edit
-                    </button>
-                </td>
-            </tr>
-        `;
-        $("#studentRecordsBody").append(row);
     });
-
-    initTable();
-    bindViewButtons();
-}
+});
 
 function statusLabel(status) {
     switch ((status || '').toLowerCase()) {
@@ -163,32 +138,11 @@ function statusLabel(status) {
     }
 }
 
-function initTable() {
-    $("#studentRecordsTable").dataTable({
-        dom: "<'row'<'col-sm-4'l><'col-sm-4 text-center'B><'col-sm-4'f>>tp",
-        lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
-        buttons: [
-            {extend: "copy", className: "btn-sm"},
-            {extend: "csv", title: "Student Records", className: "btn-sm"},
-            {extend: "pdf", title: "Student Records", className: "btn-sm"},
-            {extend: "print", className: "btn-sm"},
-        ],
-    });
-    document.querySelector("#studentRecordsTable_wrapper")
-        .setAttribute("style", "overflow: auto;");
-}
-
-function destroyTable() {
-    if ($.fn.DataTable.isDataTable("#studentRecordsTable")) {
-        $("#studentRecordsTable").DataTable().destroy();
-    }
-}
-
 // ─── EXPORT BUTTON ────────────────────────────────────────────────────────────
 
 document.getElementById("exportStudentsBtn").addEventListener("click", function () {
-    if ($.fn.DataTable.isDataTable("#studentRecordsTable")) {
-        $("#studentRecordsTable").DataTable().button(".buttons-csv").trigger();
+    if (studentsTable) {
+        studentsTable.exportAll("csv");
     } else {
         swal({title: "No Data", text: "Please fetch student records first.", type: "info"});
     }
@@ -218,18 +172,26 @@ async function loadModalClasses(currentClass) {
 
 // ─── VIEW / EDIT MODAL ───────────────────────────────────────────────────────
 
-function bindViewButtons() {
-    $(".view-student-btn").off("click").on("click", function () {
-        var studentId = $(this).data("student-id");
-        openStudentModal(studentId);
-    });
-}
+// Rows are redrawn on every page, so one delegated handler serves them all
+$(document).off("click.studentEdit").on("click.studentEdit", "#studentRecordsTable .view-student-btn", function () {
+    openStudentModal($(this).attr("data-student-id"));
+});
 
 async function openStudentModal(studentId) {
-    var student = studentRecordsData.find(function (s) {
-        return s.studentId === studentId;
-    });
-    if (!student) return;
+    // The table only holds slim rows; the full record (picture, birth certificate, parents) is fetched
+    // for the one student being edited.
+    showSplash();
+    var student = null;
+    try {
+        student = await fetchPost("getStudentDetail", {studentId: studentId});
+    } catch (error) {
+        console.error("Error fetching student:", error);
+    }
+    hideSplash();
+    if (!student || !student.studentId) {
+        swal({title: "Error", text: "Could not load this student's record.", type: "error"});
+        return;
+    }
 
     // Set modal title to student's name so it's clear whose record is open
     $("#studentModalTitle").text(
@@ -275,81 +237,26 @@ async function openStudentModal(studentId) {
     $("#editStudentClass").val(student.studentClass || '');
     $("#editStatus").val(student.status || '');
 
-    // Student picture — guard against null/undefined/plain filename
+    // Picture: shown from the cacheable photo endpoint instead of being carried in the record.
+    // A student with no picture answers 404 and the placeholder shows.
     var picOutput = document.querySelector(".studentPicOutput");
-    // Server format: "profile.jpg_image/jpeg_<base64>" or "profile.jpg_image/png_<base64>"
-    // Picture may arrive as:
-    // 1. "profile.jpg_image/jpeg_<base64>"  — prefixed server format
-    // 2. "/9j/4AAQ..."                       — raw JPEG Base64 (no prefix)
-    // 3. "data:image/jpeg;base64,..."        — data URL
-    // 4. null / short string / plain filename — no picture
-    var hasPicture = student.picture &&
-        typeof student.picture === 'string' &&
-        student.picture.length > 100;   // anything real will be much longer than 100 chars
+    picOutput.innerHTML = `<img src="student-photo/${encodeURIComponent(student.studentId)}?size=thumb"
+                                style="width:180px;height:180px;border-radius:10px;object-fit:cover;"
+                                onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                           <div class="placeholder-avatar" style="display:none;height:180px;width:180px;
+                                background:#ccc;align-items:center;justify-content:center;border-radius:10px;">
+                                <i class="fa fa-user fa-4x" style="color:#fff;"></i>
+                           </div>`;
 
-    if (hasPicture) {
-        var mimeType, b64Data;
-
-        if (student.picture.startsWith('data:image')) {
-            // Already a data URL
-            mimeType = student.picture.split(';')[0].split(':')[1];
-            b64Data = student.picture.split('base64,').pop();
-        } else if (student.picture.includes('_image/')) {
-            // Server prefixed format: "filename_image/jpeg_<base64>"
-            var mimeMatch = student.picture.match(/_(image\/[^_]+)_/);
-            mimeType = mimeMatch ? mimeMatch[1] : 'image/jpeg';
-            b64Data = extractBase64(student.picture);
-        } else {
-            // Raw Base64 — JPEG starts with /9j/, PNG starts with iVBOR
-            mimeType = student.picture.trimStart().startsWith('iVBOR') ? 'image/png' : 'image/jpeg';
-            b64Data = student.picture.trim();
-        }
-
-        picOutput.innerHTML = `<img src="data:${mimeType};base64,${b64Data}"
-                                    style="width:180px;height:180px;border-radius:10px;object-fit:cover;"
-                                    onerror="handleImgError(this)">
-                               <div class="placeholder-avatar" style="display:none;height:180px;width:180px;
-                                    background:#ccc;align-items:center;justify-content:center;border-radius:10px;">
-                                    <i class="fa fa-user fa-4x" style="color:#fff;"></i>
-                               </div>`;
-    } else {
-        picOutput.innerHTML = placeholderAvatar();
-    }
-
-    // Birth certificate PDF — guard against plain filename or null
+    // Birth certificate: the record only says whether one is on file (its file name). The PDF itself is
+    // not downloaded; choosing a file below replaces it, leaving the box empty keeps the stored one.
     $(".birthCertOutput").empty();
-    var hasBirthCert = student.birthCert &&
-        typeof student.birthCert === 'string' &&
-        student.birthCert.length > 50 &&
-        (student.birthCert.includes('_application/pdf_') ||
-            student.birthCert.startsWith('data:application/pdf'));
-
-    if (hasBirthCert) {
-        try {
-            var pdfBase64 = student.birthCert.includes('_application/pdf_')
-                ? student.birthCert.split('_application/pdf_')[1]
-                : student.birthCert.split('base64,').pop();
-
-            var pdfBlob = base64ToBlob(pdfBase64, 'application/pdf');
-            var pdfURL = URL.createObjectURL(pdfBlob);
-            var certOutput = document.querySelector(".birthCertOutput");
-            certOutput.innerHTML = "";
-            var iframe = document.createElement('iframe');
-            iframe.src = pdfURL;
-            iframe.width = '100%';
-            iframe.height = '200px';
-            iframe.style.border = '1px dashed #ccc';
-            certOutput.appendChild(iframe);
-
-            // Populate file input so Save picks it up unchanged
-            var fileName = student.birthCert.split('_application/pdf_')[0] || 'birthCert.pdf';
-            var file = new File([pdfBlob], fileName, {type: 'application/pdf'});
-            var dt = new DataTransfer();
-            dt.items.add(file);
-            document.querySelector(".birthCertInput").files = dt.files;
-        } catch (e) {
-            console.warn("Could not load birth certificate:", e);
-        }
+    document.querySelector(".birthCertInput").value = "";
+    if (student.birthCert && typeof student.birthCert === 'string') {
+        $(".birthCertOutput").append(
+            $("<div>").css({border: "1px dashed #ccc", padding: "10px"})
+                .append($("<i>").addClass("fa fa-file-pdf-o"))
+                .append(document.createTextNode(" Birth certificate on file: " + student.birthCert + ". Choose a file to replace it.")));
     }
 
     // Parents tab
@@ -570,47 +477,30 @@ document.getElementById("saveStudentBtn").addEventListener("click", async functi
         parentsRequests: uniqueParents,
     };
 
-    // Pick up updated picture if changed
+    // A new picture or certificate is sent only when one was chosen. Leaving them out keeps the stored
+    // ones: the server only changes a field when the request carries a value for it.
     var picInput = document.querySelector(".studentPicInput");
     if (picInput.files && picInput.files.length > 0) {
         var imgJson = await uploadIMGAsJSON(picInput, document.querySelector(".fileError"));
         if (imgJson) {
             updated.picture = imgJson.fileName + "_" + imgJson.fileType + "_" + imgJson.fileContent;
         }
-    } else {
-        updated.picture = original.picture || '';
     }
 
-    // Pick up updated birth cert if changed.
-    // Guard against the server returning just a plain filename (e.g. "26-00147-2.pdf")
-    // instead of a full Base64 string — in that case treat it as no cert on file.
     var certInput = document.querySelector(".birthCertInput");
-    var originalBirthCert = original.birthCert || '';
-    var birthCertIsValidBase64 = originalBirthCert.includes('_application/pdf_') ||
-        originalBirthCert.startsWith('data:application/pdf');
-
     if (certInput.files && certInput.files.length > 0) {
         var pdfJson = await uploadPDFAsJSON(certInput, document.querySelector(".fileError"));
         if (pdfJson) {
             updated.birthCert = pdfJson.fileName + "_" + pdfJson.fileType + "_" + pdfJson.fileContent;
         }
-    } else if (birthCertIsValidBase64) {
-        // Only pass back the original if it's a real Base64 string
-        updated.birthCert = originalBirthCert;
-    } else {
-        // Plain filename or empty — send null so backend doesn't choke
-        updated.birthCert = null;
     }
 
     try {
         await fetchPost("updateStudentRecord", updated);
         $("#studentModal").modal("hide");
 
-        // Refresh the local data store with updated values
-        var idx = studentRecordsData.findIndex(function (s) {
-            return s.studentId === updated.studentId;
-        });
-        if (idx !== -1) studentRecordsData[idx] = Object.assign({}, original, updated);
+        // Reload the current page so the row shows the saved values
+        if (studentsTable) studentsTable.reload(true);
 
         swal({title: "Success!", text: "Student record updated successfully.", type: "success"});
     } catch (error) {

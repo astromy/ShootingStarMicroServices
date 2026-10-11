@@ -46,6 +46,7 @@
             '<p>Chart of accounts — all ledger accounts with running balances</p></div>',
             '<div class="ph-header-actions">',
             '<button class="fc-btn fc-btn-secondary" id="lgRefreshBtn"><i class="fas fa-sync-alt"></i> Refresh</button>',
+            '<button class="fc-btn fc-btn-secondary" id="lgSyncBtn" title="Post bills, fees and salaries recorded before automatic posting"><i class="fas fa-exchange-alt"></i> Sync records</button>',
             '<button class="fc-btn fc-btn-primary"   id="lgAddBtn"><i class="fas fa-plus"></i> New Account</button>',
             '</div>',
             '</header>',
@@ -259,6 +260,25 @@
         document.getElementById('lgRefreshBtn').addEventListener('click', async function () {
             await window.ledgerFetchAll();
             applyAndRender();
+        });
+        document.getElementById('lgSyncBtn').addEventListener('click', async function () {
+            if (!confirm('Post every bill, fee payment and paid salary that isn\'t in the ledger yet? Records already posted are skipped.')) return;
+            var btn = this;
+            btn.disabled = true;
+            try {
+                var r = await window.ledgerSync();
+                var failures = (r && r.failures) || [];
+                toast('Ledger synced: ' + (r.billingsPosted || 0) + ' billings, ' + (r.feePaymentsPosted || 0) +
+                    ' fee payments, ' + (r.salaryRunsPosted || 0) + ' salary runs posted' +
+                    (failures.length ? '. ' + failures.length + ' could not be posted - see the finance service log.' : '.'),
+                    failures.length ? 'warning' : 'success');
+                await window.ledgerFetchAll();
+                applyAndRender();
+            } catch (e) {
+                toast('Sync failed: ' + e.message, 'error');
+            } finally {
+                btn.disabled = false;
+            }
         });
         document.getElementById('lgAddBtn').addEventListener('click', function () {
             openAccountModal(null);

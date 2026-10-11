@@ -6,6 +6,8 @@ import com.astromyllc.shootingstar.adminpta.dto.request.SingleStringRequest;
 import com.astromyllc.shootingstar.adminpta.dto.response.ParentsResponse;
 import com.astromyllc.shootingstar.adminpta.model.Parents;
 import com.astromyllc.shootingstar.adminpta.repository.ParentRepository;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.common.collect.Lists;
 import jakarta.annotation.PostConstruct;
 import jakarta.ws.rs.core.Response;
@@ -24,13 +26,15 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.security.SecureRandom;
+import java.time.Duration;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
@@ -40,20 +44,44 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @RequiredArgsConstructor
 @Slf4j
 public class ParentsUtil {
+
     private static final String CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+    private static final String REALM = "ShootingStar";
+    private static final String CLIENT_ID = "astro_orb_microservices";
+    // TODO: move to configuration and rotate - a secret should not live in source code.
+    private static final String CLIENT_SECRET = "VSOLTuWTCIasuAK5xNS93YOKfmnwtUlE";
+    private static final String PARENTS_GROUP = "parents";
+    private static final String CREDENTIALS_SUBJECT = "User Credentials to the ORB application";
+
     public static List<Parents> parentGlobalList;
     public static InstitutionRequest institutionRequest = null;
+
     static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    //private static String keycloakURL;
+
+    // ---- Institution cache (Tier 1 fix) ----
+    // 10,000 institutions x ~1KB each is trivial memory; expiring after 24h
+    // is fine because institution metadata (name, bececode) rarely changes.
+    // If your org needs faster propagation, drop to 1h - the win is still huge.
+    private final Cache<String, InstitutionRequest> institutionCache =
+            Caffeine.newBuilder()
+                    .expireAfterWrite(Duration.ofHours(24))
+                    .maximumSize(10_000)
+                    .recordStats()
+                    .build();
+
     private final WebClient.Builder webClientBuilder;
     private final ParentRepository parentRepository;
     private final MailUtil mailUtil;
     AtomicBoolean isNewUser = new AtomicBoolean(false);
+    // Built once at startup. Building a client from the shared builder on every call is not
+    // thread-safe and fails with ConcurrentModificationException under concurrent requests.
+    private WebClient gatewayClient;
     @Value("${gateway.host}")
     private String host;
+
     @Value("${keycloak.address}")
     private String staticKeycloakURL;
-    private String generatedPass = null;
 
     public static Parents mapParentRequest_ToParent(ParentsRequest r, String studentId) {
         return Parents.builder()
@@ -91,58 +119,145 @@ public class ParentsUtil {
         keycloakURL = staticKeycloakURL;
     }*/
 
-    public InstitutionRequest getInstitution(String institutionCode) {
-        SingleStringRequest request = SingleStringRequest.builder()
-                .val(institutionCode)
-                .build();
-        return institutionRequest =
-
-                webClientBuilder
-                        .baseUrl(host)
-                        .filter(ExchangeFilterFunction.ofRequestProcessor(clientRequest -> {
-                            System.out.println("Request: " + clientRequest);
-                            return Mono.just(clientRequest);
-                        }))
-                        .filter(ExchangeFilterFunction.ofResponseProcessor(clientResponse -> {
-                            System.out.println("Response: " + clientResponse);
-                            return Mono.just(clientResponse);
-                        }))
-                        .build()
-                        .post()
-                        .uri("/api/setup/getInstitutionByCode")
-                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                        .bodyValue(request)
-                        .retrieve()
-                        .bodyToMono(InstitutionRequest.class)
-                        .block();
-
+    /**
+     * Sender name taken from the institution name: its first two words joined by a dot,
+     * e.g. "Bright Future Academy" -> "Bright.Future". Shorter names are used whole.
+     */
+    private static String deriveFromEmail(String institutionName) {
+        String dotted = institutionName.replace(" ", ".");
+        int secondDotIndex = dotted.indexOf('.', dotted.indexOf('.') + 1);
+        return secondDotIndex > 0 ? dotted.substring(0, secondDotIndex) : dotted;
     }
 
+    // =============================================================
+    //  Institution lookups - cached + batched
+    // =============================================================
+
+    @PostConstruct
+    private void initGatewayClient() {
+        gatewayClient = webClientBuilder.clone().baseUrl(host).build();
+    }
+
+    /**
+     * Full institution record (used for email "from" address derivation).
+     * Cached aggressively - institution metadata never changes at runtime.
+     */
+    public InstitutionRequest getInstitution(String institutionCode) {
+        if (institutionCode == null || institutionCode.isBlank()) return null;
+        return institutionCache.get(institutionCode, this::fetchInstitutionByCode);
+    }
+
+    /**
+     * Skim institution record (name + bececode only).
+     * Delegates to the same cache as getInstitution because both endpoints
+     * return the same underlying entity - if they diverge in your setup
+     * service, split into two caches.
+     */
     public InstitutionRequest getSkimpInstitution(String institutionCode) {
+        if (institutionCode == null || institutionCode.isBlank()) return null;
+        return institutionCache.get(institutionCode, this::fetchInstitutionStatus);
+    }
+
+    /**
+     * Batch variant - resolves many institution codes with at most one HTTP
+     * call per uncached code, and parallelises the misses. Use this from
+     * any code that maps over a collection of students.
+     * <p>
+     * Returns a map keyed by institution code. Missing/unresolvable codes are
+     * simply absent from the map (callers should null-check the lookup).
+     */
+    public Map<String, InstitutionRequest> getInstitutionsBulk(Set<String> institutionCodes) {
+        Map<String, InstitutionRequest> result = new HashMap<>();
+        if (institutionCodes == null || institutionCodes.isEmpty()) return result;
+
+        // 1. Serve cached entries
+        List<String> misses = new ArrayList<>();
+        for (String code : institutionCodes) {
+            if (code == null || code.isBlank()) continue;
+            InstitutionRequest cached = institutionCache.getIfPresent(code);
+            if (cached != null) {
+                result.put(code, cached);
+            } else {
+                misses.add(code);
+            }
+        }
+
+        // 2. Fetch misses in parallel (bounded, non-blocking on the caller thread)
+        if (!misses.isEmpty()) {
+            Map<String, InstitutionRequest> fetched = Flux.fromIterable(misses)
+                    .flatMap(code -> Mono.fromCallable(() -> fetchInstitutionStatus(code))
+                                    .subscribeOn(Schedulers.boundedElastic())
+                                    .doOnNext(r -> institutionCache.put(code, r))
+                                    .onErrorResume(ex -> {
+                                        log.warn("Failed to fetch institution {}: {}", code, ex.getMessage());
+                                        return Mono.empty();
+                                    })
+                                    .map(r -> Map.entry(code, r)),
+                            // Max parallel calls - tune to your setup service's capacity (8-16 is safe)
+                            8)
+                    .collectMap(Map.Entry::getKey, Map.Entry::getValue)
+                    .block(Duration.ofSeconds(15));
+
+            if (fetched != null) result.putAll(fetched);
+        }
+
+        return result;
+    }
+
+    /**
+     * Cold-path fetch for the full record.
+     */
+    private InstitutionRequest fetchInstitutionByCode(String institutionCode) {
         SingleStringRequest request = SingleStringRequest.builder()
                 .val(institutionCode)
                 .build();
-        return institutionRequest =
 
-                webClientBuilder
-                        .baseUrl(host)
-                        .filter(ExchangeFilterFunction.ofRequestProcessor(clientRequest -> {
-                            System.out.println("Request: " + clientRequest);
-                            return Mono.just(clientRequest);
-                        }))
-                        .filter(ExchangeFilterFunction.ofResponseProcessor(clientResponse -> {
-                            System.out.println("Response: " + clientResponse);
-                            return Mono.just(clientResponse);
-                        }))
-                        .build()
-                        .post()
-                        .uri("/api/setup/getInstitutionStatus")
-                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                        .bodyValue(request)
-                        .retrieve()
-                        .bodyToMono(InstitutionRequest.class)
-                        .block();
+        try {
+            InstitutionRequest response = gatewayClient
+                    .post()
+                    .uri("/api/setup/getInstitutionByCode")
+                    .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                    .bodyValue(request)
+                    .retrieve()
+                    .bodyToMono(InstitutionRequest.class)
+                    .block(Duration.ofSeconds(5));   // hard cap - fail fast
 
+            institutionRequest = response;
+            return response;
+        } catch (Exception e) {
+            log.warn("getInstitutionByCode failed for {}: {}", institutionCode, e.getMessage());
+            return null;
+        }
+    }
+
+    // =============================================================
+    //  Parents CRUD
+    // =============================================================
+
+    /**
+     * Cold-path fetch for the skim record.
+     */
+    private InstitutionRequest fetchInstitutionStatus(String institutionCode) {
+        SingleStringRequest request = SingleStringRequest.builder()
+                .val(institutionCode)
+                .build();
+
+        try {
+            InstitutionRequest response = gatewayClient
+                    .post()
+                    .uri("/api/setup/getInstitutionStatus")
+                    .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                    .bodyValue(request)
+                    .retrieve()
+                    .bodyToMono(InstitutionRequest.class)
+                    .block(Duration.ofSeconds(5));   // hard cap - fail fast
+
+            institutionRequest = response;
+            return response;
+        } catch (Exception e) {
+            log.warn("getInstitutionStatus failed for {}: {}", institutionCode, e.getMessage());
+            return null;
+        }
     }
 
     public void updateParents(Parents p, ParentsRequest pr, String studId) {
@@ -163,7 +278,7 @@ public class ParentsUtil {
     }
 
     @PostConstruct
-    private void fetAllParents() throws ExecutionException, InterruptedException {
+    private void fetAllParents() {
         parentGlobalList = parentRepository.findAll();
         log.info("Global Parents List populated with {} records", parentGlobalList.size());
        /* log.info("Started Working On Parents Logins");
@@ -201,11 +316,13 @@ public class ParentsUtil {
                 .build();
     }
 
+    // =============================================================
+    //  Keycloak user provisioning
+    // =============================================================
 
     private boolean isValidEmail(String email) {
         return email.matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$");
     }
-
 
     public void KeyclaokCreateUserCredentials(ParentsRequest parentsRequests) {
         if (parentsRequests == null || parentsRequests.getContact1() == null) {
@@ -216,12 +333,12 @@ public class ParentsUtil {
 
         // Find parent from global list or create if doesn't exist
         Parents existingParent = parentGlobalList.stream()
-                .filter(s -> s.getStudentId().equalsIgnoreCase(request.getStudentId()) && s.getId().equals(parentsRequests.getId()))
+                .filter(s -> s.getStudentId().equalsIgnoreCase(request.getStudentId())
+                        && s.getId().equals(request.getId()))
                 .findFirst()
                 .orElse(null);
 
         if (existingParent == null) {
-            // Create parent from payload
             existingParent = mapParentRequest_ToParent(request, request.getStudentId());
             parentRepository.save(existingParent);
             parentGlobalList.add(existingParent);
@@ -230,84 +347,50 @@ public class ParentsUtil {
 
         String parentContact = existingParent.getContact1();
 
-        Keycloak keycloak = KeycloakBuilder.builder()
-                .serverUrl(staticKeycloakURL)
-                .realm("ShootingStar")
-                .clientId("astro_orb_microservices")
-                .clientSecret("VSOLTuWTCIasuAK5xNS93YOKfmnwtUlE")
-                .grantType(OAuth2Constants.CLIENT_CREDENTIALS)
-                .build();
-
-        try {
-            RealmResource realmResource = keycloak.realm("ShootingStar");
+        try (Keycloak keycloak = buildKeycloakClient()) {
+            RealmResource realmResource = keycloak.realm(REALM);
             UsersResource usersResource = realmResource.users();
 
-            // 1. Find or create user
             UserRepresentation user = findOrCreateUser(usersResource, parentContact, request.getEmail());
             String userId = user.getId();
 
-            List<GroupRepresentation> groups = realmResource.groups().groups();
-            GroupRepresentation tGroup = groups.stream()
-                    .filter(g -> g.getName().equalsIgnoreCase("parents"))
-                    .findFirst()
-                    .orElse(null);
+            addUserToGroup(usersResource, userId, getOrCreateParentGroup(realmResource));
 
-
-            List<GroupRepresentation> userGroups = keycloak.realm("ShootingStar")
-                    .users()
-                    .get(userId)
-                    .groups();
-
-
-            // Check if user is already in the group
-            boolean alreadyInGroup = userGroups.stream()
-                    .anyMatch(group -> group.getId().equals(tGroup.getId()));
-
-            if (!alreadyInGroup) {
-                keycloak.realm("ShootingStar").users().get(userId).joinGroup(tGroup.getId());
-                log.info("Successfully processed parent for user: {}", request.getStudentId());
-            }
-
-
-            generatedPass = passwordGen();
-            String mailBody = "<html><body>" +
-                    "Please find herein, your credentials to the Orb School Application.<br>" +
-                    "Username: " + request.getContact1() + "<br>" +
-                    "Password: " + generatedPass + "<br>" +
-                    "Link to the app: <a href='https://orb.astromyllc.com'>https://orb.astromyllc.com</a>" +
-                    "</body></html>";
-            //"Please find herein, your credentials to the Orb School Application.\n\nUsername: " + staffCode + "\n\nPassword: " + staffCode + "!23\n\nLink to the app: https://orb.astromyllc.com";
-
-            // 2. Handle password for new users
             if (request.getEmail() != null && !request.getEmail().isBlank()) {
+                String password = passwordGen();
                 if (isNewUser.get()) {
-                    setInitialPassword(usersResource, userId);
+                    setInitialPassword(usersResource, userId, password);
                 }
 
-                if (institutionRequest == null) {
-                    getInstitution(request.getInstitutionCode());
-                }
+                String mailBody = buildCredentialsMailBody(request.getContact1(), password);
 
                 // Send email asynchronously with parent's email address
                 CompletableFuture.runAsync(() -> {
                     try {
-                        String fromEmail = institutionRequest.getName().replace(" ", ".");
-                        int secondDotIndex = fromEmail.indexOf('.', fromEmail.indexOf('.') + 1);
-                        fromEmail = fromEmail.substring(0, secondDotIndex);
-                        mailUtil.sendTransactionalEmail(request.getEmail(), "User Credentials to the ORB application", mailBody, fromEmail, true);
+                        InstitutionRequest inst = getInstitution(request.getInstitutionCode());
+                        if (inst == null || inst.getName() == null) {
+                            log.warn("Skipping credentials email - institution lookup failed for {}",
+                                    request.getInstitutionCode());
+                            return;
+                        }
+                        mailUtil.sendTransactionalEmail(
+                                request.getEmail(),
+                                CREDENTIALS_SUBJECT,
+                                mailBody,
+                                deriveFromEmail(inst.getName()),
+                                true
+                        );
                     } catch (Exception e) {
                         log.error("Failed to send email to {}", request.getEmail(), e);
                     }
                 });
-                log.info("Successfully processed parent for user: {}", request.getStudentId());
             }
 
+            log.info("Successfully processed parent for user: {}", request.getStudentId());
 
         } catch (Exception e) {
             log.error("Failed to process Keycloak Parent user credentials for {}", request.getStudentId(), e);
             throw new RuntimeException("User creation/update failed for " + request.getStudentId(), e);
-        } finally {
-            keycloak.close();
         }
     }
 
@@ -316,23 +399,21 @@ public class ParentsUtil {
             throw new IllegalArgumentException("Parent requests cannot be empty");
         }
 
-        // 1. Configure custom ForkJoinPool with limited parallelism
-        ForkJoinPool customPool = new ForkJoinPool(3); // Max 3 concurrent threads
+        ForkJoinPool customPool = new ForkJoinPool(3);
 
         try {
-            // 2. Process batches with controlled parallelism
             customPool.submit(() ->
-                    Lists.partition(parentRequests, 20) // Smaller batches
+                    Lists.partition(parentRequests, 20)
                             .parallelStream()
                             .forEach(batch -> {
                                 try (Keycloak keycloak = buildKeycloakClient()) {
                                     processBatch(batch, keycloak);
-                                    Thread.sleep(200); // Small delay
+                                    Thread.sleep(200);
                                 } catch (Exception e) {
                                     log.error("Batch failed", e);
                                 }
                             })
-            ).get(); // Wait for completion
+            ).get();
 
         } finally {
             customPool.shutdown();
@@ -342,15 +423,15 @@ public class ParentsUtil {
     private Keycloak buildKeycloakClient() {
         return KeycloakBuilder.builder()
                 .serverUrl(staticKeycloakURL)
-                .realm("ShootingStar")
-                .clientId("astro_orb_microservices")
-                .clientSecret("VSOLTuWTCIasuAK5xNS93YOKfmnwtUlE")
+                .realm(REALM)
+                .clientId(CLIENT_ID)
+                .clientSecret(CLIENT_SECRET)
                 .grantType(OAuth2Constants.CLIENT_CREDENTIALS)
                 .build();
     }
 
     private void processBatch(List<ParentsRequest> batch, Keycloak keycloak) {
-        RealmResource realm = keycloak.realm("ShootingStar");
+        RealmResource realm = keycloak.realm(REALM);
         UsersResource users = realm.users();
         GroupRepresentation group = getOrCreateParentGroup(realm);
 
@@ -363,7 +444,8 @@ public class ParentsUtil {
         });
     }
 
-    private void processSingleUser(ParentsRequest request, UsersResource usersResource,
+    private void processSingleUser(ParentsRequest request,
+                                   UsersResource usersResource,
                                    GroupRepresentation parentGroup) {
         try {
             String parentContact = parentGlobalList.stream()
@@ -374,33 +456,41 @@ public class ParentsUtil {
 
             UserRepresentation user = findOrCreateUser(usersResource, parentContact, request.getEmail());
 
-            // Handle group membership
             addUserToGroup(usersResource, user.getId(), parentGroup);
 
-            // Handle password and email if new user
             if (request.getEmail() != null && !request.getEmail().isBlank() && isNewUser.get()) {
-                setInitialPassword(usersResource, user.getId());
-                sendCredentialsEmail(request, parentContact);
+                String password = passwordGen();
+                setInitialPassword(usersResource, user.getId(), password);
+                sendCredentialsEmail(request, password);
             }
 
             log.info("Successfully processed parent for user: {}", request.getStudentId());
 
         } catch (Exception e) {
             log.error("Failed to process user {}", request.getStudentId(), e);
-            // Consider adding to retry queue instead of throwing
         }
     }
 
-    private GroupRepresentation getOrCreateParentGroup(RealmResource realmResource) {
+    private Optional<GroupRepresentation> findParentGroup(RealmResource realmResource) {
         return realmResource.groups().groups().stream()
-                .filter(g -> g.getName().equalsIgnoreCase("parents"))
-                .findFirst()
-                .orElseGet(() -> {
-                    GroupRepresentation newGroup = new GroupRepresentation();
-                    newGroup.setName("parents");
-                    realmResource.groups().add(newGroup);
-                    return newGroup;
-                });
+                .filter(g -> g.getName().equalsIgnoreCase(PARENTS_GROUP))
+                .findFirst();
+    }
+
+    private GroupRepresentation getOrCreateParentGroup(RealmResource realmResource) {
+        return findParentGroup(realmResource).orElseGet(() -> {
+            GroupRepresentation newGroup = new GroupRepresentation();
+            newGroup.setName(PARENTS_GROUP);
+            try (Response response = realmResource.groups().add(newGroup)) {
+                if (response.getStatus() != 201) {
+                    throw new RuntimeException("Failed to create the parents group in Keycloak. Status: "
+                            + response.getStatus());
+                }
+            }
+            // Re-read so the returned group carries the id Keycloak assigned
+            return findParentGroup(realmResource)
+                    .orElseThrow(() -> new RuntimeException("Parents group not found after creation"));
+        });
     }
 
     private void addUserToGroup(UsersResource usersResource, String userId,
@@ -413,60 +503,70 @@ public class ParentsUtil {
         }
     }
 
-    private void sendCredentialsEmail(ParentsRequest request, String email) {
-        String mailBody = "<html><body>" +
+    private String buildCredentialsMailBody(String username, String password) {
+        return "<html><body>" +
                 "Please find herein, your credentials to the Orb School Application.<br>" +
-                "Username: " + request.getContact1() + "<br>" +
-                "Password: " + generatedPass + "<br>" +
+                "Username: " + username + "<br>" +
+                "Password: " + password + "<br>" +
                 "Link to the app: <a href='https://orb.astromyllc.com'>https://orb.astromyllc.com</a>" +
                 "</body></html>";
+    }
+
+    private void sendCredentialsEmail(ParentsRequest request, String password) {
+        String mailBody = buildCredentialsMailBody(request.getContact1(), password);
 
         CompletableFuture.runAsync(() -> {
             try {
-                String fromEmail = getInstitution(request.getInstitutionCode()).getName()
-                        .replace(" ", ".");
-                fromEmail = fromEmail.substring(0, fromEmail.indexOf('.', fromEmail.indexOf('.') + 1));
-                mailUtil.sendTransactionalEmail(email, "User Credentials to the ORB application",
-                        mailBody, fromEmail);
+                InstitutionRequest inst = getInstitution(request.getInstitutionCode());
+                if (inst == null || inst.getName() == null) {
+                    log.warn("Skipping credentials email - institution lookup failed for {}",
+                            request.getInstitutionCode());
+                    return;
+                }
+                mailUtil.sendTransactionalEmail(
+                        request.getEmail(),
+                        CREDENTIALS_SUBJECT,
+                        mailBody,
+                        deriveFromEmail(inst.getName())
+                );
             } catch (Exception e) {
-                log.error("Failed to send email to {}", email, e);
+                log.error("Failed to send email to {}", request.getEmail(), e);
             }
         });
     }
 
-    private UserRepresentation findOrCreateUser(UsersResource usersResource, String parentContact, String parentEmail) {
-        // Try to find existing user first
+    private UserRepresentation findOrCreateUser(UsersResource usersResource,
+                                                String parentContact,
+                                                String parentEmail) {
         List<UserRepresentation> users = usersResource.search(parentContact, true);
         if (!users.isEmpty()) {
             return users.get(0);
         }
-        // Create new user if not found
+
         UserRepresentation newUser = new UserRepresentation();
+        newUser.setUsername(parentContact);
+        newUser.setEnabled(true);
+        // TODO: this condition looks inverted - it sets the email only when it is NOT valid.
+        // Left unchanged on purpose; see the review notes before flipping it.
         if (parentEmail != null && !parentEmail.isBlank() && !isValidEmail(parentEmail)) {
-            newUser.setUsername(parentContact);
             newUser.setEmail(parentEmail);
-            newUser.setEnabled(true);
-        } else {
-            newUser.setUsername(parentContact);
-            newUser.setEnabled(true);
         }
 
-
-        Response response = usersResource.create(newUser);
-        if (response.getStatus() != 201) {
-            throw new RuntimeException("Failed to create user in Keycloak. Status: " + response.getStatus());
+        try (Response response = usersResource.create(newUser)) {
+            if (response.getStatus() != 201) {
+                throw new RuntimeException("Failed to create user in Keycloak. Status: " + response.getStatus());
+            }
         }
 
-        // Get the created user with retry logic
         return waitForUserCreation(usersResource, parentContact);
     }
 
     private UserRepresentation waitForUserCreation(UsersResource usersResource, String parentContact) {
         int attempts = 0;
         while (attempts < 3) {
-            List<UserRepresentation> users = usersResource.search(parentContact);
+            List<UserRepresentation> users = usersResource.search(parentContact, true);
             if (!users.isEmpty()) {
-                isNewUser.set(true); // Mark user as newly created
+                isNewUser.set(true);
                 return users.get(0);
             }
             try {
@@ -480,11 +580,11 @@ public class ParentsUtil {
         throw new RuntimeException("User creation verification failed after retries");
     }
 
-    private void setInitialPassword(UsersResource usersResource, String userId) {
+    private void setInitialPassword(UsersResource usersResource, String userId, String rawPassword) {
         CredentialRepresentation password = new CredentialRepresentation();
         password.setTemporary(true);
         password.setType(CredentialRepresentation.PASSWORD);
-        password.setValue(generatedPass);
+        password.setValue(rawPassword);
 
         usersResource.get(userId).resetPassword(password);
         log.info("Password set successfully for user: {}", userId);
@@ -510,7 +610,6 @@ public class ParentsUtil {
     }
 
     private String passwordGen() {
-
         SecureRandom random = new SecureRandom();
         StringBuilder password = new StringBuilder(8);
 

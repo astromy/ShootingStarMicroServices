@@ -30,6 +30,7 @@ public class Bill_PaymentService implements Bill_PaymentServiceInterface {
     private final Student_BillRepository studentBillRepository;
     private final Bill_PaymentUtil billPaymentUtil;
     private final Student_BillUtil studentBillUtil;
+    private final LedgerPostingService ledgerPostingService;
 
     /**
      * Core payment flow:
@@ -49,6 +50,13 @@ public class Bill_PaymentService implements Bill_PaymentServiceInterface {
         Bill_Payment payment = billPaymentUtil.mapRequest_ToPayment(r);
         billPaymentRepository.save(payment);
         Bill_PaymentUtil.billPaymentGlobalList.add(payment);
+
+        // Ledger: money in (cash, bank or MoMo), against what the student owes.
+        try {
+            ledgerPostingService.postFeePayment(payment);
+        } catch (Exception e) {
+            log.error("Ledger: couldn't post fee payment {} for {}", payment.getBillPaymentId(), r.getStudentId(), e);
+        }
 
         // 2. Find student bill — required for balance update
         Optional<Student_Bill> studentBillOpt = Student_BillUtil.studentBillsGlobalList.stream()

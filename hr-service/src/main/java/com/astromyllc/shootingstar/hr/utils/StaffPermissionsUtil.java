@@ -1,6 +1,7 @@
 package com.astromyllc.shootingstar.hr.utils;
 
 import com.astromyllc.shootingstar.hr.dto.request.StaffPermissionsRequest;
+import com.astromyllc.shootingstar.hr.exception.KeycloakAccountConflictException;
 import com.astromyllc.shootingstar.hr.model.StaffPermissions;
 import com.astromyllc.shootingstar.hr.repository.StaffPermissionsRepository;
 import jakarta.annotation.PostConstruct;
@@ -34,6 +35,14 @@ import java.util.stream.Collectors;
 @Transactional
 public class StaffPermissionsUtil {
     private static final String CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    /**
+     * Orb permission roles are named "<Module> <permission>", e.g.
+     * "Finance salary_approvals" - one word, a space, then letters, digits and
+     * underscores. Only names in that shape are created automatically, so this
+     * can't be used to create arbitrary realm roles.
+     */
+    private static final java.util.regex.Pattern PERMISSION_ROLE_NAME =
+            java.util.regex.Pattern.compile("^[A-Za-z][A-Za-z_]* [A-Za-z0-9_]+$");
     public static List<StaffPermissions> staffPermissionsGlobalList;
     static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private static String keycloakURL;
@@ -61,6 +70,8 @@ public class StaffPermissionsUtil {
                 .permission(requestRecord.getPermission())
                 .staffCode(requestRecord.getStaffCode())
                 .institutionCode(requestRecord.getInstitutionCode())
+                // Without this a first-time grant was stored with a null state
+                .state(requestRecord.getState())
                 .build();
     }
 
@@ -117,7 +128,9 @@ public class StaffPermissionsUtil {
             GroupRepresentation tGroup = groups.stream()
                     .filter(g -> g.getName().equalsIgnoreCase(request.getInstitutionCode()))
                     .findFirst()
-                    .orElse(null);
+                    .orElseThrow(() -> new IllegalStateException(
+                            "No Keycloak group named '" + request.getInstitutionCode()
+                                    + "' exists in realm ShootingStar - the staff member can't be added to their institution's group"));
 
             //GroupRepresentation tGroup= searchGroupsByName(keycloak,"ShootingStar",request.getInstitutionCode());
 
@@ -166,6 +179,9 @@ public class StaffPermissionsUtil {
             processRoleAssignments(realmResource, usersResource, userId, staffPermissionsRequests);
 
             log.info("Successfully processed permissions for user: {}", staffCode);
+        } catch (KeycloakAccountConflictException e) {
+            log.warn("Keycloak account conflict for {}: {}", staffCode, e.getMessage());
+            throw e;
         } catch (Exception e) {
             log.error("Failed to process Keycloak user credentials for {}", staffCode, e);
             throw new RuntimeException("User creation/update failed for " + staffCode, e);
@@ -195,8 +211,54 @@ public class StaffPermissionsUtil {
 
 
         Response response = usersResource.create(newUser);
-        if (response.getStatus() != 201) {
-            throw new RuntimeException("Failed to create user in Keycloak. Status: " + response.getStatus());
+        try {
+            int status = response.getStatus();
+            if (status == 409) {
+                // Keycloak refuses duplicate usernames, and by default duplicate
+                // emails too. The username lookup above found nothing, so this is
+                // almost always another account already holding this email.
+                String body = "";
+                try {
+                    body = response.readEntity(String.class);
+                } catch (Exception ignored) {
+                    // body is only used to tell the two cases apart
+                }
+                // Quote Keycloak's own explanation (its JSON carries "errorMessage")
+                // rather than relying only on our reading of it.
+                String keycloakReason = body == null ? "" : body.trim();
+                java.util.regex.Matcher reasonMatcher = java.util.regex.Pattern
+                        .compile("\"errorMessage\"\\s*:\\s*\"([^\"]*)\"")
+                        .matcher(keycloakReason);
+                if (reasonMatcher.find()) {
+                    keycloakReason = reasonMatcher.group(1);
+                }
+                log.warn("Keycloak refused to create {} (409): {}", staffCode, keycloakReason);
+                if (body != null && body.toLowerCase().contains("same username")) {
+                    throw new KeycloakAccountConflictException("Can't set up login for " + staffCode
+                            + ": an account with this username already exists");
+                }
+                String holder = "another account";
+                if (staffEmail != null && !staffEmail.isBlank()) {
+                    try {
+                        holder = usersResource.search(staffEmail).stream()
+                                .filter(u -> staffEmail.equalsIgnoreCase(u.getEmail()))
+                                .findFirst()
+                                .map(u -> "the account '" + u.getUsername() + "'")
+                                .orElse("another account");
+                    } catch (Exception ignored) {
+                        // keep the generic wording
+                    }
+                }
+                // Not auto-linked on purpose: attaching this staff member's roles to
+                // an account that belongs to someone else would give them that login.
+                throw new KeycloakAccountConflictException("Can't set up login for " + staffCode
+                        + ": the email '" + staffEmail + "' is already used by " + holder);
+            }
+            if (status != 201) {
+                throw new RuntimeException("Failed to create user in Keycloak. Status: " + status);
+            }
+        } finally {
+            response.close();
         }
 
         // Get the created user with retry logic
@@ -237,9 +299,12 @@ public class StaffPermissionsUtil {
                                         String userId,
                                         List<StaffPermissionsRequest> requests) {
         // Separate roles to add and remove
+        // Roles being granted are created in Keycloak first if they don't exist
+        // yet, so a permission added to the Permissions page works without any
+        // manual Keycloak set-up. Roles being removed are only looked up.
         List<RoleRepresentation> rolesToAdd = requests.stream()
                 .filter(req -> "add".equalsIgnoreCase(req.getState()))
-                .map(req -> getRoleRepresentation(realmResource, req.getPermissionCode()))
+                .map(req -> findOrCreatePermissionRole(realmResource, req.getPermissionCode()))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
@@ -258,6 +323,36 @@ public class StaffPermissionsUtil {
         if (!rolesToRemove.isEmpty()) {
             usersResource.get(userId).roles().realmLevel().remove(rolesToRemove);
             log.info("Removed roles {} from user {}", rolesToRemove, userId);
+        }
+    }
+
+    /**
+     * Returns the realm role for a permission, creating it if it doesn't exist.
+     * Creating roles needs the service account of "astro_orb_microservices" to
+     * have the realm-management "manage-realm" role; without it, creation fails
+     * and the permission is skipped with a clear log message.
+     */
+    private RoleRepresentation findOrCreatePermissionRole(RealmResource realmResource, String roleName) {
+        RoleRepresentation existing = getRoleRepresentation(realmResource, roleName);
+        if (existing != null || roleName == null) {
+            return existing;
+        }
+        String name = roleName.trim();
+        if (!PERMISSION_ROLE_NAME.matcher(name).matches()) {
+            log.warn("Not creating role \"{}\": not an Orb permission name (\"<Module> <permission>\")", name);
+            return null;
+        }
+        try {
+            RoleRepresentation role = new RoleRepresentation();
+            role.setName(name);
+            role.setDescription("Orb permission: " + name);
+            realmResource.roles().create(role);
+            log.info("Created missing Keycloak realm role \"{}\"", name);
+            return realmResource.roles().get(name).toRepresentation();
+        } catch (Exception e) {
+            log.error("Couldn't create Keycloak realm role \"{}\" - check that the astro_orb_microservices "
+                    + "service account has the realm-management 'manage-realm' role", name, e);
+            return null;
         }
     }
 

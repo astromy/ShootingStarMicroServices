@@ -110,6 +110,29 @@
         series.data.setAll(data);
     }
 
+    // ── Summary numbers ────────────────────────────────────────────────────────
+    // The dashboards used to download every student, staff member, bill and payment
+    // (tens of megabytes) and count them in the browser. The server now counts them
+    // from its in-memory lists and sends back only the numbers.
+
+    function loadSummary(parts) {
+        return fetchPost("dashboard-summary", {parts: parts});
+    }
+
+    // [{label, count}] -> [{<labelKey>: label, count}] for the charts
+    function asRows(list, labelKey) {
+        return (list || []).map(function (x) {
+            var row = {count: x.count};
+            row[labelKey] = x.label;
+            return row;
+        });
+    }
+
+    // A figure for a stat card, or "—" when that part could not be loaded
+    function figure(part, value) {
+        return part ? fmt(value || 0) : fmt(undefined);
+    }
+
     // ── Role dispatchers ───────────────────────────────────────────────────────
 
     am5.ready(function () {
@@ -142,165 +165,54 @@
 
     // ══════════════════════════════════════════════════════════════════════════
     // SUPERADMIN — Executive Dashboard
-    // Fetches from students, staff and finance in parallel
+    // One request returns the student, staff and finance numbers
     // ══════════════════════════════════════════════════════════════════════════
     async function loadSuperadmin() {
         try {
-            // Fetch students, staff and finance data in parallel
-            var [students, staff, payments, bills] = await Promise.all([
-                fetchPost("getStudentsByInstitution", {val: instCode}).catch(function () {
-                    return [];
-                }),
-                fetchPost("get-staff-by-institution", {val: instCode}).catch(function () {
-                    return [];
-                }),
-                fetchPost("get-billPayments-by-institution", {val: instCode}).catch(function () {
-                    return [];
-                }),
-                fetchPost("get-bills-by-institution", {val: instCode}).catch(function () {
-                    return [];
-                }),
-            ]);
-
-            students = students || [];
-            staff = staff || [];
-            payments = payments || [];
-            bills = bills || [];
+            var summary = await loadSummary(["students", "staff", "finance"]);
+            var students = summary.students, staff = summary.staff, finance = summary.finance;
 
             // ── Stat cards ────────────────────────────────────────────────────
-            var activeStudents = students.filter(function (s) {
-                return (s.status || '').toLowerCase() === "active";
-            });
-            setStat("stat-students", fmt(activeStudents.length));
-            setStat("stat-staff", fmt(staff.length));
-
-            // Total fees collected this term
-            var totalCollected = payments.reduce(function (sum, p) {
-                return sum + parseFloat(p.amountPaid || p.amount || 0);
-            }, 0);
-            setStat("stat-fees-collected", "₵" + fmt(Math.round(totalCollected).toLocaleString()));
-
-            // Outstanding bills
-            var owing = bills.filter(function (b) {
-                return parseFloat(b.outstandingBalance || b.outstanding || 0) > 0;
-            });
-            setStat("stat-outstanding", fmt(owing.length));
-
-            // Classes and departments
-            var byClass = {};
-            students.forEach(function (s) {
-                var c = s.studentClass || "Unknown";
-                byClass[c] = (byClass[c] || 0) + 1;
-            });
-            setStat("stat-classes", fmt(Object.keys(byClass).length));
-
-            var byDept = {};
-            staff.forEach(function (s) {
-                var d = s.department || "Unknown";
-                byDept[d] = (byDept[d] || 0) + 1;
-            });
-            setStat("stat-depts", fmt(Object.keys(byDept).length));
+            setStat("stat-students", figure(students, students && students.active));
+            setStat("stat-staff", figure(staff, staff && staff.total));
+            setStat("stat-fees-collected", finance ? "₵" + Math.round(finance.totalCollected || 0).toLocaleString() : fmt(undefined));
+            setStat("stat-outstanding", figure(finance, finance && finance.studentsOwing));
+            setStat("stat-classes", figure(students, students && students.byClass.length));
+            setStat("stat-depts", figure(staff, staff && staff.byDepartment.length));
 
             // ── Charts ────────────────────────────────────────────────────────
+            if (students) {
+                // 1. Students by Class — large bar (col-8), biggest class first
+                var classData = asRows(students.byClass, "class");
+                makeBar("chart-students-by-class", classData, [{name: "Students", field: "count"}], "class");
 
-            // 1. Students by Class — large bar (col-8)
-            var classData = Object.keys(byClass)
-                .sort(function (a, b) {
-                    return byClass[b] - byClass[a];
-                })
-                .map(function (k) {
-                    return {class: k, count: byClass[k]};
-                });
-            makeBar("chart-students-by-class", classData, [{name: "Students", field: "count"}], "class");
+                // 2. Gender Distribution — donut (col-4)
+                makeDonut("chart-gender-dist", "Gender", asRows(students.byGender, "gender"), "count", "gender");
 
-            // 2. Gender Distribution — donut (col-4)
-            var genderData = [
-                {
-                    gender: "Male", count: students.filter(function (s) {
-                        return (s.gender || '').toLowerCase() === "male";
-                    }).length
-                },
-                {
-                    gender: "Female", count: students.filter(function (s) {
-                        return (s.gender || '').toLowerCase() === "female";
-                    }).length
-                },
-            ];
-            makeDonut("chart-gender-dist", "Gender", genderData, "count", "gender");
+                // 5. Student Status Distribution — donut (col-4)
+                makeDonut("chart-student-status", "Status", asRows(students.byStatus, "status"), "count", "status");
+
+                // 6. Enrollment Trend — line chart by class sorted by size (col-6)
+                makeLine("chart-enrollment-trend", classData.slice(0, 15), "class", "count", "Students");
+
+                // 7. New Admissions — this year by month, or all years if none yet this year (col-6)
+                var admData = asRows(students.admissionsByMonth, "month");
+                if (admData.length === 0) admData = asRows(students.admissionsByYear, "month");
+                makeBar("chart-new-admissions", admData, [{name: "Admissions", field: "count"}], "month");
+            }
 
             // 3. Staff by Department — donut (col-4)
-            var deptData = Object.keys(byDept).map(function (k) {
-                return {dept: k, count: byDept[k]};
-            });
-            makeDonut("chart-staff-by-dept", "Dept", deptData, "count", "dept");
+            if (staff) makeDonut("chart-staff-by-dept", "Dept", asRows(staff.byDepartment, "dept"), "count", "dept");
 
             // 4. Fee Collection by Class — bar (col-4)
-            var feeByClass = {};
-            payments.forEach(function (p) {
-                var c = p.studentClass || "Unknown";
-                feeByClass[c] = (feeByClass[c] || 0) + parseFloat(p.amountPaid || p.amount || 0);
-            });
-            var feeClassData = Object.keys(feeByClass)
-                .sort(function (a, b) {
-                    return feeByClass[b] - feeByClass[a];
-                })
-                .map(function (k) {
-                    return {class: k, amount: Math.round(feeByClass[k])};
+            if (finance && finance.collectedByClass && finance.collectedByClass.length > 0) {
+                var feeClassData = finance.collectedByClass.map(function (x) {
+                    return {class: x.label, amount: Math.round(x.amount)};
                 });
-            if (feeClassData.length > 0) {
                 makeBar("chart-fee-by-class", feeClassData, [{name: "Amount (₵)", field: "amount"}], "class");
             }
 
-            // 5. Student Status Distribution — donut (col-4)
-            var statusMap = {};
-            students.forEach(function (s) {
-                var st = s.status || "Unknown";
-                statusMap[st] = (statusMap[st] || 0) + 1;
-            });
-            var statusData = Object.keys(statusMap).map(function (k) {
-                return {status: k, count: statusMap[k]};
-            });
-            makeDonut("chart-student-status", "Status", statusData, "count", "status");
-
-            // 6. Enrollment Trend — line chart by class sorted by size (col-6)
-            var trendData = classData.slice(0, 15); // top 15 classes
-            makeLine("chart-enrollment-trend", trendData, "class", "count", "Students");
-
-            // 7. New Admissions This Term — bar by month (col-6)
-            var thisYear = new Date().getFullYear().toString();
-            var monthMap = {};
-            var monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-            students.forEach(function (s) {
-                var doa = s.dateOfAdmission || '';
-                if (doa.startsWith(thisYear)) {
-                    var m = parseInt(doa.split("-")[1], 10) - 1;
-                    var label = monthNames[m] || doa.substring(0, 7);
-                    monthMap[label] = (monthMap[label] || 0) + 1;
-                }
-            });
-            var admData = monthNames
-                .filter(function (m) {
-                    return monthMap[m];
-                })
-                .map(function (m) {
-                    return {month: m, count: monthMap[m]};
-                });
-            if (admData.length > 0) {
-                makeBar("chart-new-admissions", admData, [{name: "Admissions", field: "count"}], "month");
-            } else {
-                // No admissions this year yet — show all-time by year
-                var yearMap = {};
-                students.forEach(function (s) {
-                    var yr = (s.dateOfAdmission || '').substring(0, 4);
-                    if (yr) yearMap[yr] = (yearMap[yr] || 0) + 1;
-                });
-                var yrData = Object.keys(yearMap).sort()
-                    .map(function (k) {
-                        return {month: k, count: yearMap[k]};
-                    });
-                makeBar("chart-new-admissions", yrData, [{name: "Admissions", field: "count"}], "month");
-            }
-
+            if (summary.errors) console.warn("Some dashboard numbers could not be loaded:", summary.errors);
         } catch (e) {
             console.error("Superadmin dashboard error:", e);
         }
@@ -311,81 +223,31 @@
     // ══════════════════════════════════════════════════════════════════════════
     async function loadAdmin() {
         try {
-            var [students, applicants] = await Promise.all([
-                fetchPost("getStudentsByInstitution", {val: instCode}),
+            var [summary, applicants] = await Promise.all([
+                loadSummary(["students"]),
                 fetchPost("getAllApplicants", {val: instCode}),
             ]);
+            var students = summary.students;
+            if (!students) throw new Error("Student numbers are not available");
 
-            var active = students.filter(function (s) {
-                return (s.status || '').toLowerCase() === "active";
-            });
-            var suspended = students.filter(function (s) {
-                return (s.status || '').toLowerCase() === "suspended";
-            });
+            setStat("stat-students", fmt(students.active));
+            setStat("stat-suspended", fmt(students.suspended));
+            setStat("stat-applicants", fmt((applicants || []).length));
 
-            setStat("stat-students", fmt(active.length));
-            setStat("stat-suspended", fmt(suspended.length));
-            setStat("stat-applicants", fmt(applicants.length));
-
-            // Admissions this term (dateOfAdmission in current year)
-            var thisYear = new Date().getFullYear().toString();
-            var newAdm = students.filter(function (s) {
-                return (s.dateOfAdmission || '').startsWith(thisYear);
-            });
-            setStat("stat-admissions", fmt(newAdm.length));
+            // Admissions this term (dateOfAdmission in the current year)
+            setStat("stat-admissions", fmt(students.newAdmissionsThisYear));
 
             // Students by class
-            var byClass = {};
-            students.forEach(function (s) {
-                var c = s.studentClass || "Unknown";
-                byClass[c] = (byClass[c] || 0) + 1;
-            });
-            var classData = Object.keys(byClass).map(function (k) {
-                return {class: k, count: byClass[k]};
-            });
-            makeBar("chart-students-by-class", classData, [{name: "Students", field: "count"}], "class");
+            makeBar("chart-students-by-class", asRows(students.byClass, "class"), [{name: "Students", field: "count"}], "class");
 
             // Gender distribution
-            var genderData = [
-                {
-                    gender: "Male", count: students.filter(function (s) {
-                        return (s.gender || '').toLowerCase() === "male";
-                    }).length
-                },
-                {
-                    gender: "Female", count: students.filter(function (s) {
-                        return (s.gender || '').toLowerCase() === "female";
-                    }).length
-                },
-            ];
-            makeDonut("chart-gender-dist", "Gender", genderData, "count", "gender");
+            makeDonut("chart-gender-dist", "Gender", asRows(students.byGender, "gender"), "count", "gender");
 
             // Status distribution
-            var statusMap = {};
-            students.forEach(function (s) {
-                var st = s.status || "Unknown";
-                statusMap[st] = (statusMap[st] || 0) + 1;
-            });
-            var statusData = Object.keys(statusMap).map(function (k) {
-                return {status: k, count: statusMap[k]};
-            });
-            makeDonut("chart-enrollment-status", "Status", statusData, "count", "status");
+            makeDonut("chart-enrollment-status", "Status", asRows(students.byStatus, "status"), "count", "status");
 
-            // Students by residential locality
-            var locMap = {};
-            students.forEach(function (s) {
-                var loc = (s.residentialLocality || "Unknown").trim();
-                locMap[loc] = (locMap[loc] || 0) + 1;
-            });
-            var locData = Object.keys(locMap)
-                .sort(function (a, b) {
-                    return locMap[b] - locMap[a];
-                })
-                .slice(0, 10)
-                .map(function (k) {
-                    return {locality: k, count: locMap[k]};
-                });
-            makeBar("chart-locality", locData, [{name: "Students", field: "count"}], "locality");
+            // Students by residential locality (top 10)
+            makeBar("chart-locality", asRows(students.topLocalities, "locality"), [{name: "Students", field: "count"}], "locality");
 
         } catch (e) {
             console.error("Admin dashboard error:", e);
@@ -493,74 +355,42 @@
     // ══════════════════════════════════════════════════════════════════════════
     async function loadFinance() {
         try {
-            var [bills, payments, staff] = await Promise.all([
-                fetchPost("get-bills-by-institution", {val: instCode}).catch(function () {
-                    return [];
-                }),
-                fetchPost("get-billPayments-by-institution", {val: instCode}).catch(function () {
-                    return [];
-                }),
-                fetchPost("get-staff-by-institution", {val: instCode}).catch(function () {
-                    return [];
-                }),
-            ]);
+            var summary = await loadSummary(["finance", "staff"]);
+            var finance = summary.finance, staff = summary.staff;
 
             // Total collected
-            var totalCollected = (payments || []).reduce(function (sum, p) {
-                return sum + (parseFloat(p.amountPaid || p.amount || 0));
-            }, 0);
-            setStat("stat-fees-collected", "₵" + fmt(Math.round(totalCollected)));
-            setStat("stat-bills", fmt((bills || []).length));
-            setStat("stat-payroll", fmt((staff || []).length));
+            setStat("stat-fees-collected", finance ? "₵" + fmt(Math.round(finance.totalCollected || 0)) : fmt(undefined));
+            setStat("stat-bills", figure(finance, finance && finance.billCount));
+            setStat("stat-payroll", figure(staff, staff && staff.total));
 
-            // Owing students
-            var owing = (bills || []).filter(function (b) {
-                return parseFloat(b.outstandingBalance || b.outstanding || 0) > 0;
-            });
-            setStat("stat-outstanding", fmt(owing.length));
+            // Students who still owe
+            setStat("stat-outstanding", figure(finance, finance && finance.studentsOwing));
 
-            // Fee collection by class
-            var byClass = {};
-            (payments || []).forEach(function (p) {
-                var c = p.studentClass || "Unknown";
-                byClass[c] = (byClass[c] || 0) + parseFloat(p.amountPaid || p.amount || 0);
-            });
-            var classData = Object.keys(byClass).map(function (k) {
-                return {class: k, amount: Math.round(byClass[k])};
-            });
-            if (classData.length > 0) makeBar("chart-fee-by-class", classData, [{
-                name: "Amount (₵)",
-                field: "amount"
-            }], "class");
+            if (finance) {
+                // Fee collection by class
+                if (finance.collectedByClass && finance.collectedByClass.length > 0) {
+                    makeBar("chart-fee-by-class", finance.collectedByClass.map(function (x) {
+                        return {class: x.label, amount: Math.round(x.amount)};
+                    }), [{name: "Amount (₵)", field: "amount"}], "class");
+                }
 
-            // Owing vs paid donut
-            var owingData = [
-                {status: "Paid", count: (bills || []).length - owing.length},
-                {status: "Owing", count: owing.length},
-            ];
-            makeDonut("chart-owing-paid", "Bill Status", owingData, "count", "status");
+                // Owing vs paid donut
+                var owing = finance.studentsOwing || 0;
+                makeDonut("chart-owing-paid", "Bill Status", [
+                    {status: "Paid", count: Math.max(0, (finance.studentsBilled || 0) - owing)},
+                    {status: "Owing", count: owing},
+                ], "count", "status");
 
-            // Payment methods
-            var methodMap = {};
-            (payments || []).forEach(function (p) {
-                var m = p.paymentMethod || p.method || "Cash";
-                methodMap[m] = (methodMap[m] || 0) + 1;
-            });
-            var methodData = Object.keys(methodMap).map(function (k) {
-                return {method: k, count: methodMap[k]};
-            });
-            if (methodData.length > 0) makeDonut("chart-payment-methods", "Methods", methodData, "count", "method");
+                // Payment methods
+                var methodData = asRows(finance.paymentMethods, "method");
+                if (methodData.length > 0) makeDonut("chart-payment-methods", "Methods", methodData, "count", "method");
+            }
 
             // Staff by department (for salary distribution proxy)
-            var deptMap = {};
-            (staff || []).forEach(function (s) {
-                var d = s.department || "Unknown";
-                deptMap[d] = (deptMap[d] || 0) + 1;
-            });
-            var deptData = Object.keys(deptMap).map(function (k) {
-                return {dept: k, count: deptMap[k]};
-            });
-            if (deptData.length > 0) makeBar("chart-salary-dist", deptData, [{name: "Staff", field: "count"}], "dept");
+            if (staff) {
+                var deptData = asRows(staff.byDepartment, "dept");
+                if (deptData.length > 0) makeBar("chart-salary-dist", deptData, [{name: "Staff", field: "count"}], "dept");
+            }
 
         } catch (e) {
             console.error("Finance dashboard error:", e);
@@ -572,56 +402,25 @@
     // ══════════════════════════════════════════════════════════════════════════
     async function loadHR() {
         try {
-            var staff = await fetchPost("get-staff-by-institution", {val: instCode}).catch(function () {
-                return [];
-            });
+            var summary = await loadSummary(["staff"]);
+            var staff = summary.staff;
+            if (!staff) throw new Error("Staff numbers are not available");
 
-            setStat("stat-staff", fmt((staff || []).length));
+            setStat("stat-staff", fmt(staff.total));
             setStat("stat-on-leave", "—");
             setStat("stat-appraisals", "—");
 
             // Designations
-            var designations = [...new Set((staff || []).map(function (s) {
-                return s.designation;
-            }).filter(Boolean))];
-            setStat("stat-designations", fmt(designations.length));
+            setStat("stat-designations", fmt(staff.designationCount));
 
             // Staff by department
-            var deptMap = {};
-            (staff || []).forEach(function (s) {
-                var d = s.department || "Unknown";
-                deptMap[d] = (deptMap[d] || 0) + 1;
-            });
-            var deptData = Object.keys(deptMap).map(function (k) {
-                return {dept: k, count: deptMap[k]};
-            });
-            makeBar("chart-staff-by-dept", deptData, [{name: "Staff", field: "count"}], "dept");
+            makeBar("chart-staff-by-dept", asRows(staff.byDepartment, "dept"), [{name: "Staff", field: "count"}], "dept");
 
             // Gender ratio
-            var genderData = [
-                {
-                    gender: "Male", count: (staff || []).filter(function (s) {
-                        return (s.gender || '').toLowerCase() === "male";
-                    }).length
-                },
-                {
-                    gender: "Female", count: (staff || []).filter(function (s) {
-                        return (s.gender || '').toLowerCase() === "female";
-                    }).length
-                },
-            ];
-            makeDonut("chart-staff-gender", "Gender", genderData, "count", "gender");
+            makeDonut("chart-staff-gender", "Gender", asRows(staff.byGender, "gender"), "count", "gender");
 
             // Designation distribution
-            var desigMap = {};
-            (staff || []).forEach(function (s) {
-                var d = s.designation || "Unknown";
-                desigMap[d] = (desigMap[d] || 0) + 1;
-            });
-            var desigData = Object.keys(desigMap).map(function (k) {
-                return {desig: k, count: desigMap[k]};
-            });
-            makeDonut("chart-designation", "Designation", desigData, "count", "desig");
+            makeDonut("chart-designation", "Designation", asRows(staff.byDesignation, "desig"), "count", "desig");
 
             // Leave by type — placeholder until leave endpoint added
             var leaveData = [

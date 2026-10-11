@@ -49,6 +49,10 @@ public class StudentUtil {
     // Key format: institutionCode:studentClass
     public static final Map<String, List<Students>> indexedStudents = new ConcurrentHashMap<>();
     public static final Map<String, List<Students>> contactIndex = new ConcurrentHashMap<>();
+    // Longest side, in pixels, of the picture sent to screens that only show an avatar
+    private static final int THUMBNAIL_SIZE = 128;
+    // studentId -> thumbnail of that student's current picture
+    private static final Map<String, PictureThumbnail> thumbnailCache = new ConcurrentHashMap<>();
     public static List<Students> studentsGlobalList;
     public static List<Parents> parentsGlobalList;
     static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -110,6 +114,104 @@ public class StudentUtil {
         return new ArrayList<>(seen.values());
     }
 
+    /**
+     * Small version of the student's picture, for screens that only show an avatar.
+     * Created once per picture and kept in memory; recreated when the picture changes.
+     * Returned in the same form as the stored picture ("<file name>_<mime type>_<base64>").
+     */
+    public static String thumbnailOf(Students s) {
+        String picture = s.getPicture();
+        if (picture == null || picture.isBlank()) return picture;
+
+        PictureThumbnail cached = thumbnailCache.get(s.getStudentId());
+        if (cached != null && cached.source().equals(picture)) return cached.thumbnail();
+
+        String thumbnail = createThumbnail(picture, s.getStudentId());
+        thumbnailCache.put(s.getStudentId(), new PictureThumbnail(picture, thumbnail));
+        return thumbnail;
+    }
+
+    // Falls back to the stored picture if it cannot be read as an image
+    private static String createThumbnail(String picture, String studentId) {
+        try {
+            int dataStart = base64Start(picture);
+            String prefix = picture.substring(0, dataStart);
+            byte[] original = Base64.getMimeDecoder().decode(picture.substring(dataStart));
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            Thumbnails.of(new ByteArrayInputStream(original))
+                    .size(THUMBNAIL_SIZE, THUMBNAIL_SIZE)
+                    .keepAspectRatio(true)
+                    .outputFormat("JPEG")
+                    .outputQuality(0.7)
+                    .toOutputStream(baos);
+
+            // The thumbnail is always a JPEG, so the type named in the prefix is updated to match
+            String thumbnail = prefix.replaceFirst("image/[A-Za-z0-9.+-]+", "image/jpeg")
+                    + Base64.getEncoder().encodeToString(baos.toByteArray());
+            return thumbnail.length() < picture.length() ? thumbnail : picture;
+        } catch (Exception e) {
+            log.warn("Could not create a thumbnail for student {}, sending the stored picture: {}", studentId, e.getMessage());
+            return picture;
+        }
+    }
+
+    // Where the base64 image data begins. Pictures are stored as "<file name>_<mime type>_<base64>";
+    // a data URL ("data:image/jpeg;base64,<base64>") and plain base64 are handled as well.
+    private static int base64Start(String picture) {
+        if (picture.startsWith("data:")) {
+            int comma = picture.indexOf(',');
+            if (comma > 0) return comma + 1;
+        }
+        return picture.lastIndexOf('_') + 1;
+    }
+
+    private static String classKey(Students s) {
+        if (s.getInstitutionCode() == null || s.getStudentClass() == null) return null;
+        return s.getInstitutionCode().toLowerCase() + ":" + s.getStudentClass().toLowerCase();
+    }
+
+    /**
+     * Add one student to the class index, if not already there.
+     */
+    public static void indexStudent(Students s) {
+        String key = classKey(s);
+        if (key == null) return;
+        List<Students> list = indexedStudents.computeIfAbsent(key, k -> new CopyOnWriteArrayList<>());
+        synchronized (list) {
+            boolean present = list.stream().anyMatch(x -> x.getStudentId().equals(s.getStudentId()));
+            if (!present) list.add(s);
+        }
+    }
+
+    /**
+     * Remove one student from a specific class bucket.
+     */
+    public static void unindexStudent(Students s, String oldInstitutionCode, String oldStudentClass) {
+        if (oldInstitutionCode == null || oldStudentClass == null) return;
+        String key = oldInstitutionCode.toLowerCase() + ":" + oldStudentClass.toLowerCase();
+        List<Students> list = indexedStudents.get(key);
+        if (list == null) return;
+        synchronized (list) {
+            list.removeIf(x -> x.getStudentId().equals(s.getStudentId()));
+        }
+    }
+
+    /**
+     * Keep the index correct after an update, including class moves.
+     */
+    public static void reindexStudent(Students s, String oldInstitutionCode, String oldStudentClass) {
+        boolean moved = !String.valueOf(oldInstitutionCode).equalsIgnoreCase(s.getInstitutionCode())
+                || !String.valueOf(oldStudentClass).equalsIgnoreCase(s.getStudentClass());
+        if (moved) unindexStudent(s, oldInstitutionCode, oldStudentClass);
+        if ("Active".equalsIgnoreCase(s.getStatus())) {
+            indexStudent(s);
+        } else {
+            // status moved away from Active — drop it from the index
+            unindexStudent(s, s.getInstitutionCode(), s.getStudentClass());
+        }
+    }
+
     @PostConstruct
     private void fetAllStudents() {
         studentsGlobalList = studentRepository.findStudentsByStatus("Active");
@@ -126,10 +228,7 @@ public class StudentUtil {
     }
 
     public void indexStudents(List<Students> students) {
-        students.forEach(student -> {
-            String key = student.getInstitutionCode().toLowerCase() + ":" + student.getStudentClass().toLowerCase();
-            indexedStudents.computeIfAbsent(key, k -> new ArrayList<>()).add(student);
-        });
+        students.forEach(StudentUtil::indexStudent);
     }
 
     private List<ApplicationRequest> fetchStudents(AdmissionRequest admissionRequest) {
@@ -201,6 +300,7 @@ public class StudentUtil {
         parentRepository.saveAll(parentsList);
 
         studentsGlobalList.addAll(studentsList);
+        studentsList.forEach(StudentUtil::indexStudent);
         parentsGlobalList.addAll(parentsList);
         log.info("{} records have been added to the students list", studentsGlobalList.size());
         return "done";
@@ -234,10 +334,35 @@ public class StudentUtil {
         return id;
     }
 
-    public StudentsResponse mapStudent_ToStudentResponse(Students s) {
+    /**
+     * Parents grouped by student id (lower case), built once for a whole list. Mapping a list of
+     * students used to scan every parent for every student (students x parents comparisons); with
+     * this map each student's parents are looked up directly.
+     */
+    public Map<String, List<Parents>> parentsByStudentId() {
+        Map<String, List<Parents>> byStudent = new HashMap<>();
+        List<Parents> all = parentsGlobalList;
+        if (all == null) return byStudent;
+        for (Parents parent : new ArrayList<>(all)) {
+            if (parent == null || parent.getStudentId() == null) continue;
+            byStudent.computeIfAbsent(parent.getStudentId().toLowerCase(Locale.ROOT), k -> new ArrayList<>(2)).add(parent);
+        }
+        return byStudent;
+    }
 
-        List<ParentsResponse> p = parentsGlobalList.parallelStream()
-                .filter(sp -> sp.getStudentId().equalsIgnoreCase(s.getStudentId()))
+    public StudentsResponse mapStudent_ToStudentResponse(Students s) {
+        return mapStudent_ToStudentResponse(s, null);
+    }
+
+    /**
+     * @param parentsByStudent from {@link #parentsByStudentId()}; pass null to look this one student's parents up directly
+     */
+    public StudentsResponse mapStudent_ToStudentResponse(Students s, Map<String, List<Parents>> parentsByStudent) {
+
+        List<ParentsResponse> p = (parentsByStudent == null
+                ? parentsGlobalList.stream().filter(sp -> sp.getStudentId().equalsIgnoreCase(s.getStudentId())).toList()
+                : parentsByStudent.getOrDefault(String.valueOf(s.getStudentId()).toLowerCase(Locale.ROOT), Collections.emptyList()))
+                .stream()
                 .map(this::mapParent_ToParentResponse)
                 .toList();
 
@@ -268,6 +393,19 @@ public class StudentUtil {
                 .studentParents(p)
                 .studentSubjectsResponse(ss)
                 .build();
+    }
+
+    // The same record without the photo and birth certificate, for callers that only need the
+    // details. Those two fields are what make a student record heavy.
+    public StudentsResponse mapStudent_ToStudentResponseWithoutImages(Students s) {
+        return mapStudent_ToStudentResponseWithoutImages(s, null);
+    }
+
+    public StudentsResponse mapStudent_ToStudentResponseWithoutImages(Students s, Map<String, List<Parents>> parentsByStudent) {
+        StudentsResponse response = mapStudent_ToStudentResponse(s, parentsByStudent);
+        response.setPicture(null);
+        response.setBirthCert(null);
+        return response;
     }
 
     public StudentSkimResponse mapStudent_ToSkimpStudentResponse(Students s) {
@@ -322,7 +460,7 @@ public class StudentUtil {
 
     public StudentSkimWithParentResponse mapStudent_ToStudentSkimWithParentResponse(Students s) {
 
-        List<ParentsResponse> p = parentsGlobalList.parallelStream()
+        List<ParentsResponse> p = parentsGlobalList.stream()
                 .filter(sp -> sp.getStudentId().equalsIgnoreCase(s.getStudentId()))
                 .map(this::mapParent_ToParentResponse)
                 .toList();
@@ -330,8 +468,8 @@ public class StudentUtil {
 
         InstitutionRequest ir = parentsUtil.getSkimpInstitution(s.getInstitutionCode());
         return StudentSkimWithParentResponse.builder()
-                .institutionCode(ir.getBececode())
-                .institutionName(ir.getName())
+                .institutionCode(ir != null ? ir.getBececode() : null)
+                .institutionName(ir != null ? ir.getName() : null)
                 .studentId(s.getStudentId())
                 .dateOfAdmission(String.valueOf(s.getDateOfAdmission()))
                 .lastName(s.getLastName())
@@ -341,7 +479,7 @@ public class StudentUtil {
                 .denomination(s.getDenomination())
                 .residentialLocality(s.getResidentialLocality())
                 .otherName(s.getOtherName())
-                .picture(s.getPicture())
+                .picture(thumbnailOf(s))
                 .status(s.getStatus())
                 .studentClass(s.getStudentClass())
                 .parents(p)
@@ -581,7 +719,9 @@ public class StudentUtil {
                 newStudents::setStudentSubjects);
 
         studentRepository.save(newStudents);
+        indexStudent(newStudents);
         studentsGlobalList.add(newStudents);
+        registerParents(newStudents.getParentsList());
 
         return Optional.of(mapStudent_ToStudentResponse(newStudents));
     }
@@ -617,6 +757,7 @@ public class StudentUtil {
                 newStudents::setStudentSubjects);*/
 
         studentRepository.save(newStudents);
+        StudentUtil.indexStudent(newStudents);
         studentsGlobalList.add(newStudents);
 
         return Optional.of(mapStudent_ToStudentResponse(newStudents));
@@ -624,6 +765,10 @@ public class StudentUtil {
 
     public Optional<StudentsResponse> updateExistingStudents(StudentsImportRequest studentsImportRequest, Students existingStudent)
             throws URISyntaxException, IOException {
+
+
+        String oldInstitutionCode = existingStudent.getInstitutionCode();
+        String oldStudentClass = existingStudent.getStudentClass();
 
         // 1. Update basic student info (preserving the same studentId)
         Students updatedStudents = mapStudentsRequest_To_Students(studentsImportRequest, existingStudent);
@@ -669,11 +814,17 @@ public class StudentUtil {
         );
 
         studentRepository.save(updatedStudents);
+        reindexStudent(updatedStudents, oldInstitutionCode, oldStudentClass);
+        registerParents(updatedStudents.getParentsList());
         return Optional.of(mapStudent_ToStudentResponse(updatedStudents));
     }
 
     public Optional<StudentsResponse> updateExistingStudents(Students2Request studentsImportRequest, Students existingStudent)
             throws URISyntaxException, IOException {
+
+
+        String oldInstitutionCode = existingStudent.getInstitutionCode();
+        String oldStudentClass = existingStudent.getStudentClass();
 
         // 1. Update basic student info (preserving the same studentId)
         Students updatedStudents = mapStudentsRequest_To_Students(studentsImportRequest, existingStudent);
@@ -703,7 +854,36 @@ public class StudentUtil {
         );
 
         studentRepository.save(updatedStudents);
+        reindexStudent(updatedStudents, oldInstitutionCode, oldStudentClass);
         return Optional.of(mapStudent_ToStudentResponse(updatedStudents));
+    }
+
+    /**
+     * Decides whether an incoming ParentsRequest refers to an already-existing Parents
+     * record for this student, so partial updates don't get misread as brand-new parents
+     * (which is what was causing duplicate parent records).
+     * <p>
+     * Falls through several identifiers in order of reliability, since most incoming
+     * requests won't have an `id` set:
+     * 1. id            - exact match, most reliable when the client has it
+     * 2. contact1       - phone numbers are effectively unique per person and rarely blank
+     * 3. email          - decent fallback when contact1 is missing
+     * 4. parentType+firstNames+lastName - last resort, weakest signal, but still better
+     * than parentType alone (which collides whenever a student has
+     * two parents of the same type, e.g. two "Biological" parents).
+     */
+
+    // Makes saved parents usable straight away, without a restart: adds any that are new to the
+    // parent list the responses are built from, and to the contact lookup the mobile app uses.
+    // Call it once the student is in studentsGlobalList - the contact lookup finds the student there.
+    private void registerParents(List<Parents> parents) {
+        if (parents == null || parents.isEmpty()) return;
+        parents.forEach(parent -> {
+            if (!parentsGlobalList.contains(parent)) parentsGlobalList.add(parent);
+            indexContact(parent.getContact1(), parent.getStudentId());
+            indexContact(parent.getContact2(), parent.getStudentId());
+            indexContact(parent.getEmail(), parent.getStudentId());
+        });
     }
 
     private <T, R> void processRecords(List<T> records,
@@ -745,20 +925,6 @@ public class StudentUtil {
         }
     }
 
-    /**
-     * Decides whether an incoming ParentsRequest refers to an already-existing Parents
-     * record for this student, so partial updates don't get misread as brand-new parents
-     * (which is what was causing duplicate parent records).
-     * <p>
-     * Falls through several identifiers in order of reliability, since most incoming
-     * requests won't have an `id` set:
-     * 1. id            - exact match, most reliable when the client has it
-     * 2. contact1       - phone numbers are effectively unique per person and rarely blank
-     * 3. email          - decent fallback when contact1 is missing
-     * 4. parentType+firstNames+lastName - last resort, weakest signal, but still better
-     *                      than parentType alone (which collides whenever a student has
-     *                      two parents of the same type, e.g. two "Biological" parents).
-     */
     /**
      * Decides whether an incoming ParentsRequest refers to an already-existing Parents
      * record for this student.
@@ -856,4 +1022,6 @@ public class StudentUtil {
         void accept(T t, U u, V v);
     }
 
+    private record PictureThumbnail(String source, String thumbnail) {
+    }
 }

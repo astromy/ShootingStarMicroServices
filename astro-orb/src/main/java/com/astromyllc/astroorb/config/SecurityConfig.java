@@ -72,7 +72,22 @@ public class SecurityConfig {
                 // Require authentication for all requests
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/public/**", "/resources/**", "/error").permitAll()
+                        .requestMatchers(
+                                "/public/**",
+                                "/resources/**",
+                                "/static/**",
+                                "/styles/**",
+                                "/css/**",
+                                "/js/**",
+                                "/images/**",
+                                "/img/**",
+                                "/fonts/**",
+                                "/assets/**",
+                                "/webjars/**",
+                                "/favicon.ico",
+                                "/robots.txt",
+                                "/manifest.json"
+                        ).permitAll()
                         .requestMatchers(HttpMethod.POST, "/webhook/subscriptionPaymentStatus").permitAll()
                         .requestMatchers("/api/applications/applicationDocuments/**").permitAll()
                         .requestMatchers("/api/**").authenticated()

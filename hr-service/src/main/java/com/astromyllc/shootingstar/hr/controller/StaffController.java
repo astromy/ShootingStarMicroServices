@@ -3,6 +3,7 @@ package com.astromyllc.shootingstar.hr.controller;
 import com.astromyllc.shootingstar.hr.dto.request.*;
 import com.astromyllc.shootingstar.hr.dto.request.api.StaffCodeRequest;
 import com.astromyllc.shootingstar.hr.dto.response.StaffContactResponse;
+import com.astromyllc.shootingstar.hr.dto.response.StaffPermissionsResponse;
 import com.astromyllc.shootingstar.hr.dto.response.StaffResponse;
 import com.astromyllc.shootingstar.hr.serviceInterface.PushTokenServiceInterface;
 import com.astromyllc.shootingstar.hr.serviceInterface.StaffServiceInterface;
@@ -47,6 +48,17 @@ public class StaffController {
     public Optional<StaffResponse> AddStaffPermissions(@RequestBody List<StaffPermissionsRequest> staffPermissionsRequests) throws IOException, URISyntaxException {
         log.info("hr received {} records of StaffPermissions", staffPermissionsRequests);
         return staffServiceInterface.addStaffPermissions(staffPermissionsRequests);
+    }
+
+    // Previously missing entirely - the ORB proxy's "get-permissions-by-staff"
+    // route has always forwarded here, but nothing on the backend answered
+    // it, so the "Manage Permissions" modal's pre-check (fetchExistingPermissions
+    // in _permissions.js) silently got nothing back every time.
+    @PostMapping
+    @RequestMapping("/api/hr/getPermissionsByStaff")
+    @ResponseStatus(HttpStatus.OK)
+    public List<StaffPermissionsResponse> GetPermissionsByStaff(@RequestBody SingleStringRequest request) {
+        return staffServiceInterface.getPermissionsByStaff(request.getVal());
     }
 
     @PostMapping

@@ -3,7 +3,7 @@ id = "";
 var keys, studentsJson, url;
 var studentsSheet;
 var v;
-//fetchLookup(instId.split(",")[0])
+fetchLookup(instId.split(",")[0]);
 var elm = document.querySelector(".studentsUploadBtn");
 elm.addEventListener("click", function () {
     document.querySelector("#studentsInput").click();
@@ -240,6 +240,7 @@ document
     });
 
 function populateClasses(data) {
+    $(".classSelect option:not(:eq(0))").remove();
     data.forEach(function (d) {
         var classOptions = document.querySelector(".classSelect")[0];
         var details = $("<option>").val(d.name).text(d.name);
@@ -261,12 +262,14 @@ async function fetchLookup(instId) {
 
 function populateClassGroup(data) {
     data.forEach(function (d) {
-        var details = $("<option>").val(d.id).text(d.name);
+        // Use d.name as value so the payload receives the group name, not the id
+        var details = $("<option>").val(d.name).text(d.name);
         $(".classGroupSelect").append(details);
     });
 }
 
 function populateSubjectsOptions(data) {
+    $(".subjectSelect option:not(:eq(0))").remove();
     data.forEach(function (d) {
         var details = $("<option>").val(d.id).text(d.name);
         $(".subjectSelect").append(details);

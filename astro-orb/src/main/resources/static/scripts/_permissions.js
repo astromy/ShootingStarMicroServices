@@ -13,6 +13,13 @@ id = null;
 window.copyrights();
 
 $(".savePermissions").click(async function () {
+    // Boxes now open pre-checked, so Save can be clicked with nothing changed -
+    // there is nothing to send, just close.
+    if (staffPermissionList.length === 0) {
+        $(".dismissPermissions").click();
+        return;
+    }
+
     $('.splash').css({'display': 'block', 'background': '#ffffff3d'}).find('h1, p').remove();
     return fetchPost("addStaffPermissions", staffPermissionList).then(function (
         result
@@ -24,6 +31,31 @@ $(".savePermissions").click(async function () {
             title: "Thank you!",
             text: "Your application is being submitted",
             type: "success",
+        });
+    }).catch(function (error) {
+        // Without this a failed save left the loading overlay up forever.
+        $('.splash').css('display', 'none');
+
+        // The server sends a readable reason with a 409 (e.g. the staff
+        // member's email already belongs to another login). Anything else is
+        // an unexpected failure, so keep the generic wording for those.
+        var detail = "The server rejected this change. Your selections are still on screen - try again, or check the HR service log if it keeps failing.";
+        try {
+            var raw = String((error && error.message) || "");
+            if (raw.indexOf("HTTP 409") !== -1) {
+                var parsed = JSON.parse(raw.slice(raw.indexOf("{")));
+                if (parsed && parsed.error) {
+                    detail = parsed.error;
+                }
+            }
+        } catch (ignored) {
+            // fall back to the generic message
+        }
+
+        swal({
+            title: "Could not save permissions",
+            text: detail,
+            type: "error",
         });
     });
 });
@@ -146,12 +178,27 @@ function populateUsersTable(data) {
 
 // Whole row is clickable, and so is the button inside it - both resolve to
 // the same staffCode via the row's data attribute, so either works.
-$(document).on("click", "#permissionsTable tbody tr", function (event) {
-    var staffCode = $(this).data("staff-code");
-    if (staffCode) {
-        openPermissionsFor(String(staffCode));
+//
+// Namespaced + unbound-before-bound on purpose: this script gets re-injected
+// as a fresh <script> tag every time the Permissions menu item is clicked
+// (see common.js's removeUnwantedResources/addNewResources), but removing a
+// <script> tag doesn't undo $(document).on(...) bindings it already made -
+// those live in jQuery's event registry independently of the tag. Without
+// the .off() here, every re-visit stacks another identical handler on top
+// of the last, so a single click fires openPermissionsFor() once per visit
+// so far in the session - and since each call toggles the modal open via
+// document.getElementById("modalopn").click(), two stacked handlers means
+// one click opens it and immediately closes it again.
+$(document).off("click.managePermissions").on(
+    "click.managePermissions",
+    "#permissionsTable tbody tr",
+    function (event) {
+        var staffCode = $(this).data("staff-code");
+        if (staffCode) {
+            openPermissionsFor(String(staffCode));
+        }
     }
-});
+);
 
 function openPermissionsFor(staffCode) {
     // Open the modal first - this rebuilds the tabs/checkboxes fresh via

@@ -19,4 +19,11 @@ public interface LedgerRecordsRepository extends JpaRepository<LedgerRecords, Lo
 
     /** Idempotency check: has this source event already been posted? */
     Optional<LedgerRecords> findBySourceReferenceAndSourceType(String sourceReference, String sourceType);
+
+    /**
+     * Idempotency check for double-entry journals (LedgerPostingService): a
+     * journal's lines share one sourceReference, so this checks existence
+     * rather than expecting a single row.
+     */
+    boolean existsByInstitutionCodeAndSourceTypeAndSourceReference(String institutionCode, String sourceType, String sourceReference);
 }

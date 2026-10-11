@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/stores")
+@RequestMapping("/api/stores_inventory")
 @RequiredArgsConstructor
 @Slf4j
 public class StoreOrderController {
@@ -67,13 +67,17 @@ public class StoreOrderController {
         return storeOrderService.getOrderByRef(orderRef);
     }
 
-    /** All orders for an institution (optional status/channel filter) */
+    /**
+     * All orders for an institution (optional status/channel filter)
+     */
     @PostMapping("/orders/get-by-institution")
     public List<StoreOrderResponse> getByInstitution(@RequestBody StoreFetchRequest request) {
         return storeOrderService.getOrdersByInstitution(request);
     }
 
-    /** All orders placed by a specific buyer (applicant self-service) */
+    /**
+     * All orders placed by a specific buyer (applicant self-service)
+     */
     @GetMapping("/orders/buyer/{institutionCode}/{buyerId}")
     public List<StoreOrderResponse> getByBuyer(
             @PathVariable String institutionCode,
@@ -81,7 +85,9 @@ public class StoreOrderController {
         return storeOrderService.getOrdersByBuyer(institutionCode, buyerId);
     }
 
-    /** Admin/cron: retry ledger posts for fulfilled orders that failed to post */
+    /**
+     * Admin/cron: retry ledger posts for fulfilled orders that failed to post
+     */
     @PostMapping("/orders/retry-ledger/{institutionCode}")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void retryLedger(@PathVariable String institutionCode) {

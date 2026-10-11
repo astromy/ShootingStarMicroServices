@@ -63,7 +63,6 @@
             '<div class="hr-tabs">',
             '<button class="hr-tab active" data-tab="attendance"><i class="fas fa-clock"></i> Attendance</button>',
             '<button class="hr-tab" data-tab="leave"><i class="fas fa-calendar-minus"></i> Leave</button>',
-            '<button class="hr-tab" data-tab="approval"><i class="fas fa-check-circle"></i> Approvals</button>',
             '<button class="hr-tab" data-tab="documents"><i class="fas fa-folder-open"></i> Documents</button>',
             '</div>',
 
@@ -201,31 +200,6 @@
 
             '</div>', // end leave tab
 
-            // ── APPROVALS TAB ─────────────────────────────────────────────
-            '<div id="tab-approval" class="hr-tab-content" style="display:none">',
-            '<div class="hr-panel">',
-            '<div class="hr-panel-head">',
-            '<span><i class="fas fa-tasks"></i>Pending Leave Approvals</span>',
-            '<button class="hr-btn hr-btn-secondary hr-btn-sm" id="hrRefreshApprovalsBtn">',
-            '<i class="fas fa-sync-alt"></i> Refresh',
-            '</button>',
-            '</div>',
-            '<div class="hr-panel-body">',
-            '<div class="hr-table-wrap">',
-            '<table class="hr-table">',
-            '<thead><tr>',
-            '<th>Employee</th><th>Type</th><th>From</th><th>To</th>',
-            '<th>Days</th><th>Reason</th><th>Status</th><th>Action</th>',
-            '</tr></thead>',
-            '<tbody id="hrApprovalBody">',
-            '<tr><td colspan="8"><div class="hr-empty"><i class="fas fa-check-circle"></i>No pending approvals</div></td></tr>',
-            '</tbody>',
-            '</table>',
-            '</div>',
-            '</div>',
-            '</div>',
-            '</div>', // end approval tab
-
             // ── DOCUMENTS TAB ─────────────────────────────────────────────
             '<div id="tab-documents" class="hr-tab-content" style="display:none">',
             '<div class="hr-panel">',
@@ -348,28 +322,6 @@
             '<button class="hr-btn hr-btn-success hr-btn-sm"   id="hrDocModalUpload">',
             '<i class="fas fa-upload"></i> Upload',
             '</button>',
-            '</div>',
-            '</div>',
-            '</div>',
-
-            // APPROVAL ACTION MODAL
-            '<div class="hr-modal-overlay" id="hrApprovalModal">',
-            '<div class="hr-modal">',
-            '<div class="hr-modal-header">',
-            '<h5><i class="fas fa-check-circle"></i> Leave Action</h5>',
-            '<button class="hr-modal-close" id="hrApprovalModalClose">&times;</button>',
-            '</div>',
-            '<div class="hr-modal-body">',
-            '<div id="hrApprovalDetail" style="background:#eef1f8;border-radius:8px;padding:14px;font-size:.9rem;line-height:1.9"></div>',
-            '<div class="hr-field">',
-            '<label>Remarks (optional)</label>',
-            '<textarea id="hrApprovalRemarks" placeholder="Add remarks…"></textarea>',
-            '</div>',
-            '</div>',
-            '<div class="hr-modal-footer">',
-            '<button class="hr-btn hr-btn-secondary hr-btn-sm" id="hrApprovalModalClose2">Cancel</button>',
-            '<button class="hr-btn hr-btn-danger   hr-btn-sm" id="hrRejectBtn"><i class="fas fa-times-circle"></i> Reject</button>',
-            '<button class="hr-btn hr-btn-success  hr-btn-sm" id="hrApproveBtn"><i class="fas fa-check-circle"></i> Approve</button>',
             '</div>',
             '</div>',
             '</div>',
@@ -529,7 +481,7 @@
             return;
         }
         tbody.innerHTML = requests.map(function (r) {
-            var days = window.hrDaysBetween(r.startDate, r.endDate);
+            var days = r.days != null ? r.days : window.hrDaysBetween(r.startDate, r.endDate);
             return '<tr>' +
                 '<td><span class="hr-badge ' + window.hrGetLeaveTypeClass(r.leaveType) + '">' + (r.leaveType || "—") + '</span></td>' +
                 '<td>' + window.hrFormatDate(r.startDate) + '</td>' +
@@ -541,53 +493,6 @@
                 '</tr>';
         }).join("");
     }
-
-    // ─── RENDER: APPROVAL QUEUE ───────────────────────────────────────────────
-    var _pendingApproval = null;
-
-    function renderApprovalQueue(requests) {
-        var tbody = document.getElementById("hrApprovalBody");
-        if (!tbody) return;
-        var pending = (requests || []).filter(function (r) {
-            return r.status === "Pending" || !r.status;
-        });
-        if (!pending.length) {
-            tbody.innerHTML = '<tr><td colspan="8"><div class="hr-empty"><i class="fas fa-check-circle"></i>No pending approvals</div></td></tr>';
-            return;
-        }
-        tbody.innerHTML = pending.map(function (r) {
-            var days = window.hrDaysBetween(r.startDate, r.endDate);
-            return '<tr>' +
-                '<td><strong>' + (r.employeeName || r.employeeId || "—") + '</strong></td>' +
-                '<td>' + (r.leaveType || "—") + '</td>' +
-                '<td>' + window.hrFormatDate(r.startDate) + '</td>' +
-                '<td>' + window.hrFormatDate(r.endDate) + '</td>' +
-                '<td>' + days + '</td>' +
-                '<td>' + (r.reason || "—") + '</td>' +
-                '<td><span class="hr-badge pending">Pending</span></td>' +
-                '<td>' +
-                '<button class="hr-btn hr-btn-sm hr-btn-primary" data-id="' + r.leaveId + '" ' +
-                'data-json=\'' + JSON.stringify(r) + '\' onclick="hrOpenApproval(this)">' +
-                '<i class="fas fa-eye"></i> Review' +
-                '</button>' +
-                '</td>' +
-                '</tr>';
-        }).join("");
-    }
-
-    // Exposed globally for inline onclick
-    window.hrOpenApproval = function (btn) {
-        var data = JSON.parse(btn.getAttribute("data-json"));
-        _pendingApproval = data;
-        var days = window.hrDaysBetween(data.startDate, data.endDate);
-        document.getElementById("hrApprovalDetail").innerHTML =
-            '<strong>Employee:</strong> ' + (data.employeeName || data.employeeId) + '<br>' +
-            '<strong>Leave Type:</strong> ' + data.leaveType + '<br>' +
-            '<strong>Period:</strong> ' + window.hrFormatDate(data.startDate) + ' – ' + window.hrFormatDate(data.endDate) + ' (' + days + ' days)<br>' +
-            '<strong>Reason:</strong> ' + (data.reason || "—");
-        document.getElementById("hrApprovalRemarks").value = "";
-        document.getElementById("hrApprovalModal").classList.add("open");
-    };
 
     // ─── RENDER: DOCUMENTS TABLE ──────────────────────────────────────────────
     function renderDocuments(docs) {
@@ -654,10 +559,6 @@
                 // Load data on tab switch
                 if (target === "leave") {
                     loadLeaveData();
-                } else if (target === "approval") {
-                    window.hrFetchLeaveRequests("").then(function (data) {
-                        renderApprovalQueue(data);
-                    });
                 } else if (target === "documents") {
                     var empId = window.hrState.currentEmployee
                         ? window.hrState.currentEmployee.id : "";
@@ -677,8 +578,8 @@
                 if (typeof swal === "function") {
                     swal({title: "Checked In!", text: "Have a productive day.", type: "success"});
                 }
-            }).catch(function () {
-                toast("Check-in failed.", "error");
+            }).catch(function (err) {
+                toast(window.hrErrorMessage(err, "Check-in failed."), "error");
             });
         });
 
@@ -689,8 +590,8 @@
                     "Checked out at " + new Date().toLocaleTimeString("en-GB");
                 document.getElementById("hrCheckOutBtn").disabled = true;
                 toast("Checked out successfully.");
-            }).catch(function () {
-                toast("Check-out failed.", "error");
+            }).catch(function (err) {
+                toast(window.hrErrorMessage(err, "Check-out failed."), "error");
             });
         });
 
@@ -709,23 +610,21 @@
             toast("Refreshed.");
         });
 
-        // Refresh approvals
-        document.getElementById("hrRefreshApprovalsBtn").addEventListener("click", function () {
-            window.hrFetchLeaveRequests("").then(renderApprovalQueue);
-        });
-
         // Apply leave button
         document.getElementById("hrApplyLeaveBtn").addEventListener("click", function () {
             openModal("hrLeaveModal");
         });
 
         // Auto-calculate days
-        ["hrLeaveFrom", "hrLeaveTo"].forEach(function (id) {
+        ["hrLeaveFrom", "hrLeaveTo", "hrLeaveType"].forEach(function (id) {
             document.getElementById(id).addEventListener("change", function () {
                 var from = document.getElementById("hrLeaveFrom").value;
                 var to = document.getElementById("hrLeaveTo").value;
                 if (from && to) {
-                    var days = window.hrDaysBetween(from, to);
+                    var type = document.getElementById("hrLeaveType").value;
+                    var days = type === "Maternity"
+                        ? window.hrCalendarDaysBetween(from, to)
+                        : window.hrDaysBetween(from, to);
                     document.getElementById("hrLeaveDays").value = days + " day(s)";
                 }
             });
@@ -764,8 +663,8 @@
                     });
                 }
                 loadLeaveData();
-            }).catch(function () {
-                toast("Submission failed.", "error");
+            }).catch(function (err) {
+                toast(window.hrErrorMessage(err, "Submission failed."), "error");
             });
         });
 
@@ -856,11 +755,12 @@
             var empId = window.hrState.currentEmployee
                 ? window.hrState.currentEmployee.id : "";
 
-            // Read file as base64
+            // Read file as base64 (the name follows the file if it was converted to JPEG)
+            var uploadName = file.name;
             var reader = new FileReader();
             reader.onload = function (ev) {
                 var base64 = ev.target.result.split(",")[1];
-                window.hrUploadDocument(empId, type, name, base64, file.name)
+                window.hrUploadDocument(empId, type, name, base64, uploadName)
                     .then(function () {
                         closeModal("hrDocModal");
                         toast("Document uploaded successfully.");
@@ -870,7 +770,11 @@
                         toast("Upload failed.", "error");
                     });
             };
-            reader.readAsDataURL(file);
+            // Photos of documents are shrunk first; PDFs and Word files pass through unchanged.
+            window.compressImageFile(file, { maxSize: 1600, quality: 0.85 }).then(function (out) {
+                uploadName = out.name;
+                reader.readAsDataURL(out);
+            });
         });
 
         // Doc modal close
@@ -881,42 +785,6 @@
             closeModal("hrDocModal");
         });
 
-        // Approval actions
-        document.getElementById("hrApproveBtn").addEventListener("click", function () {
-            if (!_pendingApproval) return;
-            var remarks = document.getElementById("hrApprovalRemarks").value;
-            window.hrApproveLeave(_pendingApproval.leaveId, "Approved", remarks)
-                .then(function () {
-                    closeModal("hrApprovalModal");
-                    toast("Leave approved.");
-                    window.hrFetchLeaveRequests("").then(renderApprovalQueue);
-                }).catch(function () {
-                toast("Action failed.", "error");
-            });
-        });
-
-        document.getElementById("hrRejectBtn").addEventListener("click", function () {
-            if (!_pendingApproval) return;
-            var remarks = document.getElementById("hrApprovalRemarks").value;
-            window.hrApproveLeave(_pendingApproval.leaveId, "Rejected", remarks)
-                .then(function () {
-                    closeModal("hrApprovalModal");
-                    toast("Leave rejected.");
-                    window.hrFetchLeaveRequests("").then(renderApprovalQueue);
-                }).catch(function () {
-                toast("Action failed.", "error");
-            });
-        });
-
-        document.getElementById("hrApprovalModalClose").addEventListener("click", function () {
-            closeModal("hrApprovalModal");
-        });
-        document.getElementById("hrApprovalModalClose2").addEventListener("click", function () {
-            closeModal("hrApprovalModal");
-        });
-        document.getElementById("hrApprovalModal").addEventListener("click", function (e) {
-            if (e.target === e.currentTarget) closeModal("hrApprovalModal");
-        });
     }
 
     // ─── DATA LOADERS ─────────────────────────────────────────────────────────

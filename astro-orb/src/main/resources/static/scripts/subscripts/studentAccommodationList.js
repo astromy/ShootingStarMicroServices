@@ -3,7 +3,7 @@
 // simple filter to narrow to one block.
 
 document.getElementById("wrapper").innerHTML =
-    '<div class="fc-page" id="studentListPage">' + [
+    '<div class="content animate-panel" id="studentListPage">' + [
         '<div class="row">',
         '  <div class="col-lg-12">',
         '    <div class="hpanel">',

@@ -25,18 +25,33 @@ public class BillService implements BillServiceInterface {
 
     private final BillRepository billRepository;
     private final BillUtil billUtil;
+    private final LedgerPostingService ledgerPostingService;
     @Override
     public Optional<BillResponse> createBill(BillRequest billRequest) {
-        Optional<Bill> bill= BillUtil.billGlobalList.stream().filter(b->b.getInstitutionCode().equalsIgnoreCase(billRequest.getInstitutionCode())).findFirst();
+        // Match on the bill name too - matching on the school alone updated the
+        // school's first bill instead of creating a new one.
+        Optional<Bill> bill= BillUtil.billGlobalList.stream().filter(b->b.getInstitutionCode().equalsIgnoreCase(billRequest.getInstitutionCode())
+                && b.getBill_Name() != null && b.getBill_Name().equalsIgnoreCase(billRequest.getBill_Name())).findFirst();
         if(bill.isEmpty()){
             Bill bill1=billUtil.mapBillRequest_ToBill(billRequest);
             billRepository.save(bill1);
             BillUtil.billGlobalList.add(bill1);
+            ensureLedgerAccount(bill1);
             return Optional.ofNullable(billUtil.mapBill_ToBillResponse(bill1));
         }else{
             billRepository.save(billUtil.mapBillRequest_ToBill(billRequest,bill.get()));
+            ensureLedgerAccount(bill.get());
         }
         return Optional.empty();
+    }
+
+    /** Every bill item gets its own income account in the ledger ("Fees – <item>"). */
+    private void ensureLedgerAccount(Bill bill) {
+        try {
+            ledgerPostingService.ensureBillItemAccount(bill.getInstitutionCode(), bill.getBill_Name());
+        } catch (Exception e) {
+            log.error("Ledger: couldn't create the account for bill item '{}' at {}", bill.getBill_Name(), bill.getInstitutionCode(), e);
+        }
     }
 
     @Override
@@ -61,6 +76,7 @@ public class BillService implements BillServiceInterface {
                 .toList();
 
         billRepository.saveAll(updatedBills);
+        updatedBills.forEach(this::ensureLedgerAccount);
 
         // Map the updated bills to BillResponse
         List<BillResponse> billResponses = BillUtil.billGlobalList.stream()

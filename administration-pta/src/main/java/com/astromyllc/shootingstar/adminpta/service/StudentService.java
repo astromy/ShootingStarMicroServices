@@ -3,6 +3,7 @@ package com.astromyllc.shootingstar.adminpta.service;
 import com.astromyllc.shootingstar.adminpta.dto.request.*;
 import com.astromyllc.shootingstar.adminpta.dto.request.alien.DynamicStringRequestUtil;
 import com.astromyllc.shootingstar.adminpta.dto.response.*;
+import com.astromyllc.shootingstar.adminpta.model.Parents;
 import com.astromyllc.shootingstar.adminpta.model.Students;
 import com.astromyllc.shootingstar.adminpta.serviceInterface.StudentServiceInterface;
 import com.astromyllc.shootingstar.adminpta.util.StudentUtil;
@@ -59,16 +60,18 @@ public class StudentService implements StudentServiceInterface {
 
     @Override
     public Optional<List<StudentsResponse>> fetchAllStudents() {
+        Map<String, List<Parents>> parents = studentUtil.parentsByStudentId();
         return Optional.of(StudentUtil.studentsGlobalList.stream()
-                .map(studentUtil::mapStudent_ToStudentResponse).toList());
+                .map(st -> studentUtil.mapStudent_ToStudentResponse(st, parents)).toList());
     }
 
     @Override
     public Optional<List<StudentsResponse>> fetchStudentsByClass(DynamicStringRequest request) {
         String className = DynamicStringRequestUtil.getValue(request, "className");
+        Map<String, List<Parents>> parents = studentUtil.parentsByStudentId();
         return Optional.of(StudentUtil.studentsGlobalList.stream()
                 .filter(st -> st.getStudentClass().equalsIgnoreCase(className))
-                .map(studentUtil::mapStudent_ToStudentResponse).toList());
+                .map(st -> studentUtil.mapStudent_ToStudentResponse(st, parents)).toList());
     }
 
     @Override
@@ -144,15 +147,25 @@ public class StudentService implements StudentServiceInterface {
 
     @Override
     public Optional<List<StudentsResponse>> fetchStudentsByStatus(SingleStringRequest status) {
+        Map<String, List<Parents>> parents = studentUtil.parentsByStudentId();
         return Optional.of(StudentUtil.studentsGlobalList.stream().filter(x -> x.getStatus().equalsIgnoreCase(status.getVal()))
-                .map(studentUtil::mapStudent_ToStudentResponse).toList()
+                .map(st -> studentUtil.mapStudent_ToStudentResponse(st, parents)).toList()
         );
     }
 
     @Override
     public Optional<List<StudentsResponse>> fetchStudentsByInstitution(SingleStringRequest institution) {
+        Map<String, List<Parents>> parents = studentUtil.parentsByStudentId();
         return Optional.of(StudentUtil.studentsGlobalList.stream().filter(x -> x.getInstitutionCode().equalsIgnoreCase(institution.getVal()))
-                .map(studentUtil::mapStudent_ToStudentResponse).toList()
+                .map(st -> studentUtil.mapStudent_ToStudentResponse(st, parents)).toList()
+        );
+    }
+
+    @Override
+    public Optional<List<StudentsResponse>> fetchStudentsByInstitutionWithoutImages(SingleStringRequest institution) {
+        Map<String, List<Parents>> parents = studentUtil.parentsByStudentId();
+        return Optional.of(StudentUtil.studentsGlobalList.stream().filter(x -> x.getInstitutionCode().equalsIgnoreCase(institution.getVal()))
+                .map(st -> studentUtil.mapStudent_ToStudentResponseWithoutImages(st, parents)).toList()
         );
     }
 
@@ -181,6 +194,7 @@ public class StudentService implements StudentServiceInterface {
                 // Add other types as needed
         );
 
+        Map<String, List<Parents>> parents = studentUtil.parentsByStudentId();
         List<StudentsResponse> result = StudentUtil.studentsGlobalList.stream()
                 .filter(student -> {
                     for (int i = 0; i < institution.getKey().size(); i++) {
@@ -212,7 +226,7 @@ public class StudentService implements StudentServiceInterface {
                     }
                     return true;
                 })
-                .map(studentUtil::mapStudent_ToStudentResponse)
+                .map(st -> studentUtil.mapStudent_ToStudentResponse(st, parents))
                 .toList();
 
         return result.isEmpty() ? Optional.empty() : Optional.of(result);

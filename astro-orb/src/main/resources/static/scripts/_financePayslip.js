@@ -98,9 +98,7 @@
             }).join('');
         }
         if (year && !year.options.length) {
-            year.innerHTML = s.academicYears.map(function (y) {
-                return '<option>' + y + '</option>';
-            }).join('');
+            year.innerHTML = s.academicYears.map(function (y) { return '<option>' + y + '</option>'; }).join('');
         }
         if (P && !s._periodDefaulted) {
             var now = P.current();
@@ -237,9 +235,7 @@
     }
 
     function staffFor(slip) {
-        return (window.payslipState.staff || []).find(function (s) {
-            return s.id === slip.staffId;
-        }) || {};
+        return (window.payslipState.staff || []).find(function (s) { return s.id === slip.staffId; }) || {};
     }
 
     /** In Ghana the Ghana Card PIN is the Tax Identification Number. */
@@ -262,31 +258,19 @@
         var basic = parseFloat(slip.basicSalary) || 0;
 
         var earnings = [{name: 'Basic', amount: basic}].concat(
-            (slip.salaryItems || []).filter(function (i) {
-                return i.itemType === 'ALLOWANCE';
-            })
-                .map(function (i) {
-                    return {name: i.itemName, amount: itemAmount(i, basic)};
-                })
+            (slip.salaryItems || []).filter(function (i) { return i.itemType === 'ALLOWANCE'; })
+                .map(function (i) { return {name: i.itemName, amount: itemAmount(i, basic)}; })
         );
-        var deductions = (slip.salaryItems || []).filter(function (i) {
-            return i.itemType === 'DEDUCTION';
-        })
-            .map(function (i) {
-                return {name: i.itemName, amount: itemAmount(i, basic)};
-            });
+        var deductions = (slip.salaryItems || []).filter(function (i) { return i.itemType === 'DEDUCTION'; })
+            .map(function (i) { return {name: i.itemName, amount: itemAmount(i, basic)}; });
         // The school's own SSNIT contribution: shown like the Excel sheet, but
         // not part of the staff member's deductions.
         var employerSsnit = parseFloat(slip.employerSsnit) > 0 ? parseFloat(slip.employerSsnit) : null;
 
-        var gross = earnings.reduce(function (t, e) {
-            return t + e.amount;
-        }, 0);
+        var gross = earnings.reduce(function (t, e) { return t + e.amount; }, 0);
         var totalDeductions = slip.totalDeductions != null
             ? parseFloat(slip.totalDeductions) || 0
-            : deductions.reduce(function (t, d) {
-                return t + d.amount;
-            }, 0);
+            : deductions.reduce(function (t, d) { return t + d.amount; }, 0);
         var net = slip.netSalary != null ? parseFloat(slip.netSalary) || 0 : gross - totalDeductions;
 
         // Item rows: earnings, then deductions, then the deductions total -
@@ -363,9 +347,7 @@
 
             '<div class="top">',
             '<div class="tel">' + (phones.length
-                ? phones.map(function (p, i) {
-                    return '<span>' + (i === 0 ? 'TEL: ' : '') + esc(p) + '</span>';
-                }).join('')
+                ? phones.map(function (p, i) { return '<span>' + (i === 0 ? 'TEL: ' : '') + esc(p) + '</span>'; }).join('')
                 : '') + '</div>',
             '<div>' + (crest ? '<img class="crest" src="' + crest + '" alt="">' : '') + '</div>',
             '<div class="doc">STAFF PAYSLIP</div>',
@@ -447,14 +429,12 @@
         win.document.close();
         // Print once the crest has loaded (or after a short wait, whichever comes first).
         var printed = false;
-
         function doPrint() {
             if (printed) return;
             printed = true;
             win.focus();
             win.print();
         }
-
         win.onload = doPrint;
         setTimeout(doPrint, 1200);
     };

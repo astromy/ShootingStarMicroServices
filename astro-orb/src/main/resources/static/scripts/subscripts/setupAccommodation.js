@@ -4,7 +4,7 @@
 // handled on the separate Room Allocation page instead.
 
 document.getElementById("wrapper").innerHTML =
-    '<div class="fc-page" id="setupAccommodationPage">' + [
+    '<div class="content animate-panel" id="setupAccommodationPage">' + [
         '<div class="row">',
         '  <div class="col-lg-12">',
         '    <div class="hpanel">',

@@ -30,6 +30,7 @@ import java.util.Map;
 public class LedgerController {
 
     private final LedgerService ledgerService;
+    private final com.astromyllc.shootingstar.finance.service.LedgerSyncService ledgerSyncService;
 
     /** Create or edit a chart-of-accounts entry — window.ledgerCreate(req) */
     @PostMapping("/create")
@@ -71,5 +72,15 @@ public class LedgerController {
                 "ledgerBookId", record.getLedgerBookId(),
                 "postedAt", record.getPostedAt().toString()
         );
+    }
+
+    /**
+     * POST /api/finance/ledger/sync  { "institutionCode": "..." }
+     * Posts everything recorded before automatic ledger posting (bills, billings,
+     * fee payments, paid salaries). Idempotent - safe to run again.
+     */
+    @PostMapping("/sync")
+    public java.util.Map<String, Object> sync(@RequestBody java.util.Map<String, String> request) {
+        return ledgerSyncService.syncInstitution(request.get("institutionCode"));
     }
 }

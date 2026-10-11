@@ -113,7 +113,7 @@ public class AssessmentUtil {
                 .val(institutionCode)
                 .build();
         studentsGlobalRequest = webClientBuilder.build().post()
-                .uri(host + "/api/administration-pta/getStudentsByInstitution")
+                .uri(host + "/api/administration-pta/getStudentsByInstitutionWithoutImages")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .bodyValue(request)
                 .retrieve()
@@ -231,12 +231,12 @@ public class AssessmentUtil {
         // Step 2: Map students to StudentReportResponse with their assessments
         List<StudentReportResponse> studentReports = (studentsGlobalRequest != null)
                 ? studentsGlobalRequest.stream()
-                .filter(student -> {
-                    String studentId = student.getStudentId();
-                    return studentId != null && groupedAssessments.containsKey(studentId) && !groupedAssessments.get(studentId).isEmpty();
-                })
-                .map(student -> mapAssessmentResponse_ToStudentReportResponse(student, groupedAssessments.get(student.getStudentId())))
-                .toList()
+                  .filter(student -> {
+                      String studentId = student.getStudentId();
+                      return studentId != null && groupedAssessments.containsKey(studentId) && !groupedAssessments.get(studentId).isEmpty();
+                  })
+                  .map(student -> mapAssessmentResponse_ToStudentReportResponse(student, groupedAssessments.get(student.getStudentId())))
+                  .toList()
                 : new ArrayList<>();
 
         // Step 3: Build TerminalReportResponse
@@ -256,12 +256,12 @@ public class AssessmentUtil {
         // Step 2: Map students to StudentReportResponse with their assessments
         List<StudentReportResponse> studentReports = (studentsGlobalRequest != null)
                 ? studentsGlobalRequest.stream()
-                .filter(student -> {
-                    String studentId = student.getStudentId();
-                    return studentId != null && groupedAssessments.containsKey(studentId) && !groupedAssessments.get(studentId).isEmpty();
-                })
-                .map(student -> mapAssessmentResponse_ToStudentReportResponse_withParent(student, groupedAssessments.get(student.getStudentId())))
-                .toList()
+                  .filter(student -> {
+                      String studentId = student.getStudentId();
+                      return studentId != null && groupedAssessments.containsKey(studentId) && !groupedAssessments.get(studentId).isEmpty();
+                  })
+                  .map(student -> mapAssessmentResponse_ToStudentReportResponse_withParent(student, groupedAssessments.get(student.getStudentId())))
+                  .toList()
                 : new ArrayList<>();
 
         // Step 3: Build TerminalReportResponse
@@ -325,7 +325,7 @@ public class AssessmentUtil {
                 .classGroup(
                         Optional.ofNullable(cg)
                                 .map(cgValue -> lookUpGlobalResponse.stream()
-                                        .filter(lr -> lr.getId().equals(Long.valueOf(cgValue)))
+                                        .filter(lr -> lr.getName().equals(cgValue))
                                         .map(LookupResponse::getName)
                                         .findFirst()
                                         .orElse(null)

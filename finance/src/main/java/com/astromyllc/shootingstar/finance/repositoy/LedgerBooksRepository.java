@@ -12,5 +12,8 @@ public interface LedgerBooksRepository extends JpaRepository<LedgerBooks, Long> 
 
     List<LedgerBooks> findByInstitutionCodeAndActiveTrue(String institutionCode);
 
+    /** All accounts, active or not - used to pick the next free account code. */
+    List<LedgerBooks> findByInstitutionCode(String institutionCode);
+
     List<LedgerBooks> findByInstitutionCodeAndAccountTypeAndActiveTrue(String institutionCode, String accountType);
 }

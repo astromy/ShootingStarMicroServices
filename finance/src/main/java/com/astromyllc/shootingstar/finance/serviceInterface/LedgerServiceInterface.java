@@ -35,21 +35,5 @@ public interface LedgerServiceInterface {
      */
     LedgerRecordsResponse postStoreSale(StoreSaleLedgerRequest request);
 
-    /**
-     * Called when a Bill_Payment is saved — posts a CREDIT to the
-     * "Student Fees Income" INCOME account. Idempotent on (BP-<id>, STUDENT_PAYMENT).
-     */
-    LedgerRecordsResponse postStudentPayment(String institutionCode, Long billPaymentId,
-                                             String studentId, Double amount,
-                                             String paymentMethod, String externalRef,
-                                             String description, String postedBy);
-
-    /**
-     * Called when a salary run is marked PAID — posts a DEBIT to the
-     * "Salary Expense" EXPENSE account. Idempotent on (SAL-<id>, SALARY).
-     */
-    LedgerRecordsResponse postSalaryExpense(String institutionCode, Long salaryId,
-                                            String staffName, Double netSalary,
-                                            String paymentMethod, String externalRef,
-                                            String postedBy);
+    // Fee and salary postings: see LedgerPostingService (double entry).
 }

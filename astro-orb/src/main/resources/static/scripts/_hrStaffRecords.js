@@ -43,11 +43,10 @@
 
     var staffData = {
         currentStaff: null,
-        allStaff: [],
     };
+    var staffTable = null;
 
     var domElements = {
-        staffTable: $("#staffTable_1"),
         staffDesignation: $("#staffDesignation"),
         nationalitySelect: $("#nationality"),
         modalBody: $(".modalbody"),
@@ -58,11 +57,8 @@
     // ==================== INITIALIZATION ====================
     (async function init() {
         try {
-            await Promise.all([
-                fetchStaffList(INSTITUTION_ID),
-                fetchDepartment(INSTITUTION_ID),
-            ]);
             renderStaffTable();
+            await fetchDepartment(INSTITUTION_ID);
             window.copyrights();
         } catch (error) {
             console.error("Initialization error:", error);
@@ -70,18 +66,6 @@
     })();
 
     // ==================== CORE FUNCTIONS ====================
-    async function fetchStaffList(institutionId) {
-        try {
-            const result = await fetchPost("get-staff-by-institution", {
-                val: institutionId,
-            });
-            staffData.allStaff = result;
-        } catch (error) {
-            console.error("Failed to fetch staff list:", error);
-            throw error;
-        }
-    }
-
     async function fetchDepartment(institutionId) {
         try {
             const result = await fetchPost("getInstitutionDepartment", {
@@ -107,37 +91,59 @@
         }
     }
 
+    // Server-side table: each page of rows comes from getStaffPage (slim rows, no pictures or documents).
+    // The full record is fetched only for the person whose row is clicked.
     function renderStaffTable() {
-        if (!staffData.allStaff.length) return;
-
-        domElements.staffTable.DataTable()?.destroy();
-
-        const tableBody = document.getElementById("staffTableBody_1");
-        const rowsFragment = document.createDocumentFragment();
-
-        staffData.allStaff.forEach((staff) => {
-            const row = document.createElement("tr");
-            row.dataset.staffCode = staff.staffCode;
-            row.innerHTML = `
-      <td>${staff.staffCode}</td>
-      <td>${staff.firstNames} ${staff.lastName}</td>
-      <td>${staff.gender}</td>
-      <td>${staff.contact1}</td>
-      <td>${staff.staffEmail}</td>
-      <td>${staff.dateOfEmployment}</td>
-      <td>${staff.designation}</td>
-      <td>${staff.nationality}</td>
-      <td>${renderStaffSubjects(staff.staffSubjectsResponseList)}</td>
-    `;
-
-            row.addEventListener("click", () => handleStaffSelection(staff));
-            rowsFragment.appendChild(row);
+        if (staffTable) {
+            staffTable.reload(true);
+            return;
+        }
+        staffTable = ServerTable.create({
+            table: "#staffTable_1",
+            endpoint: "getStaffPage",
+            title: "Staff List",
+            order: [[1, "asc"]],
+            responsive: true,
+            columns: [
+                {data: "staffCode", sort: "staffCode"},
+                {
+                    data: "firstNames", sort: "name",
+                    render: (value, row) => ServerTable.esc((row.firstNames || "") + " " + (row.lastName || "")),
+                    exportText: (row) => ((row.firstNames || "") + " " + (row.lastName || "")).trim()
+                },
+                {data: "gender", sort: "gender"},
+                {data: "contact1", sort: "contact1"},
+                {data: "staffEmail", sort: "staffEmail"},
+                {data: "dateOfEmployment", sort: "dateOfEmployment"},
+                {data: "designation", sort: "designation"},
+                {data: "nationality", sort: "nationality"},
+                {
+                    data: "subjects",
+                    render: (value) => renderStaffSubjects(value),
+                    exportText: (row) => (row.subjects || [])
+                        .filter((s) => s && s.subject)
+                        .map((s) => (s.subjectClass ? s.subjectClass + " - " : "") + s.subject)
+                        .join("; ")
+                }
+            ]
         });
-
-        tableBody.innerHTML = "";
-        tableBody.appendChild(rowsFragment);
-        initializeDataTable("staffTable_1");
     }
+
+    $("#staffTable_1 tbody").off("click.staffRow").on("click.staffRow", "tr", async function () {
+        const row = staffTable && staffTable.table.row(this).data();
+        if (!row || !row.staffCode) return;
+        try {
+            domElements.splashScreen.show();
+            const staff = await fetchPost("getStaffDetail", {staffCode: row.staffCode});
+            if (staff && staff.staffCode) await handleStaffSelection(staff);
+            else showErrorAlert("Could not load this staff record.");
+        } catch (error) {
+            console.error("Failed to load staff record:", error);
+            showErrorAlert("Could not load this staff record.");
+        } finally {
+            domElements.splashScreen.hide();
+        }
+    });
 
     // ==================== HELPER FUNCTIONS ====================
     function renderStaffSubjects(subjects) {
@@ -557,18 +563,17 @@
         }
         var output = el.closest(".col-sm-6, .col-lg-3")?.querySelector(".imageOutput")
             || document.getElementById("crest");
-        var reader = new FileReader();
-        reader.onload = function (e) {
+        // Shrink the photo before keeping it (see compressImageFile in common.js).
+        window.compressImageToDataURL(file).then(function (dataUrl) {
             if (output === document.getElementById("crest")) {
-                if (recordsDraft) recordsDraft.staffPicture = e.target.result;
+                if (recordsDraft) recordsDraft.staffPicture = dataUrl;
             } else if (output) {
-                output.dataset.base64 = e.target.result;
+                output.dataset.base64 = dataUrl;
             }
             if (output) {
-                output.innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;border-radius:10px;">`;
+                output.innerHTML = `<img src="${dataUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:10px;">`;
             }
-        };
-        reader.readAsDataURL(file);
+        });
     }
 
     // Exposed on window because the markup calls this via an inline
@@ -946,7 +951,6 @@
     // having exactly one #submitRequest that posts everything staged so far.
     async function submitDraft() {
         await fetchPost("create-staff", [recordsDraft]);
-        await fetchStaffList(INSTITUTION_ID);
         renderStaffTable();
         showSuccessAlert("Staff record saved successfully");
         recordsDraft = null;
@@ -1089,54 +1093,12 @@
         if (recordsDraft) renderCurrentStep();
     });
 
-    // Bulk-save of the whole staff table in one go, independent of the
-    // staged single-record flow above. Left as-is from before this rewrite;
-    // #submitRequest doesn't appear in this page's own markup, so this is
-    // most likely inert here rather than something actively relied on -
-    // kept rather than removed since that wasn't asked for and it's
-    // harmless if the element simply doesn't exist.
-    $("#submitRequest").off("click.records").on("click.records", async () => {
-        try {
-            domElements.splashScreen.show();
-            await fetchPost("create-staff", staffData.allStaff);
-            showSuccessAlert("Staff Saved Successfully");
-        } catch (error) {
-            console.error("Submission error:", error);
-            showErrorAlert("Failed to save staff");
-        } finally {
-            domElements.splashScreen.hide();
-        }
-    });
+    // The old bulk save posted every staff record held in the browser. The table now holds only the page on
+    // screen (without pictures or documents), so re-posting it would overwrite real records with partial
+    // ones. Single records are saved through submitDraft() above; this handler is kept as a no-op.
+    $("#submitRequest").off("click.records");
 
     // ==================== UTILITY FUNCTIONS ====================
-    function initializeDataTable(tableId) {
-        $(`#${tableId}`).DataTable({
-            dom:
-                "<'row'<'col-sm-4'l><'col-sm-4 text-center'B><'col-sm-4'f>>" +
-                "<'row'<'col-sm-12'tr>>" +
-                "<'row'<'col-sm-5'i><'col-sm-7'p>>",
-            lengthMenu: [
-                [10, 25, 50, -1],
-                [10, 25, 50, "All"],
-            ],
-            buttons: [
-                {extend: "copy", className: "btn btn-sm btn-primary"},
-                {
-                    extend: "csv",
-                    title: "Department List",
-                    className: "btn btn-sm btn-success",
-                },
-                {
-                    extend: "pdf",
-                    title: "Department List",
-                    className: "btn btn-sm btn-danger",
-                },
-                {extend: "print", className: "btn btn-sm btn-secondary"},
-            ],
-            responsive: true,
-        });
-    }
-
     function showSuccessAlert(message) {
         swal({
             title: "Thank you!",

@@ -33,4 +33,8 @@ public class ClockEvent {
     // Set server-side at insert time — never trust a client-supplied timestamp
     // for something attendance/pay-adjacent.
     private Instant timestamp;
+
+    // "WEB" for a check-in made from the Leave screen. Events recorded by Pulse
+    // have no source (they predate this field), which means the gate app.
+    private String source;
 }

@@ -33,9 +33,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -72,6 +70,16 @@ public class InstitutionUtils {
     @Value("${gateway.host}")
     private String host;
 
+    // Built once at startup. Configuring the shared builder on every call (baseUrl + filters)
+    // is not thread-safe: concurrent requests fail with ConcurrentModificationException, and
+    // the filter list grows with every call.
+    private WebClient gatewayClient;
+
+    @PostConstruct
+    private void initGatewayClient() {
+        gatewayClient = webClientBuilder.clone().baseUrl(host).build();
+    }
+
     @PostConstruct
     public void fetAllInstitutions() {
         institutionGlobalList = institutionRepository.findAll();
@@ -85,19 +93,8 @@ public class InstitutionUtils {
         SingleStringRequest request = SingleStringRequest.builder()
                 .val(institutionCode)
                 .build();
-        studentsCount =
-
-                webClientBuilder
-                        .baseUrl(host)
-                        .filter(ExchangeFilterFunction.ofRequestProcessor(clientRequest -> {
-                            System.out.println("Request: " + clientRequest);
-                            return Mono.just(clientRequest);
-                        }))
-                        .filter(ExchangeFilterFunction.ofResponseProcessor(clientResponse -> {
-                            System.out.println("Response: " + clientResponse);
-                            return Mono.just(clientResponse);
-                        }))
-                        .build()
+        Long count =
+                gatewayClient
                         .post()
                         .uri("/api/administration-pta/getInstitutionPopulationByCode")
                         .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
@@ -106,7 +103,10 @@ public class InstitutionUtils {
                         .bodyToMono(Long.class)
                         .block();
 
-        return studentsCount;
+        // Return the local value: studentsCount is shared by all requests, so returning it
+        // could hand back another institution's count when two requests overlap.
+        studentsCount = count;
+        return count;
 
     }
 
@@ -265,6 +265,7 @@ public class InstitutionUtils {
     }
 
     public SkimpInstitutionResponse mapInstitutionToSkimpInstitutionResponse(Institution institution) {
+        Long population = getPopulation(institution.getBececode());
         return SkimpInstitutionResponse.builder()
                 .id(institution.getIdInstitution())
                 .name(institution.getName())
@@ -282,8 +283,8 @@ public class InstitutionUtils {
                 .postalAddress(institution.getPostalAddress())
                 .streams(institution.getStreams())
                 .subscription(institution.getSubscription())
-                .population(getPopulation(institution.getBececode()))
-                .pendingBill(currentPlanBill(institution))
+                .population(population)
+                .pendingBill(currentPlanBill(institution, population))
                 .build();
     }
 
@@ -300,13 +301,13 @@ public class InstitutionUtils {
      * truth for "what does this institution's plan cost" instead of two
      * independently-maintained numbers that can drift out of sync again.
      */
-    private double currentPlanBill(Institution institution) {
+    private double currentPlanBill(Institution institution, Long population) {
         SubscriptionPlan plan = SubscriptionPlan.fromLabel(institution.getSubscription());
         if (plan == SubscriptionPlan.STARTER) {
             return 0.0;
         }
         try {
-            PricingResult result = subscriptionPricingCalculator.calculate(getPopulation(institution.getBececode()), plan);
+            PricingResult result = subscriptionPricingCalculator.calculate(population, plan);
             return result.totalAmount().doubleValue();
         } catch (IllegalArgumentException e) {
             // Population is zero/negative (e.g. getPopulation() came back with something
@@ -483,6 +484,9 @@ public class InstitutionUtils {
         permissions.add("setup promotion");
         permissions.add("setup transport");
         permissions.add("setup accommodation");
+        permissions.add("setup holidays");
+        permissions.add("setup working_hours");
+        permissions.add("setup leave_entitlements");
 
         permissions.add("Human_Resource onboarding");
         permissions.add("Human_Resource records");
@@ -490,6 +494,8 @@ public class InstitutionUtils {
         permissions.add("Human_Resource appraisals");
         permissions.add("Human_Resource designation");
         permissions.add("Human_Resource offboarding");
+        permissions.add("Human_Resource overtime");
+        permissions.add("Human_Resource leave_approvals");
 
         permissions.add("Finance bill_creation");
         permissions.add("Finance billing");
@@ -497,6 +503,7 @@ public class InstitutionUtils {
         permissions.add("Finance payment_history");
         permissions.add("Finance payment_checker");
         permissions.add("Finance salary_setup");
+        permissions.add("Finance salary_approvals");
         permissions.add("Finance payslip");
         permissions.add("Finance ledger_books");
         permissions.add("Finance income_statement");
@@ -726,6 +733,9 @@ public class InstitutionUtils {
         permissions.add("setup institution");
         permissions.add("setup classgroup");
         permissions.add("setup accommodation");
+        permissions.add("setup holidays");
+        permissions.add("setup working_hours");
+        permissions.add("setup leave_entitlements");
         permissions.add("setup promotion");
         permissions.add("setup transport");
 
@@ -735,6 +745,8 @@ public class InstitutionUtils {
         permissions.add("Human_Resource appraisals");
         permissions.add("Human_Resource designation");
         permissions.add("Human_Resource offboarding");
+        permissions.add("Human_Resource overtime");
+        permissions.add("Human_Resource leave_approvals");
 
         permissions.add("Finance bill_creation");
         permissions.add("Finance billing");
@@ -742,6 +754,7 @@ public class InstitutionUtils {
         permissions.add("Finance payment_history");
         permissions.add("Finance payment_checker");
         permissions.add("Finance salary_setup");
+        permissions.add("Finance salary_approvals");
         permissions.add("Finance payslip");
         permissions.add("Finance ledger_books");
         permissions.add("Finance income_statement");

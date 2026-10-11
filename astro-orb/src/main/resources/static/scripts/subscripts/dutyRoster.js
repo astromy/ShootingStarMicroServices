@@ -1,5 +1,5 @@
 document.getElementById("wrapper").innerHTML =
-    '<div class="fc-page" id="dutyRosterPage">' + [
+    '<div class="content animate-panel" id="dutyRosterPage">' + [
         '<div class="row">',
         '  <div class="col-lg-12">',
         '    <div class="hpanel">',

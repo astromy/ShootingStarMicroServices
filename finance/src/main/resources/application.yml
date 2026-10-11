@@ -21,6 +21,11 @@ spring:
 
 server:
   port: 0
+  # Compress JSON answers for callers that ask for it (the mobile app, through the gateway).
+  compression:
+    enabled: true
+    mime-types: application/json
+    min-response-size: 1KB
 
 gateway:
   host: ${APIGATEWAY:http://localhost:8083}

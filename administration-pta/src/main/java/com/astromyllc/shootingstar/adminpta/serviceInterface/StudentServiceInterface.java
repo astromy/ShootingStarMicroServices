@@ -26,6 +26,8 @@ public interface StudentServiceInterface {
 
     Optional<List<StudentsResponse>> fetchStudentsByInstitution(SingleStringRequest institution);
 
+    Optional<List<StudentsResponse>> fetchStudentsByInstitutionWithoutImages(SingleStringRequest institution);
+
     Optional<List<StudentSkimWithParentResponse>> getSkimpStudentsByParentContact(SingleStringRequest request);
 
     Optional<List<StudentsResponse>> fetchStudentsByDynamicData(DynamicStringRequest institution);

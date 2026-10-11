@@ -1,11 +1,9 @@
 package com.astromyllc.astroorb.controller;
 
+import com.astromyllc.astroorb.dto.request.*;
 import com.astromyllc.astroorb.subscription.RequiresPlan;
 import com.astromyllc.astroorb.subscription.SubscriptionPlan;
-
-import com.astromyllc.astroorb.dto.request.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -61,8 +59,7 @@ public class AcademicsController {
     @RequestMapping(value = "uploadAssesmentScores", method = RequestMethod.POST)
     public ResponseEntity<String> uploadAssesmentScores(@RequestBody List<ContinuousAssessmentRequest> jso) throws IOException {
         String url = backendserve + "/api/academics/submitContinuousAssessmentLList";
-        ResponseEntity<String> response = BACKENDCOMMPOSTLIST(Collections.singletonList(jso), url);
-        return response;
+        return BACKENDCOMMPOSTLIST(Collections.singletonList(jso), url);
     }
 
     @ResponseBody
@@ -247,13 +244,17 @@ public class AcademicsController {
     }
 
 
-    private ResponseEntity<String> BACKENDCOMMPOSTLIST(List<Object> jso, String url) {
+    private ResponseEntity<String> BACKENDCOMMPOSTLIST(List<?> jso, String url) {
 
         HttpURLConnection httpURLConnection = null;
-        StringBuilder response = new StringBuilder();
-        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-        BufferedReader br = null;
         try {
+            // Unwrap a singleton list that wraps another list: [[a,b,c]] -> [a,b,c]
+            Object toSend = jso;
+            if (jso != null && jso.size() == 1 && jso.get(0) instanceof List) {
+                toSend = jso.get(0);
+            }
+
+            String json = new ObjectMapper().writeValueAsString(toSend);
 
             httpURLConnection = (HttpURLConnection) new URL(url).openConnection();
             httpURLConnection.setRequestMethod("POST");
@@ -262,49 +263,37 @@ public class AcademicsController {
             httpURLConnection.setDoOutput(true);
             httpURLConnection.setDoInput(true);
 
-            DataOutputStream wr = new DataOutputStream(httpURLConnection.getOutputStream());
-            String json = ow.writeValueAsString(jso);
-            json = json.substring(1, json.length() - 1);
-            wr.write(json.getBytes(StandardCharsets.UTF_8));
-            wr.flush();
-            wr.close();
-
-            InputStream inputStream;
+            try (OutputStream os = httpURLConnection.getOutputStream()) {
+                os.write(json.getBytes(StandardCharsets.UTF_8));
+            }
 
             int status = httpURLConnection.getResponseCode();
+            InputStream inputStream = (status >= 200 && status < 300)
+                    ? httpURLConnection.getInputStream()
+                    : httpURLConnection.getErrorStream();
 
-            if (status != HttpURLConnection.HTTP_OK && status != HttpURLConnection.HTTP_ACCEPTED && status != HttpURLConnection.HTTP_CREATED && status != HttpURLConnection.HTTP_NO_CONTENT)
-                inputStream = httpURLConnection.getErrorStream();
-            else
-                inputStream = httpURLConnection.getInputStream();
-            InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
-
-            try (BufferedReader brIn = new BufferedReader(
-                    new InputStreamReader(inputStream, "utf-8"))) {
-                String responseLine = null;
-                while ((responseLine = brIn.readLine()) != null) {
-                    //log.info("Response: {}", responseLine);
-                    response.append(responseLine.trim());
+            String body = "";
+            if (inputStream != null) {
+                try (BufferedReader brIn = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
+                    StringBuilder response = new StringBuilder();
+                    String line;
+                    while ((line = brIn.readLine()) != null) {
+                        response.append(line.trim());
+                    }
+                    body = response.toString();
                 }
             }
-            // System.out.println(response.toString());
-            return ResponseEntity.ok(response.toString());
+
+            // Pass the real downstream status through — do NOT force 200
+            return ResponseEntity.status(status).body(body);
+
         } catch (IOException e) {
-            // Log the error for debugging
-            e.printStackTrace();
-            // Return a generic error response with status 500 Internal Server Error
+            log.error("Backend call to {} failed: {}", url, e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error occurred while fetching institution: " + e.getMessage());
+                    .body("Error occurred while calling backend: " + e.getMessage());
         } finally {
             if (httpURLConnection != null) {
                 httpURLConnection.disconnect();
-            }
-            if (br != null) {
-                try {
-                    br.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
             }
         }
     }

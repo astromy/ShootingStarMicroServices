@@ -116,6 +116,18 @@
         }
     };
 
+    // ── SYNC ─────────────────────────────────────────────────────────────────
+    // Posts bills, billings, fee payments and paid salaries recorded before
+    // automatic posting. The school comes from the login (gateway).
+    window.ledgerSync = async function () {
+        showSplash();
+        try {
+            return await fetchPost('ledger/sync', {});
+        } finally {
+            hideSplash();
+        }
+    };
+
     // ── FETCH BY TYPE ─────────────────────────────────────────────────────────
     window.ledgerFetchByType = async function (type) {
         try {

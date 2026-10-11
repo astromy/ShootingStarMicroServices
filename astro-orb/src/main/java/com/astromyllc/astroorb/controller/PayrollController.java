@@ -189,6 +189,15 @@ public class PayrollController {
         });
     }
 
+    // ── Ledger sync (Finance -> Ledger Books -> Sync records) ────────────────
+
+    /** Posts bills, fee payments and paid salaries recorded before automatic ledger posting. */
+    @PostMapping("ledger/sync")
+    public ResponseEntity<String> syncLedger(@AuthenticationPrincipal OAuth2User principal) {
+        return withSchool(principal, code ->
+                post(Map.of("institutionCode", code), "/api/finance/ledger/sync"));
+    }
+
     // ── Helpers ──────────────────────────────────────────────────────────────
 
     private interface SchoolCall {

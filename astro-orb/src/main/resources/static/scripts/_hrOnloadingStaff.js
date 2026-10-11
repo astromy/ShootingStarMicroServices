@@ -1139,13 +1139,22 @@ function deleteImage(index) {
     displayImages();
 }
 
+// Returns the picture shown in `img` as base64, scaled down to at most 800px
+// and saved as JPEG. It used to redraw the full-size photo as PNG, which made
+// a phone photo several MB of base64 per dependant.
 function getBase64Image(img) {
+    var maxSize = 800;
+    var w = img.naturalWidth || img.width;
+    var h = img.naturalHeight || img.height;
+    var scale = Math.min(1, maxSize / Math.max(w, h));
     var canvas = document.createElement("canvas");
-    canvas.width = img.width;
-    canvas.height = img.height;
+    canvas.width = Math.max(1, Math.round(w * scale));
+    canvas.height = Math.max(1, Math.round(h * scale));
     var ctx = canvas.getContext("2d");
-    ctx.drawImage(img, 0, 0);
-    var dataURL = canvas.toDataURL("image/png");
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    var dataURL = canvas.toDataURL("image/jpeg", 0.8);
     return dataURL.split(",")[1].replace('"', "");
 }
 

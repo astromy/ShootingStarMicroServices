@@ -16,10 +16,13 @@ import com.astromyllc.shootingstar.academics.serviceInterface.AssessmentServiceI
 import com.astromyllc.shootingstar.academics.util.AssessmentUtil;
 import com.astromyllc.shootingstar.academics.util.ContinuousAssessmentUtil;
 import com.astromyllc.shootingstar.academics.util.ExamsAssessmentUtil;
+import com.astromyllc.shootingstar.academics.util.PublishedReportUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -38,10 +41,19 @@ public class AssessmentService implements AssessmentServiceInterface {
     private final ContinuousAssessmentUtil continuousAssessmentUtil;
     private final ExamsAssessmentUtil examsAssessmentUtil;
     private final AssessmentRepository assessmentRepository;
+    private final PublishedReportUtil publishedReportUtil;
 
     // Cache for frequently accessed data
     private final Map<String, List<Assessment>> assessmentCache = new ConcurrentHashMap<>();
     private final Map<String, TerminalReportResponse> reportCache = new ConcurrentHashMap<>();
+
+    private static boolean isBlank(String value) {
+        return value == null || value.isBlank();
+    }
+
+    private static double roundOneDecimal(double value) {
+        return Math.round(value * 10.0) / 10.0;
+    }
 
     @Override
     public Optional<TerminalReportResponse> fetchStudentTerminalReport(AcademicReportRequest terminalReportRequest) {
@@ -63,6 +75,12 @@ public class AssessmentService implements AssessmentServiceInterface {
 
     @Override
     public void PostStudentReports(AcademicReportRequest terminalReportRequest) {
+        if (!PublishedReportUtil.hasGeneratedResults(terminalReportRequest, AssessmentUtil.assessmentsGlobalList)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No results have been generated for "
+                    + terminalReportRequest.getTargetClass() + ", " + terminalReportRequest.getTerm() + ", "
+                    + terminalReportRequest.getAcademicYear() + ". Generate the report before publishing it.");
+        }
+
         initializeData(terminalReportRequest);
 
         List<Assessment> assessmentList = getFilteredAssessments(terminalReportRequest);
@@ -71,6 +89,9 @@ public class AssessmentService implements AssessmentServiceInterface {
                 terminalReportRequest);
 
         assessmentUtil.sendSMS(result.getStudentReportResponseList(), result.getInstitutionDetail().getName());
+
+        // From here the parents can open these results in the app
+        publishedReportUtil.publish(terminalReportRequest);
     }
 
     @Override
@@ -116,6 +137,7 @@ public class AssessmentService implements AssessmentServiceInterface {
 
         List<Assessment> assessments = assessmentUtil.assessmentsGlobalList.parallelStream()
                 .filter(a -> a.getStudentId().equalsIgnoreCase(studentID.getVal()))
+                .filter(PublishedReportUtil::isPublished) // parents only see results that have been published
                 /*.filter(a -> a.getPosition() != null)*/
                 .collect(Collectors.groupingBy(
                         Assessment::getAcademicYear,
@@ -233,6 +255,7 @@ public class AssessmentService implements AssessmentServiceInterface {
                 .collect(Collectors.toList());
     }
 
+    // ========== PRIVATE OPTIMIZED METHODS ==========
 
     @Override
     public Optional<TerminalReportResponse> generateBroadsheet(AcademicReportRequest terminalReportRequest) {
@@ -272,8 +295,6 @@ public class AssessmentService implements AssessmentServiceInterface {
         return Optional.ofNullable(result);
     }
 
-    // ========== PRIVATE OPTIMIZED METHODS ==========
-
     private void initializeData(AcademicReportRequest request) {
         assessmentUtil.fetchSetupdata(request.getInstitutionCode());
         assessmentUtil.fetchStudents(request.getInstitutionCode());
@@ -305,42 +326,6 @@ public class AssessmentService implements AssessmentServiceInterface {
                 .collect(Collectors.toList());
     }
 
-    private Map<String, Map<Long, Map<String, StudentScores>>> calculateContinuousScores(AcademicReportRequest request) {
-        return ContinuousAssessmentUtil.CalculateScores(
-                ContinuousAssessmentUtil.continuousAssessmentGlobalList.parallelStream()
-                        .filter(ca -> ca.getStudentClass().equalsIgnoreCase(request.getTargetClass()) &&
-                                ca.getAcademicYear().equalsIgnoreCase(request.getAcademicYear()) &&
-                                ca.getTerm().equalsIgnoreCase(request.getTerm()) &&
-                                ca.getInstitutionCode().equalsIgnoreCase(request.getInstitutionCode()))
-                        .collect(Collectors.groupingByConcurrent(
-                                ca -> new AbstractMap.SimpleEntry<>(ca.getStudentId(), ca.getSubject()),
-                                Collectors.maxBy(Comparator.comparing(ContinuousAssessment::getDateTime)))
-                        )
-                        .values()
-                        .parallelStream()
-                        .flatMap(optional -> optional.map(Stream::of).orElseGet(Stream::empty))
-                        .collect(Collectors.toList())
-        );
-    }
-
-    private Map<String, Map<Long, Map<String, StudentScores>>> calculateExamScores(AcademicReportRequest request) {
-        return ExamsAssessmentUtil.CalculateExamsScores(
-                ExamsAssessmentUtil.examsAssessmentGlobalList.parallelStream()
-                        .filter(ca -> ca.getStudentClass().equalsIgnoreCase(request.getTargetClass()) &&
-                                ca.getAcademicYear().equalsIgnoreCase(request.getAcademicYear()) &&
-                                ca.getTerm().equalsIgnoreCase(request.getTerm()) &&
-                                ca.getInstitutionCode().equalsIgnoreCase(request.getInstitutionCode()))
-                        .collect(Collectors.groupingByConcurrent(
-                                ca -> new AbstractMap.SimpleEntry<>(ca.getStudentId(), ca.getSubject()),
-                                Collectors.maxBy(Comparator.comparing(ExamsAssessment::getDateTime)))
-                        )
-                        .values()
-                        .parallelStream()
-                        .flatMap(optional -> optional.map(Stream::of).orElseGet(Stream::empty))
-                        .collect(Collectors.toList())
-        );
-    }
-
   /*  private Optional<StudentScores> findHighestTotalScore(Map<String, Map<Long, Map<String, StudentScores>>> continuousResult) {
         return continuousResult.values().parallelStream()
                 .flatMap(subjectMap -> subjectMap.values().parallelStream())
@@ -363,6 +348,51 @@ public class AssessmentService implements AssessmentServiceInterface {
                 ));
     }*/
 
+    private Map<String, Map<Long, Map<String, StudentScores>>> calculateContinuousScores(AcademicReportRequest request) {
+        return ContinuousAssessmentUtil.CalculateScores(
+                ContinuousAssessmentUtil.continuousAssessmentGlobalList.parallelStream()
+                        .filter(ca -> ca.getStudentClass().equalsIgnoreCase(request.getTargetClass()) &&
+                                ca.getAcademicYear().equalsIgnoreCase(request.getAcademicYear()) &&
+                                ca.getTerm().equalsIgnoreCase(request.getTerm()) &&
+                                ca.getInstitutionCode().equalsIgnoreCase(request.getInstitutionCode()))
+                        .collect(Collectors.groupingByConcurrent(
+                                ca -> new AbstractMap.SimpleEntry<>(ca.getStudentId(), ca.getSubject()),
+                                Collectors.maxBy(Comparator.comparing(ContinuousAssessment::getDateTime)))
+                        )
+                        .values()
+                        .parallelStream()
+                        .flatMap(optional -> optional.map(Stream::of).orElseGet(Stream::empty))
+                        .collect(Collectors.toList())
+        );
+    }
+
+ /*   private List<Assessment> processContinuousAssessments(
+            Map<String, Map<Long, Map<String, StudentScores>>> continuousResult,
+            AcademicReportRequest request,
+            Optional<StudentScores> highestTotalScore) {
+        return continuousResult.entrySet().parallelStream()
+                .flatMap(sr -> assessmentUtil.passContinuousAssessment(sr, request, highestTotalScore.orElse(null)).parallelStream())
+                .collect(Collectors.toList());
+    }*/
+
+    private Map<String, Map<Long, Map<String, StudentScores>>> calculateExamScores(AcademicReportRequest request) {
+        return ExamsAssessmentUtil.CalculateExamsScores(
+                ExamsAssessmentUtil.examsAssessmentGlobalList.parallelStream()
+                        .filter(ca -> ca.getStudentClass().equalsIgnoreCase(request.getTargetClass()) &&
+                                ca.getAcademicYear().equalsIgnoreCase(request.getAcademicYear()) &&
+                                ca.getTerm().equalsIgnoreCase(request.getTerm()) &&
+                                ca.getInstitutionCode().equalsIgnoreCase(request.getInstitutionCode()))
+                        .collect(Collectors.groupingByConcurrent(
+                                ca -> new AbstractMap.SimpleEntry<>(ca.getStudentId(), ca.getSubject()),
+                                Collectors.maxBy(Comparator.comparing(ExamsAssessment::getDateTime)))
+                        )
+                        .values()
+                        .parallelStream()
+                        .flatMap(optional -> optional.map(Stream::of).orElseGet(Stream::empty))
+                        .collect(Collectors.toList())
+        );
+    }
+
     private Map<String, Map<Long, Double>> findHighestScoresPerSubjectGroup(
             Map<String, Map<Long, Map<String, StudentScores>>> continuousResult) {
 
@@ -380,15 +410,6 @@ public class AssessmentService implements AssessmentServiceInterface {
                                 ))
                 ));
     }
-
- /*   private List<Assessment> processContinuousAssessments(
-            Map<String, Map<Long, Map<String, StudentScores>>> continuousResult,
-            AcademicReportRequest request,
-            Optional<StudentScores> highestTotalScore) {
-        return continuousResult.entrySet().parallelStream()
-                .flatMap(sr -> assessmentUtil.passContinuousAssessment(sr, request, highestTotalScore.orElse(null)).parallelStream())
-                .collect(Collectors.toList());
-    }*/
 
     // Modified to accept per-subject highest scores
     public List<Assessment> processContinuousAssessments(
@@ -410,7 +431,6 @@ public class AssessmentService implements AssessmentServiceInterface {
                 })
                 .collect(Collectors.toList());
     }
-
 
     private List<Assessment> processRawContinuousAssessments(
             Map<String, Map<Long, Map<String, StudentScores>>> continuousResult,
@@ -588,7 +608,6 @@ public class AssessmentService implements AssessmentServiceInterface {
         }
     }
 
-
     // Helper method to generate consistent keys
     private String generateAssessmentKey(Assessment a) {
         return String.join("_",
@@ -641,6 +660,7 @@ public class AssessmentService implements AssessmentServiceInterface {
                 request.getAcademicYear(),
                 request.getTerm());
     }
+
     // School-wide results for one term: each student's average totalScore
     // across subjects, then the mean / highest / lowest of those averages.
     // If term or academicYear is omitted, the most recently uploaded
@@ -695,13 +715,5 @@ public class AssessmentService implements AssessmentServiceInterface {
                 .term(selectedTerm)
                 .academicYear(selectedYear)
                 .build();
-    }
-
-    private static boolean isBlank(String value) {
-        return value == null || value.isBlank();
-    }
-
-    private static double roundOneDecimal(double value) {
-        return Math.round(value * 10.0) / 10.0;
     }
 }

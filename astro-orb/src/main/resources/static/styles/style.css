@@ -1,5 +1,7 @@
 /*@import url("http://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700");*/
-/* MARGINS & PADDINGS */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Syne:wght@600;700;800&display=swap');
+
 .p-xxs {
     padding: 5px !important;
 }
@@ -5275,8 +5277,6 @@ ul.h-list li:hover a {
  * Styles for the Student Billing System UI (financeBilling.js)
  */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Syne:wght@600;700;800&display=swap');
-
 /* ─── RESET & VARIABLES ──────────────────────────────────────────────────── */
 *, *::before, *::after {
     box-sizing: border-box;
@@ -6119,8 +6119,6 @@ ul.h-list li:hover a {
  * other modules sharing the same HTML shell / stylesheet.
  */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Syne:wght@600;700;800&display=swap');
-
 /* ─── SCOPED VARIABLES (applied only when .tt-page is active) ─────────────── */
 .tt-page {
     --tt-bg: #eef1f8;
@@ -6867,8 +6865,6 @@ ul.h-list li:hover a {
  * Styles for HR Phase 2 — Attendance, Leave & Documents
  * All rules scoped under .hr-page to avoid conflicts.
  */
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Syne:wght@600;700;800&display=swap');
 
 .hr-page {
     --bg: #f0f2f7;
